@@ -18,19 +18,23 @@
 #include <string.h>
 
 #include "c_utilities/types/utilities_ret.h"
+#include "c_utilities/visibility_control.h"
 
-typedef struct string_array_t
+typedef struct C_UTILITIES_PUBLIC_TYPE string_array_t
 {
   size_t size;
   char ** data;
 } string_array_t;
 
+C_UTILITIES_PUBLIC
 string_array_t
 utilities_get_zero_initialized_string_array();
 
+C_UTILITIES_PUBLIC
 string_array_t
 utilities_get_pre_initialized_string_array(size_t size);
 
+C_UTILITIES_PUBLIC
 utilities_ret_t
 utilities_string_array_fini(string_array_t * array);
 

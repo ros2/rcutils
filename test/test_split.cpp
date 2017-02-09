@@ -31,7 +31,7 @@ string_array_t test_split(const char * str, char delimiter, size_t expected_toke
   string_array_t tokens = utilities_split(str, delimiter);
   EXPECT_EQ(expected_token_size, tokens.size);
   for (size_t i = 0; i < tokens.size; ++i) {
-    EXPECT_NE(0, strlen(tokens.data[i]));
+    EXPECT_NE((size_t)0, strlen(tokens.data[i]));
   }
   return tokens;
 }
@@ -41,7 +41,7 @@ string_array_t test_split_last(const char * str, char delimiter, size_t expected
   string_array_t tokens = utilities_split_last(str, delimiter);
   EXPECT_EQ(expected_token_size, tokens.size);
   for (size_t i = 0; i < tokens.size; ++i) {
-    EXPECT_NE(0, strlen(tokens.data[i]));
+    EXPECT_NE((size_t)0, strlen(tokens.data[i]));
   }
   return tokens;
 }
