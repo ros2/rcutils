@@ -21,6 +21,7 @@ extern "C"
 #include <stdlib.h>
 #include <string.h>
 
+#include "c_utilities/split.h"
 #include "c_utilities/types.h"
 
 string_array_t

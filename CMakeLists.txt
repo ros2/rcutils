@@ -13,7 +13,7 @@ set(utilities_sources
   src/split.c
   src/string_array.c)
 set_source_files_properties(
-  utilities_sources
+  ${utilities_sources}
   PROPERTIES language "C")
 
 add_library(
