@@ -51,6 +51,15 @@ if(BUILD_TESTING)
     )
     target_link_libraries(test_split c_utilities)
   endif()
+  ament_add_gtest(test_find
+    test/test_find.cpp
+  )
+  if(TARGET test_find)
+    target_include_directories(test_find PUBLIC
+      ${c_utilities_INCLUDE_DIRS}
+    )
+    target_link_libraries(test_find c_utilities)
+  endif()
 endif()
 
 ament_export_dependencies(ament_cmake)
