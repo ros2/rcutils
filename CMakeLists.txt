@@ -51,6 +51,7 @@ if(BUILD_TESTING)
     )
     target_link_libraries(test_split c_utilities)
   endif()
+
   ament_add_gtest(test_find
     test/test_find.cpp
   )
@@ -59,6 +60,16 @@ if(BUILD_TESTING)
       ${c_utilities_INCLUDE_DIRS}
     )
     target_link_libraries(test_find c_utilities)
+  endif()
+
+  ament_add_gtest(test_concat
+    test/test_concat.cpp
+  )
+  if(TARGET test_concat)
+    target_include_directories(test_concat PUBLIC
+      ${c_utilities_INCLUDE_DIRS}
+    )
+    target_link_libraries(test_concat c_utilities)
   endif()
 endif()
 
