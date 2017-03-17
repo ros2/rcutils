@@ -35,11 +35,11 @@ utilities_concat(const char * lhs, const char * rhs, const char * delimiter)
 
   size_t lhs_len = strlen(lhs);
   size_t rhs_len = strlen(rhs);
-  size_t del_len = (delimiter != NULL) ? strlen(delimiter) : 0;
+  size_t del_len = (delimiter) ? strlen(delimiter) : 0;
 
   char * concat = malloc((lhs_len + rhs_len + del_len + 1) * sizeof(char));
   int n = snprintf(concat, lhs_len + 1, "%s", lhs);
-  snprintf(concat + n, rhs_len + del_len + 1, "%s%s", (delimiter != NULL) ? delimiter : "", rhs);
+  snprintf(concat + n, rhs_len + del_len + 1, "%s%s", (delimiter) ? delimiter : "", rhs);
 
   return concat;
 }

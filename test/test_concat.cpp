@@ -16,7 +16,7 @@
 
 #include "c_utilities/concat.h"
 
-#define ENABLE_LOGGING 1
+#define ENABLE_LOGGING 0
 
 #if ENABLE_LOGGING
 #define LOG(expected, actual) { \
@@ -31,17 +31,19 @@ TEST(test_concat, concat) {
   const char * delimiter = NULL;
 
   const char * res = utilities_concat(lhs, rhs, delimiter);
-  EXPECT_EQ(true, res == NULL);
+  EXPECT_STREQ(NULL, res);
 
   lhs = static_cast<const char *>("foo");
   res = utilities_concat(lhs, rhs, delimiter);
-  EXPECT_EQ(true, res == NULL);
+  EXPECT_STREQ(NULL, res);
 
   rhs = static_cast<const char *>("bar");
   res = utilities_concat(lhs, rhs, delimiter);
-  EXPECT_EQ(0, strcmp("foobar", res));
+  LOG("foobar", res);
+  EXPECT_STREQ("foobar", res);
 
   delimiter = static_cast<const char *>("/");
   res = utilities_concat(lhs, rhs, delimiter);
-  EXPECT_EQ(0, strcmp("foo/bar", res));
+  LOG("foo/bar", res);
+  EXPECT_STREQ("foo/bar", res);
 }
