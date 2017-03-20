@@ -31,7 +31,11 @@ is_directory(const char * abs_path)
   if (stat(abs_path, &buf) < 0) {
     return false;
   }
+#ifdef WIN32
+  return (buf.st_mode & S_IFDIR) == S_IFDIR;
+#else
   return S_ISDIR(buf.st_mode);
+#endif
 }
 
 bool

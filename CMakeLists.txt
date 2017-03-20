@@ -11,6 +11,7 @@ set(utilities_sources
   src/concat.c
   src/file_permissions.c
   src/find.c
+  src/get_env.c
   src/split.c
   src/string_array.c)
 set_source_files_properties(
