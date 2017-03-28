@@ -24,6 +24,23 @@ extern "C"
 
 #include "c_utilities/visibility_control.h"
 
+/// Retrieve the value of the given environment variable if it exists, or "".
+/* The returned c-string is only valid until the next time this function is
+ * called, because it is a direct pointer to the static storage.
+ * The variable env_value populated by this function should never have free() called on it.
+ * If the environment variable is not set, an empty string will be returned.
+ *
+ * Environment variables will be truncated at 2048 characters on Windows.
+ *
+ * This function may allocate heap memory.
+ * This function is not thread-safe.
+ * This function is not lock-free.
+ *
+ * \param[in] env_name the name of the environment variable
+ * \param[out] env_value pointer to the value cstring, or "" if unset
+ * \return true on success (success can be returning an empty string)
+ *         false on failure
+ */
 C_UTILITIES_PUBLIC
 bool
 get_env(const char * env_name, const char ** env_value);
