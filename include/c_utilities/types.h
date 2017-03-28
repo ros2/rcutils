@@ -15,7 +15,16 @@
 #ifndef C_UTILITIES__TYPES_H_
 #define C_UTILITIES__TYPES_H_
 
+#if __cplusplus
+extern "C"
+{
+#endif
+
 #include "c_utilities/types/string_array.h"
 #include "c_utilities/types/utilities_ret.h"
+
+#if __cplusplus
+}
+#endif
 
 #endif  // C_UTILITIES__TYPES_H_

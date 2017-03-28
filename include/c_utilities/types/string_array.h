@@ -15,6 +15,11 @@
 #ifndef C_UTILITIES__TYPES__STRING_ARRAY_H_
 #define C_UTILITIES__TYPES__STRING_ARRAY_H_
 
+#if __cplusplus
+extern "C"
+{
+#endif
+
 #include <string.h>
 
 #include "c_utilities/types/utilities_ret.h"
@@ -37,5 +42,9 @@ utilities_get_pre_initialized_string_array(size_t size);
 C_UTILITIES_PUBLIC
 utilities_ret_t
 utilities_string_array_fini(string_array_t * array);
+
+#if __cplusplus
+}
+#endif
 
 #endif  // C_UTILITIES__TYPES__STRING_ARRAY_H_
