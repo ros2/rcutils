@@ -51,7 +51,7 @@ get_env(const char * env_name, const char ** env_value)
   *env_value = __env_buffer;
 #else
   *env_value = getenv(env_name);
-  if (*env_value == NULL) {
+  if (NULL == *env_value) {
     *env_value = "";
   }
 #endif  // WIN32
