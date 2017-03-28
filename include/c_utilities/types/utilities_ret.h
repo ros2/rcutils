@@ -16,8 +16,8 @@
 #define C_UTILITIES__TYPES__UTILITIES_RET_H_
 
 typedef int utilities_ret_t;
-#define UTILITIES_RET_OK 0;
-#define UTILITIES_RET_WARN 1;
-#define UTILITIES_RET_ERROR 2;
+#define UTILITIES_RET_OK 0
+#define UTILITIES_RET_WARN 1
+#define UTILITIES_RET_ERROR 2
 
 #endif  // C_UTILITIES__TYPES__UTILITIES_RET_H_
