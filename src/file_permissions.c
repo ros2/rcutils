@@ -25,7 +25,7 @@ extern "C"
 #include "c_utilities/file_permissions.h"
 
 bool
-is_directory(const char * abs_path)
+utilities_is_directory(const char * abs_path)
 {
   struct stat buf;
   if (stat(abs_path, &buf) < 0) {
@@ -39,7 +39,7 @@ is_directory(const char * abs_path)
 }
 
 bool
-file_exists(const char * file_abs_path)
+utilities_file_exists(const char * file_abs_path)
 {
   struct stat buf;
   if (stat(file_abs_path, &buf) < 0) {
@@ -49,10 +49,10 @@ file_exists(const char * file_abs_path)
 }
 
 bool
-is_file_readable(const char * file_abs_path)
+utilities_is_file_readable(const char * file_abs_path)
 {
   struct stat buf;
-  if (!file_exists(file_abs_path)) {
+  if (!utilities_file_exists(file_abs_path)) {
     return false;
   }
   stat(file_abs_path, &buf);
@@ -67,10 +67,10 @@ is_file_readable(const char * file_abs_path)
 }
 
 bool
-is_file_writable(const char * file_abs_path)
+utilities_is_file_writable(const char * file_abs_path)
 {
   struct stat buf;
-  if (!file_exists(file_abs_path)) {
+  if (!utilities_file_exists(file_abs_path)) {
     return false;
   }
   stat(file_abs_path, &buf);
@@ -88,7 +88,7 @@ bool
 is_file_readable_and_writable(const char * file_abs_path)
 {
   struct stat buf;
-  if (!file_exists(file_abs_path)) {
+  if (!utilities_file_exists(file_abs_path)) {
     return false;
   }
   stat(file_abs_path, &buf);

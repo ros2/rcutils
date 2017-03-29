@@ -29,7 +29,7 @@ static char __env_buffer[WINDOWS_ENV_BUFFER_SIZE];
 
 
 bool
-get_env(const char * env_name, const char ** env_value)
+utilities_get_env(const char * env_name, const char ** env_value)
 {
   if (!env_name) {
     fprintf(stderr, "argument env_name is null");

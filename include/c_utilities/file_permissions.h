@@ -31,7 +31,7 @@ extern "C"
  */
 C_UTILITIES_PUBLIC
 bool
-is_directory(const char * abs_path);
+utilities_is_directory(const char * abs_path);
 
 /// Check if the provided path points to an existing file.
 /**
@@ -40,7 +40,7 @@ is_directory(const char * abs_path);
  */
 C_UTILITIES_PUBLIC
 bool
-file_exists(const char * file_abs_path);
+utilities_file_exists(const char * file_abs_path);
 
 /// Check if the provided path points to a file readable by current user.
 /**
@@ -49,7 +49,7 @@ file_exists(const char * file_abs_path);
  */
 C_UTILITIES_PUBLIC
 bool
-is_file_readable(const char * file_abs_path);
+utilities_is_file_readable(const char * file_abs_path);
 
 /// Check if the provided path points to a file writable by current user.
 /**
@@ -58,7 +58,7 @@ is_file_readable(const char * file_abs_path);
  */
 C_UTILITIES_PUBLIC
 bool
-is_file_writable(const char * file_abs_path);
+utilities_is_file_writable(const char * file_abs_path);
 
 /// Check if the provided path points to a file both readable and writable by current user.
 /**
@@ -67,7 +67,7 @@ is_file_writable(const char * file_abs_path);
  */
 C_UTILITIES_PUBLIC
 bool
-is_file_readable_and_writable(const char * file_abs_path);
+utilities_is_file_readable_and_writable(const char * file_abs_path);
 
 #if __cplusplus
 }

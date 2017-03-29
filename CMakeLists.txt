@@ -73,6 +73,23 @@ if(BUILD_TESTING)
     )
     target_link_libraries(test_concat c_utilities)
   endif()
+
+  ament_add_gmock(test_get_env test/test_get_env.cpp
+    ENV
+      ${extra_test_env}
+      EMPTY_TEST=
+      NORMAL_TEST=foo
+    APPEND_LIBRARY_DIRS "$<TARGET_FILE_DIR:${PROJECT_NAME}>"
+  )
+  if(TARGET test_get_env)
+    target_link_libraries(test_get_env ${PROJECT_NAME})
+    if(UNIX AND NOT APPLE)
+      target_link_libraries(test_get_env pthread)
+    endif()
+    if(NOT WIN32)
+      set_target_properties(test_get_env PROPERTIES COMPILE_FLAGS "-std=c++11")
+    endif()
+  endif()
 endif()
 
 ament_export_dependencies(ament_cmake)

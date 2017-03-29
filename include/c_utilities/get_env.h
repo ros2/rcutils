@@ -43,7 +43,7 @@ extern "C"
  */
 C_UTILITIES_PUBLIC
 bool
-get_env(const char * env_name, const char ** env_value);
+utilities_get_env(const char * env_name, const char ** env_value);
 
 #if __cplusplus
 }
