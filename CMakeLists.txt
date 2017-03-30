@@ -74,9 +74,8 @@ if(BUILD_TESTING)
     target_link_libraries(test_concat c_utilities)
   endif()
 
-  ament_add_gmock(test_get_env test/test_get_env.cpp
+  ament_add_gtest(test_get_env test/test_get_env.cpp
     ENV
-      ${extra_test_env}
       EMPTY_TEST=
       NORMAL_TEST=foo
     APPEND_LIBRARY_DIRS "$<TARGET_FILE_DIR:${PROJECT_NAME}>"

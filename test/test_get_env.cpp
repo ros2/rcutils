@@ -25,24 +25,24 @@
  *   - EMPTY_TEST=
  *   - NORMAL_TEST=foo
  *
- * These are set in the call to `ament_add_gmock()` in the `CMakeLists.txt`.
+ * These are set in the call to `ament_add_gtest()` in the `CMakeLists.txt`.
  */
 TEST(TestGetEnv, test_get_env) {
   const char * env;
   bool ret;
   ret = utilities_get_env("NORMAL_TEST", NULL);
-  EXPECT_EQ(false, ret);
+  EXPECT_FALSE(ret);
   ret = utilities_get_env(NULL, &env);
-  EXPECT_EQ(false, ret);
+  EXPECT_FALSE(ret);
   ret = utilities_get_env("SHOULD_NOT_EXIST_TEST", &env);
-  EXPECT_EQ(true, ret);
-  EXPECT_EQ("", std::string(env)) << std::string(env);
+  EXPECT_TRUE(ret);
+  EXPECT_EQ("", std::string(env));
   ret = utilities_get_env("NORMAL_TEST", &env);
-  EXPECT_EQ(true, ret);
-  ASSERT_NE(NULL, env);
+  EXPECT_TRUE(ret);
+  EXPECT_TRUE(env);
   EXPECT_EQ("foo", std::string(env));
   ret = utilities_get_env("EMPTY_TEST", &env);
-  EXPECT_EQ(true, ret);
-  ASSERT_NE(NULL, env);
+  EXPECT_TRUE(ret);
+  EXPECT_TRUE(env);
   EXPECT_EQ("", std::string(env));
 }
