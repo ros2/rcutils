@@ -38,11 +38,11 @@ extern "C"
  *
  * \param[in] env_name the name of the environment variable
  * \param[out] env_value pointer to the value cstring, or "" if unset
- * \return true on success (success can be returning an empty string)
- *         false on failure
+ * \return NULL on success (success can be returning an empty string)
+ *         error string on failure
  */
 C_UTILITIES_PUBLIC
-bool
+const char *
 utilities_get_env(const char * env_name, const char ** env_value);
 
 #if __cplusplus

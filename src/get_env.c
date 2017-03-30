@@ -28,24 +28,21 @@ static char __env_buffer[WINDOWS_ENV_BUFFER_SIZE];
 #endif  // WIN32
 
 
-bool
+const char *
 utilities_get_env(const char * env_name, const char ** env_value)
 {
   if (!env_name) {
-    fprintf(stderr, "argument env_name is null");
-    return false;
+    return "argument env_name is null";
   }
   if (!env_value) {
-    fprintf(stderr, "argument env_value is null");
-    return false;
+    return "argument env_value is null";
   }
   *env_value = NULL;
 #ifdef WIN32
   size_t required_size;
   errno_t ret = getenv_s(&required_size, __env_buffer, sizeof(__env_buffer), env_name);
   if (ret != 0) {
-    fprintf(stderr, "unable to read environment variable: '%s'", env_name);
-    return false;
+    return "unable to read environment variable";
   }
   __env_buffer[WINDOWS_ENV_BUFFER_SIZE - 1] = '\0';
   *env_value = __env_buffer;
@@ -55,7 +52,7 @@ utilities_get_env(const char * env_name, const char ** env_value)
     *env_value = "";
   }
 #endif  // WIN32
-  return true;
+  return NULL;
 }
 
 #if __cplusplus

@@ -29,20 +29,20 @@
  */
 TEST(TestGetEnv, test_get_env) {
   const char * env;
-  bool ret;
+  const char * ret;
   ret = utilities_get_env("NORMAL_TEST", NULL);
-  EXPECT_FALSE(ret);
+  EXPECT_STREQ("argument env_value is null", ret);
   ret = utilities_get_env(NULL, &env);
-  EXPECT_FALSE(ret);
+  EXPECT_STREQ("argument env_name is null", ret);
   ret = utilities_get_env("SHOULD_NOT_EXIST_TEST", &env);
-  EXPECT_TRUE(ret);
-  EXPECT_EQ("", std::string(env));
+  EXPECT_FALSE(ret);
+  EXPECT_STREQ("", env);
   ret = utilities_get_env("NORMAL_TEST", &env);
-  EXPECT_TRUE(ret);
+  EXPECT_FALSE(ret);
   EXPECT_TRUE(env);
-  EXPECT_EQ("foo", std::string(env));
+  EXPECT_STREQ("foo", env);
   ret = utilities_get_env("EMPTY_TEST", &env);
-  EXPECT_TRUE(ret);
+  EXPECT_FALSE(ret);
   EXPECT_TRUE(env);
-  EXPECT_EQ("", std::string(env));
+  EXPECT_STREQ("", env);
 }
