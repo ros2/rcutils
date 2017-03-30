@@ -85,7 +85,7 @@ utilities_is_file_writable(const char * file_abs_path)
 }
 
 bool
-is_file_readable_and_writable(const char * file_abs_path)
+utilities_is_file_readable_and_writable(const char * file_abs_path)
 {
   struct stat buf;
   if (!utilities_file_exists(file_abs_path)) {
@@ -93,7 +93,7 @@ is_file_readable_and_writable(const char * file_abs_path)
   }
   stat(file_abs_path, &buf);
 #ifdef WIN32
-  // NOTE(marguedas) on windows all files are readable
+  // NOTE(marguedas) on windows all writable files are readable
   // hence the following check is equivalent to "& _S_IWRITE"
   if (!(buf.st_mode & (_S_IWRITE | _S_IREAD))) {
 #else
