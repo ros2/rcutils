@@ -46,7 +46,7 @@ utilities_is_directory(const char * abs_path);
 /// Check if the provided path points to a directory.
 /**
  * \param[in] abs_path Absolute path to check.
- * \return bool True if directory False otherwise
+ * \return bool True if file False otherwise
  */
 C_UTILITIES_PUBLIC
 bool
@@ -55,13 +55,13 @@ utilities_is_file(const char * abs_path);
 /// Check if the provided path points to an existing file.
 /**
  * \param[in] abs_path Absolute path to check.
- * \return bool True if the file exists False otherwise
+ * \return bool True if the path exists False otherwise
  */
 C_UTILITIES_PUBLIC
 bool
 utilities_exists(const char * abs_path);
 
-/// Check if the provided path points to a file readable by current user.
+/// Check if the provided path points to a file/folder readable by current user.
 /**
  * \param[in] abs_path Absolute path to check.
  * \return bool True if the file is readable False otherwise
@@ -70,7 +70,7 @@ C_UTILITIES_PUBLIC
 bool
 utilities_is_readable(const char * file_abs_path);
 
-/// Check if the provided path points to a file writable by current user.
+/// Check if the provided path points to a file/folder writable by current user.
 /**
  * \param[in] abs_path Absolute path to check.
  * \return bool True if the file is writable False otherwise
@@ -79,7 +79,7 @@ C_UTILITIES_PUBLIC
 bool
 utilities_is_writable(const char * file_abs_path);
 
-/// Check if the provided path points to a file both readable and writable by current user.
+/// Check if the provided path points to a file/folder both readable and writable by current user.
 /**
  * \param[in] abs_path Absolute path to check.
  * \return bool True if the file is redable and writable False otherwise
