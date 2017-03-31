@@ -39,10 +39,10 @@ TEST(TestGetEnv, test_get_env) {
   EXPECT_STREQ("", env);
   ret = utilities_get_env("NORMAL_TEST", &env);
   EXPECT_FALSE(ret);
-  EXPECT_TRUE(env);
+  EXPECT_FALSE(NULL == env);
   EXPECT_STREQ("foo", env);
   ret = utilities_get_env("EMPTY_TEST", &env);
   EXPECT_FALSE(ret);
-  EXPECT_TRUE(env);
+  EXPECT_FALSE(NULL == env);
   EXPECT_STREQ("", env);
 }
