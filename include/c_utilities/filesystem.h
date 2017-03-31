@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef C_UTILITIES__FILE_PERMISSIONS_H_
-#define C_UTILITIES__FILE_PERMISSIONS_H_
+#ifndef C_UTILITIES__FILESYSTEM_H_
+#define C_UTILITIES__FILESYSTEM_H_
 
 #if __cplusplus
 extern "C"
@@ -92,4 +92,4 @@ utilities_is_readable_and_writable(const char * file_abs_path);
 }
 #endif
 
-#endif  // C_UTILITIES__FILE_PERMISSIONS_H_
+#endif  // C_UTILITIES__FILESYSTEM_H_

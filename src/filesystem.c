@@ -33,11 +33,11 @@ bool
 utilities_get_cwd(char * buffer, size_t max_length)
 {
 #ifdef WIN32
-  if(!_getcwd(buffer, max_length)) {
+  if (!_getcwd(buffer, (int)max_length)) {
     return false;
   }
 #else
-  if(!getcwd(buffer, max_length)) {
+  if (!getcwd(buffer, max_length)) {
     return false;
   }
 #endif
