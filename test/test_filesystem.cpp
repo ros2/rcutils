@@ -14,7 +14,6 @@
 
 #include <gtest/gtest.h>
 #include <string>
-#include <stdio.h>
 
 #include "c_utilities/filesystem.h"
 
@@ -24,32 +23,30 @@ const char delimiter = '\\';
 #else
 const char delimiter = '/';
 #endif
-std::string path;
 
 TEST(test_filesystem, utilities_exists) {
   utilities_get_cwd(cwd, 1024);
-  path = std::string(cwd) + delimiter + std::string("test") + delimiter + std::string(
+  std::string path = std::string(cwd) + delimiter + std::string("test") + delimiter + std::string(
     "dummy_readable_file.txt");
   EXPECT_TRUE(utilities_exists(path.c_str()));
   path = std::string(cwd) + delimiter + std::string("test") + delimiter +
     std::string("dummy_folder");
-  std::cerr << path.c_str() << std::endl;
-  // // path = std::string(cwd) + std::string("/test/dummy_folder");
-  // EXPECT_TRUE(utilities_exists(path.c_str()));
+  EXPECT_TRUE(utilities_exists(path.c_str()));
 }
 
 TEST(test_filesystem, is_directory) {
   utilities_get_cwd(cwd, 1024);
-  path = std::string(cwd) + delimiter + std::string("test") + delimiter + std::string(
+  std::string path = std::string(cwd) + delimiter + std::string("test") + delimiter + std::string(
     "dummy_readable_file.txt");
   EXPECT_FALSE(utilities_is_directory(path.c_str()));
-  // path = std::string(cwd) + delimiter + std::string("test") + delimiter + std::string("dummy_folder");
-  // EXPECT_TRUE(utilities_is_directory(path.c_str()));
+  path = std::string(cwd) + delimiter + std::string("test") + delimiter + std::string(
+    "dummy_folder");
+  EXPECT_TRUE(utilities_is_directory(path.c_str()));
 }
 
 TEST(test_filesystem, is_file) {
   utilities_get_cwd(cwd, 1024);
-  path = std::string(cwd) + delimiter + std::string("test") + delimiter + std::string(
+  std::string path = std::string(cwd) + delimiter + std::string("test") + delimiter + std::string(
     "dummy_readable_file.txt");
   EXPECT_TRUE(utilities_is_file(path.c_str()));
   path = std::string(cwd) + delimiter + std::string("test") + delimiter +
@@ -59,11 +56,12 @@ TEST(test_filesystem, is_file) {
 
 TEST(test_filesystem, is_readable) {
   utilities_get_cwd(cwd, 1024);
-  path = std::string(cwd) + delimiter + std::string("test") + delimiter + std::string(
+  std::string path = std::string(cwd) + delimiter + std::string("test") + delimiter + std::string(
     "dummy_readable_file.txt");
   EXPECT_TRUE(utilities_is_readable(path.c_str()));
-  // path = std::string(cwd) + std::string("/test/dummy_folder");
-  // EXPECT_TRUE(utilities_is_readable(path.c_str()));
+  path = std::string(cwd) + delimiter + std::string("test") + delimiter +
+    std::string("dummy_folder");
+  EXPECT_TRUE(utilities_is_readable(path.c_str()));
   path = std::string(cwd) + delimiter + std::string("test") + delimiter + std::string(
     "dummy_readable_writable_file.txt");
 
@@ -75,10 +73,11 @@ TEST(test_filesystem, is_readable) {
 
 TEST(test_filesystem, is_writable) {
   utilities_get_cwd(cwd, 1024);
-  // path = std::string(cwd) + delimiter + std::string("test") + delimiter + std::string("dummy_readable_file.txt");
+  // path = std::string(cwd) + delimiter + std::string("test") + delimiter + std::string(
+  //   "dummy_readable_file.txt");
   // EXPECT_FALSE(utilities_is_writable(path.c_str()));
-  // path = std::string(cwd) + std::string("/test/dummy_folder");
-  // EXPECT_TRUE(utilities_is_writable(path.c_str()));
+  std::string path = std::string(cwd) + std::string("/test/dummy_folder");
+  EXPECT_TRUE(utilities_is_writable(path.c_str()));
   path = std::string(cwd) + delimiter + std::string("test") + delimiter + std::string(
     "dummy_readable_writable_file.txt");
   EXPECT_TRUE(utilities_is_writable(path.c_str()));
@@ -91,8 +90,8 @@ TEST(test_filesystem, is_readable_and_writable) {
   utilities_get_cwd(cwd, 1024);
   // path = std::string(cwd) + std::string("/test/dummy_readable_file.txt");
   // EXPECT_FALSE(utilities_is_readable_and_writable(path.c_str()));
-  // path = std::string(cwd) + std::string("/test/dummy_folder");
-  // EXPECT_TRUE(utilities_is_readable_and_writable(path.c_str()));
+  std::string path = std::string(cwd) + std::string("/test/dummy_folder");
+  EXPECT_TRUE(utilities_is_readable_and_writable(path.c_str()));
   path = std::string(cwd) + std::string("/test/dummy_readable_writable_file.txt");
   EXPECT_TRUE(utilities_is_readable_and_writable(path.c_str()));
   path = std::string(cwd) + std::string("/test/dummy_nonexisting_file.txt");
