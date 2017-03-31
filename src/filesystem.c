@@ -23,6 +23,8 @@ extern "C"
 #include <sys/stat.h>
 #ifndef WIN32
 #include <unistd.h>
+#else
+#include <direct.h>
 #endif
 #include "c_utilities/concat.h"
 #include "c_utilities/filesystem.h"
