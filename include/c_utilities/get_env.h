@@ -22,6 +22,7 @@ extern "C"
 
 #include <stdbool.h>
 
+#include "c_utilities/macros.h"
 #include "c_utilities/visibility_control.h"
 
 /// Retrieve the value of the given environment variable if it exists, or "".
@@ -41,6 +42,7 @@ extern "C"
  * \return NULL on success (success can be returning an empty string)
  *         error string on failure
  */
+C_UTILITIES_WARN_UNUSED
 C_UTILITIES_PUBLIC
 const char *
 utilities_get_env(const char * env_name, const char ** env_value);
