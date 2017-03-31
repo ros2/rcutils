@@ -41,7 +41,6 @@ utilities_get_cwd(char * buffer, size_t max_length);
  * \param[in] abs_path Absolute path to check.
  * \return bool True if directory False otherwise
  */
-C_UTILITIES_WARN_UNUSED
 C_UTILITIES_PUBLIC
 bool
 utilities_is_directory(const char * abs_path);
@@ -51,7 +50,6 @@ utilities_is_directory(const char * abs_path);
  * \param[in] abs_path Absolute path to check.
  * \return bool True if file False otherwise
  */
-C_UTILITIES_WARN_UNUSED
 C_UTILITIES_PUBLIC
 bool
 utilities_is_file(const char * abs_path);
@@ -61,7 +59,6 @@ utilities_is_file(const char * abs_path);
  * \param[in] abs_path Absolute path to check.
  * \return bool True if the path exists False otherwise
  */
-C_UTILITIES_WARN_UNUSED
 C_UTILITIES_PUBLIC
 bool
 utilities_exists(const char * abs_path);
@@ -71,7 +68,6 @@ utilities_exists(const char * abs_path);
  * \param[in] abs_path Absolute path to check.
  * \return bool True if the file is readable False otherwise
  */
-C_UTILITIES_WARN_UNUSED
 C_UTILITIES_PUBLIC
 bool
 utilities_is_readable(const char * file_abs_path);
@@ -81,7 +77,6 @@ utilities_is_readable(const char * file_abs_path);
  * \param[in] abs_path Absolute path to check.
  * \return bool True if the file is writable False otherwise
  */
-C_UTILITIES_WARN_UNUSED
 C_UTILITIES_PUBLIC
 bool
 utilities_is_writable(const char * file_abs_path);
@@ -91,7 +86,6 @@ utilities_is_writable(const char * file_abs_path);
  * \param[in] abs_path Absolute path to check.
  * \return bool True if the file is redable and writable False otherwise
  */
-C_UTILITIES_WARN_UNUSED
 C_UTILITIES_PUBLIC
 bool
 utilities_is_readable_and_writable(const char * file_abs_path);
