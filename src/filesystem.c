@@ -64,7 +64,7 @@ utilities_is_file(const char * abs_path)
     return false;
   }
 #ifdef WIN32
-  return (buf.st_mode & _S_ISREG);
+  return (buf.st_mode & S_IFREG) == S_IFREG;
 #else
   return S_ISREG(buf.st_mode);
 #endif
