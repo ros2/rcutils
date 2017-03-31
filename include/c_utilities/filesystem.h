@@ -24,6 +24,16 @@ extern "C"
 
 #include "c_utilities/visibility_control.h"
 
+/// Return current working directory
+/**
+ * \param[in] buffer Allocated string to store current directory path to
+ * \param[in] max_length maximum length to be stored in buffer
+ * \return bool True if success False otherwise
+ */
+C_UTILITIES_PUBLIC
+bool
+utilities_get_cwd(char * buffer, size_t max_length);
+
 /// Check if the provided path points to a directory.
 /**
  * \param[in] abs_path Absolute path to check.
@@ -33,6 +43,15 @@ C_UTILITIES_PUBLIC
 bool
 utilities_is_directory(const char * abs_path);
 
+/// Check if the provided path points to a directory.
+/**
+ * \param[in] abs_path Absolute path to check.
+ * \return bool True if directory False otherwise
+ */
+C_UTILITIES_PUBLIC
+bool
+utilities_is_file(const char * abs_path);
+
 /// Check if the provided path points to an existing file.
 /**
  * \param[in] abs_path Absolute path to check.
@@ -40,7 +59,7 @@ utilities_is_directory(const char * abs_path);
  */
 C_UTILITIES_PUBLIC
 bool
-utilities_file_exists(const char * file_abs_path);
+utilities_exists(const char * abs_path);
 
 /// Check if the provided path points to a file readable by current user.
 /**
@@ -49,7 +68,7 @@ utilities_file_exists(const char * file_abs_path);
  */
 C_UTILITIES_PUBLIC
 bool
-utilities_is_file_readable(const char * file_abs_path);
+utilities_is_readable(const char * file_abs_path);
 
 /// Check if the provided path points to a file writable by current user.
 /**
@@ -58,7 +77,7 @@ utilities_is_file_readable(const char * file_abs_path);
  */
 C_UTILITIES_PUBLIC
 bool
-utilities_is_file_writable(const char * file_abs_path);
+utilities_is_writable(const char * file_abs_path);
 
 /// Check if the provided path points to a file both readable and writable by current user.
 /**
@@ -67,7 +86,7 @@ utilities_is_file_writable(const char * file_abs_path);
  */
 C_UTILITIES_PUBLIC
 bool
-utilities_is_file_readable_and_writable(const char * file_abs_path);
+utilities_is_readable_and_writable(const char * file_abs_path);
 
 #if __cplusplus
 }

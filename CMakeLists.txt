@@ -9,7 +9,7 @@ include_directories(include)
 set(utilities_sources
   src/cmdline_parser.c
   src/concat.c
-  src/file_permissions.c
+  src/filesystem.c
   src/find.c
   src/get_env.c
   src/split.c

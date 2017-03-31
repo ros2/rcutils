@@ -21,8 +21,26 @@ extern "C"
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#ifndef WIN32
+#include <unistd.h>
+#endif
+#include "c_utilities/concat.h"
+#include "c_utilities/filesystem.h"
 
-#include "c_utilities/file_permissions.h"
+bool
+utilities_get_cwd(char * buffer, size_t max_length)
+{
+#ifdef WIN32
+  if(!_getcwd(buffer, max_length)) {
+    return false;
+  }
+#else
+  if(!getcwd(buffer, max_length)) {
+    return false;
+  }
+#endif
+  return true;
+}
 
 bool
 utilities_is_directory(const char * abs_path)
@@ -39,7 +57,21 @@ utilities_is_directory(const char * abs_path)
 }
 
 bool
-utilities_file_exists(const char * file_abs_path)
+utilities_is_file(const char * abs_path)
+{
+  struct stat buf;
+  if (stat(abs_path, &buf) < 0) {
+    return false;
+  }
+#ifdef WIN32
+  return (buf.st_mode & _S_ISREG);
+#else
+  return S_ISREG(buf.st_mode);
+#endif
+}
+
+bool
+utilities_exists(const char * file_abs_path)
 {
   struct stat buf;
   if (stat(file_abs_path, &buf) < 0) {
@@ -49,10 +81,10 @@ utilities_file_exists(const char * file_abs_path)
 }
 
 bool
-utilities_is_file_readable(const char * file_abs_path)
+utilities_is_readable(const char * file_abs_path)
 {
   struct stat buf;
-  if (!utilities_file_exists(file_abs_path)) {
+  if (!utilities_exists(file_abs_path)) {
     return false;
   }
   stat(file_abs_path, &buf);
@@ -67,10 +99,10 @@ utilities_is_file_readable(const char * file_abs_path)
 }
 
 bool
-utilities_is_file_writable(const char * file_abs_path)
+utilities_is_writable(const char * file_abs_path)
 {
   struct stat buf;
-  if (!utilities_file_exists(file_abs_path)) {
+  if (!utilities_exists(file_abs_path)) {
     return false;
   }
   stat(file_abs_path, &buf);
@@ -85,25 +117,24 @@ utilities_is_file_writable(const char * file_abs_path)
 }
 
 bool
-utilities_is_file_readable_and_writable(const char * file_abs_path)
+utilities_is_readable_and_writable(const char * file_abs_path)
 {
   struct stat buf;
-  if (!utilities_file_exists(file_abs_path)) {
+  if (!utilities_exists(file_abs_path)) {
     return false;
   }
   stat(file_abs_path, &buf);
 #ifdef WIN32
   // NOTE(marguedas) on windows all writable files are readable
   // hence the following check is equivalent to "& _S_IWRITE"
-  if (!(buf.st_mode & (_S_IWRITE | _S_IREAD))) {
+  if (!((buf.st_mode & _S_IWRITE) && (buf.st_mode & _S_IREAD))) {
 #else
-  if (!(buf.st_mode & (S_IWUSR | S_IRUSR))) {
+  if (!((buf.st_mode & S_IWUSR) && (buf.st_mode & S_IRUSR))) {
 #endif
     return false;
   }
   return true;
 }
-
 
 #if __cplusplus
 }
