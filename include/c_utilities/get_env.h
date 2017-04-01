@@ -42,8 +42,8 @@ extern "C"
  * \return NULL on success (success can be returning an empty string)
  *         error string on failure
  */
-C_UTILITIES_WARN_UNUSED
 C_UTILITIES_PUBLIC
+C_UTILITIES_WARN_UNUSED
 const char *
 utilities_get_env(const char * env_name, const char ** env_value);
 

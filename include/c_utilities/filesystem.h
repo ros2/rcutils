@@ -31,8 +31,8 @@ extern "C"
  * \param[in] max_length maximum length to be stored in buffer
  * \return bool True if success False otherwise
  */
-C_UTILITIES_WARN_UNUSED
 C_UTILITIES_PUBLIC
+C_UTILITIES_WARN_UNUSED
 bool
 utilities_get_cwd(char * buffer, size_t max_length);
 
