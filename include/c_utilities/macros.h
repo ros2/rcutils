@@ -15,10 +15,19 @@
 #ifndef C_UTILITIES__MACROS_H_
 #define C_UTILITIES__MACROS_H_
 
+#if __cplusplus
+extern "C"
+{
+#endif
+
 #ifndef _WIN32
 #define C_UTILITIES_WARN_UNUSED __attribute__((warn_unused_result))
 #else
 #define C_UTILITIES_WARN_UNUSED _Check_return_
+#endif
+
+#if __cplusplus
+}
 #endif
 
 #endif  // C_UTILITIES__MACROS_H_
