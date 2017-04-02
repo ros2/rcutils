@@ -19,7 +19,8 @@
 bool cli_option_exist(char ** begin, char ** end, const char * option)
 {
   // return std::find(begin, end, option) != end;
-  for (size_t i = 0; i < (size_t)(end - begin); ++i) {
+  size_t i;
+  for (i = 0; i < (size_t)(end - begin); ++i) {
     if (strcmp(begin[i], option) == 0) {
       return true;
     }
