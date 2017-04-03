@@ -23,52 +23,61 @@ const char delimiter = '\\';
 #else
 const char delimiter = '/';
 #endif
+TEST(test_filesystem, join_path) {
+  const char * path = utilities_join_path("foo", "bar");
+#ifdef WIN32
+  const char * ref_str = "foo\\bar";
+#else
+  const char * ref_str = "foo/bar";
+#endif
+  EXPECT_FALSE(NULL == path);
+  EXPECT_STREQ(ref_str, path);
+}
 
-TEST(test_filesystem, utilities_exists) {
+TEST(test_filesystem, exists) {
   EXPECT_TRUE(utilities_get_cwd(cwd, 1024));
-  std::string path = std::string(cwd) + delimiter + std::string("test") + delimiter + std::string(
-    "dummy_readable_file.txt");
-  EXPECT_TRUE(utilities_exists(path.c_str()));
-  path = std::string(cwd) + delimiter + std::string("test") + delimiter +
-    std::string("dummy_folder");
-  EXPECT_TRUE(utilities_exists(path.c_str()));
+  const char * path = utilities_join_path(cwd, "test");
+  path = utilities_join_path(path, "dummy_readable_file.txt");
+  EXPECT_TRUE(utilities_exists(path));
+  path = utilities_join_path(cwd, "test");
+  path = utilities_join_path(path, "dummy_folder");
+  EXPECT_TRUE(utilities_exists(path));
 }
 
 TEST(test_filesystem, is_directory) {
   EXPECT_TRUE(utilities_get_cwd(cwd, 1024));
-  std::string path = std::string(cwd) + delimiter + std::string("test") + delimiter + std::string(
-    "dummy_readable_file.txt");
-  EXPECT_FALSE(utilities_is_directory(path.c_str()));
-  path = std::string(cwd) + delimiter + std::string("test") + delimiter + std::string(
-    "dummy_folder");
-  EXPECT_TRUE(utilities_is_directory(path.c_str()));
+  const char * path = utilities_join_path(cwd, "test");
+  path = utilities_join_path(path, "dummy_readable_file.txt");
+  EXPECT_FALSE(utilities_is_directory(path));
+  path = utilities_join_path(cwd, "test");
+  path = utilities_join_path(path, "dummy_folder");
+  EXPECT_TRUE(utilities_is_directory(path));
 }
 
 TEST(test_filesystem, is_file) {
   EXPECT_TRUE(utilities_get_cwd(cwd, 1024));
-  std::string path = std::string(cwd) + delimiter + std::string("test") + delimiter + std::string(
-    "dummy_readable_file.txt");
-  EXPECT_TRUE(utilities_is_file(path.c_str()));
-  path = std::string(cwd) + delimiter + std::string("test") + delimiter +
-    std::string("dummy_folder");
-  EXPECT_FALSE(utilities_is_file(path.c_str()));
+  const char * path = utilities_join_path(cwd, "test");
+  path = utilities_join_path(path, "dummy_readable_file.txt");
+  EXPECT_TRUE(utilities_is_file(path));
+  path = utilities_join_path(cwd, "test");
+  path = utilities_join_path(path, "dummy_folder");
+  EXPECT_FALSE(utilities_is_file(path));
 }
 
 TEST(test_filesystem, is_readable) {
   EXPECT_TRUE(utilities_get_cwd(cwd, 1024));
-  std::string path = std::string(cwd) + delimiter + std::string("test") + delimiter + std::string(
-    "dummy_readable_file.txt");
-  EXPECT_TRUE(utilities_is_readable(path.c_str()));
-  path = std::string(cwd) + delimiter + std::string("test") + delimiter +
-    std::string("dummy_folder");
-  EXPECT_TRUE(utilities_is_readable(path.c_str()));
-  path = std::string(cwd) + delimiter + std::string("test") + delimiter + std::string(
-    "dummy_readable_writable_file.txt");
-
-  EXPECT_TRUE(utilities_is_readable(path.c_str()));
-  path = std::string(cwd) + delimiter + std::string("test") + delimiter + std::string(
-    "dummy_nonexisting_file.txt");
-  EXPECT_FALSE(utilities_is_readable(path.c_str()));
+  const char * path = utilities_join_path(cwd, "test");
+  path = utilities_join_path(path, "dummy_readable_file.txt");
+  EXPECT_TRUE(utilities_is_readable(path));
+  path = utilities_join_path(cwd, "test");
+  path = utilities_join_path(path, "dummy_folder");
+  EXPECT_TRUE(utilities_is_readable(path));
+  path = utilities_join_path(cwd, "test");
+  path = utilities_join_path(path, "dummy_readable_writable_file.txt");
+  EXPECT_TRUE(utilities_is_readable(path));
+  path = utilities_join_path(cwd, "test");
+  path = utilities_join_path(path, "dummy_nonexisting_file.txt");
+  EXPECT_FALSE(utilities_is_readable(path));
 }
 
 TEST(test_filesystem, is_writable) {
@@ -76,24 +85,28 @@ TEST(test_filesystem, is_writable) {
   // path = std::string(cwd) + delimiter + std::string("test") + delimiter + std::string(
   //   "dummy_readable_file.txt");
   // EXPECT_FALSE(utilities_is_writable(path.c_str()));
-  std::string path = std::string(cwd) + std::string("/test/dummy_folder");
-  EXPECT_TRUE(utilities_is_writable(path.c_str()));
-  path = std::string(cwd) + delimiter + std::string("test") + delimiter + std::string(
-    "dummy_readable_writable_file.txt");
-  EXPECT_TRUE(utilities_is_writable(path.c_str()));
-  path = std::string(cwd) + delimiter + std::string("test") + delimiter + std::string(
-    "dummy_nonexisting_file.txt");
-  EXPECT_FALSE(utilities_is_writable(path.c_str()));
+  const char * path = utilities_join_path(cwd, "test");
+  path = utilities_join_path(path, "dummy_folder");
+  EXPECT_TRUE(utilities_is_writable(path));
+  path = utilities_join_path(cwd, "test");
+  path = utilities_join_path(path, "dummy_readable_writable_file.txt");
+  EXPECT_TRUE(utilities_is_writable(path));
+  path = utilities_join_path(cwd, "test");
+  path = utilities_join_path(path, "dummy_nonexisting_file.txt");
+  EXPECT_FALSE(utilities_is_writable(path));
 }
 
 TEST(test_filesystem, is_readable_and_writable) {
   EXPECT_TRUE(utilities_get_cwd(cwd, 1024));
   // path = std::string(cwd) + std::string("/test/dummy_readable_file.txt");
   // EXPECT_FALSE(utilities_is_readable_and_writable(path.c_str()));
-  std::string path = std::string(cwd) + std::string("/test/dummy_folder");
-  EXPECT_TRUE(utilities_is_readable_and_writable(path.c_str()));
-  path = std::string(cwd) + std::string("/test/dummy_readable_writable_file.txt");
-  EXPECT_TRUE(utilities_is_readable_and_writable(path.c_str()));
-  path = std::string(cwd) + std::string("/test/dummy_nonexisting_file.txt");
-  EXPECT_FALSE(utilities_is_readable_and_writable(path.c_str()));
+  const char * path = utilities_join_path(cwd, "test");
+  path = utilities_join_path(path, "dummy_folder");
+  EXPECT_TRUE(utilities_is_readable_and_writable(path));
+  path = utilities_join_path(cwd, "test");
+  path = utilities_join_path(path, "dummy_readable_writable_file.txt");
+  EXPECT_TRUE(utilities_is_readable_and_writable(path));
+  path = utilities_join_path(cwd, "test");
+  path = utilities_join_path(path, "dummy_nonexisting_file.txt");
+  EXPECT_FALSE(utilities_is_readable_and_writable(path));
 }

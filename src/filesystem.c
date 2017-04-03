@@ -26,6 +26,7 @@ extern "C"
 #else
 #include <direct.h>
 #endif
+#include "c_utilities/concat.h"
 #include "c_utilities/filesystem.h"
 
 bool
@@ -135,6 +136,25 @@ utilities_is_readable_and_writable(const char * file_abs_path)
     return false;
   }
   return true;
+}
+
+const char *
+utilities_join_path(const char * lhs, const char * rhs)
+{
+  if (!lhs) {
+    return NULL;
+  }
+  if (!rhs) {
+    return NULL;
+  }
+
+#ifdef  WIN32
+  const char * delimiter = "\\";
+#else
+  const char * delimiter = "/";
+#endif
+
+  return utilities_concat(lhs, rhs, delimiter);
 }
 
 #if __cplusplus

@@ -90,6 +90,16 @@ C_UTILITIES_PUBLIC
 bool
 utilities_is_readable_and_writable(const char * file_abs_path);
 
+/// Concatenate path adding the right delimiter according to the platform
+/**
+ * \param[in] lhp, left hand path
+ * \param[in] rhp, right hand path
+ * \return cons char * concatenated path
+ */
+C_UTILITIES_PUBLIC
+const char *
+utilities_join_path(const char * lhp, const char * rhp);
+
 #if __cplusplus
 }
 #endif
