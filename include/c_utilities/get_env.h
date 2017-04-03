@@ -31,9 +31,7 @@ extern "C"
  *
  * Environment variables will be truncated at 2048 characters on Windows.
  *
- * This function may allocate heap memory.
  * This function is not thread-safe.
- * This function is not lock-free.
  *
  * \param[in] env_name the name of the environment variable
  * \param[out] env_value pointer to the value cstring, or "" if unset
