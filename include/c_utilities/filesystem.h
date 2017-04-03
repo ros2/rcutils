@@ -45,7 +45,7 @@ C_UTILITIES_PUBLIC
 bool
 utilities_is_directory(const char * abs_path);
 
-/// Check if the provided path points to a directory.
+/// Check if the provided path points to a file.
 /**
  * \param[in] abs_path Absolute path to check.
  * \return bool True if file False otherwise
@@ -54,7 +54,7 @@ C_UTILITIES_PUBLIC
 bool
 utilities_is_file(const char * abs_path);
 
-/// Check if the provided path points to an existing file.
+/// Check if the provided path points to an existing file/folder.
 /**
  * \param[in] abs_path Absolute path to check.
  * \return bool True if the path exists False otherwise
