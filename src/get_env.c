@@ -17,10 +17,10 @@ extern "C"
 {
 #endif
 
-#include "c_utilities/get_env.h"
-
 #include <stdio.h>
 #include <stdlib.h>
+
+#include "c_utilities/get_env.h"
 
 #ifdef WIN32
 # define WINDOWS_ENV_BUFFER_SIZE 2048

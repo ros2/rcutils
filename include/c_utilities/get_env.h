@@ -20,8 +20,6 @@ extern "C"
 {
 #endif
 
-#include <stdbool.h>
-
 #include "c_utilities/macros.h"
 #include "c_utilities/visibility_control.h"
 
