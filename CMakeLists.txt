@@ -6,6 +6,11 @@ find_package(ament_cmake REQUIRED)
 
 include_directories(include)
 
+if(NOT WIN32)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
+
 set(utilities_sources
   src/cmdline_parser.c
   src/concat.c
@@ -31,10 +36,8 @@ install(TARGETS c_utilities
   RUNTIME DESTINATION bin)
 
 if(BUILD_TESTING)
-  if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11")
+  if(NOT WIN32)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
-    add_compile_options(-Wall -Wextra -Wpedantic)
   endif()
 
   find_package(ament_cmake_gtest REQUIRED)

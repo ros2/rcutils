@@ -28,7 +28,6 @@ size_t
 utilities_find(const char * str, char delimiter)
 {
   if (!str || strlen(str) == 0) {
-    string_array_t empty_array = {0, NULL};
     return 0;
   }
 
@@ -45,7 +44,6 @@ size_t
 utilities_find_last(const char * str, char delimiter)
 {
   if (!str || strlen(str) == 0) {
-    string_array_t empty_array = {0, NULL};
     return 0;
   }
 
