@@ -66,6 +66,8 @@ utilities_split(const char * str, char delimiter)
         --tokens.size;
         tokens.data[tokens.size] = NULL;
       } else {
+        // +2 (1+1) because lhs is index, not actual position
+        // and nullterminating
         tokens.data[token_counter] = malloc((rhs - lhs + 2) * sizeof(char));
         snprintf(tokens.data[token_counter], (rhs - lhs + 1), "%s", str + lhs);
         ++token_counter;
@@ -127,13 +129,18 @@ utilities_split_last(const char * str, char delimiter)
     tokens.size = 2;
     tokens.data = malloc(2 * sizeof(char *));
 
+    /*
+     * The extra +1 after 'found_last' is to compensate its position
+     * found_last is the index of the the last position the delimiter was found
+     * and not the actual position in terms of counting from 1
+     */
     size_t inner_rhs_offset = (str[found_last - 1] == delimiter) ? 1 : 0;
-    tokens.data[0] = malloc((found_last - lhs_offset - inner_rhs_offset + 2) * sizeof(char));
-    snprintf(tokens.data[0], found_last - lhs_offset - inner_rhs_offset + 1,
+    tokens.data[0] = malloc((found_last + 1 - lhs_offset - inner_rhs_offset + 1) * sizeof(char));
+    snprintf(tokens.data[0], found_last + 1 - lhs_offset - inner_rhs_offset,
       "%s", str + lhs_offset);
 
-    tokens.data[1] = malloc((string_size - found_last + 2) * sizeof(char));
-    snprintf(tokens.data[1], found_last + 1, "%s", str + found_last + 1);
+    tokens.data[1] = malloc((string_size - found_last - rhs_offset + 1) * sizeof(char));
+    snprintf(tokens.data[1], string_size - found_last - rhs_offset, "%s", str + found_last + 1);
   }
   return tokens;
 }

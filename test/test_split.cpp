@@ -54,33 +54,53 @@ TEST(test_split, split) {
   utilities_string_array_fini(&ret00);
 
   string_array_t ret1 = test_split("hello_world", '/', 1);
-  EXPECT_EQ(0, strcmp("hello_world", ret1.data[0]));
+  EXPECT_STREQ("hello_world", ret1.data[0]);
   utilities_string_array_fini(&ret1);
 
   string_array_t ret2 = test_split("hello/world", '/', 2);
-  EXPECT_EQ(0, strcmp("hello", ret2.data[0]));
-  EXPECT_EQ(0, strcmp("world", ret2.data[1]));
+  EXPECT_STREQ("hello", ret2.data[0]);
+  EXPECT_STREQ("world", ret2.data[1]);
   utilities_string_array_fini(&ret2);
 
   string_array_t ret3 = test_split("/hello/world", '/', 2);
-  EXPECT_EQ(0, strcmp("hello", ret3.data[0]));
-  EXPECT_EQ(0, strcmp("world", ret3.data[1]));
+  EXPECT_STREQ("hello", ret3.data[0]);
+  EXPECT_STREQ("world", ret3.data[1]);
   utilities_string_array_fini(&ret3);
 
   string_array_t ret4 = test_split("hello/world/", '/', 2);
-  EXPECT_EQ(0, strcmp("hello", ret4.data[0]));
-  EXPECT_EQ(0, strcmp("world", ret4.data[1]));
+  EXPECT_STREQ("hello", ret4.data[0]);
+  EXPECT_STREQ("world", ret4.data[1]);
   utilities_string_array_fini(&ret4);
 
   string_array_t ret5 = test_split("hello//world", '/', 2);
-  EXPECT_EQ(0, strcmp("hello", ret5.data[0]));
-  EXPECT_EQ(0, strcmp("world", ret5.data[1]));
+  EXPECT_STREQ("hello", ret5.data[0]);
+  EXPECT_STREQ("world", ret5.data[1]);
   utilities_string_array_fini(&ret5);
 
   string_array_t ret6 = test_split("/hello//world", '/', 2);
-  EXPECT_EQ(0, strcmp("hello", ret6.data[0]));
-  EXPECT_EQ(0, strcmp("world", ret6.data[1]));
+  EXPECT_STREQ("hello", ret6.data[0]);
+  EXPECT_STREQ("world", ret6.data[1]);
   utilities_string_array_fini(&ret6);
+
+  string_array_t ret7 = test_split("my/hello/world", '/', 3);
+  EXPECT_STREQ("my", ret7.data[0]);
+  EXPECT_STREQ("hello", ret7.data[1]);
+  EXPECT_STREQ("world", ret7.data[2]);
+
+  string_array_t ret8 = test_split("/my/hello/world", '/', 3);
+  EXPECT_STREQ("my", ret8.data[0]);
+  EXPECT_STREQ("hello", ret8.data[1]);
+  EXPECT_STREQ("world", ret8.data[2]);
+
+  string_array_t ret9 = test_split("/my/hello/world/", '/', 3);
+  EXPECT_STREQ("my", ret9.data[0]);
+  EXPECT_STREQ("hello", ret9.data[1]);
+  EXPECT_STREQ("world", ret9.data[2]);
+
+  string_array_t ret10 = test_split("/my//hello//world/", '/', 3);
+  EXPECT_STREQ("my", ret10.data[0]);
+  EXPECT_STREQ("hello", ret10.data[1]);
+  EXPECT_STREQ("world", ret10.data[2]);
 }
 
 TEST(test_split, split_last) {
@@ -92,36 +112,46 @@ TEST(test_split, split_last) {
 
   string_array_t ret1 = test_split_last("hello_world", '/', 1);
   LOG("hello_world", ret1.data[0]);
-  EXPECT_EQ(0, strcmp("hello_world", ret1.data[0]));
+  EXPECT_STREQ("hello_world", ret1.data[0]);
   utilities_string_array_fini(&ret1);
 
   string_array_t ret2 = test_split_last("hello/world", '/', 2);
-  EXPECT_EQ(0, strcmp("hello", ret2.data[0]));
+  EXPECT_STREQ("hello", ret2.data[0]);
   LOG("hello", ret2.data[0]);
-  EXPECT_EQ(0, strcmp("world", ret2.data[1]));
+  EXPECT_STREQ("world", ret2.data[1]);
   LOG("world", ret2.data[1]);
   utilities_string_array_fini(&ret2);
 
   string_array_t ret3 = test_split_last("/hello/world", '/', 2);
-  EXPECT_EQ(0, strcmp("hello", ret3.data[0]));
+  EXPECT_STREQ("hello", ret3.data[0]);
   LOG("hello", ret3.data[0]);
-  EXPECT_EQ(0, strcmp("world", ret3.data[1]));
+  EXPECT_STREQ("world", ret3.data[1]);
   utilities_string_array_fini(&ret3);
 
   string_array_t ret4 = test_split_last("hello/world/", '/', 2);
-  EXPECT_EQ(0, strcmp("hello", ret4.data[0]));
-  EXPECT_EQ(0, strcmp("world", ret4.data[1]));
+  EXPECT_STREQ("hello", ret4.data[0]);
+  EXPECT_STREQ("world", ret4.data[1]);
   utilities_string_array_fini(&ret4);
 
-  string_array_t ret5 = test_split_last("hello//world", '/', 2);
-  EXPECT_EQ(0, strcmp("hello", ret5.data[0]));
+  string_array_t ret5 = test_split_last("hello//world/", '/', 2);
+  EXPECT_STREQ("hello", ret5.data[0]);
   LOG("hello", ret5.data[0]);
-  EXPECT_EQ(0, strcmp("world", ret5.data[1]));
+  EXPECT_STREQ("world", ret5.data[1]);
   LOG("world", ret5.data[1]);
   utilities_string_array_fini(&ret5);
 
   string_array_t ret6 = test_split_last("/hello//world", '/', 2);
-  EXPECT_EQ(0, strcmp("hello", ret6.data[0]));
-  EXPECT_EQ(0, strcmp("world", ret6.data[1]));
+  EXPECT_STREQ("hello", ret6.data[0]);
+  EXPECT_STREQ("world", ret6.data[1]);
   utilities_string_array_fini(&ret6);
+
+  string_array_t ret7 = test_split_last("my/hello//world", '/', 2);
+  EXPECT_STREQ("my/hello", ret7.data[0]);
+  EXPECT_STREQ("world", ret7.data[1]);
+  utilities_string_array_fini(&ret7);
+
+  string_array_t ret8 = test_split_last("/my/hello//world/", '/', 2);
+  EXPECT_STREQ("my/hello", ret8.data[0]);
+  EXPECT_STREQ("world", ret8.data[1]);
+  utilities_string_array_fini(&ret8);
 }
