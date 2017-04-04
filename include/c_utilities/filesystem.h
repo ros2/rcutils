@@ -70,7 +70,7 @@ utilities_exists(const char * abs_path);
  */
 C_UTILITIES_PUBLIC
 bool
-utilities_is_readable(const char * file_abs_path);
+utilities_is_readable(const char * abs_path);
 
 /// Check if the provided path points to a file/folder writable by current user.
 /**
@@ -79,7 +79,7 @@ utilities_is_readable(const char * file_abs_path);
  */
 C_UTILITIES_PUBLIC
 bool
-utilities_is_writable(const char * file_abs_path);
+utilities_is_writable(const char * abs_path);
 
 /// Check if the provided path points to a file/folder both readable and writable by current user.
 /**
@@ -88,17 +88,17 @@ utilities_is_writable(const char * file_abs_path);
  */
 C_UTILITIES_PUBLIC
 bool
-utilities_is_readable_and_writable(const char * file_abs_path);
+utilities_is_readable_and_writable(const char * abs_path);
 
 /// Concatenate path adding the right delimiter according to the platform.
 /**
- * \param[in] lhp, left hand path
- * \param[in] rhp, right hand path
- * \return cons char * concatenated path
+ * \param[in] left_hand_path
+ * \param[in] right_hand_path
+ * \return const char * concatenated path
  */
 C_UTILITIES_PUBLIC
 const char *
-utilities_join_path(const char * lhp, const char * rhp);
+utilities_join_path(const char * left_hand_path, const char * right_hand_path);
 
 #if __cplusplus
 }

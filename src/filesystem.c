@@ -32,6 +32,9 @@ extern "C"
 bool
 utilities_get_cwd(char * buffer, size_t max_length)
 {
+  if (!buffer) {
+    return false;
+  }
 #ifdef WIN32
   if (!_getcwd(buffer, (int)max_length)) {
     return false;
@@ -73,23 +76,23 @@ utilities_is_file(const char * abs_path)
 }
 
 bool
-utilities_exists(const char * file_abs_path)
+utilities_exists(const char * abs_path)
 {
   struct stat buf;
-  if (stat(file_abs_path, &buf) < 0) {
+  if (stat(abs_path, &buf) < 0) {
     return false;
   }
   return true;
 }
 
 bool
-utilities_is_readable(const char * file_abs_path)
+utilities_is_readable(const char * abs_path)
 {
   struct stat buf;
-  if (!utilities_exists(file_abs_path)) {
+  if (!utilities_exists(abs_path)) {
     return false;
   }
-  stat(file_abs_path, &buf);
+  stat(abs_path, &buf);
 #ifdef WIN32
   if (!(buf.st_mode & _S_IREAD)) {
 #else
@@ -101,13 +104,13 @@ utilities_is_readable(const char * file_abs_path)
 }
 
 bool
-utilities_is_writable(const char * file_abs_path)
+utilities_is_writable(const char * abs_path)
 {
   struct stat buf;
-  if (!utilities_exists(file_abs_path)) {
+  if (!utilities_exists(abs_path)) {
     return false;
   }
-  stat(file_abs_path, &buf);
+  stat(abs_path, &buf);
 #ifdef WIN32
   if (!(buf.st_mode & _S_IWRITE)) {
 #else
@@ -119,13 +122,13 @@ utilities_is_writable(const char * file_abs_path)
 }
 
 bool
-utilities_is_readable_and_writable(const char * file_abs_path)
+utilities_is_readable_and_writable(const char * abs_path)
 {
   struct stat buf;
-  if (!utilities_exists(file_abs_path)) {
+  if (!utilities_exists(abs_path)) {
     return false;
   }
-  stat(file_abs_path, &buf);
+  stat(abs_path, &buf);
 #ifdef WIN32
   // NOTE(marguedas) on windows all writable files are readable
   // hence the following check is equivalent to "& _S_IWRITE"
@@ -139,12 +142,12 @@ utilities_is_readable_and_writable(const char * file_abs_path)
 }
 
 const char *
-utilities_join_path(const char * lhs, const char * rhs)
+utilities_join_path(const char * left_hand_path, const char * right_hand_path)
 {
-  if (!lhs) {
+  if (!left_hand_path) {
     return NULL;
   }
-  if (!rhs) {
+  if (!right_hand_path) {
     return NULL;
   }
 
@@ -154,7 +157,7 @@ utilities_join_path(const char * lhs, const char * rhs)
   const char * delimiter = "/";
 #endif
 
-  return utilities_concat(lhs, rhs, delimiter);
+  return utilities_concat(left_hand_path, right_hand_path, delimiter);
 }
 
 #if __cplusplus
