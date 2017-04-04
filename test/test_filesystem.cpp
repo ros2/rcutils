@@ -35,6 +35,7 @@ TEST(test_filesystem, join_path) {
 }
 
 TEST(test_filesystem, exists) {
+  EXPECT_FALSE(utilities_get_cwd(NULL, 1024));
   EXPECT_TRUE(utilities_get_cwd(cwd, 1024));
   const char * path = utilities_join_path(cwd, "test");
   path = utilities_join_path(path, "dummy_readable_file.txt");
