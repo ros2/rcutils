@@ -18,11 +18,7 @@
 #include "c_utilities/filesystem.h"
 
 static char cwd[1024];
-#ifdef WIN32
-const char delimiter = '\\';
-#else
-const char delimiter = '/';
-#endif
+
 TEST(test_filesystem, join_path) {
   const char * path = utilities_join_path("foo", "bar");
 #ifdef WIN32
