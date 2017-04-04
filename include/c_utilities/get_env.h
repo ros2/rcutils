@@ -24,10 +24,28 @@ extern "C"
 #include "c_utilities/visibility_control.h"
 
 /// Retrieve the value of the given environment variable if it exists, or "".
-/* The returned c-string is only valid until the next time this function is
- * called, because it is a direct pointer to the static storage.
- * The variable env_value populated by this function should never have free() called on it.
+/* The c-string which is returned in the env_value output parameter is only
+ * valid until the next time this function is called, because it is a direct
+ * pointer to the static storage.
+ * The variable env_value populated by this function should never have free()
+ * called on it.
  * If the environment variable is not set, an empty string will be returned.
+ *
+ * In both cases, environment variable set or unset, NULL is returned unless
+ * an exception has occurred, in which case the error string is returned.
+ * For example:
+ *
+ * ```c
+ * #include <stdio.h>
+ * #include <c_utilities/get_env.h>
+ * const char * env_value;
+ * const char * error_str;
+ * error_str = utilities_get_env("SOME_ENV_VAR", &env_value);
+ * if (error_str != NULL) {
+ *   fprintf(stderr, "Error getting env var: %s\n", error_str);
+ * }
+ * printf("Valued of 'SOME_ENV_VAR': %s\n", env_value);
+ * ```
  *
  * Environment variables will be truncated at 2048 characters on Windows.
  *
