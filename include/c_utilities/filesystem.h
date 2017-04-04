@@ -25,7 +25,7 @@ extern "C"
 #include "c_utilities/macros.h"
 #include "c_utilities/visibility_control.h"
 
-/// Return current working directory
+/// Return current working directory.
 /**
  * \param[in] buffer Allocated string to store current directory path to
  * \param[in] max_length maximum length to be stored in buffer
@@ -90,7 +90,7 @@ C_UTILITIES_PUBLIC
 bool
 utilities_is_readable_and_writable(const char * file_abs_path);
 
-/// Concatenate path adding the right delimiter according to the platform
+/// Concatenate path adding the right delimiter according to the platform.
 /**
  * \param[in] lhp, left hand path
  * \param[in] rhp, right hand path
