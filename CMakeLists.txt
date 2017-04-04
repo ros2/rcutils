@@ -14,7 +14,9 @@ endif()
 set(utilities_sources
   src/cmdline_parser.c
   src/concat.c
+  src/filesystem.c
   src/find.c
+  src/get_env.c
   src/split.c
   src/string_array.c)
 set_source_files_properties(
@@ -74,6 +76,33 @@ if(BUILD_TESTING)
     )
     target_link_libraries(test_concat c_utilities)
   endif()
+
+  ament_add_gtest(test_get_env test/test_get_env.cpp
+    ENV
+      EMPTY_TEST=
+      NORMAL_TEST=foo
+    APPEND_LIBRARY_DIRS "$<TARGET_FILE_DIR:${PROJECT_NAME}>"
+  )
+  if(TARGET test_get_env)
+    target_link_libraries(test_get_env ${PROJECT_NAME})
+    if(UNIX AND NOT APPLE)
+      target_link_libraries(test_get_env pthread)
+    endif()
+    if(NOT WIN32)
+      set_target_properties(test_get_env PROPERTIES COMPILE_FLAGS "-std=c++11")
+    endif()
+  endif()
+
+  ament_add_gtest(test_filesystem
+    test/test_filesystem.cpp
+  )
+  if(TARGET test_filesystem)
+    target_include_directories(test_filesystem PUBLIC
+      ${c_utilities_INCLUDE_DIRS}
+    )
+    target_link_libraries(test_filesystem c_utilities)
+  endif()
+
 endif()
 
 ament_export_dependencies(ament_cmake)
