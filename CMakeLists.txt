@@ -51,9 +51,6 @@ if(BUILD_TESTING)
     test/test_split.cpp
   )
   if(TARGET test_split)
-    target_include_directories(test_split PUBLIC
-      ${c_utilities_INCLUDE_DIRS}
-    )
     target_link_libraries(test_split c_utilities)
   endif()
 
@@ -61,9 +58,6 @@ if(BUILD_TESTING)
     test/test_find.cpp
   )
   if(TARGET test_find)
-    target_include_directories(test_find PUBLIC
-      ${c_utilities_INCLUDE_DIRS}
-    )
     target_link_libraries(test_find c_utilities)
   endif()
 
@@ -71,10 +65,14 @@ if(BUILD_TESTING)
     test/test_concat.cpp
   )
   if(TARGET test_concat)
-    target_include_directories(test_concat PUBLIC
-      ${c_utilities_INCLUDE_DIRS}
-    )
     target_link_libraries(test_concat c_utilities)
+  endif()
+
+  ament_add_gtest(test_string_array
+    test/test_string_array.cpp
+  )
+  if(TARGET test_string_array)
+    target_link_libraries(test_string_array c_utilities)
   endif()
 
   ament_add_gtest(test_get_env test/test_get_env.cpp
@@ -97,9 +95,6 @@ if(BUILD_TESTING)
     test/test_filesystem.cpp
   )
   if(TARGET test_filesystem)
-    target_include_directories(test_filesystem PUBLIC
-      ${c_utilities_INCLUDE_DIRS}
-    )
     target_link_libraries(test_filesystem c_utilities)
   endif()
 
