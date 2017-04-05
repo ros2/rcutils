@@ -34,9 +34,18 @@ typedef struct C_UTILITIES_PUBLIC_TYPE string_array_t
 /// Return an empty string array struct.
 /*
  * This function returns an empty and zero initialized string array struct.
- * Calling utilities_string_array_fini() on this instance leads to undefined
- * behavior.
- */
+ * Calling utilities_string_array_fini() on any non-initialized instance leads
+ * to undefined behavior.
+ * Every instance of string_array_t has either to be zero_initialized with this
+ * function or manually allocated.
+ *
+ * Example:
+ * string_array_t foo;
+ * utilities_string_array_fini(&foo); // undefined behavior!
+ *
+ * string_arraty_t bar = utilities_get_zero_initialized_string_array();
+ * utilities_string_array_fini(&bar); // ok
+ * */
 C_UTILITIES_PUBLIC
 string_array_t
 utilities_get_zero_initialized_string_array();
