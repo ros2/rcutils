@@ -31,17 +31,17 @@ typedef struct C_UTILITIES_PUBLIC_TYPE string_array_t
   char ** data;
 } string_array_t;
 
-/// Returns an empty string array struct
+/// Return an empty string array struct.
 /*
  * This function returns an empty and zero initialized string array struct.
- * Calling utilities_string_array_fini on this instance leads to undefined
+ * Calling utilities_string_array_fini() on this instance leads to undefined
  * behavior.
  */
 C_UTILITIES_PUBLIC
 string_array_t
 utilities_get_zero_initialized_string_array();
 
-/// Return a pre-initialized string array struct
+/// Return a pre-initialized string array struct.
 /**
  * This function returns a pre-initiliazed string array struct
  * which allocates the data array to the provided size and sets
@@ -58,7 +58,7 @@ C_UTILITIES_PUBLIC
 string_array_t
 utilities_get_pre_initialized_string_array(size_t size);
 
-/// Frees the allocated string array structs
+/// Free the allocated string array struct.
 /**
  * This function destroys the string array instance
  * and frees all allocated memory within.
