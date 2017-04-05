@@ -16,15 +16,6 @@
 
 #include "c_utilities/types/string_array.h"
 
-#define ENABLE_LOGGING 1
-
-#if ENABLE_LOGGING
-#define LOG(expected, actual) { \
-    printf("Expected: %s Actual: %s\n", expected, actual); }
-#else
-#define LOG(X, arg) {}
-#endif
-
 TEST(test_string_array, boot_string_array) {
   // UNDEFIEND BEHAVIOR
   // string_array_t sa00;
