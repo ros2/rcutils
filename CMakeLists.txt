@@ -77,6 +77,16 @@ if(BUILD_TESTING)
     target_link_libraries(test_concat c_utilities)
   endif()
 
+  ament_add_gtest(test_string_array
+    test/test_string_array.cpp
+  )
+  if(TARGET test_string_array)
+    target_include_directories(test_string_array PUBLIC
+      ${c_utilities_INCLUDE_DIRS}
+    )
+    target_link_libraries(test_string_array c_utilities)
+  endif()
+
   ament_add_gtest(test_get_env test/test_get_env.cpp
     ENV
       EMPTY_TEST=

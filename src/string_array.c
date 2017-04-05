@@ -35,6 +35,9 @@ utilities_get_pre_initialized_string_array(size_t size)
   static string_array_t array = {0, NULL};
   array.size = size;
   array.data = (char **)malloc(array.size * sizeof(char *));
+  for (size_t i = 0; i < size; ++i) {
+    array.data[i] = NULL;
+  }
   return array;
 }
 
@@ -47,19 +50,13 @@ utilities_string_array_fini(string_array_t * array)
 
   utilities_ret_t ret = UTILITIES_RET_OK;
   for (size_t i = 0; i < array->size; ++i) {
-    if (array->data[i]) {
-      free(array->data[i]);
-      array->data[i] = NULL;
-    } else {
-      ret = UTILITIES_RET_WARN;
-    }
+    free(array->data[i]);
+    array->data[i] = NULL;
   }
 
   if (array->data) {
     free(array->data);
     array->data = NULL;
-  } else {
-    ret = UTILITIES_RET_WARN;
   }
 
   return ret;
