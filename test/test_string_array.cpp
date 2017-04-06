@@ -16,6 +16,10 @@
 
 #include "c_utilities/types/string_array.h"
 
+#ifdef _WIN32
+  #define strdup _strdup
+#endif
+
 TEST(test_string_array, boot_string_array) {
   // UNDEFIEND BEHAVIOR
   // string_array_t sa00;
