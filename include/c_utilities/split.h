@@ -24,11 +24,11 @@ extern "C"
 #include "c_utilities/visibility_control.h"
 
 C_UTILITIES_PUBLIC
-string_array_t
+utilities_string_array_t
 utilities_split(const char * str, char delimiter);
 
 C_UTILITIES_PUBLIC
-string_array_t
+utilities_string_array_t
 utilities_split_last(const char * str, char delimiter);
 
 #if __cplusplus

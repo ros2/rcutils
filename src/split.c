@@ -24,11 +24,11 @@ extern "C"
 #include "c_utilities/split.h"
 #include "c_utilities/types.h"
 
-string_array_t
+utilities_string_array_t
 utilities_split(const char * str, char delimiter)
 {
   if (!str || strlen(str) == 0) {
-    string_array_t empty_array = {0, NULL};
+    utilities_string_array_t empty_array = {0, NULL};
     return empty_array;
   }
 
@@ -46,7 +46,7 @@ utilities_split(const char * str, char delimiter)
     rhs_offset = 1;
   }
 
-  string_array_t tokens = utilities_get_zero_initialized_string_array();
+  utilities_string_array_t tokens = utilities_get_zero_initialized_string_array();
   tokens.size = 1;
   for (size_t i = lhs_offset; i < string_size - rhs_offset; ++i) {
     if (str[i] == delimiter) {
@@ -89,11 +89,11 @@ utilities_split(const char * str, char delimiter)
   return tokens;
 }
 
-string_array_t
+utilities_string_array_t
 utilities_split_last(const char * str, char delimiter)
 {
   if (!str || strlen(str) == 0) {
-    string_array_t empty_array = {0, NULL};
+    utilities_string_array_t empty_array = {0, NULL};
     return empty_array;
   }
 
@@ -111,7 +111,7 @@ utilities_split_last(const char * str, char delimiter)
     rhs_offset = 1;
   }
 
-  string_array_t tokens = utilities_get_zero_initialized_string_array();
+  utilities_string_array_t tokens = utilities_get_zero_initialized_string_array();
 
   size_t found_last = string_size;
   for (size_t i = lhs_offset; i < string_size - rhs_offset; ++i) {
