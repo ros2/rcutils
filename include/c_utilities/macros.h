@@ -59,6 +59,9 @@ extern "C"
   #define RMW_THREAD_LOCAL _Thread_local
 #endif
 
+#define UTILITIES_STRINGIFY_IMPL(x) #x
+#define UTILITIES_STRINGIFY(x) UTILITIES_STRINGIFY_IMPL(x)
+
 #if __cplusplus
 }
 #endif

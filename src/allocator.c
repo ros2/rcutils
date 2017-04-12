@@ -13,9 +13,10 @@
 // limitations under the License.
 
 #include <stdlib.h>
+#include <stdio.h>
 
-#include "rcl/allocator.h"
-#include "rcl/error_handling.h"
+#include "c_utilities/allocator.h"
+#include "c_utilities/macros.h"
 
 static void *
 __default_allocate(size_t size, void * state)
@@ -38,10 +39,10 @@ __default_reallocate(void * pointer, size_t size, void * state)
   return realloc(pointer, size);
 }
 
-rcl_allocator_t
-rcl_get_default_allocator()
+utilities_allocator_t
+utilities_get_default_allocator()
 {
-  static rcl_allocator_t default_allocator = {
+  static utilities_allocator_t default_allocator = {
     __default_allocate,
     __default_deallocate,
     __default_reallocate,
@@ -51,10 +52,14 @@ rcl_get_default_allocator()
 }
 
 void *
-rcl_reallocf(void * pointer, size_t size, rcl_allocator_t * allocator)
+utilities_reallocf(void * pointer, size_t size, utilities_allocator_t * allocator)
 {
   if (!allocator || !allocator->reallocate || !allocator->deallocate) {
-    RCL_SET_ERROR_MSG("invalid allocator or allocator function pointers");
+    // cannot deallocate pointer, so print message to stderr and return NULL
+    static const char * msg =
+      "[c_utilties|allocator.c:" UTILITIES_STRINGIFY(__LINE__) "] utilities_reallocf(): "
+      "invalid allocator or allocator function pointers, memory leaked\n";
+    fwrite(msg, sizeof(char), sizeof(msg), stderr);
     return NULL;
   }
   void * new_pointer = allocator->reallocate(pointer, size, allocator->state);

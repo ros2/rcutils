@@ -12,6 +12,7 @@ if(NOT WIN32)
 endif()
 
 set(utilities_sources
+  src/allocator.c
   src/cmdline_parser.c
   src/concat.c
   src/filesystem.c
@@ -46,7 +47,28 @@ if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
 
+  set(extra_test_libraries)
+  set(extra_test_env)
+  set(extra_lib_dirs)
+
+  # This subdirectory extends both extra_test_libraries, extra_test_env, and extra_lib_dirs.
+  add_subdirectory(test/memory_tools)
+
+  set(SKIP_TEST_IF_WIN32 "")
+  if(WIN32)  # (memory tools doesn't do anything on Windows)
+    set(SKIP_TEST_IF_WIN32 "SKIP_TEST")
+  endif()
+
   # Gtests
+  ament_add_gtest(test_allocator test/test_allocator.cpp
+    ENV ${extra_test_env}
+    APPEND_LIBRARY_DIRS ${extra_lib_dirs}
+    ${SKIP_TEST_IF_WIN32}
+  )
+  if(TARGET test_allocator)
+    target_link_libraries(test_allocator c_utilities ${extra_test_libraries})
+  endif()
+
   ament_add_gtest(test_split
     test/test_split.cpp
   )

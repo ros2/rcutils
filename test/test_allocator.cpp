@@ -14,9 +14,9 @@
 
 #include <gtest/gtest.h>
 
-#include "rcl/allocator.h"
+#include "c_utilities/allocator.h"
 
-#include "../memory_tools/memory_tools.hpp"
+#include "./memory_tools/memory_tools.hpp"
 
 #ifdef RMW_IMPLEMENTATION
 # define CLASSNAME_(NAME, SUFFIX) NAME ## __ ## SUFFIX
@@ -55,12 +55,8 @@ public:
 /* Tests the default allocator.
  */
 TEST_F(CLASSNAME(TestAllocatorFixture, RMW_IMPLEMENTATION), test_default_allocator_normal) {
-#if defined(WIN32)
-  printf("Allocator tests disabled on Windows.\n");
-  return;
-#endif  // defined(WIN32)
   ASSERT_NO_MALLOC(
-    rcl_allocator_t allocator = rcl_get_default_allocator();
+    utilities_allocator_t allocator = utilities_get_default_allocator();
   )
   size_t mallocs = 0;
   size_t reallocs = 0;
