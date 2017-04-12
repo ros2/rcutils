@@ -26,10 +26,11 @@ extern "C"
 #define C_UTILITIES_WARN_UNUSED _Check_return_
 #endif
 
-// This block either sets RMW_THREAD_LOCAL or RMW_THREAD_LOCAL_PTHREAD.
+// Note: this block was migrated from rmw/macros.h
+// This block either sets UTILITIES_THREAD_LOCAL or UTILITIES_THREAD_LOCAL_PTHREAD.
 #if defined _WIN32 || defined __CYGWIN__
 // Windows or Cygwin
-  #define RMW_THREAD_LOCAL __declspec(thread)
+  #define UTILITIES_THREAD_LOCAL __declspec(thread)
 #elif defined __APPLE__
 // Apple OS's
   #include <TargetConditionals.h>
@@ -39,24 +40,24 @@ extern "C"
     #if defined(__IPHONE_OS_VERSION_MIN_REQUIRED)
       #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 100000
 // iOS >= 10, thread local storage was added in iOS 10
-        #define RMW_THREAD_LOCAL _Thread_local
+        #define UTILITIES_THREAD_LOCAL _Thread_local
       #else
 // iOS < 10, no thread local storage, so use pthread instead
-        #define RMW_THREAD_LOCAL_PTHREAD 1
-        #undef RMW_THREAD_LOCAL
+        #define UTILITIES_THREAD_LOCAL_PTHREAD 1
+        #undef UTILITIES_THREAD_LOCAL
       #endif
     #else
       #error "Unknown iOS version"
     #endif
   #elif TARGET_OS_MAC
 // macOS
-    #define RMW_THREAD_LOCAL _Thread_local
+    #define UTILITIES_THREAD_LOCAL _Thread_local
   #else
     #error "Unknown Apple platform"
   #endif
 #else
 // Some other non-Windows, non-cygwin, non-apple OS
-  #define RMW_THREAD_LOCAL _Thread_local
+  #define UTILITIES_THREAD_LOCAL _Thread_local
 #endif
 
 #define UTILITIES_STRINGIFY_IMPL(x) #x

@@ -15,6 +15,7 @@ set(utilities_sources
   src/allocator.c
   src/cmdline_parser.c
   src/concat.c
+  src/error_handling.c
   src/filesystem.c
   src/find.c
   src/get_env.c
@@ -33,6 +34,11 @@ add_library(
 # which is appropriate when building the dll but not consuming it.
 target_compile_definitions(c_utilities PRIVATE "C_UTILITIES_BUILDING_DLL")
 
+# Needed if pthread is used for thread local storage.
+if(IOS AND IOS_SDK_VERSION LESS 10.0)
+  ament_export_libraries(pthread)
+endif()
+
 install(TARGETS c_utilities
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
@@ -43,7 +49,7 @@ if(BUILD_TESTING)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
   endif()
 
-  find_package(ament_cmake_gtest REQUIRED)
+  find_package(ament_cmake_gmock REQUIRED)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
 
@@ -60,7 +66,7 @@ if(BUILD_TESTING)
   endif()
 
   # Gtests
-  ament_add_gtest(test_allocator test/test_allocator.cpp
+  ament_add_gmock(test_allocator test/test_allocator.cpp
     ENV ${extra_test_env}
     APPEND_LIBRARY_DIRS ${extra_lib_dirs}
     ${SKIP_TEST_IF_WIN32}
@@ -69,35 +75,43 @@ if(BUILD_TESTING)
     target_link_libraries(test_allocator c_utilities ${extra_test_libraries})
   endif()
 
-  ament_add_gtest(test_split
+  ament_add_gmock(test_error_handling test/test_error_handling.cpp
+    # Append the directory of libc_utilities so it is found at test time.
+    APPEND_LIBRARY_DIRS "$<TARGET_FILE_DIR:c_utilities>"
+  )
+  if(TARGET test_error_handling)
+    target_link_libraries(test_error_handling ${PROJECT_NAME})
+  endif()
+
+  ament_add_gmock(test_split
     test/test_split.cpp
   )
   if(TARGET test_split)
     target_link_libraries(test_split c_utilities)
   endif()
 
-  ament_add_gtest(test_find
+  ament_add_gmock(test_find
     test/test_find.cpp
   )
   if(TARGET test_find)
     target_link_libraries(test_find c_utilities)
   endif()
 
-  ament_add_gtest(test_concat
+  ament_add_gmock(test_concat
     test/test_concat.cpp
   )
   if(TARGET test_concat)
     target_link_libraries(test_concat c_utilities)
   endif()
 
-  ament_add_gtest(test_string_array
+  ament_add_gmock(test_string_array
     test/test_string_array.cpp
   )
   if(TARGET test_string_array)
     target_link_libraries(test_string_array c_utilities)
   endif()
 
-  ament_add_gtest(test_get_env test/test_get_env.cpp
+  ament_add_gmock(test_get_env test/test_get_env.cpp
     ENV
       EMPTY_TEST=
       NORMAL_TEST=foo
@@ -113,7 +127,7 @@ if(BUILD_TESTING)
     endif()
   endif()
 
-  ament_add_gtest(test_filesystem
+  ament_add_gmock(test_filesystem
     test/test_filesystem.cpp
   )
   if(TARGET test_filesystem)
