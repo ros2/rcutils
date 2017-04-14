@@ -22,6 +22,7 @@ extern "C"
 
 #include <string.h>
 
+#include "c_utilities/macros.h"
 #include "c_utilities/types/utilities_ret.h"
 #include "c_utilities/visibility_control.h"
 
@@ -79,6 +80,7 @@ utilities_get_pre_initialized_string_array(size_t size);
  * and frees all allocated memory within.
  */
 C_UTILITIES_PUBLIC
+C_UTILITIES_WARN_UNUSED
 utilities_ret_t
 utilities_string_array_fini(utilities_string_array_t * array);
 
