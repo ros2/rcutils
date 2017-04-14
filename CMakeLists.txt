@@ -50,6 +50,7 @@ if(BUILD_TESTING)
   endif()
 
   find_package(ament_cmake_gmock REQUIRED)
+  find_package(ament_cmake_gtest REQUIRED)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
 
@@ -66,7 +67,7 @@ if(BUILD_TESTING)
   endif()
 
   # Gtests
-  ament_add_gmock(test_allocator test/test_allocator.cpp
+  ament_add_gtest(test_allocator test/test_allocator.cpp
     ENV ${extra_test_env}
     APPEND_LIBRARY_DIRS ${extra_lib_dirs}
     ${SKIP_TEST_IF_WIN32}
@@ -83,35 +84,35 @@ if(BUILD_TESTING)
     target_link_libraries(test_error_handling ${PROJECT_NAME})
   endif()
 
-  ament_add_gmock(test_split
+  ament_add_gtest(test_split
     test/test_split.cpp
   )
   if(TARGET test_split)
     target_link_libraries(test_split c_utilities)
   endif()
 
-  ament_add_gmock(test_find
+  ament_add_gtest(test_find
     test/test_find.cpp
   )
   if(TARGET test_find)
     target_link_libraries(test_find c_utilities)
   endif()
 
-  ament_add_gmock(test_concat
+  ament_add_gtest(test_concat
     test/test_concat.cpp
   )
   if(TARGET test_concat)
     target_link_libraries(test_concat c_utilities)
   endif()
 
-  ament_add_gmock(test_string_array
+  ament_add_gtest(test_string_array
     test/test_string_array.cpp
   )
   if(TARGET test_string_array)
     target_link_libraries(test_string_array c_utilities)
   endif()
 
-  ament_add_gmock(test_get_env test/test_get_env.cpp
+  ament_add_gtest(test_get_env test/test_get_env.cpp
     ENV
       EMPTY_TEST=
       NORMAL_TEST=foo
@@ -127,7 +128,7 @@ if(BUILD_TESTING)
     endif()
   endif()
 
-  ament_add_gmock(test_filesystem
+  ament_add_gtest(test_filesystem
     test/test_filesystem.cpp
   )
   if(TARGET test_filesystem)
