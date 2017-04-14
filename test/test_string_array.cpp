@@ -21,18 +21,23 @@
 #endif
 
 TEST(test_string_array, boot_string_array) {
+  utilities_ret_t ret = UTILITIES_RET_OK;
+
   // UNDEFIEND BEHAVIOR
-  // string_array_t sa00;
+  // utilities_string_array_t sa00;
   // utilities_string_array_fini(&sa00);
 
-  string_array_t sa0 = utilities_get_zero_initialized_string_array();
-  utilities_string_array_fini(&sa0);
+  utilities_string_array_t sa0 = utilities_get_zero_initialized_string_array();
+  ret = utilities_string_array_fini(&sa0);
+  ASSERT_EQ(UTILITIES_RET_OK, ret);
 
-  string_array_t sa1 = utilities_get_pre_initialized_string_array(3);
-  utilities_string_array_fini(&sa1);
+  utilities_string_array_t sa1 = utilities_get_pre_initialized_string_array(3);
+  ret = utilities_string_array_fini(&sa1);
+  ASSERT_EQ(UTILITIES_RET_OK, ret);
 
-  string_array_t sa2 = utilities_get_pre_initialized_string_array(2);
+  utilities_string_array_t sa2 = utilities_get_pre_initialized_string_array(2);
   sa2.data[0] = strdup("Hello");
   sa2.data[1] = strdup("World");
-  utilities_string_array_fini(&sa2);
+  ret = utilities_string_array_fini(&sa2);
+  ASSERT_EQ(UTILITIES_RET_OK, ret);
 }

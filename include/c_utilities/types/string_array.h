@@ -22,14 +22,15 @@ extern "C"
 
 #include <string.h>
 
+#include "c_utilities/macros.h"
 #include "c_utilities/types/utilities_ret.h"
 #include "c_utilities/visibility_control.h"
 
-typedef struct C_UTILITIES_PUBLIC_TYPE string_array_t
+typedef struct C_UTILITIES_PUBLIC_TYPE utilities_string_array_t
 {
   size_t size;
   char ** data;
-} string_array_t;
+} utilities_string_array_t;
 
 /// Return an empty string array struct.
 /**
@@ -45,12 +46,12 @@ typedef struct C_UTILITIES_PUBLIC_TYPE string_array_t
  * string_array_t foo;
  * utilities_string_array_fini(&foo); // undefined behavior!
  *
- * string_arraty_t bar = utilities_get_zero_initialized_string_array();
+ * utilities_string_array_t bar = utilities_get_zero_initialized_string_array();
  * utilities_string_array_fini(&bar); // ok
  * ```
  */
 C_UTILITIES_PUBLIC
-string_array_t
+utilities_string_array_t
 utilities_get_zero_initialized_string_array();
 
 /// Return a pre-initialized string array struct.
@@ -70,7 +71,7 @@ utilities_get_zero_initialized_string_array();
  * ```
  */
 C_UTILITIES_PUBLIC
-string_array_t
+utilities_string_array_t
 utilities_get_pre_initialized_string_array(size_t size);
 
 /// Free the allocated string array struct.
@@ -79,8 +80,9 @@ utilities_get_pre_initialized_string_array(size_t size);
  * and frees all allocated memory within.
  */
 C_UTILITIES_PUBLIC
+C_UTILITIES_WARN_UNUSED
 utilities_ret_t
-utilities_string_array_fini(string_array_t * array);
+utilities_string_array_fini(utilities_string_array_t * array);
 
 #if __cplusplus
 }
