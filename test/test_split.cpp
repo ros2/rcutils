@@ -48,111 +48,141 @@ utilities_string_array_t test_split_last(
 }
 
 TEST(test_split, split) {
-  utilities_string_array_t ret0 = test_split("", '/', 0);
-  utilities_string_array_fini(&ret0);
+  utilities_ret_t ret = UTILITIES_RET_OK;
 
-  utilities_string_array_t ret00 = test_split(NULL, '/', 0);
-  utilities_string_array_fini(&ret00);
+  utilities_string_array_t tokens0 = test_split("", '/', 0);
+  ret = utilities_string_array_fini(&tokens0);
+  ASSERT_EQ(UTILITIES_RET_WARN, ret);
 
-  utilities_string_array_t ret1 = test_split("hello_world", '/', 1);
-  EXPECT_STREQ("hello_world", ret1.data[0]);
-  utilities_string_array_fini(&ret1);
+  utilities_string_array_t tokens00 = test_split(NULL, '/', 0);
+  ret = utilities_string_array_fini(&tokens00);
+  ASSERT_EQ(UTILITIES_RET_WARN, ret);
 
-  utilities_string_array_t ret2 = test_split("hello/world", '/', 2);
-  EXPECT_STREQ("hello", ret2.data[0]);
-  EXPECT_STREQ("world", ret2.data[1]);
-  utilities_string_array_fini(&ret2);
+  utilities_string_array_t tokens1 = test_split("hello_world", '/', 1);
+  EXPECT_STREQ("hello_world", tokens1.data[0]);
+  ret = utilities_string_array_fini(&tokens1);
+  ASSERT_EQ(UTILITIES_RET_OK, ret);
 
-  utilities_string_array_t ret3 = test_split("/hello/world", '/', 2);
-  EXPECT_STREQ("hello", ret3.data[0]);
-  EXPECT_STREQ("world", ret3.data[1]);
-  utilities_string_array_fini(&ret3);
+  utilities_string_array_t tokens2 = test_split("hello/world", '/', 2);
+  EXPECT_STREQ("hello", tokens2.data[0]);
+  EXPECT_STREQ("world", tokens2.data[1]);
+  ret = utilities_string_array_fini(&tokens2);
+  ASSERT_EQ(UTILITIES_RET_OK, ret);
 
-  utilities_string_array_t ret4 = test_split("hello/world/", '/', 2);
-  EXPECT_STREQ("hello", ret4.data[0]);
-  EXPECT_STREQ("world", ret4.data[1]);
-  utilities_string_array_fini(&ret4);
+  utilities_string_array_t tokens3 = test_split("/hello/world", '/', 2);
+  EXPECT_STREQ("hello", tokens3.data[0]);
+  EXPECT_STREQ("world", tokens3.data[1]);
+  ret = utilities_string_array_fini(&tokens3);
+  ASSERT_EQ(UTILITIES_RET_OK, ret);
 
-  utilities_string_array_t ret5 = test_split("hello//world", '/', 2);
-  EXPECT_STREQ("hello", ret5.data[0]);
-  EXPECT_STREQ("world", ret5.data[1]);
-  utilities_string_array_fini(&ret5);
+  utilities_string_array_t tokens4 = test_split("hello/world/", '/', 2);
+  EXPECT_STREQ("hello", tokens4.data[0]);
+  EXPECT_STREQ("world", tokens4.data[1]);
+  ret = utilities_string_array_fini(&tokens4);
+  ASSERT_EQ(UTILITIES_RET_OK, ret);
 
-  utilities_string_array_t ret6 = test_split("/hello//world", '/', 2);
-  EXPECT_STREQ("hello", ret6.data[0]);
-  EXPECT_STREQ("world", ret6.data[1]);
-  utilities_string_array_fini(&ret6);
+  utilities_string_array_t tokens5 = test_split("hello//world", '/', 2);
+  EXPECT_STREQ("hello", tokens5.data[0]);
+  EXPECT_STREQ("world", tokens5.data[1]);
+  ret = utilities_string_array_fini(&tokens5);
+  ASSERT_EQ(UTILITIES_RET_OK, ret);
 
-  utilities_string_array_t ret7 = test_split("my/hello/world", '/', 3);
-  EXPECT_STREQ("my", ret7.data[0]);
-  EXPECT_STREQ("hello", ret7.data[1]);
-  EXPECT_STREQ("world", ret7.data[2]);
+  utilities_string_array_t tokens6 = test_split("/hello//world", '/', 2);
+  EXPECT_STREQ("hello", tokens6.data[0]);
+  EXPECT_STREQ("world", tokens6.data[1]);
+  ret = utilities_string_array_fini(&tokens6);
+  ASSERT_EQ(UTILITIES_RET_OK, ret);
 
-  utilities_string_array_t ret8 = test_split("/my/hello/world", '/', 3);
-  EXPECT_STREQ("my", ret8.data[0]);
-  EXPECT_STREQ("hello", ret8.data[1]);
-  EXPECT_STREQ("world", ret8.data[2]);
+  utilities_string_array_t tokens7 = test_split("my/hello/world", '/', 3);
+  EXPECT_STREQ("my", tokens7.data[0]);
+  EXPECT_STREQ("hello", tokens7.data[1]);
+  EXPECT_STREQ("world", tokens7.data[2]);
+  ret = utilities_string_array_fini(&tokens7);
+  ASSERT_EQ(UTILITIES_RET_OK, ret);
 
-  utilities_string_array_t ret9 = test_split("/my/hello/world/", '/', 3);
-  EXPECT_STREQ("my", ret9.data[0]);
-  EXPECT_STREQ("hello", ret9.data[1]);
-  EXPECT_STREQ("world", ret9.data[2]);
+  utilities_string_array_t tokens8 = test_split("/my/hello/world", '/', 3);
+  EXPECT_STREQ("my", tokens8.data[0]);
+  EXPECT_STREQ("hello", tokens8.data[1]);
+  EXPECT_STREQ("world", tokens8.data[2]);
+  ret = utilities_string_array_fini(&tokens8);
+  ASSERT_EQ(UTILITIES_RET_OK, ret);
 
-  utilities_string_array_t ret10 = test_split("/my//hello//world/", '/', 3);
-  EXPECT_STREQ("my", ret10.data[0]);
-  EXPECT_STREQ("hello", ret10.data[1]);
-  EXPECT_STREQ("world", ret10.data[2]);
+  utilities_string_array_t tokens9 = test_split("/my/hello/world/", '/', 3);
+  EXPECT_STREQ("my", tokens9.data[0]);
+  EXPECT_STREQ("hello", tokens9.data[1]);
+  EXPECT_STREQ("world", tokens9.data[2]);
+  ret = utilities_string_array_fini(&tokens9);
+  ASSERT_EQ(UTILITIES_RET_OK, ret);
+
+  utilities_string_array_t tokens10 = test_split("/my//hello//world/", '/', 3);
+  EXPECT_STREQ("my", tokens10.data[0]);
+  EXPECT_STREQ("hello", tokens10.data[1]);
+  EXPECT_STREQ("world", tokens10.data[2]);
+  ret = utilities_string_array_fini(&tokens10);
+  ASSERT_EQ(UTILITIES_RET_OK, ret);
 }
 
 TEST(test_split, split_last) {
-  utilities_string_array_t ret0 = test_split_last("", '/', 0);
-  utilities_string_array_fini(&ret0);
+  utilities_ret_t ret = UTILITIES_RET_OK;
 
-  utilities_string_array_t ret00 = test_split_last(NULL, '/', 0);
-  utilities_string_array_fini(&ret00);
+  utilities_string_array_t tokens0 = test_split_last("", '/', 0);
+  ret = utilities_string_array_fini(&tokens0);
+  ASSERT_EQ(UTILITIES_RET_WARN, ret);
 
-  utilities_string_array_t ret1 = test_split_last("hello_world", '/', 1);
-  LOG("hello_world", ret1.data[0]);
-  EXPECT_STREQ("hello_world", ret1.data[0]);
-  utilities_string_array_fini(&ret1);
+  utilities_string_array_t tokens00 = test_split_last(NULL, '/', 0);
+  ret = utilities_string_array_fini(&tokens00);
+  ASSERT_EQ(UTILITIES_RET_WARN, ret);
 
-  utilities_string_array_t ret2 = test_split_last("hello/world", '/', 2);
-  EXPECT_STREQ("hello", ret2.data[0]);
-  LOG("hello", ret2.data[0]);
-  EXPECT_STREQ("world", ret2.data[1]);
-  LOG("world", ret2.data[1]);
-  utilities_string_array_fini(&ret2);
+  utilities_string_array_t tokens1 = test_split_last("hello_world", '/', 1);
+  LOG("hello_world", tokens1.data[0]);
+  EXPECT_STREQ("hello_world", tokens1.data[0]);
+  ret = utilities_string_array_fini(&tokens1);
+  ASSERT_EQ(UTILITIES_RET_OK, ret);
 
-  utilities_string_array_t ret3 = test_split_last("/hello/world", '/', 2);
-  EXPECT_STREQ("hello", ret3.data[0]);
-  LOG("hello", ret3.data[0]);
-  EXPECT_STREQ("world", ret3.data[1]);
-  utilities_string_array_fini(&ret3);
+  utilities_string_array_t tokens2 = test_split_last("hello/world", '/', 2);
+  EXPECT_STREQ("hello", tokens2.data[0]);
+  LOG("hello", tokens2.data[0]);
+  EXPECT_STREQ("world", tokens2.data[1]);
+  LOG("world", tokens2.data[1]);
+  ret = utilities_string_array_fini(&tokens2);
+  ASSERT_EQ(UTILITIES_RET_OK, ret);
 
-  utilities_string_array_t ret4 = test_split_last("hello/world/", '/', 2);
-  EXPECT_STREQ("hello", ret4.data[0]);
-  EXPECT_STREQ("world", ret4.data[1]);
-  utilities_string_array_fini(&ret4);
+  utilities_string_array_t tokens3 = test_split_last("/hello/world", '/', 2);
+  EXPECT_STREQ("hello", tokens3.data[0]);
+  LOG("hello", tokens3.data[0]);
+  EXPECT_STREQ("world", tokens3.data[1]);
+  ret = utilities_string_array_fini(&tokens3);
+  ASSERT_EQ(UTILITIES_RET_OK, ret);
 
-  utilities_string_array_t ret5 = test_split_last("hello//world/", '/', 2);
-  EXPECT_STREQ("hello", ret5.data[0]);
-  LOG("hello", ret5.data[0]);
-  EXPECT_STREQ("world", ret5.data[1]);
-  LOG("world", ret5.data[1]);
-  utilities_string_array_fini(&ret5);
+  utilities_string_array_t tokens4 = test_split_last("hello/world/", '/', 2);
+  EXPECT_STREQ("hello", tokens4.data[0]);
+  EXPECT_STREQ("world", tokens4.data[1]);
+  ret = utilities_string_array_fini(&tokens4);
+  ASSERT_EQ(UTILITIES_RET_OK, ret);
 
-  utilities_string_array_t ret6 = test_split_last("/hello//world", '/', 2);
-  EXPECT_STREQ("hello", ret6.data[0]);
-  EXPECT_STREQ("world", ret6.data[1]);
-  utilities_string_array_fini(&ret6);
+  utilities_string_array_t tokens5 = test_split_last("hello//world/", '/', 2);
+  EXPECT_STREQ("hello", tokens5.data[0]);
+  LOG("hello", tokens5.data[0]);
+  EXPECT_STREQ("world", tokens5.data[1]);
+  LOG("world", tokens5.data[1]);
+  ret = utilities_string_array_fini(&tokens5);
+  ASSERT_EQ(UTILITIES_RET_OK, ret);
 
-  utilities_string_array_t ret7 = test_split_last("my/hello//world", '/', 2);
-  EXPECT_STREQ("my/hello", ret7.data[0]);
-  EXPECT_STREQ("world", ret7.data[1]);
-  utilities_string_array_fini(&ret7);
+  utilities_string_array_t tokens6 = test_split_last("/hello//world", '/', 2);
+  EXPECT_STREQ("hello", tokens6.data[0]);
+  EXPECT_STREQ("world", tokens6.data[1]);
+  ret = utilities_string_array_fini(&tokens6);
+  ASSERT_EQ(UTILITIES_RET_OK, ret);
 
-  utilities_string_array_t ret8 = test_split_last("/my/hello//world/", '/', 2);
-  EXPECT_STREQ("my/hello", ret8.data[0]);
-  EXPECT_STREQ("world", ret8.data[1]);
-  utilities_string_array_fini(&ret8);
+  utilities_string_array_t tokens7 = test_split_last("my/hello//world", '/', 2);
+  EXPECT_STREQ("my/hello", tokens7.data[0]);
+  EXPECT_STREQ("world", tokens7.data[1]);
+  ret = utilities_string_array_fini(&tokens7);
+  ASSERT_EQ(UTILITIES_RET_OK, ret);
+
+  utilities_string_array_t tokens8 = test_split_last("/my/hello//world/", '/', 2);
+  EXPECT_STREQ("my/hello", tokens8.data[0]);
+  EXPECT_STREQ("world", tokens8.data[1]);
+  ret = utilities_string_array_fini(&tokens8);
+  ASSERT_EQ(UTILITIES_RET_OK, ret);
 }

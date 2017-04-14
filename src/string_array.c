@@ -46,7 +46,7 @@ utilities_string_array_fini(utilities_string_array_t * array)
   }
 
   if (!array->data) {
-    return UTILITIES_RET_ERROR;
+    return UTILITIES_RET_WARN;
   }
 
   for (size_t i = 0; i < array->size; ++i) {
