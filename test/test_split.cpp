@@ -52,11 +52,11 @@ TEST(test_split, split) {
 
   utilities_string_array_t tokens0 = test_split("", '/', 0);
   ret = utilities_string_array_fini(&tokens0);
-  ASSERT_EQ(UTILITIES_RET_WARN, ret);
+  ASSERT_EQ(UTILITIES_RET_OK, ret);
 
   utilities_string_array_t tokens00 = test_split(NULL, '/', 0);
   ret = utilities_string_array_fini(&tokens00);
-  ASSERT_EQ(UTILITIES_RET_WARN, ret);
+  ASSERT_EQ(UTILITIES_RET_OK, ret);
 
   utilities_string_array_t tokens1 = test_split("hello_world", '/', 1);
   EXPECT_STREQ("hello_world", tokens1.data[0]);
@@ -127,11 +127,11 @@ TEST(test_split, split_last) {
 
   utilities_string_array_t tokens0 = test_split_last("", '/', 0);
   ret = utilities_string_array_fini(&tokens0);
-  ASSERT_EQ(UTILITIES_RET_WARN, ret);
+  ASSERT_EQ(UTILITIES_RET_OK, ret);
 
   utilities_string_array_t tokens00 = test_split_last(NULL, '/', 0);
   ret = utilities_string_array_fini(&tokens00);
-  ASSERT_EQ(UTILITIES_RET_WARN, ret);
+  ASSERT_EQ(UTILITIES_RET_OK, ret);
 
   utilities_string_array_t tokens1 = test_split_last("hello_world", '/', 1);
   LOG("hello_world", tokens1.data[0]);

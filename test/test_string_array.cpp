@@ -29,7 +29,7 @@ TEST(test_string_array, boot_string_array) {
 
   utilities_string_array_t sa0 = utilities_get_zero_initialized_string_array();
   ret = utilities_string_array_fini(&sa0);
-  ASSERT_EQ(UTILITIES_RET_WARN, ret);
+  ASSERT_EQ(UTILITIES_RET_OK, ret);
 
   utilities_string_array_t sa1 = utilities_get_pre_initialized_string_array(3);
   ret = utilities_string_array_fini(&sa1);
