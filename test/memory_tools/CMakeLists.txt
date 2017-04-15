@@ -32,6 +32,7 @@ ament_add_gmock(test_memory_tools test_memory_tools.cpp
 )
 if(TARGET test_memory_tools)
   target_link_libraries(test_memory_tools ${extra_test_libraries})
+  set_target_properties(${target} PROPERTIES COMPILE_FLAGS ${c_utilities_extra_warning_flags})
 endif()
 
 set(extra_test_libraries ${extra_test_libraries} PARENT_SCOPE)

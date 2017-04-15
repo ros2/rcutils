@@ -8,7 +8,9 @@ include_directories(include)
 
 if(NOT WIN32)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11")
-  add_compile_options(-Wall -Wextra -Wpedantic)
+  # The warning flags are added per target, because otherwise the local
+  # gmock library that is built will have compiler warnings.
+  set(c_utilities_extra_warning_flags "-Wall -Wextra -Wpedantic")
 endif()
 
 set(utilities_sources
@@ -29,6 +31,7 @@ add_library(
   c_utilities
   SHARED
   ${utilities_sources})
+set_target_properties(c_utilities PROPERTIES COMPILE_FLAGS ${c_utilities_extra_warning_flags})
 
 # Causes the visibility macros to use dllexport rather than dllimport,
 # which is appropriate when building the dll but not consuming it.
@@ -66,8 +69,22 @@ if(BUILD_TESTING)
     set(SKIP_TEST_IF_WIN32 "SKIP_TEST")
   endif()
 
+  macro(c_utilities_custom_add_gtest target)
+    ament_add_gtest(${target} ${ARGN})
+    if(TARGET ${target})
+      set_target_properties(${target} PROPERTIES COMPILE_FLAGS ${c_utilities_extra_warning_flags})
+    endif()
+  endmacro()
+
+  macro(c_utilities_custom_add_gmock target)
+    ament_add_gmock(${target} ${ARGN})
+    if(TARGET ${target})
+      set_target_properties(${target} PROPERTIES COMPILE_FLAGS ${c_utilities_extra_warning_flags})
+    endif()
+  endmacro()
+
   # Gtests
-  ament_add_gtest(test_allocator test/test_allocator.cpp
+  c_utilities_custom_add_gtest(test_allocator test/test_allocator.cpp
     ENV ${extra_test_env}
     APPEND_LIBRARY_DIRS ${extra_lib_dirs}
     ${SKIP_TEST_IF_WIN32}
@@ -76,7 +93,7 @@ if(BUILD_TESTING)
     target_link_libraries(test_allocator c_utilities ${extra_test_libraries})
   endif()
 
-  ament_add_gmock(test_error_handling test/test_error_handling.cpp
+  c_utilities_custom_add_gmock(test_error_handling test/test_error_handling.cpp
     # Append the directory of libc_utilities so it is found at test time.
     APPEND_LIBRARY_DIRS "$<TARGET_FILE_DIR:c_utilities>"
   )
@@ -84,35 +101,35 @@ if(BUILD_TESTING)
     target_link_libraries(test_error_handling ${PROJECT_NAME})
   endif()
 
-  ament_add_gtest(test_split
+  c_utilities_custom_add_gtest(test_split
     test/test_split.cpp
   )
   if(TARGET test_split)
     target_link_libraries(test_split c_utilities)
   endif()
 
-  ament_add_gtest(test_find
+  c_utilities_custom_add_gtest(test_find
     test/test_find.cpp
   )
   if(TARGET test_find)
     target_link_libraries(test_find c_utilities)
   endif()
 
-  ament_add_gtest(test_concat
+  c_utilities_custom_add_gtest(test_concat
     test/test_concat.cpp
   )
   if(TARGET test_concat)
     target_link_libraries(test_concat c_utilities)
   endif()
 
-  ament_add_gtest(test_string_array
+  c_utilities_custom_add_gtest(test_string_array
     test/test_string_array.cpp
   )
   if(TARGET test_string_array)
     target_link_libraries(test_string_array c_utilities)
   endif()
 
-  ament_add_gtest(test_get_env test/test_get_env.cpp
+  c_utilities_custom_add_gtest(test_get_env test/test_get_env.cpp
     ENV
       EMPTY_TEST=
       NORMAL_TEST=foo
@@ -120,15 +137,9 @@ if(BUILD_TESTING)
   )
   if(TARGET test_get_env)
     target_link_libraries(test_get_env ${PROJECT_NAME})
-    if(UNIX AND NOT APPLE)
-      target_link_libraries(test_get_env pthread)
-    endif()
-    if(NOT WIN32)
-      set_target_properties(test_get_env PROPERTIES COMPILE_FLAGS "-std=c++11")
-    endif()
   endif()
 
-  ament_add_gtest(test_filesystem
+  c_utilities_custom_add_gtest(test_filesystem
     test/test_filesystem.cpp
   )
   if(TARGET test_filesystem)
