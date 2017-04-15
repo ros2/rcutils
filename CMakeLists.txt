@@ -31,7 +31,10 @@ add_library(
   c_utilities
   SHARED
   ${utilities_sources})
-set_target_properties(c_utilities PROPERTIES COMPILE_FLAGS ${c_utilities_extra_warning_flags})
+if (c_utilities_extra_warning_flags)
+  set_target_properties(c_utilities
+    PROPERTIES COMPILE_FLAGS ${c_utilities_extra_warning_flags})
+endif()
 
 # Causes the visibility macros to use dllexport rather than dllimport,
 # which is appropriate when building the dll but not consuming it.
@@ -71,14 +74,14 @@ if(BUILD_TESTING)
 
   macro(c_utilities_custom_add_gtest target)
     ament_add_gtest(${target} ${ARGN})
-    if(TARGET ${target})
+    if(TARGET ${target} AND c_utilities_extra_warning_flags)
       set_target_properties(${target} PROPERTIES COMPILE_FLAGS ${c_utilities_extra_warning_flags})
     endif()
   endmacro()
 
   macro(c_utilities_custom_add_gmock target)
     ament_add_gmock(${target} ${ARGN})
-    if(TARGET ${target})
+    if(TARGET ${target} AND c_utilities_extra_warning_flags)
       set_target_properties(${target} PROPERTIES COMPILE_FLAGS ${c_utilities_extra_warning_flags})
     endif()
   endmacro()
