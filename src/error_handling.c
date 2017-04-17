@@ -252,6 +252,8 @@ utilities_reset_error()
     (utilities_error_state_t *)pthread_getspecific(__utilities_error_state_key);
   char * __utilities_error_string = (char *)pthread_getspecific(__utilities_error_string_key);
 #endif
-  __utilities_reset_error_string(&__utilities_error_string, __utilities_error_state->allocator);
+  if (__utilities_error_state) {
+    __utilities_reset_error_string(&__utilities_error_string, __utilities_error_state->allocator);
+  }
   __utilities_reset_error(&__utilities_error_state);
 }
