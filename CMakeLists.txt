@@ -31,7 +31,7 @@ add_library(
   c_utilities
   SHARED
   ${utilities_sources})
-if (c_utilities_extra_warning_flags)
+if(c_utilities_extra_warning_flags)
   set_target_properties(c_utilities
     PROPERTIES COMPILE_FLAGS ${c_utilities_extra_warning_flags})
 endif()
