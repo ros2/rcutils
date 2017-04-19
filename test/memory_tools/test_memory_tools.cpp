@@ -41,7 +41,6 @@ TEST(TestMemoryTools, test_allocation_checking_tools) {
   ASSERT_NE(mem, nullptr);
   remem = realloc(mem, 2048);
   ASSERT_NE(remem, nullptr);
-  if (!remem) {free(mem);}
   free(remem);
   EXPECT_EQ(unexpected_mallocs, 0u);
   EXPECT_EQ(unexpected_reallocs, 0u);
@@ -52,7 +51,6 @@ TEST(TestMemoryTools, test_allocation_checking_tools) {
   ASSERT_NE(mem, nullptr);
   remem = realloc(mem, 2048);
   ASSERT_NE(remem, nullptr);
-  if (!remem) {free(mem);}
   free(remem);
   EXPECT_EQ(unexpected_mallocs, 0u);
   EXPECT_EQ(unexpected_reallocs, 0u);
@@ -67,7 +65,6 @@ TEST(TestMemoryTools, test_allocation_checking_tools) {
   remem = realloc(mem, 2048);
   assert_no_realloc_end();
   ASSERT_NE(remem, nullptr);
-  if (!remem) {free(mem);}
   free(remem);
   assert_no_free_end();
   EXPECT_EQ(unexpected_mallocs, 1u);
@@ -80,7 +77,6 @@ TEST(TestMemoryTools, test_allocation_checking_tools) {
   ASSERT_NE(mem, nullptr);
   remem = realloc(mem, 2048);
   ASSERT_NE(remem, nullptr);
-  if (!remem) {free(mem);}
   free(remem);
   EXPECT_EQ(unexpected_mallocs, 2u);
   EXPECT_EQ(unexpected_reallocs, 1u);
@@ -92,7 +88,6 @@ TEST(TestMemoryTools, test_allocation_checking_tools) {
   remem = realloc(mem, 2048);
   assert_no_realloc_end();
   ASSERT_NE(remem, nullptr);
-  if (!remem) {free(mem);}
   free(remem);
   EXPECT_EQ(unexpected_mallocs, 2u);
   EXPECT_EQ(unexpected_reallocs, 2u);
@@ -103,7 +98,6 @@ TEST(TestMemoryTools, test_allocation_checking_tools) {
   ASSERT_NE(mem, nullptr);
   remem = realloc(mem, 2048);
   ASSERT_NE(remem, nullptr);
-  if (!remem) {free(mem);}
   free(remem);
   assert_no_free_end();
   EXPECT_EQ(unexpected_mallocs, 2u);
@@ -114,7 +108,6 @@ TEST(TestMemoryTools, test_allocation_checking_tools) {
   ASSERT_NE(mem, nullptr);
   remem = realloc(mem, 2048);
   ASSERT_NE(remem, nullptr);
-  if (!remem) {free(mem);}
   free(remem);
   EXPECT_EQ(unexpected_mallocs, 2u);
   EXPECT_EQ(unexpected_reallocs, 2u);
@@ -125,7 +118,6 @@ TEST(TestMemoryTools, test_allocation_checking_tools) {
   ASSERT_NE(mem, nullptr);
   remem = realloc(mem, 2048);
   ASSERT_NE(remem, nullptr);
-  if (!remem) {free(mem);}
   free(remem);
   EXPECT_EQ(unexpected_mallocs, 2u);
   EXPECT_EQ(unexpected_reallocs, 2u);
