@@ -222,11 +222,21 @@ utilities_get_error_string_safe()
 void
 __utilities_reset_error_string(char ** error_string_ptr, utilities_allocator_t allocator)
 {
+  if (!error_string_ptr) {
+    return;
+  }
+  utilities_allocator_t local_allocator = allocator;
+  if (!local_allocator.deallocate) {
+#if UTILITIES_REPORT_ERROR_HANDLING_ERRORS
+    SAFE_FWRITE_TO_STDERR(
+      "[rmw|error_handling.c:" UTILITIES_STRINGIFY(__LINE__) "]: "
+      "invalid allocator, deallocate function pointer is null\n");
+#endif
+    local_allocator = utilities_get_default_allocator();
+  }
   char * error_string = *error_string_ptr;
   if (error_string) {
-    if (error_string) {
-      allocator.deallocate(error_string, allocator.state);
-    }
+    local_allocator.deallocate(error_string, local_allocator.state);
   }
   *error_string_ptr = NULL;
 }
@@ -238,6 +248,14 @@ __utilities_reset_error(utilities_error_state_t ** error_state_ptr_ptr)
     utilities_error_state_t * error_state_ptr = *error_state_ptr_ptr;
     if (error_state_ptr) {
       utilities_allocator_t allocator = error_state_ptr->allocator;
+      if (!allocator.deallocate) {
+#if UTILITIES_REPORT_ERROR_HANDLING_ERRORS
+        SAFE_FWRITE_TO_STDERR(
+          "[rmw|error_handling.c:" UTILITIES_STRINGIFY(__LINE__) "]: "
+          "invalid allocator, deallocate function pointer is null\n");
+#endif
+        allocator = utilities_get_default_allocator();
+      }
       if (error_state_ptr->message) {
         // Cast const away to delete previously allocated memory.
         allocator.deallocate((char *)error_state_ptr->message, allocator.state);
