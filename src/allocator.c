@@ -15,8 +15,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "c_utilities/allocator.h"
-#include "c_utilities/macros.h"
+#include "rcutils/allocator.h"
+#include "rcutils/macros.h"
 
 static void *
 __default_allocate(size_t size, void * state)
@@ -39,10 +39,10 @@ __default_reallocate(void * pointer, size_t size, void * state)
   return realloc(pointer, size);
 }
 
-utilities_allocator_t
-utilities_get_default_allocator()
+rcutils_allocator_t
+rcutils_get_default_allocator()
 {
-  static utilities_allocator_t default_allocator = {
+  static rcutils_allocator_t default_allocator = {
     __default_allocate,
     __default_deallocate,
     __default_reallocate,
@@ -52,12 +52,12 @@ utilities_get_default_allocator()
 }
 
 void *
-utilities_reallocf(void * pointer, size_t size, utilities_allocator_t * allocator)
+rcutils_reallocf(void * pointer, size_t size, rcutils_allocator_t * allocator)
 {
   if (!allocator || !allocator->reallocate || !allocator->deallocate) {
     // cannot deallocate pointer, so print message to stderr and return NULL
     static const char * msg =
-      "[c_utilties|allocator.c:" UTILITIES_STRINGIFY(__LINE__) "] utilities_reallocf(): "
+      "[c_utilties|allocator.c:" RCUTILS_STRINGIFY(__LINE__) "] rcutils_reallocf(): "
       "invalid allocator or allocator function pointers, memory leaked\n";
     fwrite(msg, sizeof(char), sizeof(msg), stderr);
     return NULL;

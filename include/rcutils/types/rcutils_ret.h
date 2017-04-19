@@ -12,21 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef C_UTILITIES__TYPES__UTILITIES_RET_H_
-#define C_UTILITIES__TYPES__UTILITIES_RET_H_
+#ifndef RCUTILS__TYPES__RCUTILS_RET_H_
+#define RCUTILS__TYPES__RCUTILS_RET_H_
 
 #if __cplusplus
 extern "C"
 {
 #endif
 
-typedef int utilities_ret_t;
-#define UTILITIES_RET_OK 0
-#define UTILITIES_RET_WARN 1
-#define UTILITIES_RET_ERROR 2
+typedef int rcutils_ret_t;
+#define RCUTILS_RET_OK 0
+#define RCUTILS_RET_WARN 1
+#define RCUTILS_RET_ERROR 2
 
 #if __cplusplus
 }
 #endif
 
-#endif  // C_UTILITIES__TYPES__UTILITIES_RET_H_
+#endif  // RCUTILS__TYPES__RCUTILS_RET_H_

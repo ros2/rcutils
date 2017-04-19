@@ -12,19 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef C_UTILITIES__TYPES_H_
-#define C_UTILITIES__TYPES_H_
+#ifndef RCUTILS__TYPES_H_
+#define RCUTILS__TYPES_H_
 
 #if __cplusplus
 extern "C"
 {
 #endif
 
-#include "c_utilities/types/string_array.h"
-#include "c_utilities/types/utilities_ret.h"
+#include "rcutils/types/string_array.h"
+#include "rcutils/types/rcutils_ret.h"
 
 #if __cplusplus
 }
 #endif
 
-#endif  // C_UTILITIES__TYPES_H_
+#endif  // RCUTILS__TYPES_H_

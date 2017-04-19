@@ -19,220 +19,220 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <c_utilities/error_handling.h>
-#include <c_utilities/macros.h>
+#include <rcutils/error_handling.h>
+#include <rcutils/macros.h>
 
 // When this define evaluates to true (default), then messages will printed to
 // stderr when an error is encoutered while setting the error state.
 // For example, when memory cannot be allocated or a previous error state is
 // being overwritten.
-#ifndef UTILITIES_REPORT_ERROR_HANDLING_ERRORS
-#define UTILITIES_REPORT_ERROR_HANDLING_ERRORS 1
+#ifndef RCUTILS_REPORT_ERROR_HANDLING_ERRORS
+#define RCUTILS_REPORT_ERROR_HANDLING_ERRORS 1
 #endif
 
 #define SAFE_FWRITE_TO_STDERR(msg) fwrite(msg, sizeof(char), sizeof(msg), stderr)
 
-#ifdef UTILITIES_THREAD_LOCAL_PTHREAD
+#ifdef RCUTILS_THREAD_LOCAL_PTHREAD
 #include <pthread.h>
-pthread_key_t __utilities_error_state_key;
-pthread_key_t __utilities_error_string_key;
+pthread_key_t __rcutils_error_state_key;
+pthread_key_t __rcutils_error_string_key;
 #else
-UTILITIES_THREAD_LOCAL utilities_error_state_t * __utilities_error_state = NULL;
-UTILITIES_THREAD_LOCAL char * __utilities_error_string = NULL;
+RCUTILS_THREAD_LOCAL rcutils_error_state_t * __rcutils_error_state = NULL;
+RCUTILS_THREAD_LOCAL char * __rcutils_error_string = NULL;
 #endif
 
 static const char __error_format_string[] = "%s, at %s:%zu";
 
 bool
-__utilities_error_is_set(utilities_error_state_t * error_state);
+__rcutils_error_is_set(rcutils_error_state_t * error_state);
 
 void
-__utilities_reset_error_string(char ** error_string_ptr, utilities_allocator_t allocator);
+__rcutils_reset_error_string(char ** error_string_ptr, rcutils_allocator_t allocator);
 
 void
-__utilities_reset_error(utilities_error_state_t ** error_state_ptr_ptr);
+__rcutils_reset_error(rcutils_error_state_t ** error_state_ptr_ptr);
 
 void
-utilities_set_error_state(
+rcutils_set_error_state(
   const char * error_string,
   const char * file,
   size_t line_number,
-  utilities_allocator_t allocator)
+  rcutils_allocator_t allocator)
 {
-#ifdef UTILITIES_THREAD_LOCAL_PTHREAD
-  utilities_error_state_t * __utilities_error_state =
-    (utilities_error_state_t *)pthread_getspecific(__utilities_error_state_key);
-  char * __utilities_error_string = (char *)pthread_getspecific(__utilities_error_string_key);
+#ifdef RCUTILS_THREAD_LOCAL_PTHREAD
+  rcutils_error_state_t * __rcutils_error_state =
+    (rcutils_error_state_t *)pthread_getspecific(__rcutils_error_state_key);
+  char * __rcutils_error_string = (char *)pthread_getspecific(__rcutils_error_string_key);
 #endif
-  utilities_error_state_t * old_error_state = __utilities_error_state;
-#if UTILITIES_REPORT_ERROR_HANDLING_ERRORS
-  const char * old_error_string = utilities_get_error_string_safe();
+  rcutils_error_state_t * old_error_state = __rcutils_error_state;
+#if RCUTILS_REPORT_ERROR_HANDLING_ERRORS
+  const char * old_error_string = rcutils_get_error_string_safe();
 #endif
-  __utilities_error_state = (utilities_error_state_t *)allocator.allocate(
-    sizeof(utilities_error_state_t), allocator.state);
-  if (!__utilities_error_state) {
-#if UTILITIES_REPORT_ERROR_HANDLING_ERRORS
-    // utilities_allocate failed, but fwrite might work?
+  __rcutils_error_state = (rcutils_error_state_t *)allocator.allocate(
+    sizeof(rcutils_error_state_t), allocator.state);
+  if (!__rcutils_error_state) {
+#if RCUTILS_REPORT_ERROR_HANDLING_ERRORS
+    // rcutils_allocate failed, but fwrite might work?
     SAFE_FWRITE_TO_STDERR(
-      "[rmw|error_handling.c:" UTILITIES_STRINGIFY(__LINE__)
+      "[rmw|error_handling.c:" RCUTILS_STRINGIFY(__LINE__)
       "] failed to allocate memory for the error state struct\n");
 #endif
     return;
   }
-  __utilities_error_state->allocator = allocator;
+  __rcutils_error_state->allocator = allocator;
 
-#ifdef UTILITIES_THREAD_LOCAL_PTHREAD
-  pthread_setspecific(__utilities_error_state_key, __utilities_error_state);
+#ifdef RCUTILS_THREAD_LOCAL_PTHREAD
+  pthread_setspecific(__rcutils_error_state_key, __rcutils_error_state);
 #endif
   size_t error_string_length = strlen(error_string);
   // the memory must be one byte bigger to store the NULL character
-  __utilities_error_state->message =
+  __rcutils_error_state->message =
     (char *)allocator.allocate(error_string_length + 1, allocator.state);
-  if (!__utilities_error_state->message) {
-#if UTILITIES_REPORT_ERROR_HANDLING_ERRORS
+  if (!__rcutils_error_state->message) {
+#if RCUTILS_REPORT_ERROR_HANDLING_ERRORS
     // malloc failed, but fwrite might work?
     SAFE_FWRITE_TO_STDERR(
-      "[rmw|error_handling.c:" UTILITIES_STRINGIFY(__LINE__)
+      "[rmw|error_handling.c:" RCUTILS_STRINGIFY(__LINE__)
       "] failed to allocate memory for the error message in the error state struct\n");
 #endif
-    utilities_reset_error();  // This will free any allocations done so far.
+    rcutils_reset_error();  // This will free any allocations done so far.
     return;
   }
   // Cast the const away to set ->message initially.
 #ifndef _WIN32
-  snprintf((char *)__utilities_error_state->message, error_string_length + 1, "%s", error_string);
+  snprintf((char *)__rcutils_error_state->message, error_string_length + 1, "%s", error_string);
 #else
   auto retcode = strcpy_s(
-    (char *)__utilities_error_state->message, error_string_length + 1, error_string);
+    (char *)__rcutils_error_state->message, error_string_length + 1, error_string);
   if (retcode) {
-#if UTILITIES_REPORT_ERROR_HANDLING_ERRORS
+#if RCUTILS_REPORT_ERROR_HANDLING_ERRORS
     SAFE_FWRITE_TO_STDERR(
-      "[rmw|error_handling.c:" UTILITIES_STRINGIFY(__LINE__)
+      "[rmw|error_handling.c:" RCUTILS_STRINGIFY(__LINE__)
       "] failed to copy error message in the error state struct\n");
 #endif
   }
 #endif
-  __utilities_error_state->file = file;
-  __utilities_error_state->line_number = line_number;
-  if (__utilities_error_is_set(old_error_state)) {
-#if UTILITIES_REPORT_ERROR_HANDLING_ERRORS
+  __rcutils_error_state->file = file;
+  __rcutils_error_state->line_number = line_number;
+  if (__rcutils_error_is_set(old_error_state)) {
+#if RCUTILS_REPORT_ERROR_HANDLING_ERRORS
     // Only warn of overwritting if the new error string is different from the old ones.
     if (error_string != old_error_string && error_string != old_error_state->message) {
       fprintf(
         stderr,
-        "[rmw|error_handling.c:" UTILITIES_STRINGIFY(__LINE__) "] utilities_set_error_state():"
+        "[rmw|error_handling.c:" RCUTILS_STRINGIFY(__LINE__) "] rcutils_set_error_state():"
         "error string being overwritten: %s\n",
         old_error_string);
     }
 #endif
-    __utilities_reset_error(&old_error_state);
+    __rcutils_reset_error(&old_error_state);
   }
-  __utilities_reset_error_string(&__utilities_error_string, __utilities_error_state->allocator);
+  __rcutils_reset_error_string(&__rcutils_error_string, __rcutils_error_state->allocator);
 }
 
-const utilities_error_state_t *
-utilities_get_error_state()
+const rcutils_error_state_t *
+rcutils_get_error_state()
 {
-#ifdef UTILITIES_THREAD_LOCAL_PTHREAD
-  return (utilities_error_state_t *)pthread_getspecific(__utilities_error_state_key);
+#ifdef RCUTILS_THREAD_LOCAL_PTHREAD
+  return (rcutils_error_state_t *)pthread_getspecific(__rcutils_error_state_key);
 #else
-  return __utilities_error_state;
+  return __rcutils_error_state;
 #endif
 }
 
 static void
 format_error_string()
 {
-#ifdef UTILITIES_THREAD_LOCAL_PTHREAD
-  utilities_error_state_t * __utilities_error_state =
-    (utilities_error_state_t *)pthread_getspecific(__utilities_error_state_key);
-  char * __utilities_error_string = (char *)pthread_getspecific(__utilities_error_string_key);
+#ifdef RCUTILS_THREAD_LOCAL_PTHREAD
+  rcutils_error_state_t * __rcutils_error_state =
+    (rcutils_error_state_t *)pthread_getspecific(__rcutils_error_state_key);
+  char * __rcutils_error_string = (char *)pthread_getspecific(__rcutils_error_string_key);
 #endif
-  if (!__utilities_error_is_set(__utilities_error_state)) {
+  if (!__rcutils_error_is_set(__rcutils_error_state)) {
     return;
   }
   size_t bytes_it_would_have_written = snprintf(
     NULL, 0,
     __error_format_string,
-    __utilities_error_state->message,
-    __utilities_error_state->file,
-    __utilities_error_state->line_number);
-  utilities_allocator_t allocator = __utilities_error_state->allocator;
-  __utilities_error_string =
+    __rcutils_error_state->message,
+    __rcutils_error_state->file,
+    __rcutils_error_state->line_number);
+  rcutils_allocator_t allocator = __rcutils_error_state->allocator;
+  __rcutils_error_string =
     (char *)allocator.allocate(bytes_it_would_have_written + 1, allocator.state);
-#ifdef UTILITIES_THREAD_LOCAL_PTHREAD
-  pthread_setspecific(__utilities_error_string_key, __utilities_error_string);
+#ifdef RCUTILS_THREAD_LOCAL_PTHREAD
+  pthread_setspecific(__rcutils_error_string_key, __rcutils_error_string);
 #endif
-  if (!__utilities_error_string) {
-#if UTILITIES_REPORT_ERROR_HANDLING_ERRORS
-    // utilities_allocate failed, but fwrite might work?
+  if (!__rcutils_error_string) {
+#if RCUTILS_REPORT_ERROR_HANDLING_ERRORS
+    // rcutils_allocate failed, but fwrite might work?
     SAFE_FWRITE_TO_STDERR(
-      "[rmw|error_handling.c:" UTILITIES_STRINGIFY(__LINE__)
+      "[rmw|error_handling.c:" RCUTILS_STRINGIFY(__LINE__)
       "] failed to allocate memory for the error string\n");
 #endif
     return;
   }
   snprintf(
-    __utilities_error_string, bytes_it_would_have_written + 1,
+    __rcutils_error_string, bytes_it_would_have_written + 1,
     __error_format_string,
-    __utilities_error_state->message,
-    __utilities_error_state->file,
-    __utilities_error_state->line_number);
+    __rcutils_error_state->message,
+    __rcutils_error_state->file,
+    __rcutils_error_state->line_number);
   // The Windows version of snprintf does not null terminate automatically in all cases.
-  __utilities_error_string[bytes_it_would_have_written] = '\0';
+  __rcutils_error_string[bytes_it_would_have_written] = '\0';
 }
 
 const char *
-utilities_get_error_string()
+rcutils_get_error_string()
 {
-#ifdef UTILITIES_THREAD_LOCAL_PTHREAD
-  char * __utilities_error_string = (char *)pthread_getspecific(__utilities_error_string_key);
+#ifdef RCUTILS_THREAD_LOCAL_PTHREAD
+  char * __rcutils_error_string = (char *)pthread_getspecific(__rcutils_error_string_key);
 #endif
-  if (!__utilities_error_string) {
+  if (!__rcutils_error_string) {
     format_error_string();
   }
-  return __utilities_error_string;
+  return __rcutils_error_string;
 }
 
 bool
-__utilities_error_is_set(utilities_error_state_t * error_state)
+__rcutils_error_is_set(rcutils_error_state_t * error_state)
 {
   return error_state != NULL;
 }
 
 bool
-utilities_error_is_set()
+rcutils_error_is_set()
 {
-#ifdef UTILITIES_THREAD_LOCAL_PTHREAD
-  utilities_error_state_t * __utilities_error_state =
-    (utilities_error_state_t *)pthread_getspecific(__utilities_error_state_key);
+#ifdef RCUTILS_THREAD_LOCAL_PTHREAD
+  rcutils_error_state_t * __rcutils_error_state =
+    (rcutils_error_state_t *)pthread_getspecific(__rcutils_error_state_key);
 #endif
-  return __utilities_error_is_set(__utilities_error_state);
+  return __rcutils_error_is_set(__rcutils_error_state);
 }
 
 const char *
-utilities_get_error_string_safe()
+rcutils_get_error_string_safe()
 {
-  if (!utilities_error_is_set()) {
+  if (!rcutils_error_is_set()) {
     return "error not set";
   }
-  return utilities_get_error_string();
+  return rcutils_get_error_string();
 }
 
 void
-__utilities_reset_error_string(char ** error_string_ptr, utilities_allocator_t allocator)
+__rcutils_reset_error_string(char ** error_string_ptr, rcutils_allocator_t allocator)
 {
   if (!error_string_ptr) {
     return;
   }
-  utilities_allocator_t local_allocator = allocator;
+  rcutils_allocator_t local_allocator = allocator;
   if (!local_allocator.deallocate) {
-#if UTILITIES_REPORT_ERROR_HANDLING_ERRORS
+#if RCUTILS_REPORT_ERROR_HANDLING_ERRORS
     SAFE_FWRITE_TO_STDERR(
-      "[rmw|error_handling.c:" UTILITIES_STRINGIFY(__LINE__) "]: "
+      "[rmw|error_handling.c:" RCUTILS_STRINGIFY(__LINE__) "]: "
       "invalid allocator, deallocate function pointer is null\n");
 #endif
-    local_allocator = utilities_get_default_allocator();
+    local_allocator = rcutils_get_default_allocator();
   }
   char * error_string = *error_string_ptr;
   if (error_string) {
@@ -242,19 +242,19 @@ __utilities_reset_error_string(char ** error_string_ptr, utilities_allocator_t a
 }
 
 void
-__utilities_reset_error(utilities_error_state_t ** error_state_ptr_ptr)
+__rcutils_reset_error(rcutils_error_state_t ** error_state_ptr_ptr)
 {
   if (error_state_ptr_ptr) {
-    utilities_error_state_t * error_state_ptr = *error_state_ptr_ptr;
+    rcutils_error_state_t * error_state_ptr = *error_state_ptr_ptr;
     if (error_state_ptr) {
-      utilities_allocator_t allocator = error_state_ptr->allocator;
+      rcutils_allocator_t allocator = error_state_ptr->allocator;
       if (!allocator.deallocate) {
-#if UTILITIES_REPORT_ERROR_HANDLING_ERRORS
+#if RCUTILS_REPORT_ERROR_HANDLING_ERRORS
         SAFE_FWRITE_TO_STDERR(
-          "[rmw|error_handling.c:" UTILITIES_STRINGIFY(__LINE__) "]: "
+          "[rmw|error_handling.c:" RCUTILS_STRINGIFY(__LINE__) "]: "
           "invalid allocator, deallocate function pointer is null\n");
 #endif
-        allocator = utilities_get_default_allocator();
+        allocator = rcutils_get_default_allocator();
       }
       if (error_state_ptr->message) {
         // Cast const away to delete previously allocated memory.
@@ -267,15 +267,15 @@ __utilities_reset_error(utilities_error_state_t ** error_state_ptr_ptr)
 }
 
 void
-utilities_reset_error()
+rcutils_reset_error()
 {
-#ifdef UTILITIES_THREAD_LOCAL_PTHREAD
-  utilities_error_state_t * __utilities_error_state =
-    (utilities_error_state_t *)pthread_getspecific(__utilities_error_state_key);
-  char * __utilities_error_string = (char *)pthread_getspecific(__utilities_error_string_key);
+#ifdef RCUTILS_THREAD_LOCAL_PTHREAD
+  rcutils_error_state_t * __rcutils_error_state =
+    (rcutils_error_state_t *)pthread_getspecific(__rcutils_error_state_key);
+  char * __rcutils_error_string = (char *)pthread_getspecific(__rcutils_error_string_key);
 #endif
-  if (__utilities_error_state) {
-    __utilities_reset_error_string(&__utilities_error_string, __utilities_error_state->allocator);
+  if (__rcutils_error_state) {
+    __rcutils_reset_error_string(&__rcutils_error_string, __rcutils_error_state->allocator);
   }
-  __utilities_reset_error(&__utilities_error_state);
+  __rcutils_reset_error(&__rcutils_error_state);
 }

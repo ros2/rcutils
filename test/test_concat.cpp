@@ -14,7 +14,7 @@
 
 #include "gtest/gtest.h"
 
-#include "c_utilities/concat.h"
+#include "rcutils/concat.h"
 
 #define ENABLE_LOGGING 0
 
@@ -30,20 +30,20 @@ TEST(test_concat, concat) {
   const char * rhs = NULL;
   const char * delimiter = NULL;
 
-  char * res = utilities_concat(lhs, rhs, delimiter);
+  char * res = rcutils_concat(lhs, rhs, delimiter);
   EXPECT_STREQ(NULL, res);
 
   lhs = static_cast<const char *>("foo");
-  res = utilities_concat(lhs, rhs, delimiter);
+  res = rcutils_concat(lhs, rhs, delimiter);
   EXPECT_STREQ(NULL, res);
 
   rhs = static_cast<const char *>("bar");
-  res = utilities_concat(lhs, rhs, delimiter);
+  res = rcutils_concat(lhs, rhs, delimiter);
   LOG("foobar", res);
   EXPECT_STREQ("foobar", res);
 
   delimiter = static_cast<const char *>("/");
-  res = utilities_concat(lhs, rhs, delimiter);
+  res = rcutils_concat(lhs, rhs, delimiter);
   LOG("foo/bar", res);
   EXPECT_STREQ("foo/bar", res);
 }

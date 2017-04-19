@@ -31,9 +31,9 @@ ament_add_gmock(test_memory_tools test_memory_tools.cpp
 )
 if(TARGET test_memory_tools)
   target_link_libraries(test_memory_tools ${extra_test_libraries})
-  if(c_utilities_extra_warning_flags)
+  if(rcutils_extra_warning_flags)
     set_target_properties(test_memory_tools
-      PROPERTIES COMPILE_FLAGS ${c_utilities_extra_warning_flags})
+      PROPERTIES COMPILE_FLAGS ${rcutils_extra_warning_flags})
   endif()
 endif()
 

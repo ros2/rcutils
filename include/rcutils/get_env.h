@@ -12,16 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef C_UTILITIES__GET_ENV_H_
-#define C_UTILITIES__GET_ENV_H_
+#ifndef RCUTILS__GET_ENV_H_
+#define RCUTILS__GET_ENV_H_
 
 #if __cplusplus
 extern "C"
 {
 #endif
 
-#include "c_utilities/macros.h"
-#include "c_utilities/visibility_control.h"
+#include "rcutils/macros.h"
+#include "rcutils/visibility_control.h"
 
 /// Retrieve the value of the given environment variable if it exists, or "".
 /* The c-string which is returned in the env_value output parameter is only
@@ -37,10 +37,10 @@ extern "C"
  *
  * ```c
  * #include <stdio.h>
- * #include <c_utilities/get_env.h>
+ * #include <rcutils/get_env.h>
  * const char * env_value;
  * const char * error_str;
- * error_str = utilities_get_env("SOME_ENV_VAR", &env_value);
+ * error_str = rcutils_get_env("SOME_ENV_VAR", &env_value);
  * if (error_str != NULL) {
  *   fprintf(stderr, "Error getting env var: %s\n", error_str);
  * }
@@ -56,13 +56,13 @@ extern "C"
  * \return NULL on success (success can be returning an empty string)
  *         error string on failure
  */
-C_UTILITIES_PUBLIC
-C_UTILITIES_WARN_UNUSED
+RCUTILS_PUBLIC
+RCUTILS_WARN_UNUSED
 const char *
-utilities_get_env(const char * env_name, const char ** env_value);
+rcutils_get_env(const char * env_name, const char ** env_value);
 
 #if __cplusplus
 }
 #endif
 
-#endif  // C_UTILITIES__GET_ENV_H_
+#endif  // RCUTILS__GET_ENV_H_

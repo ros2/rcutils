@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef C_UTILITIES__TYPES__STRING_ARRAY_H_
-#define C_UTILITIES__TYPES__STRING_ARRAY_H_
+#ifndef RCUTILS__TYPES__STRING_ARRAY_H_
+#define RCUTILS__TYPES__STRING_ARRAY_H_
 
 #if __cplusplus
 extern "C"
@@ -22,20 +22,20 @@ extern "C"
 
 #include <string.h>
 
-#include "c_utilities/macros.h"
-#include "c_utilities/types/utilities_ret.h"
-#include "c_utilities/visibility_control.h"
+#include "rcutils/macros.h"
+#include "rcutils/types/rcutils_ret.h"
+#include "rcutils/visibility_control.h"
 
-typedef struct C_UTILITIES_PUBLIC_TYPE utilities_string_array_t
+typedef struct RCUTILS_PUBLIC_TYPE rcutils_string_array_t
 {
   size_t size;
   char ** data;
-} utilities_string_array_t;
+} rcutils_string_array_t;
 
 /// Return an empty string array struct.
 /**
  * This function returns an empty and zero initialized string array struct.
- * Calling utilities_string_array_fini() on any non-initialized instance leads
+ * Calling rcutils_string_array_fini() on any non-initialized instance leads
  * to undefined behavior.
  * Every instance of string_array_t has to either be zero_initialized with this
  * function or manually allocated.
@@ -43,16 +43,16 @@ typedef struct C_UTILITIES_PUBLIC_TYPE utilities_string_array_t
  * Example:
  *
  * ```c
- * string_array_t foo;
- * utilities_string_array_fini(&foo); // undefined behavior!
+ * rcutils_string_array_t foo;
+ * rcutils_string_array_fini(&foo); // undefined behavior!
  *
- * utilities_string_array_t bar = utilities_get_zero_initialized_string_array();
- * utilities_string_array_fini(&bar); // ok
+ * rcutils_string_array_t bar = rcutils_get_zero_initialized_string_array();
+ * rcutils_string_array_fini(&bar); // ok
  * ```
  */
-C_UTILITIES_PUBLIC
-utilities_string_array_t
-utilities_get_zero_initialized_string_array();
+RCUTILS_PUBLIC
+rcutils_string_array_t
+rcutils_get_zero_initialized_string_array();
 
 /// Return a pre-initialized string array struct.
 /**
@@ -65,27 +65,27 @@ utilities_get_zero_initialized_string_array();
  * Example:
  *
  * ```c
- * string_array_t sa2 = utilities_get_pre_initialized_string_array(2);
+ * rcutils_string_array_t sa2 = rcutils_get_pre_initialized_string_array(2);
  * sa2.data[0] = strdup("Hello");
  * sa2.data[1] = strdup("World");
  * ```
  */
-C_UTILITIES_PUBLIC
-utilities_string_array_t
-utilities_get_pre_initialized_string_array(size_t size);
+RCUTILS_PUBLIC
+rcutils_string_array_t
+rcutils_get_pre_initialized_string_array(size_t size);
 
 /// Free the allocated string array struct.
 /**
  * This function destroys the string array instance
  * and frees all allocated memory within.
  */
-C_UTILITIES_PUBLIC
-C_UTILITIES_WARN_UNUSED
-utilities_ret_t
-utilities_string_array_fini(utilities_string_array_t * array);
+RCUTILS_PUBLIC
+RCUTILS_WARN_UNUSED
+rcutils_ret_t
+rcutils_string_array_fini(rcutils_string_array_t * array);
 
 #if __cplusplus
 }
 #endif
 
-#endif  // C_UTILITIES__TYPES__STRING_ARRAY_H_
+#endif  // RCUTILS__TYPES__STRING_ARRAY_H_

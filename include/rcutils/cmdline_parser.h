@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef C_UTILITIES__CMDLINE_PARSER_H_
-#define C_UTILITIES__CMDLINE_PARSER_H_
+#ifndef RCUTILS__CMDLINE_PARSER_H_
+#define RCUTILS__CMDLINE_PARSER_H_
 
 #if __cplusplus
 extern "C"
@@ -22,13 +22,13 @@ extern "C"
 
 #include <stdbool.h>
 
-#include "c_utilities/visibility_control.h"
+#include "rcutils/visibility_control.h"
 
-C_UTILITIES_PUBLIC
+RCUTILS_PUBLIC
 bool
 cli_option_exist(char ** begin, char ** end, const char * option);
 
-C_UTILITIES_PUBLIC
+RCUTILS_PUBLIC
 char *
 cli_get_option(char ** begin, char ** end, const char * option);
 
@@ -36,4 +36,4 @@ cli_get_option(char ** begin, char ** end, const char * option);
 }
 #endif
 
-#endif  // C_UTILITIES__CMDLINE_PARSER_H_
+#endif  // RCUTILS__CMDLINE_PARSER_H_

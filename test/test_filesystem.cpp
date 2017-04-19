@@ -15,12 +15,12 @@
 #include <gtest/gtest.h>
 #include <string>
 
-#include "c_utilities/filesystem.h"
+#include "rcutils/filesystem.h"
 
 static char cwd[1024];
 
 TEST(test_filesystem, join_path) {
-  const char * path = utilities_join_path("foo", "bar");
+  const char * path = rcutils_join_path("foo", "bar");
 #ifdef WIN32
   const char * ref_str = "foo\\bar";
 #else
@@ -31,79 +31,79 @@ TEST(test_filesystem, join_path) {
 }
 
 TEST(test_filesystem, exists) {
-  EXPECT_FALSE(utilities_get_cwd(NULL, 1024));
-  EXPECT_TRUE(utilities_get_cwd(cwd, 1024));
-  const char * path = utilities_join_path(cwd, "test");
-  path = utilities_join_path(path, "dummy_readable_file.txt");
-  EXPECT_TRUE(utilities_exists(path));
-  path = utilities_join_path(cwd, "test");
-  path = utilities_join_path(path, "dummy_folder");
-  EXPECT_TRUE(utilities_exists(path));
+  EXPECT_FALSE(rcutils_get_cwd(NULL, 1024));
+  EXPECT_TRUE(rcutils_get_cwd(cwd, 1024));
+  const char * path = rcutils_join_path(cwd, "test");
+  path = rcutils_join_path(path, "dummy_readable_file.txt");
+  EXPECT_TRUE(rcutils_exists(path));
+  path = rcutils_join_path(cwd, "test");
+  path = rcutils_join_path(path, "dummy_folder");
+  EXPECT_TRUE(rcutils_exists(path));
 }
 
 TEST(test_filesystem, is_directory) {
-  EXPECT_TRUE(utilities_get_cwd(cwd, 1024));
-  const char * path = utilities_join_path(cwd, "test");
-  path = utilities_join_path(path, "dummy_readable_file.txt");
-  EXPECT_FALSE(utilities_is_directory(path));
-  path = utilities_join_path(cwd, "test");
-  path = utilities_join_path(path, "dummy_folder");
-  EXPECT_TRUE(utilities_is_directory(path));
+  EXPECT_TRUE(rcutils_get_cwd(cwd, 1024));
+  const char * path = rcutils_join_path(cwd, "test");
+  path = rcutils_join_path(path, "dummy_readable_file.txt");
+  EXPECT_FALSE(rcutils_is_directory(path));
+  path = rcutils_join_path(cwd, "test");
+  path = rcutils_join_path(path, "dummy_folder");
+  EXPECT_TRUE(rcutils_is_directory(path));
 }
 
 TEST(test_filesystem, is_file) {
-  EXPECT_TRUE(utilities_get_cwd(cwd, 1024));
-  const char * path = utilities_join_path(cwd, "test");
-  path = utilities_join_path(path, "dummy_readable_file.txt");
-  EXPECT_TRUE(utilities_is_file(path));
-  path = utilities_join_path(cwd, "test");
-  path = utilities_join_path(path, "dummy_folder");
-  EXPECT_FALSE(utilities_is_file(path));
+  EXPECT_TRUE(rcutils_get_cwd(cwd, 1024));
+  const char * path = rcutils_join_path(cwd, "test");
+  path = rcutils_join_path(path, "dummy_readable_file.txt");
+  EXPECT_TRUE(rcutils_is_file(path));
+  path = rcutils_join_path(cwd, "test");
+  path = rcutils_join_path(path, "dummy_folder");
+  EXPECT_FALSE(rcutils_is_file(path));
 }
 
 TEST(test_filesystem, is_readable) {
-  EXPECT_TRUE(utilities_get_cwd(cwd, 1024));
-  const char * path = utilities_join_path(cwd, "test");
-  path = utilities_join_path(path, "dummy_readable_file.txt");
-  EXPECT_TRUE(utilities_is_readable(path));
-  path = utilities_join_path(cwd, "test");
-  path = utilities_join_path(path, "dummy_folder");
-  EXPECT_TRUE(utilities_is_readable(path));
-  path = utilities_join_path(cwd, "test");
-  path = utilities_join_path(path, "dummy_readable_writable_file.txt");
-  EXPECT_TRUE(utilities_is_readable(path));
-  path = utilities_join_path(cwd, "test");
-  path = utilities_join_path(path, "dummy_nonexisting_file.txt");
-  EXPECT_FALSE(utilities_is_readable(path));
+  EXPECT_TRUE(rcutils_get_cwd(cwd, 1024));
+  const char * path = rcutils_join_path(cwd, "test");
+  path = rcutils_join_path(path, "dummy_readable_file.txt");
+  EXPECT_TRUE(rcutils_is_readable(path));
+  path = rcutils_join_path(cwd, "test");
+  path = rcutils_join_path(path, "dummy_folder");
+  EXPECT_TRUE(rcutils_is_readable(path));
+  path = rcutils_join_path(cwd, "test");
+  path = rcutils_join_path(path, "dummy_readable_writable_file.txt");
+  EXPECT_TRUE(rcutils_is_readable(path));
+  path = rcutils_join_path(cwd, "test");
+  path = rcutils_join_path(path, "dummy_nonexisting_file.txt");
+  EXPECT_FALSE(rcutils_is_readable(path));
 }
 
 TEST(test_filesystem, is_writable) {
-  EXPECT_TRUE(utilities_get_cwd(cwd, 1024));
+  EXPECT_TRUE(rcutils_get_cwd(cwd, 1024));
   // path = std::string(cwd) + delimiter + std::string("test") + delimiter + std::string(
   //   "dummy_readable_file.txt");
-  // EXPECT_FALSE(utilities_is_writable(path.c_str()));
-  const char * path = utilities_join_path(cwd, "test");
-  path = utilities_join_path(path, "dummy_folder");
-  EXPECT_TRUE(utilities_is_writable(path));
-  path = utilities_join_path(cwd, "test");
-  path = utilities_join_path(path, "dummy_readable_writable_file.txt");
-  EXPECT_TRUE(utilities_is_writable(path));
-  path = utilities_join_path(cwd, "test");
-  path = utilities_join_path(path, "dummy_nonexisting_file.txt");
-  EXPECT_FALSE(utilities_is_writable(path));
+  // EXPECT_FALSE(rcutils_is_writable(path.c_str()));
+  const char * path = rcutils_join_path(cwd, "test");
+  path = rcutils_join_path(path, "dummy_folder");
+  EXPECT_TRUE(rcutils_is_writable(path));
+  path = rcutils_join_path(cwd, "test");
+  path = rcutils_join_path(path, "dummy_readable_writable_file.txt");
+  EXPECT_TRUE(rcutils_is_writable(path));
+  path = rcutils_join_path(cwd, "test");
+  path = rcutils_join_path(path, "dummy_nonexisting_file.txt");
+  EXPECT_FALSE(rcutils_is_writable(path));
 }
 
 TEST(test_filesystem, is_readable_and_writable) {
-  EXPECT_TRUE(utilities_get_cwd(cwd, 1024));
+  EXPECT_TRUE(rcutils_get_cwd(cwd, 1024));
   // path = std::string(cwd) + std::string("/test/dummy_readable_file.txt");
-  // EXPECT_FALSE(utilities_is_readable_and_writable(path.c_str()));
-  const char * path = utilities_join_path(cwd, "test");
-  path = utilities_join_path(path, "dummy_folder");
-  EXPECT_TRUE(utilities_is_readable_and_writable(path));
-  path = utilities_join_path(cwd, "test");
-  path = utilities_join_path(path, "dummy_readable_writable_file.txt");
-  EXPECT_TRUE(utilities_is_readable_and_writable(path));
-  path = utilities_join_path(cwd, "test");
-  path = utilities_join_path(path, "dummy_nonexisting_file.txt");
-  EXPECT_FALSE(utilities_is_readable_and_writable(path));
+  // EXPECT_FALSE(rcutils_is_readable_and_writable(path.c_str()));
+  const char * path = rcutils_join_path(cwd, "test");
+  path = rcutils_join_path(path, "dummy_folder");
+  EXPECT_TRUE(rcutils_is_readable_and_writable(path));
+  path = rcutils_join_path(cwd, "test");
+  path = rcutils_join_path(path, "dummy_readable_writable_file.txt");
+  EXPECT_TRUE(rcutils_is_readable_and_writable(path));
+  path = rcutils_join_path(cwd, "test");
+  path = rcutils_join_path(path, "dummy_nonexisting_file.txt");
+  EXPECT_FALSE(rcutils_is_readable_and_writable(path));
 }

@@ -14,7 +14,7 @@
 
 #include "gtest/gtest.h"
 
-#include "c_utilities/find.h"
+#include "rcutils/find.h"
 
 #define ENABLE_LOGGING 1
 
@@ -27,14 +27,14 @@
 
 size_t test_find(const char * str, char delimiter, size_t expected_pos)
 {
-  size_t actual_pos = utilities_find(str, delimiter);
+  size_t actual_pos = rcutils_find(str, delimiter);
   EXPECT_EQ(expected_pos, actual_pos);
   return actual_pos;
 }
 
 size_t test_find_last(const char * str, char delimiter, size_t expected_pos)
 {
-  size_t actual_pos = utilities_find_last(str, delimiter);
+  size_t actual_pos = rcutils_find_last(str, delimiter);
   EXPECT_EQ(expected_pos, actual_pos);
   return actual_pos;
 }
