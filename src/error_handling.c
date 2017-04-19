@@ -22,6 +22,10 @@
 #include <c_utilities/error_handling.h>
 #include <c_utilities/macros.h>
 
+// When this define evaluates to true (default), then messages will printed to
+// stderr when an error is encoutered while setting the error state.
+// For example, when memory cannot be allocated or a previous error state is
+// being overwritten.
 #ifndef UTILITIES_REPORT_ERROR_HANDLING_ERRORS
 #define UTILITIES_REPORT_ERROR_HANDLING_ERRORS 1
 #endif
