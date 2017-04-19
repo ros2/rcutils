@@ -23,7 +23,7 @@ extern "C"
 
 #include "c_utilities/concat.h"
 
-const char *
+char *
 utilities_concat(const char * lhs, const char * rhs, const char * delimiter)
 {
   if (!lhs) {
@@ -37,7 +37,11 @@ utilities_concat(const char * lhs, const char * rhs, const char * delimiter)
   size_t rhs_len = strlen(rhs);
   size_t del_len = (delimiter) ? strlen(delimiter) : 0;
 
-  char * concat = malloc((lhs_len + rhs_len + del_len + 1) * sizeof(char));
+  char * concat = (char *) malloc((lhs_len + rhs_len + del_len + 1) * sizeof(char));
+  if (!concat) {
+    return NULL;
+  }
+
   int n = snprintf(concat, lhs_len + 1, "%s", lhs);
   snprintf(concat + n, rhs_len + del_len + 1, "%s%s", (delimiter) ? delimiter : "", rhs);
 

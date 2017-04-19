@@ -23,7 +23,7 @@ extern "C"
 #include "c_utilities/visibility_control.h"
 
 C_UTILITIES_PUBLIC
-const char *
+char *
 utilities_concat(const char * lhs, const char * rhs, const char * delimiter);
 
 #if __cplusplus
