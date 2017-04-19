@@ -8,8 +8,7 @@ if(APPLE)
   list(APPEND extra_test_libraries ${PROJECT_NAME}_memory_tools_interpose)
   list(APPEND extra_test_env
     DYLD_INSERT_LIBRARIES=$<TARGET_FILE:${PROJECT_NAME}_memory_tools_interpose>)
-endif()
-if(UNIX AND NOT APPLE)
+elseif(UNIX)
   # On Linux like systems, add dl and use the normal library and DL_PRELOAD.
   list(APPEND extra_test_libraries dl)
   list(APPEND extra_test_env DL_PRELOAD=$<TARGET_FILE:${PROJECT_NAME}_memory_tools>)
