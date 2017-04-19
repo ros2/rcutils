@@ -16,7 +16,7 @@
 
 #include "./memory_tools.hpp"
 
-/* Tests the allocatation checking tools.
+/* Tests the allocation checking tools.
  */
 TEST(TestMemoryTools, test_allocation_checking_tools) {
   size_t unexpected_mallocs = 0;
