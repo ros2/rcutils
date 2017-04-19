@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef C_UTILITIES__VISIBILITY_CONTROL_H_
-#define C_UTILITIES__VISIBILITY_CONTROL_H_
+#ifndef RCUTILS__VISIBILITY_CONTROL_H_
+#define RCUTILS__VISIBILITY_CONTROL_H_
 
 #if __cplusplus
 extern "C"
@@ -25,34 +25,34 @@ extern "C"
 
 #if defined _WIN32 || defined __CYGWIN__
   #ifdef __GNUC__
-    #define C_UTILITIES_EXPORT __attribute__ ((dllexport))
-    #define C_UTILITIES_IMPORT __attribute__ ((dllimport))
+    #define RCUTILS_EXPORT __attribute__ ((dllexport))
+    #define RCUTILS_IMPORT __attribute__ ((dllimport))
   #else
-    #define C_UTILITIES_EXPORT __declspec(dllexport)
-    #define C_UTILITIES_IMPORT __declspec(dllimport)
+    #define RCUTILS_EXPORT __declspec(dllexport)
+    #define RCUTILS_IMPORT __declspec(dllimport)
   #endif
-  #ifdef C_UTILITIES_BUILDING_DLL
-    #define C_UTILITIES_PUBLIC C_UTILITIES_EXPORT
+  #ifdef RCUTILS_BUILDING_DLL
+    #define RCUTILS_PUBLIC RCUTILS_EXPORT
   #else
-    #define C_UTILITIES_PUBLIC C_UTILITIES_IMPORT
+    #define RCUTILS_PUBLIC RCUTILS_IMPORT
   #endif
-  #define C_UTILITIES_PUBLIC_TYPE C_UTILITIES_PUBLIC
-  #define C_UTILITIES_LOCAL
+  #define RCUTILS_PUBLIC_TYPE RCUTILS_PUBLIC
+  #define RCUTILS_LOCAL
 #else
-  #define C_UTILITIES_EXPORT __attribute__ ((visibility("default")))
-  #define C_UTILITIES_IMPORT
+  #define RCUTILS_EXPORT __attribute__ ((visibility("default")))
+  #define RCUTILS_IMPORT
   #if __GNUC__ >= 4
-    #define C_UTILITIES_PUBLIC __attribute__ ((visibility("default")))
-    #define C_UTILITIES_LOCAL  __attribute__ ((visibility("hidden")))
+    #define RCUTILS_PUBLIC __attribute__ ((visibility("default")))
+    #define RCUTILS_LOCAL  __attribute__ ((visibility("hidden")))
   #else
-    #define C_UTILITIES_PUBLIC
-    #define C_UTILITIES_LOCAL
+    #define RCUTILS_PUBLIC
+    #define RCUTILS_LOCAL
   #endif
-  #define C_UTILITIES_PUBLIC_TYPE
+  #define RCUTILS_PUBLIC_TYPE
 #endif
 
 #if __cplusplus
 }
 #endif
 
-#endif  // C_UTILITIES__VISIBILITY_CONTROL_H_
+#endif  // RCUTILS__VISIBILITY_CONTROL_H_

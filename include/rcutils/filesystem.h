@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef C_UTILITIES__FILESYSTEM_H_
-#define C_UTILITIES__FILESYSTEM_H_
+#ifndef RCUTILS__FILESYSTEM_H_
+#define RCUTILS__FILESYSTEM_H_
 
 #if __cplusplus
 extern "C"
@@ -22,8 +22,8 @@ extern "C"
 
 #include <stdbool.h>
 
-#include "c_utilities/macros.h"
-#include "c_utilities/visibility_control.h"
+#include "rcutils/macros.h"
+#include "rcutils/visibility_control.h"
 
 /// Return current working directory.
 /**
@@ -33,10 +33,10 @@ extern "C"
  *              False if buffer is NULL
  *              False on failure
  */
-C_UTILITIES_PUBLIC
-C_UTILITIES_WARN_UNUSED
+RCUTILS_PUBLIC
+RCUTILS_WARN_UNUSED
 bool
-utilities_get_cwd(char * buffer, size_t max_length);
+rcutils_get_cwd(char * buffer, size_t max_length);
 
 /// Check if the provided path points to a directory.
 /**
@@ -45,9 +45,9 @@ utilities_get_cwd(char * buffer, size_t max_length);
  *              False if abs_path is NULL
  *              False on failure
  */
-C_UTILITIES_PUBLIC
+RCUTILS_PUBLIC
 bool
-utilities_is_directory(const char * abs_path);
+rcutils_is_directory(const char * abs_path);
 
 /// Check if the provided path points to a file.
 /**
@@ -56,9 +56,9 @@ utilities_is_directory(const char * abs_path);
  *              False if abs_path is NULL
  *              False on failure
  */
-C_UTILITIES_PUBLIC
+RCUTILS_PUBLIC
 bool
-utilities_is_file(const char * abs_path);
+rcutils_is_file(const char * abs_path);
 
 /// Check if the provided path points to an existing file/folder.
 /**
@@ -67,9 +67,9 @@ utilities_is_file(const char * abs_path);
  *              False if abs_path is NULL
  *              False on failure
  */
-C_UTILITIES_PUBLIC
+RCUTILS_PUBLIC
 bool
-utilities_exists(const char * abs_path);
+rcutils_exists(const char * abs_path);
 
 /// Check if the provided path points to a file/folder readable by current user.
 /**
@@ -78,9 +78,9 @@ utilities_exists(const char * abs_path);
  *              False if abs_path is NULL
  *              False on failure
  */
-C_UTILITIES_PUBLIC
+RCUTILS_PUBLIC
 bool
-utilities_is_readable(const char * abs_path);
+rcutils_is_readable(const char * abs_path);
 
 /// Check if the provided path points to a file/folder writable by current user.
 /**
@@ -89,9 +89,9 @@ utilities_is_readable(const char * abs_path);
  *              False if abs_path is NULL
  *              False on failure
  */
-C_UTILITIES_PUBLIC
+RCUTILS_PUBLIC
 bool
-utilities_is_writable(const char * abs_path);
+rcutils_is_writable(const char * abs_path);
 
 /// Check if the provided path points to a file/folder both readable and writable by current user.
 /**
@@ -100,9 +100,9 @@ utilities_is_writable(const char * abs_path);
  *              False if abs_path is NULL
  *              False on failure
  */
-C_UTILITIES_PUBLIC
+RCUTILS_PUBLIC
 bool
-utilities_is_readable_and_writable(const char * abs_path);
+rcutils_is_readable_and_writable(const char * abs_path);
 
 /// Concatenate path adding the right delimiter according to the platform.
 /**
@@ -112,12 +112,12 @@ utilities_is_readable_and_writable(const char * abs_path);
  *         NULL on invalid arguments
  *         NULL on failure
  */
-C_UTILITIES_PUBLIC
+RCUTILS_PUBLIC
 const char *
-utilities_join_path(const char * left_hand_path, const char * right_hand_path);
+rcutils_join_path(const char * left_hand_path, const char * right_hand_path);
 
 #if __cplusplus
 }
 #endif
 
-#endif  // C_UTILITIES__FILESYSTEM_H_
+#endif  // RCUTILS__FILESYSTEM_H_

@@ -12,22 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef C_UTILITIES__CONCAT_H_
-#define C_UTILITIES__CONCAT_H_
+#ifndef RCUTILS__CONCAT_H_
+#define RCUTILS__CONCAT_H_
 
 #if __cplusplus
 extern "C"
 {
 #endif
 
-#include "c_utilities/visibility_control.h"
+#include "rcutils/visibility_control.h"
 
-C_UTILITIES_PUBLIC
+RCUTILS_PUBLIC
 char *
-utilities_concat(const char * lhs, const char * rhs, const char * delimiter);
+rcutils_concat(const char * lhs, const char * rhs, const char * delimiter);
 
 #if __cplusplus
 }
 #endif
 
-#endif  // C_UTILITIES__CONCAT_H_
+#endif  // RCUTILS__CONCAT_H_

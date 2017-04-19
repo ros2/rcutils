@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(c_utilities)
+project(rcutils)
 
 find_package(ament_cmake REQUIRED)
 
@@ -10,10 +10,10 @@ if(NOT WIN32)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11")
   # The warning flags are added per target, because otherwise the local
   # gmock library that is built will have compiler warnings.
-  set(c_utilities_extra_warning_flags "-Wall -Wextra -Wpedantic")
+  set(rcutils_extra_warning_flags "-Wall -Wextra -Wpedantic")
 endif()
 
-set(utilities_sources
+set(rcutils_sources
   src/allocator.c
   src/cmdline_parser.c
   src/concat.c
@@ -24,21 +24,21 @@ set(utilities_sources
   src/split.c
   src/string_array.c)
 set_source_files_properties(
-  ${utilities_sources}
+  ${rcutils_sources}
   PROPERTIES language "C")
 
 add_library(
   ${PROJECT_NAME}
   SHARED
-  ${utilities_sources})
-if(c_utilities_extra_warning_flags)
+  ${rcutils_sources})
+if(rcutils_extra_warning_flags)
   set_target_properties(${PROJECT_NAME}
-    PROPERTIES COMPILE_FLAGS ${c_utilities_extra_warning_flags})
+    PROPERTIES COMPILE_FLAGS ${rcutils_extra_warning_flags})
 endif()
 
 # Causes the visibility macros to use dllexport rather than dllimport,
 # which is appropriate when building the dll but not consuming it.
-target_compile_definitions(${PROJECT_NAME} PRIVATE "C_UTILITIES_BUILDING_DLL")
+target_compile_definitions(${PROJECT_NAME} PRIVATE "RCUTILS_BUILDING_DLL")
 
 # Needed if pthread is used for thread local storage.
 if(IOS AND IOS_SDK_VERSION LESS 10.0)
@@ -72,22 +72,22 @@ if(BUILD_TESTING)
     set(SKIP_TEST_IF_WIN32 "SKIP_TEST")
   endif()
 
-  macro(c_utilities_custom_add_gtest target)
+  macro(rcutils_custom_add_gtest target)
     ament_add_gtest(${target} ${ARGN})
-    if(TARGET ${target} AND c_utilities_extra_warning_flags)
-      set_target_properties(${target} PROPERTIES COMPILE_FLAGS ${c_utilities_extra_warning_flags})
+    if(TARGET ${target} AND rcutils_extra_warning_flags)
+      set_target_properties(${target} PROPERTIES COMPILE_FLAGS ${rcutils_extra_warning_flags})
     endif()
   endmacro()
 
-  macro(c_utilities_custom_add_gmock target)
+  macro(rcutils_custom_add_gmock target)
     ament_add_gmock(${target} ${ARGN})
-    if(TARGET ${target} AND c_utilities_extra_warning_flags)
-      set_target_properties(${target} PROPERTIES COMPILE_FLAGS ${c_utilities_extra_warning_flags})
+    if(TARGET ${target} AND rcutils_extra_warning_flags)
+      set_target_properties(${target} PROPERTIES COMPILE_FLAGS ${rcutils_extra_warning_flags})
     endif()
   endmacro()
 
   # Gtests
-  c_utilities_custom_add_gtest(test_allocator test/test_allocator.cpp
+  rcutils_custom_add_gtest(test_allocator test/test_allocator.cpp
     ENV ${extra_test_env}
     APPEND_LIBRARY_DIRS ${extra_lib_dirs}
     ${SKIP_TEST_IF_WIN32}
@@ -96,43 +96,43 @@ if(BUILD_TESTING)
     target_link_libraries(test_allocator ${PROJECT_NAME} ${extra_test_libraries})
   endif()
 
-  c_utilities_custom_add_gmock(test_error_handling test/test_error_handling.cpp
-    # Append the directory of libc_utilities so it is found at test time.
+  rcutils_custom_add_gmock(test_error_handling test/test_error_handling.cpp
+    # Append the directory of librcutils so it is found at test time.
     APPEND_LIBRARY_DIRS "$<TARGET_FILE_DIR:${PROJECT_NAME}>"
   )
   if(TARGET test_error_handling)
     target_link_libraries(test_error_handling ${PROJECT_NAME})
   endif()
 
-  c_utilities_custom_add_gtest(test_split
+  rcutils_custom_add_gtest(test_split
     test/test_split.cpp
   )
   if(TARGET test_split)
     target_link_libraries(test_split ${PROJECT_NAME})
   endif()
 
-  c_utilities_custom_add_gtest(test_find
+  rcutils_custom_add_gtest(test_find
     test/test_find.cpp
   )
   if(TARGET test_find)
     target_link_libraries(test_find ${PROJECT_NAME})
   endif()
 
-  c_utilities_custom_add_gtest(test_concat
+  rcutils_custom_add_gtest(test_concat
     test/test_concat.cpp
   )
   if(TARGET test_concat)
     target_link_libraries(test_concat ${PROJECT_NAME})
   endif()
 
-  c_utilities_custom_add_gtest(test_string_array
+  rcutils_custom_add_gtest(test_string_array
     test/test_string_array.cpp
   )
   if(TARGET test_string_array)
     target_link_libraries(test_string_array ${PROJECT_NAME})
   endif()
 
-  c_utilities_custom_add_gtest(test_get_env test/test_get_env.cpp
+  rcutils_custom_add_gtest(test_get_env test/test_get_env.cpp
     ENV
       EMPTY_TEST=
       NORMAL_TEST=foo
@@ -142,7 +142,7 @@ if(BUILD_TESTING)
     target_link_libraries(test_get_env ${PROJECT_NAME})
   endif()
 
-  c_utilities_custom_add_gtest(test_filesystem
+  rcutils_custom_add_gtest(test_filesystem
     test/test_filesystem.cpp
   )
   if(TARGET test_filesystem)

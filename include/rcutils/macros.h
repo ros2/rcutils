@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef C_UTILITIES__MACROS_H_
-#define C_UTILITIES__MACROS_H_
+#ifndef RCUTILS__MACROS_H_
+#define RCUTILS__MACROS_H_
 
 #if __cplusplus
 extern "C"
@@ -21,16 +21,16 @@ extern "C"
 #endif
 
 #ifndef _WIN32
-#define C_UTILITIES_WARN_UNUSED __attribute__((warn_unused_result))
+#define RCUTILS_WARN_UNUSED __attribute__((warn_unused_result))
 #else
-#define C_UTILITIES_WARN_UNUSED _Check_return_
+#define RCUTILS_WARN_UNUSED _Check_return_
 #endif
 
 // Note: this block was migrated from rmw/macros.h
-// This block either sets UTILITIES_THREAD_LOCAL or UTILITIES_THREAD_LOCAL_PTHREAD.
+// This block either sets RCUTILS_THREAD_LOCAL or RCUTILS_THREAD_LOCAL_PTHREAD.
 #if defined _WIN32 || defined __CYGWIN__
 // Windows or Cygwin
-  #define UTILITIES_THREAD_LOCAL __declspec(thread)
+  #define RCUTILS_THREAD_LOCAL __declspec(thread)
 #elif defined __APPLE__
 // Apple OS's
   #include <TargetConditionals.h>
@@ -40,31 +40,31 @@ extern "C"
     #if defined(__IPHONE_OS_VERSION_MIN_REQUIRED)
       #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 100000
 // iOS >= 10, thread local storage was added in iOS 10
-        #define UTILITIES_THREAD_LOCAL _Thread_local
+        #define RCUTILS_THREAD_LOCAL _Thread_local
       #else
 // iOS < 10, no thread local storage, so use pthread instead
-        #define UTILITIES_THREAD_LOCAL_PTHREAD 1
-        #undef UTILITIES_THREAD_LOCAL
+        #define RCUTILS_THREAD_LOCAL_PTHREAD 1
+        #undef RCUTILS_THREAD_LOCAL
       #endif
     #else
       #error "Unknown iOS version"
     #endif
   #elif TARGET_OS_MAC
 // macOS
-    #define UTILITIES_THREAD_LOCAL _Thread_local
+    #define RCUTILS_THREAD_LOCAL _Thread_local
   #else
     #error "Unknown Apple platform"
   #endif
 #else
 // Some other non-Windows, non-cygwin, non-apple OS
-  #define UTILITIES_THREAD_LOCAL _Thread_local
+  #define RCUTILS_THREAD_LOCAL _Thread_local
 #endif
 
-#define UTILITIES_STRINGIFY_IMPL(x) #x
-#define UTILITIES_STRINGIFY(x) UTILITIES_STRINGIFY_IMPL(x)
+#define RCUTILS_STRINGIFY_IMPL(x) #x
+#define RCUTILS_STRINGIFY(x) RCUTILS_STRINGIFY_IMPL(x)
 
 #if __cplusplus
 }
 #endif
 
-#endif  // C_UTILITIES__MACROS_H_
+#endif  // RCUTILS__MACROS_H_

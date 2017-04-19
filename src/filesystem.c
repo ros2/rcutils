@@ -26,11 +26,11 @@ extern "C"
 #else
 #include <direct.h>
 #endif
-#include "c_utilities/concat.h"
-#include "c_utilities/filesystem.h"
+#include "rcutils/concat.h"
+#include "rcutils/filesystem.h"
 
 bool
-utilities_get_cwd(char * buffer, size_t max_length)
+rcutils_get_cwd(char * buffer, size_t max_length)
 {
   if (!buffer) {
     return false;
@@ -48,7 +48,7 @@ utilities_get_cwd(char * buffer, size_t max_length)
 }
 
 bool
-utilities_is_directory(const char * abs_path)
+rcutils_is_directory(const char * abs_path)
 {
   struct stat buf;
   if (stat(abs_path, &buf) < 0) {
@@ -62,7 +62,7 @@ utilities_is_directory(const char * abs_path)
 }
 
 bool
-utilities_is_file(const char * abs_path)
+rcutils_is_file(const char * abs_path)
 {
   struct stat buf;
   if (stat(abs_path, &buf) < 0) {
@@ -76,7 +76,7 @@ utilities_is_file(const char * abs_path)
 }
 
 bool
-utilities_exists(const char * abs_path)
+rcutils_exists(const char * abs_path)
 {
   struct stat buf;
   if (stat(abs_path, &buf) < 0) {
@@ -86,10 +86,10 @@ utilities_exists(const char * abs_path)
 }
 
 bool
-utilities_is_readable(const char * abs_path)
+rcutils_is_readable(const char * abs_path)
 {
   struct stat buf;
-  if (!utilities_exists(abs_path)) {
+  if (!rcutils_exists(abs_path)) {
     return false;
   }
   stat(abs_path, &buf);
@@ -104,10 +104,10 @@ utilities_is_readable(const char * abs_path)
 }
 
 bool
-utilities_is_writable(const char * abs_path)
+rcutils_is_writable(const char * abs_path)
 {
   struct stat buf;
-  if (!utilities_exists(abs_path)) {
+  if (!rcutils_exists(abs_path)) {
     return false;
   }
   stat(abs_path, &buf);
@@ -122,10 +122,10 @@ utilities_is_writable(const char * abs_path)
 }
 
 bool
-utilities_is_readable_and_writable(const char * abs_path)
+rcutils_is_readable_and_writable(const char * abs_path)
 {
   struct stat buf;
-  if (!utilities_exists(abs_path)) {
+  if (!rcutils_exists(abs_path)) {
     return false;
   }
   stat(abs_path, &buf);
@@ -142,7 +142,7 @@ utilities_is_readable_and_writable(const char * abs_path)
 }
 
 const char *
-utilities_join_path(const char * left_hand_path, const char * right_hand_path)
+rcutils_join_path(const char * left_hand_path, const char * right_hand_path)
 {
   if (!left_hand_path) {
     return NULL;
@@ -157,7 +157,7 @@ utilities_join_path(const char * left_hand_path, const char * right_hand_path)
   const char * delimiter = "/";
 #endif
 
-  return utilities_concat(left_hand_path, right_hand_path, delimiter);
+  return rcutils_concat(left_hand_path, right_hand_path, delimiter);
 }
 
 #if __cplusplus

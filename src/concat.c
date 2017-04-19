@@ -21,10 +21,10 @@ extern "C"
 #include <stdlib.h>
 #include <string.h>
 
-#include "c_utilities/concat.h"
+#include "rcutils/concat.h"
 
 char *
-utilities_concat(const char * lhs, const char * rhs, const char * delimiter)
+rcutils_concat(const char * lhs, const char * rhs, const char * delimiter)
 {
   if (!lhs) {
     return NULL;

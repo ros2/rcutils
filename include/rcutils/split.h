@@ -12,27 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef C_UTILITIES__SPLIT_H_
-#define C_UTILITIES__SPLIT_H_
+#ifndef RCUTILS__SPLIT_H_
+#define RCUTILS__SPLIT_H_
 
 #if __cplusplus
 extern "C"
 {
 #endif
 
-#include "c_utilities/types.h"
-#include "c_utilities/visibility_control.h"
+#include "rcutils/types.h"
+#include "rcutils/visibility_control.h"
 
-C_UTILITIES_PUBLIC
-utilities_string_array_t
-utilities_split(const char * str, char delimiter);
+RCUTILS_PUBLIC
+rcutils_string_array_t
+rcutils_split(const char * str, char delimiter);
 
-C_UTILITIES_PUBLIC
-utilities_string_array_t
-utilities_split_last(const char * str, char delimiter);
+RCUTILS_PUBLIC
+rcutils_string_array_t
+rcutils_split_last(const char * str, char delimiter);
 
 #if __cplusplus
 }
 #endif
 
-#endif  // C_UTILITIES__SPLIT_H_
+#endif  // RCUTILS__SPLIT_H_

@@ -16,7 +16,7 @@
 
 #include "gmock/gmock.h"
 
-#include "c_utilities/error_handling.h"
+#include "rcutils/error_handling.h"
 
 int
 count_substrings(const std::string & str, const std::string & substr)
@@ -36,54 +36,54 @@ count_substrings(const std::string & str, const std::string & substr)
 }
 
 TEST(test_error_handling, nominal) {
-  utilities_reset_error();
+  rcutils_reset_error();
   const char * test_message = "test message";
-  UTILITIES_SET_ERROR_MSG(test_message, utilities_get_default_allocator());
+  RCUTILS_SET_ERROR_MSG(test_message, rcutils_get_default_allocator());
   using ::testing::StartsWith;
-  ASSERT_THAT(utilities_get_error_string_safe(), StartsWith(test_message));
-  utilities_reset_error();
+  ASSERT_THAT(rcutils_get_error_string_safe(), StartsWith(test_message));
+  rcutils_reset_error();
 }
 
 TEST(test_error_handling, reset) {
-  utilities_reset_error();
+  rcutils_reset_error();
   {
     const char * test_message = "test message";
-    UTILITIES_SET_ERROR_MSG(test_message, utilities_get_default_allocator());
+    RCUTILS_SET_ERROR_MSG(test_message, rcutils_get_default_allocator());
     using ::testing::StartsWith;
-    ASSERT_THAT(utilities_get_error_string_safe(), StartsWith(test_message));
+    ASSERT_THAT(rcutils_get_error_string_safe(), StartsWith(test_message));
   }
-  utilities_reset_error();
+  rcutils_reset_error();
   {
     const char * test_message = "different message";
-    UTILITIES_SET_ERROR_MSG(test_message, utilities_get_default_allocator());
+    RCUTILS_SET_ERROR_MSG(test_message, rcutils_get_default_allocator());
     using ::testing::StartsWith;
-    ASSERT_THAT(utilities_get_error_string_safe(), StartsWith(test_message));
+    ASSERT_THAT(rcutils_get_error_string_safe(), StartsWith(test_message));
   }
-  utilities_reset_error();
-  ASSERT_EQ(nullptr, utilities_get_error_string());
-  ASSERT_NE(nullptr, utilities_get_error_string_safe());
-  ASSERT_STREQ("error not set", utilities_get_error_string_safe());
-  utilities_reset_error();
+  rcutils_reset_error();
+  ASSERT_EQ(nullptr, rcutils_get_error_string());
+  ASSERT_NE(nullptr, rcutils_get_error_string_safe());
+  ASSERT_STREQ("error not set", rcutils_get_error_string_safe());
+  rcutils_reset_error();
 }
 
 TEST(test_error_handling, empty) {
-  utilities_reset_error();
-  ASSERT_EQ(nullptr, utilities_get_error_string());
-  ASSERT_NE(nullptr, utilities_get_error_string_safe());
-  ASSERT_STREQ("error not set", utilities_get_error_string_safe());
-  utilities_reset_error();
+  rcutils_reset_error();
+  ASSERT_EQ(nullptr, rcutils_get_error_string());
+  ASSERT_NE(nullptr, rcutils_get_error_string_safe());
+  ASSERT_STREQ("error not set", rcutils_get_error_string_safe());
+  rcutils_reset_error();
 }
 
 TEST(test_error_handling, recursive) {
-  utilities_reset_error();
+  rcutils_reset_error();
   const char * test_message = "test message";
-  UTILITIES_SET_ERROR_MSG(test_message, utilities_get_default_allocator());
+  RCUTILS_SET_ERROR_MSG(test_message, rcutils_get_default_allocator());
   using ::testing::HasSubstr;
-  ASSERT_THAT(utilities_get_error_string_safe(), HasSubstr(", at"));
-  UTILITIES_SET_ERROR_MSG(utilities_get_error_string_safe(), utilities_get_default_allocator());
-  std::string err_msg(utilities_get_error_string_safe());
+  ASSERT_THAT(rcutils_get_error_string_safe(), HasSubstr(", at"));
+  RCUTILS_SET_ERROR_MSG(rcutils_get_error_string_safe(), rcutils_get_default_allocator());
+  std::string err_msg(rcutils_get_error_string_safe());
   int count = count_substrings(err_msg, ", at");
   EXPECT_EQ(2, count) <<
     "Expected ', at' in the error string twice but got it '" << count << "': " << err_msg;
-  utilities_reset_error();
+  rcutils_reset_error();
 }

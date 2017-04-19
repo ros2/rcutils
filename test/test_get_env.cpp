@@ -16,7 +16,7 @@
 
 #include <string>
 
-#include "c_utilities/get_env.h"
+#include "rcutils/get_env.h"
 
 /* Tests the default allocator.
  *
@@ -30,18 +30,18 @@
 TEST(TestGetEnv, test_get_env) {
   const char * env;
   const char * ret;
-  ret = utilities_get_env("NORMAL_TEST", NULL);
+  ret = rcutils_get_env("NORMAL_TEST", NULL);
   EXPECT_STREQ("argument env_value is null", ret);
-  ret = utilities_get_env(NULL, &env);
+  ret = rcutils_get_env(NULL, &env);
   EXPECT_STREQ("argument env_name is null", ret);
-  ret = utilities_get_env("SHOULD_NOT_EXIST_TEST", &env);
+  ret = rcutils_get_env("SHOULD_NOT_EXIST_TEST", &env);
   EXPECT_FALSE(ret);
   EXPECT_STREQ("", env);
-  ret = utilities_get_env("NORMAL_TEST", &env);
+  ret = rcutils_get_env("NORMAL_TEST", &env);
   EXPECT_FALSE(ret);
   EXPECT_FALSE(NULL == env);
   EXPECT_STREQ("foo", env);
-  ret = utilities_get_env("EMPTY_TEST", &env);
+  ret = rcutils_get_env("EMPTY_TEST", &env);
   EXPECT_FALSE(ret);
   EXPECT_FALSE(NULL == env);
   EXPECT_STREQ("", env);

@@ -20,7 +20,7 @@ extern "C"
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "c_utilities/get_env.h"
+#include "rcutils/get_env.h"
 
 #ifdef WIN32
 # define WINDOWS_ENV_BUFFER_SIZE 2048
@@ -29,7 +29,7 @@ static char __env_buffer[WINDOWS_ENV_BUFFER_SIZE];
 
 
 const char *
-utilities_get_env(const char * env_name, const char ** env_value)
+rcutils_get_env(const char * env_name, const char ** env_value)
 {
   if (!env_name) {
     return "argument env_name is null";

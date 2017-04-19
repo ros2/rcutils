@@ -21,11 +21,11 @@ extern "C"
 #include <stdlib.h>
 #include <string.h>
 
-#include "c_utilities/find.h"
-#include "c_utilities/types.h"
+#include "rcutils/find.h"
+#include "rcutils/types.h"
 
 size_t
-utilities_find(const char * str, char delimiter)
+rcutils_find(const char * str, char delimiter)
 {
   if (!str || strlen(str) == 0) {
     return 0;
@@ -41,7 +41,7 @@ utilities_find(const char * str, char delimiter)
 }
 
 size_t
-utilities_find_last(const char * str, char delimiter)
+rcutils_find_last(const char * str, char delimiter)
 {
   if (!str || strlen(str) == 0) {
     return 0;

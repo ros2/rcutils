@@ -14,7 +14,7 @@
 
 #include <gtest/gtest.h>
 
-#include "c_utilities/allocator.h"
+#include "rcutils/allocator.h"
 
 #include "./memory_tools/memory_tools.hpp"
 
@@ -56,7 +56,7 @@ public:
  */
 TEST_F(CLASSNAME(TestAllocatorFixture, RMW_IMPLEMENTATION), test_default_allocator_normal) {
   ASSERT_NO_MALLOC(
-    utilities_allocator_t allocator = utilities_get_default_allocator();
+    rcutils_allocator_t allocator = rcutils_get_default_allocator();
   )
   size_t mallocs = 0;
   size_t reallocs = 0;

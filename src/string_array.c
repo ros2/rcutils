@@ -19,34 +19,34 @@ extern "C"
 
 #include <stdlib.h>
 
-#include "c_utilities/types/string_array.h"
-#include "c_utilities/types/utilities_ret.h"
+#include "rcutils/types/string_array.h"
+#include "rcutils/types/rcutils_ret.h"
 
-utilities_string_array_t
-utilities_get_zero_initialized_string_array()
+rcutils_string_array_t
+rcutils_get_zero_initialized_string_array()
 {
-  static utilities_string_array_t array = {0, NULL};
+  static rcutils_string_array_t array = {0, NULL};
   return array;
 }
 
-utilities_string_array_t
-utilities_get_pre_initialized_string_array(size_t size)
+rcutils_string_array_t
+rcutils_get_pre_initialized_string_array(size_t size)
 {
-  static utilities_string_array_t array = {0, NULL};
+  static rcutils_string_array_t array = {0, NULL};
   array.size = size;
   array.data = (char **)calloc(array.size, sizeof(char *));
   return array;
 }
 
-utilities_ret_t
-utilities_string_array_fini(utilities_string_array_t * array)
+rcutils_ret_t
+rcutils_string_array_fini(rcutils_string_array_t * array)
 {
   if (!array) {
-    return UTILITIES_RET_ERROR;
+    return RCUTILS_RET_ERROR;
   }
 
   if (!array->data) {
-    return UTILITIES_RET_OK;
+    return RCUTILS_RET_OK;
   }
 
   for (size_t i = 0; i < array->size; ++i) {
@@ -56,7 +56,7 @@ utilities_string_array_fini(utilities_string_array_t * array)
   free(array->data);
   array->data = NULL;
 
-  return UTILITIES_RET_OK;
+  return RCUTILS_RET_OK;
 }
 
 #if __cplusplus
