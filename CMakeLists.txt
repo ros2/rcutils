@@ -28,24 +28,24 @@ set_source_files_properties(
   PROPERTIES language "C")
 
 add_library(
-  c_utilities
+  ${PROJECT_NAME}
   SHARED
   ${utilities_sources})
 if(c_utilities_extra_warning_flags)
-  set_target_properties(c_utilities
+  set_target_properties(${PROJECT_NAME}
     PROPERTIES COMPILE_FLAGS ${c_utilities_extra_warning_flags})
 endif()
 
 # Causes the visibility macros to use dllexport rather than dllimport,
 # which is appropriate when building the dll but not consuming it.
-target_compile_definitions(c_utilities PRIVATE "C_UTILITIES_BUILDING_DLL")
+target_compile_definitions(${PROJECT_NAME} PRIVATE "C_UTILITIES_BUILDING_DLL")
 
 # Needed if pthread is used for thread local storage.
 if(IOS AND IOS_SDK_VERSION LESS 10.0)
   ament_export_libraries(pthread)
 endif()
 
-install(TARGETS c_utilities
+install(TARGETS ${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin)
@@ -93,12 +93,12 @@ if(BUILD_TESTING)
     ${SKIP_TEST_IF_WIN32}
   )
   if(TARGET test_allocator)
-    target_link_libraries(test_allocator c_utilities ${extra_test_libraries})
+    target_link_libraries(test_allocator ${PROJECT_NAME} ${extra_test_libraries})
   endif()
 
   c_utilities_custom_add_gmock(test_error_handling test/test_error_handling.cpp
     # Append the directory of libc_utilities so it is found at test time.
-    APPEND_LIBRARY_DIRS "$<TARGET_FILE_DIR:c_utilities>"
+    APPEND_LIBRARY_DIRS "$<TARGET_FILE_DIR:${PROJECT_NAME}>"
   )
   if(TARGET test_error_handling)
     target_link_libraries(test_error_handling ${PROJECT_NAME})
@@ -108,28 +108,28 @@ if(BUILD_TESTING)
     test/test_split.cpp
   )
   if(TARGET test_split)
-    target_link_libraries(test_split c_utilities)
+    target_link_libraries(test_split ${PROJECT_NAME})
   endif()
 
   c_utilities_custom_add_gtest(test_find
     test/test_find.cpp
   )
   if(TARGET test_find)
-    target_link_libraries(test_find c_utilities)
+    target_link_libraries(test_find ${PROJECT_NAME})
   endif()
 
   c_utilities_custom_add_gtest(test_concat
     test/test_concat.cpp
   )
   if(TARGET test_concat)
-    target_link_libraries(test_concat c_utilities)
+    target_link_libraries(test_concat ${PROJECT_NAME})
   endif()
 
   c_utilities_custom_add_gtest(test_string_array
     test/test_string_array.cpp
   )
   if(TARGET test_string_array)
-    target_link_libraries(test_string_array c_utilities)
+    target_link_libraries(test_string_array ${PROJECT_NAME})
   endif()
 
   c_utilities_custom_add_gtest(test_get_env test/test_get_env.cpp
@@ -146,14 +146,14 @@ if(BUILD_TESTING)
     test/test_filesystem.cpp
   )
   if(TARGET test_filesystem)
-    target_link_libraries(test_filesystem c_utilities)
+    target_link_libraries(test_filesystem ${PROJECT_NAME})
   endif()
 
 endif()
 
 ament_export_dependencies(ament_cmake)
 ament_export_include_directories(include)
-ament_export_libraries(c_utilities)
+ament_export_libraries(${PROJECT_NAME})
 ament_package()
 
 install(
