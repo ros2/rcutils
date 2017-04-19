@@ -121,7 +121,7 @@ C_UTILITIES_PUBLIC
 const char *
 utilities_get_error_string_safe(void);
 
-/// Resets the error state by clearing any previously set error state.
+/// Reset the error state by clearing any previously set error state.
 C_UTILITIES_PUBLIC
 void
 utilities_reset_error(void);
