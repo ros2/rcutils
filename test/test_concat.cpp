@@ -30,7 +30,7 @@ TEST(test_concat, concat) {
   const char * rhs = NULL;
   const char * delimiter = NULL;
 
-  const char * res = utilities_concat(lhs, rhs, delimiter);
+  char * res = utilities_concat(lhs, rhs, delimiter);
   EXPECT_STREQ(NULL, res);
 
   lhs = static_cast<const char *>("foo");
