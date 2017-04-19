@@ -21,6 +21,7 @@ extern "C"
 #endif
 
 #include <stdbool.h>
+#include <stddef.h>
 
 #include "rcutils/macros.h"
 #include "rcutils/visibility_control.h"
