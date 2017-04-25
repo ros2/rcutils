@@ -25,6 +25,7 @@ set(rcutils_sources
   src/split.c
   src/strdup.c
   src/string_array.c
+  src/string_map.c
 )
 set_source_files_properties(
   ${rcutils_sources}
@@ -164,6 +165,13 @@ if(BUILD_TESTING)
   )
   if(TARGET test_format_string)
     target_link_libraries(test_format_string ${PROJECT_NAME})
+  endif()
+
+  rcutils_custom_add_gtest(test_string_map
+    test/test_string_map.cpp
+  )
+  if(TARGET test_string_map)
+    target_link_libraries(test_string_map ${PROJECT_NAME})
   endif()
 
 endif()

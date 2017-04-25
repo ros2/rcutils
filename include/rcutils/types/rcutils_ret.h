@@ -25,6 +25,20 @@ typedef int rcutils_ret_t;
 #define RCUTILS_RET_WARN 1
 #define RCUTILS_RET_ERROR 2
 
+/// Failed to allocate memory return code.
+#define RCUTILS_RET_BAD_ALLOC 10
+/// Invalid argument return code.
+#define RCUTILS_RET_INVALID_ARGUMENT 11
+/// Not enough storage to do operation.
+#define RCUTILS_RET_NOT_ENOUGH_SPACE 12
+
+/// Given string map was either already initialized or was not zero initialized.
+#define RCUTILS_RET_STRING_MAP_ALREADY_INIT 30
+/// Given string map is invalid, perhaps not initialized yet.
+#define RCUTILS_RET_STRING_MAP_INVALID 31
+/// Given key not found in given string map.
+#define RCUTILS_RET_STRING_KEY_NOT_FOUND 32
+
 #if __cplusplus
 }
 #endif
