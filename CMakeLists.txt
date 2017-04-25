@@ -22,7 +22,9 @@ set(rcutils_sources
   src/find.c
   src/get_env.c
   src/split.c
-  src/string_array.c)
+  src/strdup.c
+  src/string_array.c
+)
 set_source_files_properties(
   ${rcutils_sources}
   PROPERTIES language "C")
@@ -147,6 +149,13 @@ if(BUILD_TESTING)
   )
   if(TARGET test_filesystem)
     target_link_libraries(test_filesystem ${PROJECT_NAME})
+  endif()
+
+  rcutils_custom_add_gtest(test_strdup
+    test/test_strdup.cpp
+  )
+  if(TARGET test_strdup)
+    target_link_libraries(test_strdup ${PROJECT_NAME})
   endif()
 
 endif()
