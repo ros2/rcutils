@@ -20,6 +20,7 @@ extern "C"
 {
 #endif
 
+#include <stdbool.h>
 #include <stddef.h>
 
 #include "rcutils/macros.h"
@@ -85,6 +86,26 @@ RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
 rcutils_allocator_t
 rcutils_get_default_allocator(void);
+
+/// Return true if the given allocator has non-null function pointers.
+/**
+ * Will also return false if the allocator pointer is null.
+ */
+RCUTILS_PUBLIC
+RCUTILS_WARN_UNUSED
+bool
+rcutils_allocator_is_valid(const rcutils_allocator_t * allocator);
+
+#define RCUTILS_CHECK_ALLOCATOR(allocator, fail_statement) \
+  if (!rcutils_allocator_is_valid(allocator)) { \
+    fail_statement; \
+  }
+
+#define RCUTILS_CHECK_ALLOCATOR_WITH_MSG(allocator, msg, fail_statement) \
+  if (!rcutils_allocator_is_valid(allocator)) { \
+    RCUTILS_SET_ERROR_MSG(msg, rcutils_get_default_allocator()) \
+    fail_statement; \
+  }
 
 /// Emulate the behavior of [reallocf](https://linux.die.net/man/3/reallocf).
 /**

@@ -51,6 +51,15 @@ rcutils_get_default_allocator()
   return default_allocator;
 }
 
+bool
+rcutils_allocator_is_valid(const rcutils_allocator_t * allocator)
+{
+  if (!allocator || !allocator->allocate || !allocator->deallocate || !allocator->reallocate) {
+    return false;
+  }
+  return true;
+}
+
 void *
 rcutils_reallocf(void * pointer, size_t size, rcutils_allocator_t * allocator)
 {
