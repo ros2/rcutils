@@ -174,6 +174,13 @@ if(BUILD_TESTING)
     target_link_libraries(test_string_map ${PROJECT_NAME})
   endif()
 
+  rcutils_custom_add_gtest(test_isalnum_no_locale
+    test/test_isalnum_no_locale.cpp
+  )
+  if(TARGET test_isalnum_no_locale)
+    target_link_libraries(test_isalnum_no_locale ${PROJECT_NAME})
+  endif()
+
 endif()
 
 ament_export_dependencies(ament_cmake)
