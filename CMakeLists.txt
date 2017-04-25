@@ -20,6 +20,7 @@ set(rcutils_sources
   src/error_handling.c
   src/filesystem.c
   src/find.c
+  src/format_string.c
   src/get_env.c
   src/split.c
   src/strdup.c
@@ -156,6 +157,13 @@ if(BUILD_TESTING)
   )
   if(TARGET test_strdup)
     target_link_libraries(test_strdup ${PROJECT_NAME})
+  endif()
+
+  rcutils_custom_add_gtest(test_format_string
+    test/test_format_string.cpp
+  )
+  if(TARGET test_format_string)
+    target_link_libraries(test_format_string ${PROJECT_NAME})
   endif()
 
 endif()
