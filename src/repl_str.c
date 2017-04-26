@@ -49,7 +49,6 @@ rcutils_repl_str(
   const char * to,
   rcutils_allocator_t * allocator)
 {
-
   /* Adjust each of the below values to suit your needs. */
 
   /* Increment positions cache size initially by this number. */
@@ -82,7 +81,9 @@ rcutils_repl_str(
         allocator->reallocate(pos_cache, sizeof(*pos_cache) * cache_sz, allocator->state);
       if (pos_cache_tmp == NULL) {
         goto end_repl_str;
-      } else pos_cache = pos_cache_tmp;
+      } else {
+        pos_cache = pos_cache_tmp;
+      }
       cache_sz_inc *= cache_sz_inc_factor;
       if (cache_sz_inc > cache_sz_inc_max) {
         cache_sz_inc = cache_sz_inc_max;
@@ -99,7 +100,9 @@ rcutils_repl_str(
   if (count > 0) {
     tolen = strlen(to);
     retlen = orglen + (tolen - fromlen) * count;
-  } else  retlen = orglen;
+  } else {
+    retlen = orglen;
+  }
   ret = allocator->allocate(retlen + 1, allocator->state);
   if (ret == NULL) {
     goto end_repl_str;
@@ -107,7 +110,7 @@ rcutils_repl_str(
 
   if (count == 0) {
     /* If no matches, then just duplicate the string. */
-    strcpy(ret, str);
+    strcpy(ret, str);  // NOLINT
   } else {
     /* Otherwise, duplicate the string whilst performing
      * the replacements using the position cache. */

@@ -1073,7 +1073,6 @@ TEST(test_string_map, get) {
     ret = rcutils_string_map_fini(&string_map);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
-
 }
 
 TEST(test_string_map, strange_keys) {
