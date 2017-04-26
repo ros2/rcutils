@@ -14,7 +14,7 @@
 
 #include <string>
 
-#include "gmock/gmock.h"
+#include "gtest/gtest.h"
 
 #include "rcutils/isalnum_no_locale.h"
 
