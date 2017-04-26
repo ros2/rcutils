@@ -22,6 +22,7 @@ set(rcutils_sources
   src/find.c
   src/format_string.c
   src/get_env.c
+  src/repl_str.c
   src/split.c
   src/strdup.c
   src/string_array.c
@@ -179,6 +180,13 @@ if(BUILD_TESTING)
   )
   if(TARGET test_isalnum_no_locale)
     target_link_libraries(test_isalnum_no_locale ${PROJECT_NAME})
+  endif()
+
+  rcutils_custom_add_gtest(test_repl_str
+    test/test_repl_str.cpp
+  )
+  if(TARGET test_repl_str)
+    target_link_libraries(test_repl_str ${PROJECT_NAME})
   endif()
 
 endif()
