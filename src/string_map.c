@@ -111,8 +111,8 @@ rcutils_string_map_get_capacity(const rcutils_string_map_t * string_map, size_t 
     string_map->impl, "invalid string map",
     return RCUTILS_RET_STRING_MAP_INVALID, rcutils_get_default_allocator())
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(
-    capacity, RCUTILS_RET_INVALID_ARGUMENT, rcutils_get_default_allocator())
-  *capacity = string_map->impl->capacity;
+    capacity, RCUTILS_RET_INVALID_ARGUMENT, rcutils_get_default_allocator()) *
+  capacity = string_map->impl->capacity;
   return RCUTILS_RET_OK;
 }
 
@@ -125,8 +125,8 @@ rcutils_string_map_get_size(const rcutils_string_map_t * string_map, size_t * si
     string_map->impl, "invalid string map",
     return RCUTILS_RET_STRING_MAP_INVALID, rcutils_get_default_allocator())
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(
-    size, RCUTILS_RET_INVALID_ARGUMENT, rcutils_get_default_allocator())
-  *size = string_map->impl->size;
+    size, RCUTILS_RET_INVALID_ARGUMENT, rcutils_get_default_allocator()) *
+  size = string_map->impl->size;
   return RCUTILS_RET_OK;
 }
 
