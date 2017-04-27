@@ -110,7 +110,14 @@ rcutils_repl_str(
 
   if (count == 0) {
     /* If no matches, then just duplicate the string. */
+#if defined(_MSC_VER)
+# pragma warning(push)
+# pragma warning(disable: 4996)  // strcpy may be unsafe
+#endif
     strcpy(ret, str);  // NOLINT
+#if defined(_MSC_VER)
+# pragma warning(pop)
+#endif
   } else {
     /* Otherwise, duplicate the string whilst performing
      * the replacements using the position cache. */
