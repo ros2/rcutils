@@ -301,6 +301,27 @@ RCUTILS_PUBLIC
 const char *
 rcutils_string_map_get(const rcutils_string_map_t * string_map, const char * key);
 
+/// Get value given a key and key length.
+/**
+ * Identical to rcutils_string_map_get() but without relying on key to be a
+ * null terminated c string.
+ *
+ * \param[in] string_map rcutils_string_map_t to be searched
+ * \param[in] key map key
+ * \param[in] key_length map key length
+ * \return value for the given key if successful, or
+ * \return `NULL` for invalid arguments, or
+ * \return `NULL` if the string map is invalid, or
+ * \return `NULL` if key not found, or
+ * \return `NULL` if an unknown error occurs
+ */
+RCUTILS_PUBLIC
+const char *
+rcutils_string_map_getn(
+  const rcutils_string_map_t * string_map,
+  const char * key,
+  size_t key_length);
+
 #if __cplusplus
 }
 #endif

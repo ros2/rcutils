@@ -1075,6 +1075,88 @@ TEST(test_string_map, get) {
   }
 }
 
+TEST(test_string_map, getn) {
+  auto allocator = rcutils_get_default_allocator();
+  rcutils_ret_t ret;
+
+  // get normal key, which is longer than compared
+  {
+    rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
+    ret = rcutils_string_map_init(&string_map, 2, allocator);
+    ASSERT_EQ(RCUTILS_RET_OK, ret);
+
+    ret = rcutils_string_map_set(&string_map, "key1", "value1");
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ret = rcutils_string_map_set(&string_map, "key2", "value2");
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+
+    EXPECT_STREQ("value1", rcutils_string_map_getn(&string_map, "key1andsome", 4));
+    EXPECT_STREQ("value2", rcutils_string_map_getn(&string_map, "key2andsome", 4));
+
+    ret = rcutils_string_map_fini(&string_map);
+    ASSERT_EQ(RCUTILS_RET_OK, ret);
+  }
+
+  // get missing key
+  {
+    rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
+    ret = rcutils_string_map_init(&string_map, 2, allocator);
+    ASSERT_EQ(RCUTILS_RET_OK, ret);
+
+    ret = rcutils_string_map_set(&string_map, "key1", "value1");
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+
+    EXPECT_EQ(NULL, rcutils_string_map_get(&string_map, "some_key"));
+
+    ret = rcutils_string_map_fini(&string_map);
+    ASSERT_EQ(RCUTILS_RET_OK, ret);
+  }
+
+  // get on empty map (capacity but no pairs in it)
+  {
+    rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
+    ret = rcutils_string_map_init(&string_map, 2, allocator);
+    ASSERT_EQ(RCUTILS_RET_OK, ret);
+
+    EXPECT_EQ(NULL, rcutils_string_map_get(&string_map, "some_key"));
+
+    ret = rcutils_string_map_fini(&string_map);
+    ASSERT_EQ(RCUTILS_RET_OK, ret);
+  }
+
+  // get on map with no capacity (also empty)
+  {
+    rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
+    ret = rcutils_string_map_init(&string_map, 0, allocator);
+    ASSERT_EQ(RCUTILS_RET_OK, ret);
+
+    EXPECT_EQ(NULL, rcutils_string_map_get(&string_map, "some_key"));
+
+    ret = rcutils_string_map_fini(&string_map);
+    ASSERT_EQ(RCUTILS_RET_OK, ret);
+  }
+
+  // get with string_map null
+  {
+    EXPECT_EQ(NULL, rcutils_string_map_get(NULL, "some_key"));
+  }
+
+  // get with key null
+  {
+    rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
+    ret = rcutils_string_map_init(&string_map, 2, allocator);
+    ASSERT_EQ(RCUTILS_RET_OK, ret);
+
+    ret = rcutils_string_map_set(&string_map, "key1", "value1");
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+
+    EXPECT_EQ(NULL, rcutils_string_map_get(&string_map, NULL));
+
+    ret = rcutils_string_map_fini(&string_map);
+    ASSERT_EQ(RCUTILS_RET_OK, ret);
+  }
+}
+
 TEST(test_string_map, strange_keys) {
   auto allocator = rcutils_get_default_allocator();
   rcutils_ret_t ret;

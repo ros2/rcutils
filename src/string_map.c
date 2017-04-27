@@ -253,10 +253,10 @@ static bool
 __get_index_of_key_if_exists(
   rcutils_string_map_impl_t * string_map_impl,
   const char * key,
+  size_t key_length,
   size_t * index)
 {
   size_t i = 0;
-  size_t key_length = strlen(key);
   for (; i < string_map_impl->capacity; ++i) {
     if (!string_map_impl->keys[i]) {
       continue;
@@ -291,7 +291,7 @@ rcutils_string_map_set_no_resize(
   rcutils_allocator_t allocator = string_map->impl->allocator;
   size_t key_index;
   bool should_free_key_on_error = false;
-  bool key_exists = __get_index_of_key_if_exists(string_map->impl, key, &key_index);
+  bool key_exists = __get_index_of_key_if_exists(string_map->impl, key, strlen(key), &key_index);
   if (!key_exists) {
     // create space for, and store the key if it doesn't exist yet
     assert(string_map->impl->size <= string_map->impl->capacity);  // defensive, should not happen
@@ -346,7 +346,7 @@ rcutils_string_map_unset(rcutils_string_map_t * string_map, const char * key)
     key, RCUTILS_RET_INVALID_ARGUMENT, rcutils_get_default_allocator())
   rcutils_allocator_t allocator = string_map->impl->allocator;
   size_t key_index;
-  if (!__get_index_of_key_if_exists(string_map->impl, key, &key_index)) {
+  if (!__get_index_of_key_if_exists(string_map->impl, key, strlen(key), &key_index)) {
     char * msg = rcutils_format_string(allocator, "key '%s' not found", key);
     RCUTILS_SET_ERROR_MSG(msg, allocator)
     allocator.deallocate(msg, allocator.state);
@@ -359,11 +359,23 @@ rcutils_string_map_unset(rcutils_string_map_t * string_map, const char * key)
 const char *
 rcutils_string_map_get(const rcutils_string_map_t * string_map, const char * key)
 {
+  if (!key) {
+    return NULL;
+  }
+  return rcutils_string_map_getn(string_map, key, strlen(key));
+}
+
+const char *
+rcutils_string_map_getn(
+  const rcutils_string_map_t * string_map,
+  const char * key,
+  size_t key_length)
+{
   if (!string_map || !string_map->impl || !key) {
     return NULL;
   }
   size_t key_index;
-  if (__get_index_of_key_if_exists(string_map->impl, key, &key_index)) {
+  if (__get_index_of_key_if_exists(string_map->impl, key, key_length, &key_index)) {
     return string_map->impl->values[key_index];
   }
   return NULL;
