@@ -381,6 +381,79 @@ rcutils_string_map_getn(
   return NULL;
 }
 
+const char *
+rcutils_string_map_get_next_key(
+  const rcutils_string_map_t * string_map,
+  const char * key)
+{
+  if (!string_map || !string_map->impl) {
+    return NULL;
+  }
+  if (string_map->impl->size == 0) {
+    return NULL;
+  }
+  bool given_key_found = false;
+  size_t start_index = 0;
+  if (key) {
+    // if given a key, try to find it
+    size_t i = 0;
+    for (; i < string_map->impl->capacity; ++i) {
+      if (string_map->impl->keys[i] == key) {
+        given_key_found = true;
+        // given key found at index i, start there + 1
+        start_index = i + 1;
+      }
+    }
+    if (!given_key_found) {
+      // given key not found, cannot return next key with that
+      return NULL;
+    }
+  }
+  // iterate through the storage and look for another non-NULL key to return
+  size_t i = start_index;
+  for(; i < string_map->impl->capacity; ++i) {
+    if (string_map->impl->keys[i]) {
+      // next key found, return it
+      return string_map->impl->keys[i];
+    }
+  }
+  // next key (or first key) not found
+  return NULL;
+}
+
+rcutils_ret_t
+rcutils_string_map_copy(
+  const rcutils_string_map_t * src_string_map,
+  rcutils_string_map_t * dst_string_map)
+{
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(
+    src_string_map, RCUTILS_RET_INVALID_ARGUMENT, rcutils_get_default_allocator())
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(
+    dst_string_map, RCUTILS_RET_INVALID_ARGUMENT, rcutils_get_default_allocator())
+  RCUTILS_CHECK_FOR_NULL_WITH_MSG(
+    src_string_map->impl, "source string map is invalid",
+    return RCUTILS_RET_STRING_MAP_INVALID, rcutils_get_default_allocator())
+  RCUTILS_CHECK_FOR_NULL_WITH_MSG(
+    dst_string_map->impl, "destination string map is invalid",
+    return RCUTILS_RET_STRING_MAP_INVALID, rcutils_get_default_allocator())
+  const char * key = rcutils_string_map_get_next_key(src_string_map, NULL);
+  while (key) {
+    const char * value = rcutils_string_map_get(src_string_map, key);
+    if (!value) {
+      RCUTILS_SET_ERROR_MSG(
+        "unable to get value for known key, should not happen", rcutils_get_default_allocator());
+      return RCUTILS_RET_ERROR;
+    }
+    rcutils_ret_t ret = rcutils_string_map_set(dst_string_map, key, value);
+    if (ret != RCUTILS_RET_OK) {
+      // error message already set
+      return ret;
+    }
+    key = rcutils_string_map_get_next_key(src_string_map, key);
+  }
+  return RCUTILS_RET_OK;
+}
+
 #if __cplusplus
 }
 #endif
