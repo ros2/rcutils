@@ -193,7 +193,6 @@ rcutils_string_map_reserve(rcutils_string_map_t * string_map, size_t capacity)
   return RCUTILS_RET_OK;
 }
 
-RCUTILS_LOCAL
 static void
 __remove_key_and_value_at_index(rcutils_string_map_impl_t * string_map_impl, size_t index)
 {
@@ -251,7 +250,6 @@ rcutils_string_map_set(rcutils_string_map_t * string_map, const char * key, cons
   return ret;
 }
 
-RCUTILS_LOCAL
 static bool
 __get_index_of_key_if_exists(
   rcutils_string_map_impl_t * string_map_impl,
