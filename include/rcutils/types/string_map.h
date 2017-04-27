@@ -289,7 +289,7 @@ rcutils_string_map_unset(rcutils_string_map_t * string_map, const char * key);
  * the key value pair is updated or removed with one of rcutils_string_map_set()
  * or rcutils_string_map_set_no_resize() or rcutils_string_map_unset().
  *
- * \param[inout] string_map rcutils_string_map_t to be searched
+ * \param[in] string_map rcutils_string_map_t to be searched
  * \param[in] key map key, must be null terminated c string
  * \return value for the given key if successful, or
  * \return `NULL` for invalid arguments, or
