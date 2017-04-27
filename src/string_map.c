@@ -111,8 +111,10 @@ rcutils_string_map_get_capacity(const rcutils_string_map_t * string_map, size_t 
     string_map->impl, "invalid string map",
     return RCUTILS_RET_STRING_MAP_INVALID, rcutils_get_default_allocator())
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(
-    capacity, RCUTILS_RET_INVALID_ARGUMENT, rcutils_get_default_allocator()) *
-  capacity = string_map->impl->capacity;
+    capacity, RCUTILS_RET_INVALID_ARGUMENT, rcutils_get_default_allocator())
+  // *INDENT-OFF* (prevent uncrustify getting this wrong)
+  *capacity = string_map->impl->capacity;
+  // *INDENT-ON*
   return RCUTILS_RET_OK;
 }
 
@@ -412,7 +414,7 @@ rcutils_string_map_get_next_key(
   }
   // iterate through the storage and look for another non-NULL key to return
   size_t i = start_index;
-  for(; i < string_map->impl->capacity; ++i) {
+  for (; i < string_map->impl->capacity; ++i) {
     if (string_map->impl->keys[i]) {
       // next key found, return it
       return string_map->impl->keys[i];
