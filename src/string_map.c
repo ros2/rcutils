@@ -395,10 +395,10 @@ rcutils_string_map_get_next_key(
   if (string_map->impl->size == 0) {
     return NULL;
   }
-  bool given_key_found = false;
   size_t start_index = 0;
   if (key) {
     // if given a key, try to find it
+    bool given_key_found = false;
     size_t i = 0;
     for (; i < string_map->impl->capacity; ++i) {
       if (string_map->impl->keys[i] == key) {
