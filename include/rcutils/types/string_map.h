@@ -322,6 +322,78 @@ rcutils_string_map_getn(
   const char * key,
   size_t key_length);
 
+/// Get the next key in the map, unless NULL is given, then get the first key.
+/**
+ * This function allows you iteratively get each key in the map.
+ *
+ * If NULL is given for the key, then the first key in the map is returned.
+ * If that returned key if given to the this function, then the next key in the
+ * map is returned.
+ * If there are no more keys in the map or if the given key is not in the map,
+ * NULL is returned.
+ *
+ * The order of the keys in the map is arbitrary and if the map is modified
+ * between calls to this function the behavior is undefined.
+ * If the map is modifeid then iteration should begin again by passing NULL to
+ * get the first key again.
+ *
+ * This function operates based on the address of the pointer, you cannot pass
+ * a copy of a key to get the next key.
+ *
+ * Example:
+ *
+ * ```c
+ * printf("keys in the map:\n");
+ * const char * current_key = rcutils_string_map_get_next_key(&map, NULL);
+ * while (current_key) {
+ *   printf("  - %s\n", current_key);
+ *   current_key = rcutils_string_map_get_next_key(&map, current_key);
+ * }
+ * ```
+ *
+ * NULL can also be returned if NULL is given for the string_map or if the
+ * string_map is invalid.
+ *
+ * \param[in] string_map rcutils_string_map_t to be queried
+ * \param[in] key NULL to get the first key or the previous key to get the next
+ * \return value for the given key if successful, or
+ * \return `NULL` for invalid arguments, or
+ * \return `NULL` if the string map is invalid, or
+ * \return `NULL` if key not found, or
+ * \return `NULL` if there are no more keys in the map, or
+ * \return `NULL` if an unknown error occurs
+ */
+RCUTILS_PUBLIC
+const char *
+rcutils_string_map_get_next_key(
+  const rcutils_string_map_t * string_map,
+  const char * key);
+
+/// Copy all the key value pairs from one map into another, overwritting and resizing if needed.
+/**
+ * If the destination string map does not have enough storage, then it is will
+ * be resized.
+ * If a key value pair exists in the destination map, its value will be
+ * replaced with the source map's value.
+ *
+ * It is possible for only some of the values to be copied if an error happens
+ * during the copying process, e.g. if memory allocation fails.
+ *
+ * \param[in] src_string_map rcutils_string_map_t to be copied from
+ * \param[inout] dst_string_map rcutils_string_map_t to be copied to
+ * \return `RCUTILS_RET_OK` if successful, or
+ * \return `RCUTILS_RET_INVALID_ARGUMENT` for invalid arguments, or
+ * \return `RCUTILS_RET_BAD_ALLOC` if memory allocation fails, or
+ * \return `RCUTILS_RET_STRING_MAP_INVALID` if the string map is invalid, or
+ * \return `RCUTILS_RET_ERROR` if an unknown error occurs
+ */
+RCUTILS_PUBLIC
+RCUTILS_WARN_UNUSED
+rcutils_ret_t
+rcutils_string_map_copy(
+  const rcutils_string_map_t * src_string_map,
+  rcutils_string_map_t * dst_string_map);
+
 #if __cplusplus
 }
 #endif
