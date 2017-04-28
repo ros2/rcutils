@@ -51,7 +51,8 @@ TEST(test_strndup, nominal) {
     std::string typical = "typical";
     auto allocator = rcutils_get_default_allocator();
     char * duped = rcutils_strndup(typical.c_str(), 0, allocator);
-    EXPECT_EQ(0, strlen(duped));
+    size_t expected = 0;
+    EXPECT_EQ(expected, strlen(duped));
     EXPECT_STREQ("", duped);
     allocator.deallocate(duped, allocator.state);
   }
