@@ -61,8 +61,7 @@ rcutils_format_string_limit(
     return NULL;
   }
   // formate the string
-  size_t bytes_written =
-    rcutils_vsnprintf(output_string, bytes_to_be_written + 1, format_string, args2);
+  rcutils_vsnprintf(output_string, bytes_to_be_written + 1, format_string, args2);
   output_string[bytes_to_be_written] = '\0';
   va_end(args2);
   return output_string;
