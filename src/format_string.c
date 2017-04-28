@@ -21,6 +21,9 @@ extern "C"
 
 #include <stdarg.h>
 #include <stddef.h>
+#ifdef _WIN32
+#include <stdio.h>
+#endif
 #include <string.h>
 
 #include "rcutils/snprintf.h"
@@ -42,11 +45,15 @@ rcutils_format_string_limit(
   va_list args2;
   va_copy(args2, args1);
   // first calculate the output string
+#ifdef _WIN32
+  size_t bytes_to_be_written = _vscprintf(format_string, args1);
+#else
   size_t bytes_to_be_written = rcutils_vsnprintf(NULL, 0, format_string, args1);
+#endif
   va_end(args1);
   // allocate space for the return string
   if (bytes_to_be_written + 1 > limit) {
-    bytes_to_be_written = limit;
+    bytes_to_be_written = limit - 1;
   }
   char * output_string = allocator.allocate(bytes_to_be_written + 1, allocator.state);
   if (!output_string) {
@@ -54,7 +61,9 @@ rcutils_format_string_limit(
     return NULL;
   }
   // formate the string
-  rcutils_vsnprintf(output_string, limit, format_string, args2);
+  size_t bytes_written =
+    rcutils_vsnprintf(output_string, bytes_to_be_written + 1, format_string, args2);
+  output_string[bytes_to_be_written] = '\0';
   va_end(args2);
   return output_string;
 }
