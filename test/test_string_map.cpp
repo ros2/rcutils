@@ -56,6 +56,8 @@ TEST(test_string_map, lifecycle) {
   // init on non-zero initialized
   {
     rcutils_string_map_t string_map;
+    // dirty the memory, otherwise this is flaky (sometimes the junk memory is null)
+    memset(&string_map, 0x7, sizeof(rcutils_string_map_t));
     ret = rcutils_string_map_init(&string_map, 10, allocator);
     EXPECT_EQ(RCUTILS_RET_STRING_MAP_ALREADY_INIT, ret) << rcutils_get_error_string_safe();
     rcutils_reset_error();
