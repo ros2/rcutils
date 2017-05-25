@@ -21,6 +21,7 @@
 
 #include <rcutils/error_handling.h>
 #include <rcutils/macros.h>
+#include <rcutils/strdup.h>
 
 // When this define evaluates to true (default), then messages will printed to
 // stderr when an error is encoutered while setting the error state.
@@ -52,6 +53,29 @@ __rcutils_reset_error_string(char ** error_string_ptr, rcutils_allocator_t alloc
 void
 __rcutils_reset_error(rcutils_error_state_t ** error_state_ptr_ptr);
 
+rcutils_ret_t
+rcutils_error_state_copy(const rcutils_error_state_t * src, rcutils_error_state_t * dst)
+{
+  dst->allocator = src->allocator;
+  dst->message = rcutils_strdup(src->message, dst->allocator);
+  if (!dst->message) {
+    return RCUTILS_RET_BAD_ALLOC;
+  }
+  dst->file = rcutils_strdup(src->file, dst->allocator);
+  if (!dst->file) {
+    return RCUTILS_RET_BAD_ALLOC;
+  }
+  dst->line_number = src->line_number;
+  return RCUTILS_RET_OK;
+}
+
+void
+rcutils_error_state_fini(rcutils_error_state_t * error_state)
+{
+  error_state->allocator.deallocate((char *)error_state->message, error_state->allocator.state);
+  error_state->allocator.deallocate((char *)error_state->file, error_state->allocator.state);
+}
+
 void
 rcutils_set_error_state(
   const char * error_string,
@@ -74,7 +98,7 @@ rcutils_set_error_state(
 #if RCUTILS_REPORT_ERROR_HANDLING_ERRORS
     // rcutils_allocate failed, but fwrite might work?
     SAFE_FWRITE_TO_STDERR(
-      "[rmw|error_handling.c:" RCUTILS_STRINGIFY(__LINE__)
+      "[rcutils|error_handling.c:" RCUTILS_STRINGIFY(__LINE__)
       "] failed to allocate memory for the error state struct\n");
 #endif
     return;
@@ -92,7 +116,7 @@ rcutils_set_error_state(
 #if RCUTILS_REPORT_ERROR_HANDLING_ERRORS
     // malloc failed, but fwrite might work?
     SAFE_FWRITE_TO_STDERR(
-      "[rmw|error_handling.c:" RCUTILS_STRINGIFY(__LINE__)
+      "[rcutils|error_handling.c:" RCUTILS_STRINGIFY(__LINE__)
       "] failed to allocate memory for the error message in the error state struct\n");
 #endif
     rcutils_reset_error();  // This will free any allocations done so far.
@@ -107,7 +131,7 @@ rcutils_set_error_state(
   if (retcode) {
 #if RCUTILS_REPORT_ERROR_HANDLING_ERRORS
     SAFE_FWRITE_TO_STDERR(
-      "[rmw|error_handling.c:" RCUTILS_STRINGIFY(__LINE__)
+      "[rcutils|error_handling.c:" RCUTILS_STRINGIFY(__LINE__)
       "] failed to copy error message in the error state struct\n");
 #endif
   }
@@ -120,9 +144,20 @@ rcutils_set_error_state(
     if (error_string != old_error_string && error_string != old_error_state->message) {
       fprintf(
         stderr,
-        "[rmw|error_handling.c:" RCUTILS_STRINGIFY(__LINE__) "] rcutils_set_error_state():"
-        "error string being overwritten: %s\n",
-        old_error_string);
+        "\n"
+        ">>> [rcutils|error_handling.c:" RCUTILS_STRINGIFY(__LINE__) "] rcutils_set_error_state()\n"
+        "This error state is being overwritten:\n"
+        "\n"
+        "  '%s'\n"
+        "\n"
+        "with this new error message:\n"
+        "\n"
+        "  '%s'\n"
+        "\n"
+        "rcutils_reset_error() should be called after error handling to avoid this.\n"
+        "<<<\n",
+        old_error_string,
+        error_string);
     }
 #endif
     __rcutils_reset_error(&old_error_state);
@@ -167,7 +202,7 @@ format_error_string()
 #if RCUTILS_REPORT_ERROR_HANDLING_ERRORS
     // rcutils_allocate failed, but fwrite might work?
     SAFE_FWRITE_TO_STDERR(
-      "[rmw|error_handling.c:" RCUTILS_STRINGIFY(__LINE__)
+      "[rcutils|error_handling.c:" RCUTILS_STRINGIFY(__LINE__)
       "] failed to allocate memory for the error string\n");
 #endif
     return;
@@ -229,7 +264,7 @@ __rcutils_reset_error_string(char ** error_string_ptr, rcutils_allocator_t alloc
   if (!local_allocator.deallocate) {
 #if RCUTILS_REPORT_ERROR_HANDLING_ERRORS
     SAFE_FWRITE_TO_STDERR(
-      "[rmw|error_handling.c:" RCUTILS_STRINGIFY(__LINE__) "]: "
+      "[rcutils|error_handling.c:" RCUTILS_STRINGIFY(__LINE__) "]: "
       "invalid allocator, deallocate function pointer is null\n");
 #endif
     local_allocator = rcutils_get_default_allocator();
@@ -251,7 +286,7 @@ __rcutils_reset_error(rcutils_error_state_t ** error_state_ptr_ptr)
       if (!allocator.deallocate) {
 #if RCUTILS_REPORT_ERROR_HANDLING_ERRORS
         SAFE_FWRITE_TO_STDERR(
-          "[rmw|error_handling.c:" RCUTILS_STRINGIFY(__LINE__) "]: "
+          "[rcutils|error_handling.c:" RCUTILS_STRINGIFY(__LINE__) "]: "
           "invalid allocator, deallocate function pointer is null\n");
 #endif
         allocator = rcutils_get_default_allocator();
