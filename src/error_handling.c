@@ -150,14 +150,14 @@ rcutils_set_error_state(
         "\n"
         "  '%s'\n"
         "\n"
-        "with this new error state:\n"
+        "with this new error message:\n"
         "\n"
         "  '%s'\n"
         "\n"
         "rcutils_reset_error() should be called after error handling to avoid this.\n"
         "<<<\n",
         old_error_string,
-        rcutils_get_error_string_safe());
+        error_string);
     }
 #endif
     __rcutils_reset_error(&old_error_state);
