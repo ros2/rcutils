@@ -87,3 +87,18 @@ TEST(test_error_handling, recursive) {
     "Expected ', at' in the error string twice but got it '" << count << "': " << err_msg;
   rcutils_reset_error();
 }
+
+TEST(test_error_handling, copy) {
+  rcutils_reset_error();
+  const char * test_message = "test message";
+  RCUTILS_SET_ERROR_MSG(test_message, rcutils_get_default_allocator());
+  using ::testing::HasSubstr;
+  ASSERT_THAT(rcutils_get_error_string_safe(), HasSubstr(", at"));
+  rcutils_error_state_t copy;
+  rcutils_ret_t ret = rcutils_error_state_copy(rcutils_get_error_state(), &copy);
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
+  ASSERT_STREQ(test_message, copy.message);
+  ASSERT_STREQ(__FILE__, copy.file);
+  rcutils_error_state_fini(&copy);
+  rcutils_reset_error();
+}
