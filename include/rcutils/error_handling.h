@@ -27,6 +27,7 @@ extern "C"
 
 #include "rcutils/allocator.h"
 #include "rcutils/macros.h"
+#include "rcutils/types/rcutils_ret.h"
 #include "rcutils/visibility_control.h"
 
 /// Struct which encapsulates the error state set by RCUTILS_SET_ERROR_MSG().
@@ -37,6 +38,29 @@ typedef struct rcutils_error_state_t
   size_t line_number;
   rcutils_allocator_t allocator;
 } rcutils_error_state_t;
+
+/// Copy an error state into a destination error state.
+/**
+ * The destination state must be empty, the memory will not be free'd.
+ * The allocator from the source is used to allocate memory in the dst.
+ *
+ * The copied error_state should be finalized with rcutils_error_state_fini().
+ *
+ * \param[in] src the error state to copy from
+ * \param[out] dst the error state to copy into
+ * \returns RCUTILS_RET_OK if successful, or
+ * \returns RCUTILS_RET_BAD_ALLOC if memory allocation fails, or
+ * \returns RCUTILS_RET_ERROR if an unknown error occurs.
+ */
+RCUTILS_PUBLIC
+RCUTILS_WARN_UNUSED
+rcutils_ret_t
+rcutils_error_state_copy(const rcutils_error_state_t * src, rcutils_error_state_t * dst);
+
+/// Finalizes a copied error state.
+RCUTILS_PUBLIC
+void
+rcutils_error_state_fini(rcutils_error_state_t * error_state);
 
 /// Set the error message, as well as the file and line on which it occurred.
 /**
