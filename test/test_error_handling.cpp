@@ -97,8 +97,14 @@ TEST(test_error_handling, copy) {
   rcutils_error_state_t copy;
   rcutils_ret_t ret = rcutils_error_state_copy(rcutils_get_error_state(), &copy);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
+  // ensure the copy is correct
   ASSERT_STREQ(test_message, copy.message);
   ASSERT_STREQ(__FILE__, copy.file);
+  // ensure the original is still right too
+  auto error_state = rcutils_get_error_state();
+  ASSERT_NE(nullptr, error_state);
+  ASSERT_STREQ(test_message, error_state->message);
+  // cleanup
   rcutils_error_state_fini(&copy);
   rcutils_reset_error();
 }
