@@ -21,19 +21,19 @@ extern "C"
 {
 #endif
 
-#include "rcl/time.h"
+#include "rcutils/time.h"
 
 #include <windows.h>
 
 #include "./common.h"
-#include "./stdatomic_helper.h"
-#include "rcl/allocator.h"
-#include "rcl/error_handling.h"
+#include "rcutils/allocator.h"
+#include "rcutils/error_handling.h"
 
-rcl_ret_t
-rcl_system_time_now(rcl_time_point_value_t * now)
+rcutils_ret_t
+rcutils_system_time_now(rcutils_time_point_value_t * now)
 {
-  RCL_CHECK_ARGUMENT_FOR_NULL(now, RCL_RET_INVALID_ARGUMENT, rcl_get_default_allocator());
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(
+    now, RCUTILS_RET_INVALID_ARGUMENT, rcutils_get_default_allocator());
   FILETIME ft;
   GetSystemTimeAsFileTime(&ft);
   ULARGE_INTEGER uli;
@@ -44,13 +44,14 @@ rcl_system_time_now(rcl_time_point_value_t * now)
   uli.QuadPart -= 116444736000000000;
   // Convert to nanoseconds from 100's of nanoseconds.
   *now = uli.QuadPart * 100;
-  return RCL_RET_OK;
+  return RCUTILS_RET_OK;
 }
 
-rcl_ret_t
-rcl_steady_time_now(rcl_time_point_value_t * now)
+rcutils_ret_t
+rcutils_steady_time_now(rcutils_time_point_value_t * now)
 {
-  RCL_CHECK_ARGUMENT_FOR_NULL(now, RCL_RET_INVALID_ARGUMENT, rcl_get_default_allocator());
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(
+    now, RCUTILS_RET_INVALID_ARGUMENT, rcutils_get_default_allocator());
   LARGE_INTEGER cpu_frequency, performance_count;
   // These should not ever fail since XP is already end of life:
   // From https://msdn.microsoft.com/en-us/library/windows/desktop/ms644905(v=vs.85).aspx and
@@ -60,9 +61,9 @@ rcl_steady_time_now(rcl_time_point_value_t * now)
   QueryPerformanceFrequency(&cpu_frequency);
   QueryPerformanceCounter(&performance_count);
   // Convert to nanoseconds before converting from ticks to avoid precision loss.
-  rcl_time_point_value_t intermediate = RCL_S_TO_NS(performance_count.QuadPart);
+  rcutils_time_point_value_t intermediate = RCUTILS_S_TO_NS(performance_count.QuadPart);
   *now = intermediate / cpu_frequency.QuadPart;
-  return RCL_RET_OK;
+  return RCUTILS_RET_OK;
 }
 
 #if __cplusplus

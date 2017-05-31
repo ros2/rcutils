@@ -24,7 +24,7 @@
  *   not type check correctly (incompatible anonymous structure
  *   types).
  * - Support is limited to 16, 32, and 64 bit types only.
- * - Stripped down to only the functions used locally in rcl.
+ * - Stripped down to only the functions used locally in rcutils.
  */
 
 /*-
@@ -60,8 +60,8 @@
 #error "this stdatomic.h does not support your compiler"
 #endif
 
-#ifndef RCL__STDATOMIC_HELPER__WIN32__STDATOMIC_H_
-#define RCL__STDATOMIC_HELPER__WIN32__STDATOMIC_H_
+#ifndef RCUTILS__STDATOMIC_HELPER__WIN32__STDATOMIC_H_
+#define RCUTILS__STDATOMIC_HELPER__WIN32__STDATOMIC_H_
 
 #include <Windows.h>
 
@@ -188,7 +188,7 @@ typedef _Atomic (uintmax_t) atomic_uintmax_t;
  * 7.17.7 Operations on atomic types. (pruned modified for Windows' crappy C compiler)
  */
 
-#define rcl_win32_atomic_compare_exchange_strong(object, out, expected, desired) \
+#define rcutils_win32_atomic_compare_exchange_strong(object, out, expected, desired) \
   __pragma(warning(push)) \
   __pragma(warning(disable: 4244)) \
   do { \
@@ -213,10 +213,10 @@ typedef _Atomic (uintmax_t) atomic_uintmax_t;
   } while (0); \
   __pragma(warning(pop))
 
-#define rcl_win32_atomic_compare_exchange_weak(object, out, expected, desired) \
-  rcl_win32_atomic_compare_exchange_strong(object, out, expected, desired)
+#define rcutils_win32_atomic_compare_exchange_weak(object, out, expected, desired) \
+  rcutils_win32_atomic_compare_exchange_strong(object, out, expected, desired)
 
-#define rcl_win32_atomic_exchange(object, out, desired) \
+#define rcutils_win32_atomic_exchange(object, out, desired) \
   __pragma(warning(push)) \
   __pragma(warning(disable: 4244)) \
   do { \
@@ -241,7 +241,7 @@ typedef _Atomic (uintmax_t) atomic_uintmax_t;
   } while (0); \
   __pragma(warning(pop))
 
-#define rcl_win32_atomic_fetch_add(object, out, operand) \
+#define rcutils_win32_atomic_fetch_add(object, out, operand) \
   __pragma(warning(push)) \
   __pragma(warning(disable: 4244)) \
   do { \
@@ -266,7 +266,7 @@ typedef _Atomic (uintmax_t) atomic_uintmax_t;
   } while (0); \
   __pragma(warning(pop))
 
-#define rcl_win32_atomic_fetch_and(object, out, operand) \
+#define rcutils_win32_atomic_fetch_and(object, out, operand) \
   __pragma(warning(push)) \
   __pragma(warning(disable: 4244)) \
   do { \
@@ -291,7 +291,7 @@ typedef _Atomic (uintmax_t) atomic_uintmax_t;
   } while (0); \
   __pragma(warning(pop))
 
-#define rcl_win32_atomic_fetch_or(object, out, operand) \
+#define rcutils_win32_atomic_fetch_or(object, out, operand) \
   __pragma(warning(push)) \
   __pragma(warning(disable: 4244)) \
   do { \
@@ -316,10 +316,10 @@ typedef _Atomic (uintmax_t) atomic_uintmax_t;
   } while (0); \
   __pragma(warning(pop))
 
-#define rcl_win32_atomic_fetch_sub(object, out, operand) \
-  rcl_win32_atomic_fetch_add(object, out, -(operand))
+#define rcutils_win32_atomic_fetch_sub(object, out, operand) \
+  rcutils_win32_atomic_fetch_add(object, out, -(operand))
 
-#define rcl_win32_atomic_fetch_xor(object, out, operand) \
+#define rcutils_win32_atomic_fetch_xor(object, out, operand) \
   __pragma(warning(push)) \
   __pragma(warning(disable: 4244)) \
   do { \
@@ -344,7 +344,7 @@ typedef _Atomic (uintmax_t) atomic_uintmax_t;
   } while (0); \
   __pragma(warning(pop))
 
-#define rcl_win32_atomic_load(object, out) \
+#define rcutils_win32_atomic_load(object, out) \
   __pragma(warning(push)) \
   __pragma(warning(disable: 4244)) \
   do { \
@@ -369,7 +369,7 @@ typedef _Atomic (uintmax_t) atomic_uintmax_t;
   } while (0); \
   __pragma(warning(pop))
 
-#define rcl_win32_atomic_store(object, desired) \
+#define rcutils_win32_atomic_store(object, desired) \
   do { \
     MemoryBarrier(); \
     (object)->__val = (desired); \
@@ -394,4 +394,4 @@ typedef _Atomic (uintmax_t) atomic_uintmax_t;
 // #define atomic_flag_test_and_set(object) \
 //   atomic_flag_test_and_set_explicit(object, memory_order_seq_cst)
 
-#endif  // RCL__STDATOMIC_HELPER__WIN32__STDATOMIC_H_
+#endif  // RCUTILS__STDATOMIC_HELPER__WIN32__STDATOMIC_H_

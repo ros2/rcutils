@@ -21,7 +21,7 @@ extern "C"
 {
 #endif
 
-#include "rcl/time.h"
+#include "rcutils/time.h"
 
 #if defined(__MACH__)
 #include <mach/clock.h>
@@ -32,8 +32,8 @@ extern "C"
 #include <unistd.h>
 
 #include "./common.h"
-#include "rcl/allocator.h"
-#include "rcl/error_handling.h"
+#include "rcutils/allocator.h"
+#include "rcutils/error_handling.h"
 
 #if !defined(__MACH__)  // Assume clock_get_time is available on OS X.
 // This id an appropriate check for clock_gettime() according to:
@@ -45,10 +45,11 @@ extern "C"
 
 #define __WOULD_BE_NEGATIVE(seconds, subseconds) (seconds < 0 || (subseconds < 0 && seconds == 0))
 
-rcl_ret_t
-rcl_system_time_now(rcl_time_point_value_t * now)
+rcutils_ret_t
+rcutils_system_time_now(rcutils_time_point_value_t * now)
 {
-  RCL_CHECK_ARGUMENT_FOR_NULL(now, RCL_RET_INVALID_ARGUMENT, rcl_get_default_allocator());
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(
+    now, RCUTILS_RET_INVALID_ARGUMENT, rcutils_get_default_allocator());
   struct timespec timespec_now;
 #if defined(__MACH__)
   // On OS X use clock_get_time.
@@ -64,17 +65,18 @@ rcl_system_time_now(rcl_time_point_value_t * now)
   clock_gettime(CLOCK_REALTIME, &timespec_now);
 #endif  // defined(__MACH__)
   if (__WOULD_BE_NEGATIVE(timespec_now.tv_sec, timespec_now.tv_nsec)) {
-    RCL_SET_ERROR_MSG("unexpected negative time", rcl_get_default_allocator());
-    return RCL_RET_ERROR;
+    RCUTILS_SET_ERROR_MSG("unexpected negative time", rcutils_get_default_allocator());
+    return RCUTILS_RET_ERROR;
   }
-  *now = RCL_S_TO_NS((uint64_t)timespec_now.tv_sec) + timespec_now.tv_nsec;
-  return RCL_RET_OK;
+  *now = RCUTILS_S_TO_NS((uint64_t)timespec_now.tv_sec) + timespec_now.tv_nsec;
+  return RCUTILS_RET_OK;
 }
 
-rcl_ret_t
-rcl_steady_time_now(rcl_time_point_value_t * now)
+rcutils_ret_t
+rcutils_steady_time_now(rcutils_time_point_value_t * now)
 {
-  RCL_CHECK_ARGUMENT_FOR_NULL(now, RCL_RET_INVALID_ARGUMENT, rcl_get_default_allocator());
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(
+    now, RCUTILS_RET_INVALID_ARGUMENT, rcutils_get_default_allocator());
   // If clock_gettime is available or on OS X, use a timespec.
   struct timespec timespec_now;
 #if defined(__MACH__)
@@ -95,11 +97,11 @@ rcl_steady_time_now(rcl_time_point_value_t * now)
 #endif  // defined(CLOCK_MONOTONIC_RAW)
 #endif  // defined(__MACH__)
   if (__WOULD_BE_NEGATIVE(timespec_now.tv_sec, timespec_now.tv_nsec)) {
-    RCL_SET_ERROR_MSG("unexpected negative time", rcl_get_default_allocator());
-    return RCL_RET_ERROR;
+    RCUTILS_SET_ERROR_MSG("unexpected negative time", rcutils_get_default_allocator());
+    return RCUTILS_RET_ERROR;
   }
-  *now = RCL_S_TO_NS((uint64_t)timespec_now.tv_sec) + timespec_now.tv_nsec;
-  return RCL_RET_OK;
+  *now = RCUTILS_S_TO_NS((uint64_t)timespec_now.tv_sec) + timespec_now.tv_nsec;
+  return RCUTILS_RET_OK;
 }
 
 #if __cplusplus
