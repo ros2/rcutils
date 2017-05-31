@@ -16,7 +16,7 @@ endif()
 list(APPEND extra_lib_dirs $<TARGET_FILE_DIR:${PROJECT_NAME}_memory_tools>)
 target_link_libraries(${PROJECT_NAME}_memory_tools ${extra_test_libraries})
 target_compile_definitions(${PROJECT_NAME}_memory_tools
-  PRIVATE "RCL_MEMORY_TOOLS_BUILDING_DLL")
+  PRIVATE "RCUTILS_MEMORY_TOOLS_BUILDING_DLL")
 list(APPEND extra_test_libraries ${PROJECT_NAME}_memory_tools)
 
 # Create tests for the memory tools library.
