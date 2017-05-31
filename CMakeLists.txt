@@ -13,6 +13,12 @@ if(NOT WIN32)
   set(rcutils_extra_warning_flags "-Wall -Wextra -Wpedantic")
 endif()
 
+if(WIN32)
+  set(time_impl_c src/time_win32.c)
+else()
+  set(time_impl_c src/time_unix.c)
+endif()
+
 set(rcutils_sources
   src/allocator.c
   src/cmdline_parser.c
@@ -27,6 +33,8 @@ set(rcutils_sources
   src/strdup.c
   src/string_array.c
   src/string_map.c
+  src/time.c
+  ${time_impl_c}
 )
 set_source_files_properties(
   ${rcutils_sources}
@@ -189,6 +197,11 @@ if(BUILD_TESTING)
     target_link_libraries(test_repl_str ${PROJECT_NAME})
   endif()
 
+  rcutils_custom_add_gtest(test_time
+    test/test_time.cpp)
+  if(TARGET test_time)
+    target_link_libraries(test_time ${PROJECT_NAME})
+  endif()
 endif()
 
 ament_export_dependencies(ament_cmake)
