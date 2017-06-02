@@ -7,10 +7,16 @@ find_package(ament_cmake REQUIRED)
 include_directories(include)
 
 if(NOT WIN32)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra")
   # The warning flags are added per target, because otherwise the local
   # gmock library that is built will have compiler warnings.
   set(rcutils_extra_warning_flags "-Wall -Wextra -Wpedantic")
+endif()
+
+if(WIN32)
+  set(time_impl_c src/time_win32.c)
+else()
+  set(time_impl_c src/time_unix.c)
 endif()
 
 set(rcutils_sources
@@ -27,6 +33,7 @@ set(rcutils_sources
   src/strdup.c
   src/string_array.c
   src/string_map.c
+  ${time_impl_c}
 )
 set_source_files_properties(
   ${rcutils_sources}
@@ -189,6 +196,13 @@ if(BUILD_TESTING)
     target_link_libraries(test_repl_str ${PROJECT_NAME})
   endif()
 
+  rcutils_custom_add_gtest(test_time
+    test/test_time.cpp
+    ENV ${extra_test_env}
+    APPEND_LIBRARY_DIRS ${extra_lib_dirs})
+  if(TARGET test_time)
+    target_link_libraries(test_time ${PROJECT_NAME} ${extra_test_libraries})
+  endif()
 endif()
 
 ament_export_dependencies(ament_cmake)
