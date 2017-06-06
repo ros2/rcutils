@@ -130,9 +130,9 @@ TEST_F(TestLoggingMacros, test_logging_skipfirst) {
 
 TEST_F(TestLoggingMacros, test_logging_throttle) {
   for (int i : {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}) {
-    RCUTILS_LOG_ERROR_THROTTLE(RCUTILS_STEADY_TIME, 30 /* ms */, "throttled message %d", i)
+    RCUTILS_LOG_ERROR_THROTTLE(RCUTILS_STEADY_TIME, 50 /* ms */, "throttled message %d", i)
     using namespace std::chrono_literals;
-    std::this_thread::sleep_for(20ms);
+    std::this_thread::sleep_for(30ms);
   }
   EXPECT_EQ(g_log_calls, 5u);
   EXPECT_EQ(g_last_log_event.level, RCUTILS_LOG_SEVERITY_ERROR);
@@ -143,9 +143,9 @@ TEST_F(TestLoggingMacros, test_logging_throttle) {
 TEST_F(TestLoggingMacros, test_logging_skipfirst_throttle) {
   for (int i : {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}) {
     RCUTILS_LOG_FATAL_SKIPFIRST_THROTTLE(
-      RCUTILS_STEADY_TIME, 30 /* ms */, "throttled message %d", i)
+      RCUTILS_STEADY_TIME, 50 /* ms */, "throttled message %d", i)
     using namespace std::chrono_literals;
-    std::this_thread::sleep_for(20ms);
+    std::this_thread::sleep_for(30ms);
   }
   EXPECT_EQ(g_log_calls, 4u);
   EXPECT_EQ(g_last_log_event.level, RCUTILS_LOG_SEVERITY_FATAL);
