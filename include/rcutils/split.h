@@ -20,16 +20,41 @@ extern "C"
 {
 #endif
 
+#include "rcutils/allocator.h"
 #include "rcutils/types.h"
 #include "rcutils/visibility_control.h"
 
+/// Split a given string with the specified delimiter
+/**
+ * \param[in] string to split
+ * \param[in] delimiter on where to split
+ * \param[in] allocator for allocating new memory for the output array
+ * \param[out] rcutils_string_array_t with the split tokens
+ * \returns array with split token, NULL in case of error
+ */
 RCUTILS_PUBLIC
-rcutils_string_array_t
-rcutils_split(const char * str, char delimiter);
+rcutils_ret_t
+rcutils_split(
+  const char * str,
+  char delimiter,
+  rcutils_allocator_t allocator,
+  rcutils_string_array_t * string_array);
 
+/// Split a given string on the last occurrence of the specified delimiter
+/**
+ * \param[in] string to split
+ * \param[in] delimiter on where to split
+ * \param[in] allocator for allocating new memory for the output array
+ * \param[out] rcutils_string_array_t with the split tokens
+ * \returns array with split token, NULL in case of error
+ */
 RCUTILS_PUBLIC
-rcutils_string_array_t
-rcutils_split_last(const char * str, char delimiter);
+rcutils_ret_t
+rcutils_split_last(
+  const char * str,
+  char delimiter,
+  rcutils_allocator_t allocator,
+  rcutils_string_array_t * string_array);
 
 #if __cplusplus
 }

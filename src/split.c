@@ -21,15 +21,21 @@ extern "C"
 #include <stdlib.h>
 #include <string.h>
 
+#include "rcutils/error_handling.h"
+#include "rcutils/format_string.h"
 #include "rcutils/split.h"
 #include "rcutils/types.h"
 
-rcutils_string_array_t
-rcutils_split(const char * str, char delimiter)
+rcutils_ret_t
+rcutils_split(
+  const char * str,
+  char delimiter,
+  rcutils_allocator_t allocator,
+  rcutils_string_array_t * string_array)
 {
   if (!str || strlen(str) == 0) {
-    rcutils_string_array_t empty_array = {0, NULL};
-    return empty_array;
+    *string_array = rcutils_get_zero_initialized_string_array();
+    return RCUTILS_RET_OK;
   }
 
   size_t string_size = strlen(str);
@@ -46,14 +52,17 @@ rcutils_split(const char * str, char delimiter)
     rhs_offset = 1;
   }
 
-  rcutils_string_array_t tokens = rcutils_get_zero_initialized_string_array();
-  tokens.size = 1;
+  const char * error_msg;
+  string_array->size = 1;
   for (size_t i = lhs_offset; i < string_size - rhs_offset; ++i) {
     if (str[i] == delimiter) {
-      ++tokens.size;
+      ++string_array->size;
     }
   }
-  tokens.data = malloc(tokens.size * sizeof(char *));
+  string_array->data = allocator.allocate(string_array->size * sizeof(char *), allocator.state);
+  if (!string_array->data) {
+    goto fail;
+  }
 
   size_t token_counter = 0;
   size_t lhs = 0 + lhs_offset;
@@ -63,13 +72,17 @@ rcutils_split(const char * str, char delimiter)
       // in case we have two consequetive delimiters
       // we ignore these and delimish the size of the array
       if (rhs - lhs < 1) {
-        --tokens.size;
-        tokens.data[tokens.size] = NULL;
+        --string_array->size;
+        string_array->data[string_array->size] = NULL;
       } else {
         // +2 (1+1) because lhs is index, not actual position
         // and nullterminating
-        tokens.data[token_counter] = malloc((rhs - lhs + 2) * sizeof(char));
-        snprintf(tokens.data[token_counter], (rhs - lhs + 1), "%s", str + lhs);
+        string_array->data[token_counter] =
+          allocator.allocate((rhs - lhs + 2) * sizeof(char), allocator.state);
+        if (!string_array->data[token_counter]) {
+          goto fail;
+        }
+        snprintf(string_array->data[token_counter], (rhs - lhs + 1), "%s", str + lhs);
         ++token_counter;
       }
       lhs = rhs;
@@ -79,22 +92,37 @@ rcutils_split(const char * str, char delimiter)
 
   // take care of trailing token
   if (rhs - lhs < 1) {
-    --tokens.size;
-    free(tokens.data[tokens.size]);
-    tokens.data[tokens.size] = NULL;
+    --string_array->size;
+    allocator.deallocate(string_array->data[string_array->size], allocator.state);
+    string_array->data[string_array->size] = NULL;
   } else {
-    tokens.data[token_counter] = malloc((rhs - lhs + 2) * sizeof(char));
-    snprintf(tokens.data[token_counter], (rhs - lhs + 1), "%s", str + lhs);
+    string_array->data[token_counter] =
+      allocator.allocate((rhs - lhs + 2) * sizeof(char), allocator.state);
+    snprintf(string_array->data[token_counter], (rhs - lhs + 1), "%s", str + lhs);
   }
-  return tokens;
+
+  return RCUTILS_RET_OK;
+
+fail:
+  error_msg = "unable to allocate memory for string array data";
+  if (rcutils_string_array_fini(string_array) != RCUTILS_RET_OK) {
+    error_msg = rcutils_format_string(allocator, "FATAL: %s. Leaking memory", error_msg);
+  }
+  string_array = NULL;
+  RCUTILS_SET_ERROR_MSG(error_msg, allocator);
+  return RCUTILS_RET_ERROR;
 }
 
-rcutils_string_array_t
-rcutils_split_last(const char * str, char delimiter)
+rcutils_ret_t
+rcutils_split_last(
+  const char * str,
+  char delimiter,
+  rcutils_allocator_t allocator,
+  rcutils_string_array_t * string_array)
 {
   if (!str || strlen(str) == 0) {
-    rcutils_string_array_t empty_array = {0, NULL};
-    return empty_array;
+    *string_array = rcutils_get_zero_initialized_string_array();
+    return RCUTILS_RET_OK;
   }
 
   size_t string_size = strlen(str);
@@ -111,7 +139,7 @@ rcutils_split_last(const char * str, char delimiter)
     rhs_offset = 1;
   }
 
-  rcutils_string_array_t tokens = rcutils_get_zero_initialized_string_array();
+  const char * error_msg;
 
   size_t found_last = string_size;
   for (size_t i = lhs_offset; i < string_size - rhs_offset; ++i) {
@@ -121,13 +149,23 @@ rcutils_split_last(const char * str, char delimiter)
   }
 
   if (found_last == string_size) {
-    tokens.size = 1;
-    tokens.data = malloc(1 * sizeof(char *));
-    tokens.data[0] = malloc((found_last - lhs_offset + 2) * sizeof(char));
-    snprintf(tokens.data[0], found_last - lhs_offset + 1, "%s", str + lhs_offset);
+    string_array->size = 1;
+    string_array->data = allocator.allocate(1 * sizeof(char *), allocator.state);
+    if (!string_array->data) {
+      goto fail;
+    }
+    string_array->data[0] =
+      allocator.allocate((found_last - lhs_offset + 2) * sizeof(char), allocator.state);
+    if (!string_array->data) {
+      goto fail;
+    }
+    snprintf(string_array->data[0], found_last - lhs_offset + 1, "%s", str + lhs_offset);
   } else {
-    tokens.size = 2;
-    tokens.data = malloc(2 * sizeof(char *));
+    string_array->size = 2;
+    string_array->data = allocator.allocate(2 * sizeof(char *), allocator.state);
+    if (!string_array->data) {
+      goto fail;
+    }
 
     /*
      * The extra +1 after 'found_last' is to compensate its position
@@ -135,14 +173,35 @@ rcutils_split_last(const char * str, char delimiter)
      * and not the actual position in terms of counting from 1
      */
     size_t inner_rhs_offset = (str[found_last - 1] == delimiter) ? 1 : 0;
-    tokens.data[0] = malloc((found_last + 1 - lhs_offset - inner_rhs_offset + 1) * sizeof(char));
-    snprintf(tokens.data[0], found_last + 1 - lhs_offset - inner_rhs_offset,
+    string_array->data[0] = allocator.allocate(
+      (found_last + 1 - lhs_offset - inner_rhs_offset + 1) * sizeof(char),
+      allocator.state);
+    if (!string_array->data[0]) {
+      goto fail;
+    }
+    snprintf(string_array->data[0], found_last + 1 - lhs_offset - inner_rhs_offset,
       "%s", str + lhs_offset);
 
-    tokens.data[1] = malloc((string_size - found_last - rhs_offset + 1) * sizeof(char));
-    snprintf(tokens.data[1], string_size - found_last - rhs_offset, "%s", str + found_last + 1);
+    string_array->data[1] = allocator.allocate(
+      (string_size - found_last - rhs_offset + 1) * sizeof(char),
+      allocator.state);
+    if (!string_array->data[1]) {
+      goto fail;
+    }
+    snprintf(string_array->data[1], string_size - found_last - rhs_offset, "%s",
+      str + found_last + 1);
   }
-  return tokens;
+
+  return RCUTILS_RET_OK;
+
+fail:
+  error_msg = "unable to allocate memory for string array data";
+  if (rcutils_string_array_fini(string_array) != RCUTILS_RET_OK) {
+    error_msg = rcutils_format_string(allocator, "FATAL: %s. Leaking memory", error_msg);
+  }
+  string_array = NULL;
+  RCUTILS_SET_ERROR_MSG(error_msg, allocator);
+  return RCUTILS_RET_ERROR;
 }
 
 #if __cplusplus
