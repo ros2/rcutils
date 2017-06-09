@@ -12,7 +12,6 @@ if(NOT CMAKE_C_STANDARD)
 endif()
 
 if(NOT WIN32)
-  add_definitions(-D_POSIX_C_SOURCE=199309L)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wpedantic")
   # The warning flags are added per target, because otherwise the local
   # gmock library that is built will have compiler warnings.
