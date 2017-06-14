@@ -22,6 +22,7 @@ extern "C"
 
 #include <string.h>
 
+#include "rcutils/allocator.h"
 #include "rcutils/macros.h"
 #include "rcutils/types/rcutils_ret.h"
 #include "rcutils/visibility_control.h"
@@ -72,7 +73,7 @@ rcutils_get_zero_initialized_string_array();
  */
 RCUTILS_PUBLIC
 rcutils_string_array_t
-rcutils_get_pre_initialized_string_array(size_t size);
+rcutils_get_pre_initialized_string_array(size_t size, const rcutils_allocator_t * allocator);
 
 /// Free the allocated string array struct.
 /**
@@ -82,7 +83,7 @@ rcutils_get_pre_initialized_string_array(size_t size);
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
 rcutils_ret_t
-rcutils_string_array_fini(rcutils_string_array_t * array);
+rcutils_string_array_fini(rcutils_string_array_t * array, const rcutils_allocator_t * allocator);
 
 #if __cplusplus
 }

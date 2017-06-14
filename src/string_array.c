@@ -19,6 +19,7 @@ extern "C"
 
 #include <stdlib.h>
 
+#include "rcutils/allocator.h"
 #include "rcutils/types/string_array.h"
 #include "rcutils/types/rcutils_ret.h"
 
@@ -30,16 +31,19 @@ rcutils_get_zero_initialized_string_array()
 }
 
 rcutils_string_array_t
-rcutils_get_pre_initialized_string_array(size_t size)
+rcutils_get_pre_initialized_string_array(size_t size, const rcutils_allocator_t * allocator)
 {
   static rcutils_string_array_t array = {0, NULL};
   array.size = size;
-  array.data = (char **)calloc(array.size, sizeof(char *));
+  array.data = allocator->allocate(array.size * sizeof(char *), allocator->state);
+  for (size_t i = 0; i < size; ++i) {
+    array.data[i] = NULL;
+  }
   return array;
 }
 
 rcutils_ret_t
-rcutils_string_array_fini(rcutils_string_array_t * array)
+rcutils_string_array_fini(rcutils_string_array_t * array, const rcutils_allocator_t * allocator)
 {
   if (!array) {
     return RCUTILS_RET_ERROR;
@@ -50,10 +54,10 @@ rcutils_string_array_fini(rcutils_string_array_t * array)
   }
 
   for (size_t i = 0; i < array->size; ++i) {
-    free(array->data[i]);
+    allocator->deallocate(array->data[i], allocator->state);
     array->data[i] = NULL;
   }
-  free(array->data);
+  allocator->deallocate(array->data, allocator->state);
   array->data = NULL;
 
   return RCUTILS_RET_OK;
