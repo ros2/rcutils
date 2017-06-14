@@ -55,95 +55,97 @@ rcutils_string_array_t test_split_last(
 }
 
 TEST(test_split, split) {
+  auto allocator = rcutils_get_default_allocator();
   rcutils_ret_t ret = RCUTILS_RET_OK;
 
   rcutils_string_array_t tokens0 = test_split("", '/', 0);
-  ret = rcutils_string_array_fini(&tokens0);
+  ret = rcutils_string_array_fini(&tokens0, &allocator);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
   rcutils_string_array_t tokens00 = test_split(NULL, '/', 0);
-  ret = rcutils_string_array_fini(&tokens00);
+  ret = rcutils_string_array_fini(&tokens00, &allocator);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
   rcutils_string_array_t tokens1 = test_split("hello_world", '/', 1);
   EXPECT_STREQ("hello_world", tokens1.data[0]);
-  ret = rcutils_string_array_fini(&tokens1);
+  ret = rcutils_string_array_fini(&tokens1, &allocator);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
   rcutils_string_array_t tokens2 = test_split("hello/world", '/', 2);
   EXPECT_STREQ("hello", tokens2.data[0]);
   EXPECT_STREQ("world", tokens2.data[1]);
-  ret = rcutils_string_array_fini(&tokens2);
+  ret = rcutils_string_array_fini(&tokens2, &allocator);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
   rcutils_string_array_t tokens3 = test_split("/hello/world", '/', 2);
   EXPECT_STREQ("hello", tokens3.data[0]);
   EXPECT_STREQ("world", tokens3.data[1]);
-  ret = rcutils_string_array_fini(&tokens3);
+  ret = rcutils_string_array_fini(&tokens3, &allocator);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
   rcutils_string_array_t tokens4 = test_split("hello/world/", '/', 2);
   EXPECT_STREQ("hello", tokens4.data[0]);
   EXPECT_STREQ("world", tokens4.data[1]);
-  ret = rcutils_string_array_fini(&tokens4);
+  ret = rcutils_string_array_fini(&tokens4, &allocator);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
   rcutils_string_array_t tokens5 = test_split("hello//world", '/', 2);
   EXPECT_STREQ("hello", tokens5.data[0]);
   EXPECT_STREQ("world", tokens5.data[1]);
-  ret = rcutils_string_array_fini(&tokens5);
+  ret = rcutils_string_array_fini(&tokens5, &allocator);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
   rcutils_string_array_t tokens6 = test_split("/hello//world", '/', 2);
   EXPECT_STREQ("hello", tokens6.data[0]);
   EXPECT_STREQ("world", tokens6.data[1]);
-  ret = rcutils_string_array_fini(&tokens6);
+  ret = rcutils_string_array_fini(&tokens6, &allocator);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
   rcutils_string_array_t tokens7 = test_split("my/hello/world", '/', 3);
   EXPECT_STREQ("my", tokens7.data[0]);
   EXPECT_STREQ("hello", tokens7.data[1]);
   EXPECT_STREQ("world", tokens7.data[2]);
-  ret = rcutils_string_array_fini(&tokens7);
+  ret = rcutils_string_array_fini(&tokens7, &allocator);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
   rcutils_string_array_t tokens8 = test_split("/my/hello/world", '/', 3);
   EXPECT_STREQ("my", tokens8.data[0]);
   EXPECT_STREQ("hello", tokens8.data[1]);
   EXPECT_STREQ("world", tokens8.data[2]);
-  ret = rcutils_string_array_fini(&tokens8);
+  ret = rcutils_string_array_fini(&tokens8, &allocator);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
   rcutils_string_array_t tokens9 = test_split("/my/hello/world/", '/', 3);
   EXPECT_STREQ("my", tokens9.data[0]);
   EXPECT_STREQ("hello", tokens9.data[1]);
   EXPECT_STREQ("world", tokens9.data[2]);
-  ret = rcutils_string_array_fini(&tokens9);
+  ret = rcutils_string_array_fini(&tokens9, &allocator);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
   rcutils_string_array_t tokens10 = test_split("/my//hello//world/", '/', 3);
   EXPECT_STREQ("my", tokens10.data[0]);
   EXPECT_STREQ("hello", tokens10.data[1]);
   EXPECT_STREQ("world", tokens10.data[2]);
-  ret = rcutils_string_array_fini(&tokens10);
+  ret = rcutils_string_array_fini(&tokens10, &allocator);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 }
 
 TEST(test_split, split_last) {
+  auto allocator = rcutils_get_default_allocator();
   rcutils_ret_t ret = RCUTILS_RET_OK;
 
   rcutils_string_array_t tokens0 = test_split_last("", '/', 0);
-  ret = rcutils_string_array_fini(&tokens0);
+  ret = rcutils_string_array_fini(&tokens0, &allocator);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
   rcutils_string_array_t tokens00 = test_split_last(NULL, '/', 0);
-  ret = rcutils_string_array_fini(&tokens00);
+  ret = rcutils_string_array_fini(&tokens00, &allocator);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
   rcutils_string_array_t tokens1 = test_split_last("hello_world", '/', 1);
   LOG("hello_world", tokens1.data[0]);
   EXPECT_STREQ("hello_world", tokens1.data[0]);
-  ret = rcutils_string_array_fini(&tokens1);
+  ret = rcutils_string_array_fini(&tokens1, &allocator);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
   rcutils_string_array_t tokens2 = test_split_last("hello/world", '/', 2);
@@ -151,20 +153,20 @@ TEST(test_split, split_last) {
   LOG("hello", tokens2.data[0]);
   EXPECT_STREQ("world", tokens2.data[1]);
   LOG("world", tokens2.data[1]);
-  ret = rcutils_string_array_fini(&tokens2);
+  ret = rcutils_string_array_fini(&tokens2, &allocator);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
   rcutils_string_array_t tokens3 = test_split_last("/hello/world", '/', 2);
   EXPECT_STREQ("hello", tokens3.data[0]);
   LOG("hello", tokens3.data[0]);
   EXPECT_STREQ("world", tokens3.data[1]);
-  ret = rcutils_string_array_fini(&tokens3);
+  ret = rcutils_string_array_fini(&tokens3, &allocator);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
   rcutils_string_array_t tokens4 = test_split_last("hello/world/", '/', 2);
   EXPECT_STREQ("hello", tokens4.data[0]);
   EXPECT_STREQ("world", tokens4.data[1]);
-  ret = rcutils_string_array_fini(&tokens4);
+  ret = rcutils_string_array_fini(&tokens4, &allocator);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
   rcutils_string_array_t tokens5 = test_split_last("hello//world/", '/', 2);
@@ -172,24 +174,24 @@ TEST(test_split, split_last) {
   LOG("hello", tokens5.data[0]);
   EXPECT_STREQ("world", tokens5.data[1]);
   LOG("world", tokens5.data[1]);
-  ret = rcutils_string_array_fini(&tokens5);
+  ret = rcutils_string_array_fini(&tokens5, &allocator);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
   rcutils_string_array_t tokens6 = test_split_last("/hello//world", '/', 2);
   EXPECT_STREQ("hello", tokens6.data[0]);
   EXPECT_STREQ("world", tokens6.data[1]);
-  ret = rcutils_string_array_fini(&tokens6);
+  ret = rcutils_string_array_fini(&tokens6, &allocator);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
   rcutils_string_array_t tokens7 = test_split_last("my/hello//world", '/', 2);
   EXPECT_STREQ("my/hello", tokens7.data[0]);
   EXPECT_STREQ("world", tokens7.data[1]);
-  ret = rcutils_string_array_fini(&tokens7);
+  ret = rcutils_string_array_fini(&tokens7, &allocator);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
   rcutils_string_array_t tokens8 = test_split_last("/my/hello//world/", '/', 2);
   EXPECT_STREQ("my/hello", tokens8.data[0]);
   EXPECT_STREQ("world", tokens8.data[1]);
-  ret = rcutils_string_array_fini(&tokens8);
+  ret = rcutils_string_array_fini(&tokens8, &allocator);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 }

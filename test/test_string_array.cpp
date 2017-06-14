@@ -21,6 +21,7 @@
 #endif
 
 TEST(test_string_array, boot_string_array) {
+  auto allocator = rcutils_get_default_allocator();
   rcutils_ret_t ret = RCUTILS_RET_OK;
 
   // UNDEFIEND BEHAVIOR
@@ -28,16 +29,16 @@ TEST(test_string_array, boot_string_array) {
   // rcutils_string_array_fini(&sa00);
 
   rcutils_string_array_t sa0 = rcutils_get_zero_initialized_string_array();
-  ret = rcutils_string_array_fini(&sa0);
+  ret = rcutils_string_array_fini(&sa0, &allocator);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
-  rcutils_string_array_t sa1 = rcutils_get_pre_initialized_string_array(3);
-  ret = rcutils_string_array_fini(&sa1);
+  rcutils_string_array_t sa1 = rcutils_get_pre_initialized_string_array(3, &allocator);
+  ret = rcutils_string_array_fini(&sa1, &allocator);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
-  rcutils_string_array_t sa2 = rcutils_get_pre_initialized_string_array(2);
+  rcutils_string_array_t sa2 = rcutils_get_pre_initialized_string_array(2, &allocator);
   sa2.data[0] = strdup("Hello");
   sa2.data[1] = strdup("World");
-  ret = rcutils_string_array_fini(&sa2);
+  ret = rcutils_string_array_fini(&sa2, &allocator);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 }
