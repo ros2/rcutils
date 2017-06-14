@@ -7,7 +7,7 @@ find_package(ament_cmake REQUIRED)
 include_directories(include)
 
 if(NOT WIN32)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -std=gnu99")
   # The warning flags are added per target, because otherwise the local
   # gmock library that is built will have compiler warnings.
   set(rcutils_extra_warning_flags "-Wall -Wextra -Wpedantic")
