@@ -1,5 +1,11 @@
 # Create the memory_tools library which is used by the tests.
 add_library(${PROJECT_NAME}_memory_tools SHARED memory_tools.cpp)
+if(NOT WIN32)
+  # otherwise the compiler will error since the allocator functions have
+  # different exception specifiers
+  set_target_properties(${PROJECT_NAME}_memory_tools
+    PROPERTIES COMPILE_FLAGS "-Wno-pedantic")
+endif()
 if(APPLE)
   # Create an OS X specific version of the memory tools that does interposing.
   # See: http://toves.freeshell.org/interpose/
@@ -31,10 +37,6 @@ ament_add_gmock(test_memory_tools test_memory_tools.cpp
 )
 if(TARGET test_memory_tools)
   target_link_libraries(test_memory_tools ${extra_test_libraries})
-  if(rcutils_extra_warning_flags)
-    set_target_properties(test_memory_tools
-      PROPERTIES COMPILE_FLAGS ${rcutils_extra_warning_flags})
-  endif()
 endif()
 
 set(extra_test_libraries ${extra_test_libraries} PARENT_SCOPE)

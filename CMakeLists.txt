@@ -8,9 +8,7 @@ include_directories(include)
 
 if(NOT WIN32)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wpedantic")
-  # The warning flags are added per target, because otherwise the local
-  # gmock library that is built will have compiler warnings.
-  set(rcutils_extra_warning_flags "-Wall -Wextra -Wpedantic")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic")
 endif()
 
 if(WIN32)
@@ -65,10 +63,6 @@ add_library(
   ${PROJECT_NAME}
   SHARED
   ${rcutils_sources})
-if(rcutils_extra_warning_flags)
-  set_target_properties(${PROJECT_NAME}
-    PROPERTIES COMPILE_FLAGS ${rcutils_extra_warning_flags})
-endif()
 
 # Causes the visibility macros to use dllexport rather than dllimport,
 # which is appropriate when building the dll but not consuming it.
@@ -146,16 +140,10 @@ if(BUILD_TESTING)
 
   macro(rcutils_custom_add_gtest target)
     ament_add_gtest(${target} ${ARGN})
-    if(TARGET ${target} AND rcutils_extra_warning_flags)
-      set_target_properties(${target} PROPERTIES COMPILE_FLAGS ${rcutils_extra_warning_flags})
-    endif()
   endmacro()
 
   macro(rcutils_custom_add_gmock target)
     ament_add_gmock(${target} ${ARGN})
-    if(TARGET ${target} AND rcutils_extra_warning_flags)
-      set_target_properties(${target} PROPERTIES COMPILE_FLAGS ${rcutils_extra_warning_flags})
-    endif()
   endmacro()
 
   # Gtests
