@@ -130,6 +130,12 @@ if(BUILD_TESTING)
     APPEND_LIBRARY_DIRS ${extra_lib_dirs})
   target_link_libraries(test_logging_macros ${PROJECT_NAME})
 
+  add_executable(test_logging_macros_c test/test_logging_macros.c)
+  target_link_libraries(test_logging_macros_c ${PROJECT_NAME})
+  ament_add_test(test_logging_macros_c
+    COMMAND "$<TARGET_FILE:test_logging_macros_c>"
+    GENERATE_RESULT_FOR_RETURN_CODE_ZERO)
+
   # This subdirectory extends both extra_test_libraries, extra_test_env, and extra_lib_dirs.
   add_subdirectory(test/memory_tools)
 
