@@ -73,7 +73,7 @@ rcutils_string_array_fini(rcutils_string_array_t * string_array)
 
   rcutils_allocator_t * allocator = &string_array->allocator;
   if (!rcutils_allocator_is_valid(allocator)) {
-    RCUTILS_SET_ERROR_MSG("allocator is invalid", *allocator)
+    RCUTILS_SET_ERROR_MSG("allocator is invalid", rcutils_get_default_allocator())
     return RCUTILS_RET_INVALID_ARGUMENT;
   }
   size_t i;

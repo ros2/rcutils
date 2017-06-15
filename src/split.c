@@ -34,10 +34,15 @@ rcutils_split(
   rcutils_allocator_t allocator,
   rcutils_string_array_t * string_array)
 {
+  if (!string_array) {
+    RCUTILS_SET_ERROR_MSG("string_array is null", allocator)
+    return RCUTILS_RET_INVALID_ARGUMENT;
+  }
   if (!str || strlen(str) == 0) {
     *string_array = rcutils_get_zero_initialized_string_array();
     return RCUTILS_RET_OK;
   }
+  string_array->allocator = allocator;
 
   size_t string_size = strlen(str);
 
@@ -60,6 +65,7 @@ rcutils_split(
       ++string_array->size;
     }
   }
+  // TODO(wjwwood): refactor this function so it can use rcutils_string_array_init() instead
   string_array->data = allocator.allocate(string_array->size * sizeof(char *), allocator.state);
   if (!string_array->data) {
     goto fail;
@@ -109,7 +115,6 @@ fail:
   if (rcutils_string_array_fini(string_array) != RCUTILS_RET_OK) {
     error_msg = rcutils_format_string(allocator, "FATAL: %s. Leaking memory", error_msg);
   }
-  string_array = NULL;
   RCUTILS_SET_ERROR_MSG(error_msg, allocator);
   return RCUTILS_RET_ERROR;
 }
