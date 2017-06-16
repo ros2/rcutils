@@ -57,7 +57,12 @@ extern "C"
   #endif
 #else
 // Some other non-Windows, non-cygwin, non-apple OS
-  #define RCUTILS_THREAD_LOCAL _Thread_local
+  #if  __STDC_VERSION__ >= 201112L
+// C11 enabled
+    #define RCUTILS_THREAD_LOCAL _Thread_local
+  #else
+    #define RCUTILS_THREAD_LOCAL __thread
+  #endif
 #endif
 
 #define RCUTILS_STRINGIFY_IMPL(x) #x

@@ -6,6 +6,11 @@ find_package(ament_cmake REQUIRED)
 
 include_directories(include)
 
+# Default to C11
+if(NOT CMAKE_C_STANDARD)
+  set(CMAKE_C_STANDARD 11)
+endif()
+
 if(NOT WIN32)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wpedantic")
   # The warning flags are added per target, because otherwise the local
