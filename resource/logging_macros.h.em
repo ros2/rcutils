@@ -84,13 +84,13 @@ extern "C"
  * \param format The format string
  * \param ... The variable arguments for the format strings
  */
-#define RCUTILS_LOG_COND_NAMED(severity, condition_before, condition_after, name, format, ...) \
+#define RCUTILS_LOG_COND_NAMED(severity, condition_before, condition_after, name, ...) \
   { \
     RCUTILS_LOGGING_AUTOINIT \
     static rcl_log_location_t __rcutils_logging_location = {__func__, __FILE__, __LINE__}; \
     condition_before \
     if (severity >= g_rcl_logging_severity_threshold) { \
-      rcl_log(&__rcutils_logging_location, severity, name, format, ## __VA_ARGS__); \
+      rcl_log(&__rcutils_logging_location, severity, name, __VA_ARGS__); \
     } \
     condition_after \
   }
@@ -397,11 +397,11 @@ def get_macro_arguments(suffix):
  * \param format The format string
  * \param ... The variable arguments for the format strings
  */
-# define RCUTILS_LOG_@(severity)@(suffix)(@(get_macro_parameters(suffix))format, ...) \
+# define RCUTILS_LOG_@(severity)@(suffix)(@(get_macro_parameters(suffix))...) \
   RCUTILS_LOG_COND_NAMED( \
     RCUTILS_LOG_SEVERITY_@(severity), \
     @(get_macro_arguments(suffix))\
-    format, ## __VA_ARGS__)
+    __VA_ARGS__)
 @[ end for]@
 #endif
 ///@@}

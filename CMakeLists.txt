@@ -2,6 +2,15 @@ cmake_minimum_required(VERSION 3.5)
 
 project(rcutils)
 
+# Default to C11
+if(NOT CMAKE_C_STANDARD)
+  set(CMAKE_C_STANDARD 11)
+endif()
+# Default to C++14
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+endif()
+
 find_package(ament_cmake REQUIRED)
 
 include_directories(include)
@@ -129,6 +138,12 @@ if(BUILD_TESTING)
   ament_add_gmock(test_logging_macros test/test_logging_macros.cpp
     APPEND_LIBRARY_DIRS ${extra_lib_dirs})
   target_link_libraries(test_logging_macros ${PROJECT_NAME})
+
+  add_executable(test_logging_macros_c test/test_logging_macros.c)
+  target_link_libraries(test_logging_macros_c ${PROJECT_NAME})
+  ament_add_test(test_logging_macros_c
+    COMMAND "$<TARGET_FILE:test_logging_macros_c>"
+    GENERATE_RESULT_FOR_RETURN_CODE_ZERO)
 
   # This subdirectory extends both extra_test_libraries, extra_test_env, and extra_lib_dirs.
   add_subdirectory(test/memory_tools)
