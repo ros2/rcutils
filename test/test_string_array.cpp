@@ -29,16 +29,20 @@ TEST(test_string_array, boot_string_array) {
   // rcutils_string_array_fini(&sa00);
 
   rcutils_string_array_t sa0 = rcutils_get_zero_initialized_string_array();
-  ret = rcutils_string_array_fini(&sa0, &allocator);
+  ret = rcutils_string_array_fini(&sa0);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
-  rcutils_string_array_t sa1 = rcutils_get_pre_initialized_string_array(3, &allocator);
-  ret = rcutils_string_array_fini(&sa1, &allocator);
+  rcutils_string_array_t sa1 = rcutils_get_zero_initialized_string_array();
+  ret = rcutils_string_array_init(&sa1, 3, &allocator);
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
+  ret = rcutils_string_array_fini(&sa1);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
-  rcutils_string_array_t sa2 = rcutils_get_pre_initialized_string_array(2, &allocator);
+  rcutils_string_array_t sa2 = rcutils_get_zero_initialized_string_array();
+  ret = rcutils_string_array_init(&sa2, 2, &allocator);
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
   sa2.data[0] = strdup("Hello");
   sa2.data[1] = strdup("World");
-  ret = rcutils_string_array_fini(&sa2, &allocator);
+  ret = rcutils_string_array_fini(&sa2);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 }

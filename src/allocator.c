@@ -39,14 +39,35 @@ __default_reallocate(void * pointer, size_t size, void * state)
   return realloc(pointer, size);
 }
 
+static void *
+__default_zero_allocate(size_t number_of_elements, size_t size_of_element, void * state)
+{
+  (void)state;  // unused
+  return calloc(number_of_elements, size_of_element);
+}
+
+rcutils_allocator_t
+rcutils_get_zero_initialized_allocator(void)
+{
+  static rcutils_allocator_t zero_allocator = {
+    .allocate = NULL,
+    .deallocate = NULL,
+    .reallocate = NULL,
+    .zero_allocate = NULL,
+    .state = NULL,
+  };
+  return zero_allocator;
+}
+
 rcutils_allocator_t
 rcutils_get_default_allocator()
 {
   static rcutils_allocator_t default_allocator = {
-    __default_allocate,
-    __default_deallocate,
-    __default_reallocate,
-    NULL
+    .allocate = __default_allocate,
+    .deallocate = __default_deallocate,
+    .reallocate = __default_reallocate,
+    .zero_allocate = __default_zero_allocate,
+    .state = NULL,
   };
   return default_allocator;
 }
@@ -54,7 +75,13 @@ rcutils_get_default_allocator()
 bool
 rcutils_allocator_is_valid(const rcutils_allocator_t * allocator)
 {
-  if (!allocator || !allocator->allocate || !allocator->deallocate || !allocator->reallocate) {
+  if (
+    !allocator ||
+    !allocator->allocate ||
+    !allocator->deallocate ||
+    !allocator->zero_allocate ||
+    !allocator->reallocate)
+  {
     return false;
   }
   return true;

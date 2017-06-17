@@ -30,7 +30,10 @@ extern "C"
  * \param[in] delimiter on where to split
  * \param[in] allocator for allocating new memory for the output array
  * \param[out] rcutils_string_array_t with the split tokens
- * \returns array with split token, NULL in case of error
+ * \return `RCUTILS_RET_OK` if successful, or
+ * \return `RCUTILS_RET_INVALID_ARGUMENT` for invalid arguments, or
+ * \return `RCUTILS_RET_BAD_ALLOC` if memory allocation fails, or
+ * \return `RCUTILS_RET_ERROR` if an unknown error occurs
  */
 RCUTILS_PUBLIC
 rcutils_ret_t

@@ -20,45 +20,69 @@ extern "C"
 #include <stdlib.h>
 
 #include "rcutils/allocator.h"
+#include "rcutils/error_handling.h"
 #include "rcutils/types/string_array.h"
 #include "rcutils/types/rcutils_ret.h"
 
 rcutils_string_array_t
 rcutils_get_zero_initialized_string_array()
 {
-  static rcutils_string_array_t array = {0, NULL};
-  return array;
-}
-
-rcutils_string_array_t
-rcutils_get_pre_initialized_string_array(size_t size, const rcutils_allocator_t * allocator)
-{
-  static rcutils_string_array_t array = {0, NULL};
-  array.size = size;
-  array.data = allocator->allocate(array.size * sizeof(char *), allocator->state);
-  for (size_t i = 0; i < size; ++i) {
-    array.data[i] = NULL;
-  }
+  static rcutils_string_array_t array = {
+    .size = 0,
+    .data = NULL,
+  };
+  array.allocator = rcutils_get_zero_initialized_allocator();
   return array;
 }
 
 rcutils_ret_t
-rcutils_string_array_fini(rcutils_string_array_t * array, const rcutils_allocator_t * allocator)
+rcutils_string_array_init(
+  rcutils_string_array_t * string_array,
+  size_t size,
+  rcutils_allocator_t * allocator)
 {
-  if (!array) {
-    return RCUTILS_RET_ERROR;
+  if (!allocator) {
+    RCUTILS_SET_ERROR_MSG("allocator is null", rcutils_get_default_allocator())
+    return RCUTILS_RET_INVALID_ARGUMENT;
+  }
+  if (!string_array) {
+    RCUTILS_SET_ERROR_MSG("string_array is null", *allocator)
+    return RCUTILS_RET_INVALID_ARGUMENT;
+  }
+  string_array->size = size;
+  string_array->data = allocator->zero_allocate(size, sizeof(char *), allocator->state);
+  if (!string_array->data) {
+    RCUTILS_SET_ERROR_MSG("failed to allocator string array", *allocator)
+    return RCUTILS_RET_BAD_ALLOC;
+  }
+  string_array->allocator = *allocator;
+  return RCUTILS_RET_OK;
+}
+
+rcutils_ret_t
+rcutils_string_array_fini(rcutils_string_array_t * string_array)
+{
+  if (!string_array) {
+    RCUTILS_SET_ERROR_MSG("string_array is null", rcutils_get_default_allocator())
+    return RCUTILS_RET_INVALID_ARGUMENT;
   }
 
-  if (!array->data) {
+  if (!string_array->data) {
     return RCUTILS_RET_OK;
   }
 
-  for (size_t i = 0; i < array->size; ++i) {
-    allocator->deallocate(array->data[i], allocator->state);
-    array->data[i] = NULL;
+  rcutils_allocator_t * allocator = &string_array->allocator;
+  if (!rcutils_allocator_is_valid(allocator)) {
+    RCUTILS_SET_ERROR_MSG("allocator is invalid", rcutils_get_default_allocator())
+    return RCUTILS_RET_INVALID_ARGUMENT;
   }
-  allocator->deallocate(array->data, allocator->state);
-  array->data = NULL;
+  size_t i;
+  for (i = 0; i < string_array->size; ++i) {
+    allocator->deallocate(string_array->data[i], allocator->state);
+    string_array->data[i] = NULL;
+  }
+  allocator->deallocate(string_array->data, allocator->state);
+  string_array->data = NULL;
 
   return RCUTILS_RET_OK;
 }

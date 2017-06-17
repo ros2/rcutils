@@ -31,6 +31,7 @@ typedef struct RCUTILS_PUBLIC_TYPE rcutils_string_array_t
 {
   size_t size;
   char ** data;
+  rcutils_allocator_t allocator;
 } rcutils_string_array_t;
 
 /// Return an empty string array struct.
@@ -53,37 +54,61 @@ typedef struct RCUTILS_PUBLIC_TYPE rcutils_string_array_t
  */
 RCUTILS_PUBLIC
 rcutils_string_array_t
-rcutils_get_zero_initialized_string_array();
+rcutils_get_zero_initialized_string_array(void);
 
-/// Return a pre-initialized string array struct.
+/// Initialize a string array with a given size.
 /**
- * This function returns a pre-initialized string array struct
- * which allocates the data array to the provided size and sets
- * it to NULL.
- * Setting these values later on manually requires a manual memory
- * allocation of the individual data[i] char pointer, such as memcpy or strdup.
+ * This function will initialize a given, zero initialized, string array to
+ * a given size.
+ *
+ * Note that putting a string into the array gives owenship to the array.
  *
  * Example:
  *
  * ```c
- * rcutils_string_array_t sa2 = rcutils_get_pre_initialized_string_array(2);
- * sa2.data[0] = strdup("Hello");
- * sa2.data[1] = strdup("World");
+ * rcutils_allocator_t allocator = rcutils_get_default_allocator();
+ * rcutils_string_array_t string_array = rcutils_get_zero_initialized_string_array();
+ * rcutils_ret_t ret = rcutils_string_array_init(&string_array, 2, &allocator);
+ * if (ret != RCUTILS_RET_OK) {
+ *   // ... error handling
+ * }
+ * string_array.data[0] = rcutils_strdup("Hello", &allocator);
+ * string_array.data[1] = rcutils_strdup("World", &allocator);
+ * ret = rcutils_string_array_fini(&string_array);
+ *
+ * \param[inout] string_array object to be initialized
+ * \param[in] size the size the array should be
+ * \param[in] allocator to be used to allocate and deallocate memory
+ * \return `RCUTILS_RET_OK` if successful, or
+ * \return `RCUTILS_RET_INVALID_ARGUMENT` for invalid arguments, or
+ * \return `RCUTILS_RET_BAD_ALLOC` if memory allocation fails, or
+ * \return `RCUTILS_RET_ERROR` if an unknown error occurs
  * ```
  */
 RCUTILS_PUBLIC
-rcutils_string_array_t
-rcutils_get_pre_initialized_string_array(size_t size, const rcutils_allocator_t * allocator);
+rcutils_ret_t
+rcutils_string_array_init(
+  rcutils_string_array_t * string_array,
+  size_t size,
+  rcutils_allocator_t * allocator);
 
-/// Free the allocated string array struct.
+/// Finalize a string array, reclaiming all resources.
 /**
- * This function destroys the string array instance
- * and frees all allocated memory within.
+ * This function reclaims any memory owned by the string array, including the
+ * strings it references.
+ *
+ * The allocator used to initialize the string array is used to deallocate each
+ * string in the array and the array of strings itself.
+ *
+ * \param[inout] string_array object to be finalized
+ * \return `RCUTILS_RET_OK` if successful, or
+ * \return `RCUTILS_RET_INVALID_ARGUMENT` for invalid arguments, or
+ * \return `RCUTILS_RET_ERROR` if an unknown error occurs
  */
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
 rcutils_ret_t
-rcutils_string_array_fini(rcutils_string_array_t * array, const rcutils_allocator_t * allocator);
+rcutils_string_array_fini(rcutils_string_array_t * array);
 
 #if __cplusplus
 }

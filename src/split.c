@@ -23,6 +23,7 @@ extern "C"
 
 #include "rcutils/error_handling.h"
 #include "rcutils/format_string.h"
+#include "rcutils/logging_macros.h"
 #include "rcutils/split.h"
 #include "rcutils/types.h"
 
@@ -33,10 +34,15 @@ rcutils_split(
   rcutils_allocator_t allocator,
   rcutils_string_array_t * string_array)
 {
+  if (!string_array) {
+    RCUTILS_SET_ERROR_MSG("string_array is null", allocator)
+    return RCUTILS_RET_INVALID_ARGUMENT;
+  }
   if (!str || strlen(str) == 0) {
     *string_array = rcutils_get_zero_initialized_string_array();
     return RCUTILS_RET_OK;
   }
+  string_array->allocator = allocator;
 
   size_t string_size = strlen(str);
 
@@ -59,6 +65,7 @@ rcutils_split(
       ++string_array->size;
     }
   }
+  // TODO(wjwwood): refactor this function so it can use rcutils_string_array_init() instead
   string_array->data = allocator.allocate(string_array->size * sizeof(char *), allocator.state);
   if (!string_array->data) {
     goto fail;
@@ -105,10 +112,9 @@ rcutils_split(
 
 fail:
   error_msg = "unable to allocate memory for string array data";
-  if (rcutils_string_array_fini(string_array, &allocator) != RCUTILS_RET_OK) {
+  if (rcutils_string_array_fini(string_array) != RCUTILS_RET_OK) {
     error_msg = rcutils_format_string(allocator, "FATAL: %s. Leaking memory", error_msg);
   }
-  string_array = NULL;
   RCUTILS_SET_ERROR_MSG(error_msg, allocator);
   return RCUTILS_RET_ERROR;
 }
@@ -139,8 +145,6 @@ rcutils_split_last(
     rhs_offset = 1;
   }
 
-  const char * error_msg;
-
   size_t found_last = string_size;
   for (size_t i = lhs_offset; i < string_size - rhs_offset; ++i) {
     if (str[i] == delimiter) {
@@ -148,22 +152,24 @@ rcutils_split_last(
     }
   }
 
+  rcutils_ret_t result_error;
   if (found_last == string_size) {
-    string_array->size = 1;
-    string_array->data = allocator.allocate(1 * sizeof(char *), allocator.state);
-    if (!string_array->data) {
+    rcutils_ret_t ret = rcutils_string_array_init(string_array, 1, &allocator);
+    if (ret != RCUTILS_RET_OK) {
+      result_error = ret;
       goto fail;
     }
     string_array->data[0] =
       allocator.allocate((found_last - lhs_offset + 2) * sizeof(char), allocator.state);
     if (!string_array->data) {
+      result_error = RCUTILS_RET_BAD_ALLOC;
       goto fail;
     }
     snprintf(string_array->data[0], found_last - lhs_offset + 1, "%s", str + lhs_offset);
   } else {
-    string_array->size = 2;
-    string_array->data = allocator.allocate(2 * sizeof(char *), allocator.state);
-    if (!string_array->data) {
+    rcutils_ret_t ret = rcutils_string_array_init(string_array, 2, &allocator);
+    if (ret != RCUTILS_RET_OK) {
+      result_error = ret;
       goto fail;
     }
 
@@ -177,6 +183,7 @@ rcutils_split_last(
       (found_last + 1 - lhs_offset - inner_rhs_offset + 1) * sizeof(char),
       allocator.state);
     if (!string_array->data[0]) {
+      result_error = RCUTILS_RET_BAD_ALLOC;
       goto fail;
     }
     snprintf(string_array->data[0], found_last + 1 - lhs_offset - inner_rhs_offset,
@@ -186,6 +193,7 @@ rcutils_split_last(
       (string_size - found_last - rhs_offset + 1) * sizeof(char),
       allocator.state);
     if (!string_array->data[1]) {
+      result_error = RCUTILS_RET_BAD_ALLOC;
       goto fail;
     }
     snprintf(string_array->data[1], string_size - found_last - rhs_offset, "%s",
@@ -195,13 +203,11 @@ rcutils_split_last(
   return RCUTILS_RET_OK;
 
 fail:
-  error_msg = "unable to allocate memory for string array data";
-  if (rcutils_string_array_fini(string_array, &allocator) != RCUTILS_RET_OK) {
-    error_msg = rcutils_format_string(allocator, "FATAL: %s. Leaking memory", error_msg);
+  if (rcutils_string_array_fini(string_array) != RCUTILS_RET_OK) {
+    RCUTILS_LOG_ERROR(
+      "failed to clean up on error (leaking memory): '%s'", rcutils_get_error_string_safe());
   }
-  string_array = NULL;
-  RCUTILS_SET_ERROR_MSG(error_msg, allocator);
-  return RCUTILS_RET_ERROR;
+  return result_error;
 }
 
 #if __cplusplus
