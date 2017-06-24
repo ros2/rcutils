@@ -81,8 +81,7 @@ extern "C"
  * \param condition_before The condition macro(s) inserted before the log call
  * \param condition_after The condition macro(s) inserted after the log call
  * \param name The name of the logger
- * \param format The format string
- * \param ... The variable arguments for the format strings
+ * \param ... The format string, followed by the variable arguments for the format string
  */
 #define RCUTILS_LOG_COND_NAMED(severity, condition_before, condition_after, name, ...) \
   { \
@@ -394,8 +393,7 @@ def get_macro_arguments(suffix):
 @[ for param_name, doc_line in feature_combinations[suffix].params.items()]@
  * \param @(param_name) @(doc_line)
 @[ end for]@
- * \param format The format string
- * \param ... The variable arguments for the format strings
+ * \param ... The format string, followed by the variable arguments for the format string
  */
 # define RCUTILS_LOG_@(severity)@(suffix)(@(get_macro_parameters(suffix))...) \
   RCUTILS_LOG_COND_NAMED( \

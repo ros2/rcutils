@@ -108,7 +108,7 @@ rcutils_string_array_init(
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
 rcutils_ret_t
-rcutils_string_array_fini(rcutils_string_array_t * array);
+rcutils_string_array_fini(rcutils_string_array_t * string_array);
 
 #if __cplusplus
 }

@@ -187,8 +187,7 @@ rcutils_string_map_reserve(rcutils_string_map_t * string_map, size_t capacity);
  * reclaim all resources allocated as a result of setting key value pairs.
  * rcutils_string_map_fini() should still be called after this.
  *
- * \param[inout] string_map rcutils_string_map_t to have space reserved in
- * \param[in] capacity requested size to reserve in the map
+ * \param[inout] string_map rcutils_string_map_t to be cleared
  * \return `RCUTILS_RET_OK` if successful, or
  * \return `RCUTILS_RET_INVALID_ARGUMENT` for invalid arguments, or
  * \return `RCUTILS_RET_STRING_MAP_INVALID` if the string map is invalid, or

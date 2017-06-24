@@ -29,7 +29,7 @@ extern "C"
 
 /// Encapsulation of an allocator.
 /**
- * The default allocator uses std::malloc(), std::free(), and std::realloc().
+ * The default allocator uses std::malloc(), std::free(), std::calloc(), and std::realloc().
  * It can be obtained using rcutils_get_default_allocator().
  *
  * The allocator should be trivially copyable.
