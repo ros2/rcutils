@@ -152,12 +152,14 @@ rcutils_set_error_state(
         "\n"
         "with this new error message:\n"
         "\n"
-        "  '%s'\n"
+        "  '%s, at %s:%zu'\n"
         "\n"
         "rcutils_reset_error() should be called after error handling to avoid this.\n"
         "<<<\n",
         old_error_string,
-        error_string);
+        error_string,
+        file,
+        line_number);
     }
 #endif
     __rcutils_reset_error(&old_error_state);
