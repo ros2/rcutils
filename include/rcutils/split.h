@@ -26,10 +26,10 @@ extern "C"
 
 /// Split a given string with the specified delimiter
 /**
- * \param[in] string to split
+ * \param[in] str string to split
  * \param[in] delimiter on where to split
  * \param[in] allocator for allocating new memory for the output array
- * \param[out] rcutils_string_array_t with the split tokens
+ * \param[out] string_array with the split tokens
  * \return `RCUTILS_RET_OK` if successful, or
  * \return `RCUTILS_RET_INVALID_ARGUMENT` for invalid arguments, or
  * \return `RCUTILS_RET_BAD_ALLOC` if memory allocation fails, or
@@ -45,10 +45,10 @@ rcutils_split(
 
 /// Split a given string on the last occurrence of the specified delimiter
 /**
- * \param[in] string to split
+ * \param[in] str string to split
  * \param[in] delimiter on where to split
  * \param[in] allocator for allocating new memory for the output array
- * \param[out] rcutils_string_array_t with the split tokens
+ * \param[out] string_array with the split tokens
  * \returns array with split token, NULL in case of error
  */
 RCUTILS_PUBLIC
