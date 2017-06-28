@@ -28,7 +28,7 @@ size_t g_log_calls = 0;
 
 struct LogEvent
 {
-  rcl_log_location_t * location;
+  rclutils_log_location_t * location;
   int level;
   std::string name;
   std::string message;
@@ -38,16 +38,16 @@ LogEvent g_last_log_event;
 class TestLoggingMacros : public ::testing::Test
 {
 public:
-  rcl_logging_output_handler_t previous_output_handler;
+  rclutils_logging_output_handler_t previous_output_handler;
   void SetUp()
   {
     g_log_calls = 0;
-    EXPECT_EQ(g_rcl_logging_initialized, false);
-    rcl_logging_initialize();
-    EXPECT_EQ(g_rcl_logging_initialized, true);
+    EXPECT_EQ(g_rclutils_logging_initialized, false);
+    rclutils_logging_initialize();
+    EXPECT_EQ(g_rclutils_logging_initialized, true);
 
-    auto rcl_logging_console_output_handler = [](
-      rcl_log_location_t * location,
+    auto rclutils_logging_console_output_handler = [](
+      rclutils_log_location_t * location,
       int level, const char * name, const char * format, va_list * args) -> void
       {
         g_log_calls += 1;
@@ -59,15 +59,15 @@ public:
         g_last_log_event.message = buffer;
       };
 
-    this->previous_output_handler = rcl_logging_get_output_handler();
-    rcl_logging_set_output_handler(rcl_logging_console_output_handler);
+    this->previous_output_handler = rclutils_logging_get_output_handler();
+    rclutils_logging_set_output_handler(rclutils_logging_console_output_handler);
   }
 
   void TearDown()
   {
-    rcl_logging_set_output_handler(this->previous_output_handler);
-    g_rcl_logging_initialized = false;
-    EXPECT_EQ(g_rcl_logging_initialized, false);
+    rclutils_logging_set_output_handler(this->previous_output_handler);
+    g_rclutils_logging_initialized = false;
+    EXPECT_EQ(g_rclutils_logging_initialized, false);
   }
 };
 

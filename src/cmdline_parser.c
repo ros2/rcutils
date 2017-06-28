@@ -16,7 +16,7 @@
 
 #include "rcutils/cmdline_parser.h"
 
-bool cli_option_exist(char ** begin, char ** end, const char * option)
+bool rclutils_cli_option_exist(char ** begin, char ** end, const char * option)
 {
   // return std::find(begin, end, option) != end;
   for (size_t i = 0; i < (size_t)(end - begin); ++i) {
@@ -27,7 +27,7 @@ bool cli_option_exist(char ** begin, char ** end, const char * option)
   return false;
 }
 
-char * cli_get_option(char ** begin, char ** end, const char * option)
+char * rclutils_cli_get_option(char ** begin, char ** end, const char * option)
 {
   size_t idx = 0;
   size_t end_idx = end - begin;
