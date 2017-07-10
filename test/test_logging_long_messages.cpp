@@ -18,10 +18,10 @@
 
 int main(int, char **)
 {
-  rclutils_logging_initialize();
+  rcutils_logging_initialize();
 
   // check all attributes for a debug log message
-  rclutils_log_location_t location = {"func", "file", 42u};
+  rcutils_log_location_t location = {"func", "file", 42u};
   char message[2048];
   message[0] = 'X';
   for (size_t i = 1; i < sizeof(message) - 2; ++i) {
@@ -29,11 +29,11 @@ int main(int, char **)
   }
   message[sizeof(message) - 2] = 'X';
   message[sizeof(message) - 1] = '\0';
-  rclutils_log(&location, RCUTILS_LOG_SEVERITY_DEBUG, "name1", message);
+  rcutils_log(&location, RCUTILS_LOG_SEVERITY_DEBUG, "name1", message);
 
   message[1] = '%';
   message[2] = 'd';
-  rclutils_log(&location, RCUTILS_LOG_SEVERITY_DEBUG, "name2", message, 42);
+  rcutils_log(&location, RCUTILS_LOG_SEVERITY_DEBUG, "name2", message, 42);
 
   std::cout.flush();
 

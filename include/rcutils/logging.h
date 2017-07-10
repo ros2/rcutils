@@ -28,7 +28,7 @@ extern "C"
 
 /// The flag if the logging system has been initialized.
 RCUTILS_PUBLIC
-extern bool g_rclutils_logging_initialized;
+extern bool g_rcutils_logging_initialized;
 
 /// Initialize the logging system.
 /**
@@ -43,10 +43,10 @@ extern bool g_rclutils_logging_initialized;
  * Lock-Free          | Yes
  */
 RCUTILS_PUBLIC
-void rclutils_logging_initialize();
+void rcutils_logging_initialize();
 
 /// The structure identifying the caller location in the source code.
-typedef struct rclutils_log_location_t
+typedef struct rcutils_log_location_t
 {
   /// The name of the function containing the log call.
   const char * function_name;
@@ -54,7 +54,7 @@ typedef struct rclutils_log_location_t
   const char * file_name;
   /// The line number containing the log call.
   size_t line_number;
-} rclutils_log_location_t;
+} rcutils_log_location_t;
 
 /// The severity levels of log message.
 enum RCUTILS_LOG_SEVERITY
@@ -74,8 +74,8 @@ enum RCUTILS_LOG_SEVERITY
  * \param The format string
  * \param The variable argument list
  */
-typedef void (* rclutils_logging_output_handler_t)(
-  rclutils_log_location_t *,  // location
+typedef void (* rcutils_logging_output_handler_t)(
+  rcutils_log_location_t *,  // location
   int,  // severity
   const char *,  // name
   const char *,  // format
@@ -84,7 +84,7 @@ typedef void (* rclutils_logging_output_handler_t)(
 
 /// The function pointer of the current output handler.
 RCUTILS_PUBLIC
-extern rclutils_logging_output_handler_t g_rclutils_logging_output_handler;
+extern rcutils_logging_output_handler_t g_rcutils_logging_output_handler;
 
 /// Get the current output handler.
 /**
@@ -99,7 +99,7 @@ extern rclutils_logging_output_handler_t g_rclutils_logging_output_handler;
  * \return The function pointer of the current output handler.
  */
 RCUTILS_PUBLIC
-rclutils_logging_output_handler_t rclutils_logging_get_output_handler();
+rcutils_logging_output_handler_t rcutils_logging_get_output_handler();
 
 /// Set the current output handler.
 /**
@@ -114,7 +114,7 @@ rclutils_logging_output_handler_t rclutils_logging_get_output_handler();
  * \param function The function pointer of the output handler to be used.
  */
 RCUTILS_PUBLIC
-void rclutils_logging_set_output_handler(rclutils_logging_output_handler_t function);
+void rcutils_logging_set_output_handler(rcutils_logging_output_handler_t function);
 
 /// The global severity threshold before calling the output handler.
 /**
@@ -124,7 +124,7 @@ void rclutils_logging_set_output_handler(rclutils_logging_output_handler_t funct
  * \param severity The global severity threshold to be used.
  */
 RCUTILS_PUBLIC
-extern int g_rclutils_logging_severity_threshold;
+extern int g_rcutils_logging_severity_threshold;
 
 /// Get the global severity threshold.
 /**
@@ -139,7 +139,7 @@ extern int g_rclutils_logging_severity_threshold;
  * \return The severity threshold.
  */
 RCUTILS_PUBLIC
-int rclutils_logging_get_severity_threshold();
+int rcutils_logging_get_severity_threshold();
 
 /// Set the global severity threshold.
 /**
@@ -154,7 +154,7 @@ int rclutils_logging_get_severity_threshold();
  * \param severity The severity threshold to be used.
  */
 RCUTILS_PUBLIC
-void rclutils_logging_set_severity_threshold(int severity);
+void rcutils_logging_set_severity_threshold(int severity);
 
 /// Log a message.
 /**
@@ -176,8 +176,8 @@ void rclutils_logging_set_severity_threshold(int severity);
  * \param ... The variable arguments
  */
 RCUTILS_PUBLIC
-void rclutils_log(
-  rclutils_log_location_t * location,
+void rcutils_log(
+  rcutils_log_location_t * location,
   int severity,
   const char * name,
   const char * format,
@@ -207,8 +207,8 @@ void rclutils_log(
  * \param args The variable argument list
  */
 RCUTILS_PUBLIC
-void rclutils_logging_console_output_handler(
-  rclutils_log_location_t * location,
+void rcutils_logging_console_output_handler(
+  rcutils_log_location_t * location,
   int severity, const char * name, const char * format, va_list * args);
 
 #if __cplusplus

@@ -70,8 +70,8 @@ extern "C"
  * All logging macros ensure that this has been called once.
  */
 #define RCUTILS_LOGGING_AUTOINIT \
-  if (RCUTILS_UNLIKELY(!g_rclutils_logging_initialized)) { \
-    rclutils_logging_initialize(); \
+  if (RCUTILS_UNLIKELY(!g_rcutils_logging_initialized)) { \
+    rcutils_logging_initialize(); \
   }
 
 /**
@@ -86,10 +86,10 @@ extern "C"
 #define RCUTILS_LOG_COND_NAMED(severity, condition_before, condition_after, name, ...) \
   { \
     RCUTILS_LOGGING_AUTOINIT \
-    static rclutils_log_location_t __rcutils_logging_location = {__func__, __FILE__, __LINE__}; \
+    static rcutils_log_location_t __rcutils_logging_location = {__func__, __FILE__, __LINE__}; \
     condition_before \
-    if (severity >= g_rclutils_logging_severity_threshold) { \
-      rclutils_log(&__rcutils_logging_location, severity, name, __VA_ARGS__); \
+    if (severity >= g_rcutils_logging_severity_threshold) { \
+      rcutils_log(&__rcutils_logging_location, severity, name, __VA_ARGS__); \
     } \
     condition_after \
   }
@@ -199,7 +199,7 @@ typedef bool (* RclLogFilter)();
     rcutils_time_point_value_t __rcutils_logging_now = 0; \
     bool __rcutils_logging_condition = true; \
     if (rcutils_steady_time_now(&__rcutils_logging_now) != RCUTILS_RET_OK) { \
-      rclutils_log( \
+      rcutils_log( \
         &__rcutils_logging_location, RCUTILS_LOG_SEVERITY_ERROR, "", \
         "%s() at %s:%d getting current steady time failed\n", \
         __func__, __FILE__, __LINE__); \

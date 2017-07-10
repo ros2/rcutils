@@ -20,7 +20,7 @@ size_t g_log_calls = 0;
 
 struct LogEvent
 {
-  rclutils_log_location_t * location;
+  rcutils_log_location_t * location;
   int severity;
   const char * name;
   char * message;
@@ -28,7 +28,7 @@ struct LogEvent
 struct LogEvent g_last_log_event;
 
 void custom_handler(
-  rclutils_log_location_t * location,
+  rcutils_log_location_t * location,
   int severity, const char * name, const char * format, va_list * args)
 {
   g_log_calls += 1;
@@ -49,17 +49,17 @@ int main(int argc, char ** argv)
   (void)argv;
 
   g_log_calls = 0;
-  if (g_rclutils_logging_initialized) {
+  if (g_rcutils_logging_initialized) {
     return 1;
   }
-  rclutils_logging_initialize();
-  if (!g_rclutils_logging_initialized) {
+  rcutils_logging_initialize();
+  if (!g_rcutils_logging_initialized) {
     return 2;
   }
 
-  rclutils_logging_output_handler_t previous_output_handler = \
-    rclutils_logging_get_output_handler();
-  rclutils_logging_set_output_handler(custom_handler);
+  rcutils_logging_output_handler_t previous_output_handler = \
+    rcutils_logging_get_output_handler();
+  rcutils_logging_set_output_handler(custom_handler);
 
   RCUTILS_LOG_INFO("empty message");
   if (g_log_calls != 1u) {
@@ -107,12 +107,12 @@ int main(int argc, char ** argv)
     return 16;
   }
 
-  rclutils_logging_set_output_handler(previous_output_handler);
+  rcutils_logging_set_output_handler(previous_output_handler);
   if (g_last_log_event.message) {
     free(g_last_log_event.message);
   }
-  g_rclutils_logging_initialized = false;
-  if (g_rclutils_logging_initialized) {
+  g_rcutils_logging_initialized = false;
+  if (g_rcutils_logging_initialized) {
     return 17;
   }
 }

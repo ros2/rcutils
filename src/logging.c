@@ -20,49 +20,49 @@ extern "C"
 #include "rcutils/allocator.h"
 #include "rcutils/logging.h"
 
-bool g_rclutils_logging_initialized = false;
+bool g_rcutils_logging_initialized = false;
 
-rclutils_logging_output_handler_t g_rclutils_logging_output_handler = NULL;
+rcutils_logging_output_handler_t g_rcutils_logging_output_handler = NULL;
 
-int g_rclutils_logging_severity_threshold = 0;
+int g_rcutils_logging_severity_threshold = 0;
 
-void rclutils_logging_initialize()
+void rcutils_logging_initialize()
 {
-  if (!g_rclutils_logging_initialized) {
-    g_rclutils_logging_output_handler = &rclutils_logging_console_output_handler;
-    g_rclutils_logging_severity_threshold = RCUTILS_LOG_SEVERITY_DEBUG;
-    g_rclutils_logging_initialized = true;
+  if (!g_rcutils_logging_initialized) {
+    g_rcutils_logging_output_handler = &rcutils_logging_console_output_handler;
+    g_rcutils_logging_severity_threshold = RCUTILS_LOG_SEVERITY_DEBUG;
+    g_rcutils_logging_initialized = true;
   }
 }
 
-rclutils_logging_output_handler_t rclutils_logging_get_output_handler()
+rcutils_logging_output_handler_t rcutils_logging_get_output_handler()
 {
-  return g_rclutils_logging_output_handler;
+  return g_rcutils_logging_output_handler;
 }
 
-void rclutils_logging_set_output_handler(rclutils_logging_output_handler_t function)
+void rcutils_logging_set_output_handler(rcutils_logging_output_handler_t function)
 {
-  g_rclutils_logging_output_handler = function;
+  g_rcutils_logging_output_handler = function;
 }
 
-int rclutils_logging_get_severity_threshold()
+int rcutils_logging_get_severity_threshold()
 {
-  return g_rclutils_logging_severity_threshold;
+  return g_rcutils_logging_severity_threshold;
 }
 
-void rclutils_logging_set_severity_threshold(int severity)
+void rcutils_logging_set_severity_threshold(int severity)
 {
-  g_rclutils_logging_severity_threshold = severity;
+  g_rcutils_logging_severity_threshold = severity;
 }
 
-void rclutils_log(
-  rclutils_log_location_t * location,
+void rcutils_log(
+  rcutils_log_location_t * location,
   int severity, const char * name, const char * format, ...)
 {
-  if (severity < g_rclutils_logging_severity_threshold) {
+  if (severity < g_rcutils_logging_severity_threshold) {
     return;
   }
-  rclutils_logging_output_handler_t output_handler = g_rclutils_logging_output_handler;
+  rcutils_logging_output_handler_t output_handler = g_rcutils_logging_output_handler;
   if (output_handler) {
     va_list args;
     va_start(args, format);
@@ -71,8 +71,8 @@ void rclutils_log(
   }
 }
 
-void rclutils_logging_console_output_handler(
-  rclutils_log_location_t * location,
+void rcutils_logging_console_output_handler(
+  rcutils_log_location_t * location,
   int severity, const char * name, const char * format, va_list * args)
 {
   FILE * stream = NULL;
