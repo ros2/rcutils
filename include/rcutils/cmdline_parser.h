@@ -26,11 +26,11 @@ extern "C"
 
 RCUTILS_PUBLIC
 bool
-cli_option_exist(char ** begin, char ** end, const char * option);
+rcutils_cli_option_exist(char ** begin, char ** end, const char * option);
 
 RCUTILS_PUBLIC
 char *
-cli_get_option(char ** begin, char ** end, const char * option);
+rcutils_cli_get_option(char ** begin, char ** end, const char * option);
 
 #if __cplusplus
 }
