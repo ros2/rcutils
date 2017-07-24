@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if defined(WIN32)
+#if defined(_WIN32)
 # error time_unix.c is not intended to be used with win32 based systems
-#endif  // defined(WIN32)
+#endif  // defined(_WIN32)
 
 #if __cplusplus
 extern "C"

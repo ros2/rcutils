@@ -22,10 +22,10 @@ extern "C"
 
 #include "rcutils/get_env.h"
 
-#ifdef WIN32
+#ifdef _WIN32
 # define WINDOWS_ENV_BUFFER_SIZE 2048
 static char __env_buffer[WINDOWS_ENV_BUFFER_SIZE];
-#endif  // WIN32
+#endif  // _WIN32
 
 
 const char *
@@ -38,7 +38,7 @@ rcutils_get_env(const char * env_name, const char ** env_value)
     return "argument env_value is null";
   }
   *env_value = NULL;
-#ifdef WIN32
+#ifdef _WIN32
   size_t required_size;
   errno_t ret = getenv_s(&required_size, __env_buffer, sizeof(__env_buffer), env_name);
   if (ret != 0) {
@@ -51,7 +51,7 @@ rcutils_get_env(const char * env_name, const char ** env_value)
   if (NULL == *env_value) {
     *env_value = "";
   }
-#endif  // WIN32
+#endif  // _WIN32
   return NULL;
 }
 

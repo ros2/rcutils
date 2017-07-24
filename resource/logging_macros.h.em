@@ -39,7 +39,7 @@ extern "C"
 #endif
 
 // Provide the compiler with branch prediction information
-#ifndef WIN32
+#ifndef _WIN32
 /**
  * \def RCUTILS_LIKELY
  * Instruct the compiler to optimize for the case where the argument equals 1.
@@ -61,7 +61,7 @@ extern "C"
  * No op since Windows doesn't support providing branch prediction information.
  */
 # define RCUTILS_UNLIKELY(x) (x)
-#endif
+#endif  // _WIN32
 
 /**
  * \def RCUTILS_LOGGING_AUTOINIT

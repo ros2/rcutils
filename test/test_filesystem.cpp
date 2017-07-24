@@ -21,11 +21,11 @@ static char cwd[1024];
 
 TEST(test_filesystem, join_path) {
   const char * path = rcutils_join_path("foo", "bar");
-#ifdef WIN32
+#ifdef _WIN32
   const char * ref_str = "foo\\bar";
 #else
   const char * ref_str = "foo/bar";
-#endif
+#endif  // _WIN32
   EXPECT_FALSE(NULL == path);
   EXPECT_STREQ(ref_str, path);
 }
