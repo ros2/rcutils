@@ -25,7 +25,7 @@ TEST(test_filesystem, join_path) {
   const char * ref_str = "foo\\bar";
 #else
   const char * ref_str = "foo/bar";
-#endif
+#endif  // _WIN32
   EXPECT_FALSE(NULL == path);
   EXPECT_STREQ(ref_str, path);
 }

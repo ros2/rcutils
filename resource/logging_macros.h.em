@@ -61,7 +61,7 @@ extern "C"
  * No op since Windows doesn't support providing branch prediction information.
  */
 # define RCUTILS_UNLIKELY(x) (x)
-#endif
+#endif  // _WIN32
 
 /**
  * \def RCUTILS_LOGGING_AUTOINIT
