@@ -21,11 +21,11 @@ extern "C"
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
-#ifndef WIN32
+#ifndef _WIN32
 #include <unistd.h>
 #else
 #include <direct.h>
-#endif
+#endif  // _WIN32
 #include "rcutils/concat.h"
 #include "rcutils/filesystem.h"
 
@@ -35,7 +35,7 @@ rcutils_get_cwd(char * buffer, size_t max_length)
   if (!buffer) {
     return false;
   }
-#ifdef WIN32
+#ifdef _WIN32
   if (!_getcwd(buffer, (int)max_length)) {
     return false;
   }
@@ -43,7 +43,7 @@ rcutils_get_cwd(char * buffer, size_t max_length)
   if (!getcwd(buffer, max_length)) {
     return false;
   }
-#endif
+#endif  // _WIN32
   return true;
 }
 
@@ -54,11 +54,11 @@ rcutils_is_directory(const char * abs_path)
   if (stat(abs_path, &buf) < 0) {
     return false;
   }
-#ifdef WIN32
+#ifdef _WIN32
   return (buf.st_mode & S_IFDIR) == S_IFDIR;
 #else
   return S_ISDIR(buf.st_mode);
-#endif
+#endif  // _WIN32
 }
 
 bool
@@ -68,11 +68,11 @@ rcutils_is_file(const char * abs_path)
   if (stat(abs_path, &buf) < 0) {
     return false;
   }
-#ifdef WIN32
+#ifdef _WIN32
   return (buf.st_mode & S_IFREG) == S_IFREG;
 #else
   return S_ISREG(buf.st_mode);
-#endif
+#endif  // _WIN32
 }
 
 bool
@@ -93,11 +93,11 @@ rcutils_is_readable(const char * abs_path)
     return false;
   }
   stat(abs_path, &buf);
-#ifdef WIN32
+#ifdef _WIN32
   if (!(buf.st_mode & _S_IREAD)) {
 #else
   if (!(buf.st_mode & S_IRUSR)) {
-#endif
+#endif  // _WIN32
     return false;
   }
   return true;
@@ -111,11 +111,11 @@ rcutils_is_writable(const char * abs_path)
     return false;
   }
   stat(abs_path, &buf);
-#ifdef WIN32
+#ifdef _WIN32
   if (!(buf.st_mode & _S_IWRITE)) {
 #else
   if (!(buf.st_mode & S_IWUSR)) {
-#endif
+#endif  // _WIN32
     return false;
   }
   return true;
@@ -129,13 +129,13 @@ rcutils_is_readable_and_writable(const char * abs_path)
     return false;
   }
   stat(abs_path, &buf);
-#ifdef WIN32
+#ifdef _WIN32
   // NOTE(marguedas) on windows all writable files are readable
   // hence the following check is equivalent to "& _S_IWRITE"
   if (!((buf.st_mode & _S_IWRITE) && (buf.st_mode & _S_IREAD))) {
 #else
   if (!((buf.st_mode & S_IWUSR) && (buf.st_mode & S_IRUSR))) {
-#endif
+#endif  // _WIN32
     return false;
   }
   return true;
@@ -151,11 +151,11 @@ rcutils_join_path(const char * left_hand_path, const char * right_hand_path)
     return NULL;
   }
 
-#ifdef  WIN32
+#ifdef  _WIN32
   const char * delimiter = "\\";
 #else
   const char * delimiter = "/";
-#endif
+#endif  // _WIN32
 
   return rcutils_concat(left_hand_path, right_hand_path, delimiter);
 }
