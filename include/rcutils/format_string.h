@@ -55,7 +55,7 @@ extern "C"
  * The returned string must be deallocated using the same allocator given once
  * it is no longer needed.
  *
- * \see rcutils_snprintf_s()
+ * \see rcutils_snprintf()
  *
  * \param[in] allocator the allocator to use for allocation
  * \param[in] limit maximum length of the output string
