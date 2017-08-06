@@ -27,11 +27,11 @@ extern "C"
 #include "rcutils/visibility_control.h"
 
 /// Convenience macro to convert seconds to nanoseconds.
-#define RCUTILS_S_TO_NS(seconds) (seconds * (1000 * 1000 * 1000))
+#define RCUTILS_S_TO_NS(seconds) ((uint64_t)(seconds) * (1000 * 1000 * 1000))
 /// Convenience macro to convert milliseconds to nanoseconds.
-#define RCUTILS_MS_TO_NS(milliseconds) (milliseconds * (1000 * 1000))
+#define RCUTILS_MS_TO_NS(milliseconds) ((uint64_t)(milliseconds) * (1000 * 1000))
 /// Convenience macro to convert microseconds to nanoseconds.
-#define RCUTILS_US_TO_NS(microseconds) (microseconds * 1000)
+#define RCUTILS_US_TO_NS(microseconds) ((uint64_t)(microseconds) * 1000)
 
 /// Convenience macro to convert nanoseconds to seconds.
 #define RCUTILS_NS_TO_S(nanoseconds) (nanoseconds / (1000 * 1000 * 1000))
