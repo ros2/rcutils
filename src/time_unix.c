@@ -68,7 +68,7 @@ rcutils_system_time_now(rcutils_time_point_value_t * now)
     RCUTILS_SET_ERROR_MSG("unexpected negative time", rcutils_get_default_allocator());
     return RCUTILS_RET_ERROR;
   }
-  *now = RCUTILS_S_TO_NS((uint64_t)timespec_now.tv_sec) + timespec_now.tv_nsec;
+  *now = RCUTILS_S_TO_NS(timespec_now.tv_sec) + timespec_now.tv_nsec;
   return RCUTILS_RET_OK;
 }
 
@@ -100,7 +100,7 @@ rcutils_steady_time_now(rcutils_time_point_value_t * now)
     RCUTILS_SET_ERROR_MSG("unexpected negative time", rcutils_get_default_allocator());
     return RCUTILS_RET_ERROR;
   }
-  *now = RCUTILS_S_TO_NS((uint64_t)timespec_now.tv_sec) + timespec_now.tv_nsec;
+  *now = RCUTILS_S_TO_NS(timespec_now.tv_sec) + timespec_now.tv_nsec;
   return RCUTILS_RET_OK;
 }
 
