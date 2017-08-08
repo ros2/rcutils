@@ -27,13 +27,13 @@
 #endif
 
 TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logging_initialization) {
-  EXPECT_EQ(g_rcutils_logging_initialized, false);
+  EXPECT_FALSE(g_rcutils_logging_initialized);
   rcutils_logging_initialize();
-  EXPECT_EQ(g_rcutils_logging_initialized, true);
+  EXPECT_TRUE(g_rcutils_logging_initialized);
   rcutils_logging_initialize();
-  EXPECT_EQ(g_rcutils_logging_initialized, true);
+  EXPECT_TRUE(g_rcutils_logging_initialized);
   g_rcutils_logging_initialized = false;
-  EXPECT_EQ(g_rcutils_logging_initialized, false);
+  EXPECT_FALSE(g_rcutils_logging_initialized);
 }
 
 size_t g_log_calls = 0;
@@ -48,9 +48,9 @@ struct LogEvent
 LogEvent g_last_log_event;
 
 TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logging) {
-  EXPECT_EQ(g_rcutils_logging_initialized, false);
+  EXPECT_FALSE(g_rcutils_logging_initialized);
   rcutils_logging_initialize();
-  EXPECT_EQ(g_rcutils_logging_initialized, true);
+  EXPECT_TRUE(g_rcutils_logging_initialized);
 
   auto rcutils_logging_console_output_handler = [](
     rcutils_log_location_t * location,
@@ -68,52 +68,52 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logging) {
   rcutils_logging_output_handler_t original_function = rcutils_logging_get_output_handler();
   rcutils_logging_set_output_handler(rcutils_logging_console_output_handler);
 
-  EXPECT_EQ(rcutils_logging_get_severity_threshold(), RCUTILS_LOG_SEVERITY_DEBUG);
+  EXPECT_EQ(RCUTILS_LOG_SEVERITY_DEBUG, rcutils_logging_get_severity_threshold());
 
   // check all attributes for a debug log message
   rcutils_log_location_t location = {"func", "file", 42u};
   g_log_calls = 0;
   rcutils_log(&location, RCUTILS_LOG_SEVERITY_DEBUG, "name1", "message %d", 11);
-  EXPECT_EQ(g_log_calls, 1u);
+  EXPECT_EQ(1u, g_log_calls);
   EXPECT_TRUE(g_last_log_event.location != NULL);
   if (g_last_log_event.location) {
-    EXPECT_STREQ(g_last_log_event.location->function_name, "func");
-    EXPECT_STREQ(g_last_log_event.location->file_name, "file");
-    EXPECT_EQ(g_last_log_event.location->line_number, 42u);
+    EXPECT_STREQ("func", g_last_log_event.location->function_name);
+    EXPECT_STREQ("file", g_last_log_event.location->file_name);
+    EXPECT_EQ(42u, g_last_log_event.location->line_number);
   }
-  EXPECT_EQ(g_last_log_event.level, RCUTILS_LOG_SEVERITY_DEBUG);
-  EXPECT_EQ(g_last_log_event.name, "name1");
-  EXPECT_EQ(g_last_log_event.message, "message 11");
+  EXPECT_EQ(RCUTILS_LOG_SEVERITY_DEBUG, g_last_log_event.level);
+  EXPECT_EQ("name1", g_last_log_event.name);
+  EXPECT_EQ("message 11", g_last_log_event.message);
 
   // check global severity threshold
   int original_severity_threshold = rcutils_logging_get_severity_threshold();
   rcutils_logging_set_severity_threshold(RCUTILS_LOG_SEVERITY_INFO);
-  EXPECT_EQ(rcutils_logging_get_severity_threshold(), RCUTILS_LOG_SEVERITY_INFO);
+  EXPECT_EQ(RCUTILS_LOG_SEVERITY_INFO, rcutils_logging_get_severity_threshold());
   rcutils_log(NULL, RCUTILS_LOG_SEVERITY_DEBUG, "name2", "message %d", 22);
-  EXPECT_EQ(g_log_calls, 1u);
+  EXPECT_EQ(1u, g_log_calls);
 
   // check other severity levels
   rcutils_log(NULL, RCUTILS_LOG_SEVERITY_INFO, "name3", "message %d", 33);
-  EXPECT_EQ(g_log_calls, 2u);
-  EXPECT_EQ(g_last_log_event.level, RCUTILS_LOG_SEVERITY_INFO);
-  EXPECT_EQ(g_last_log_event.name, "name3");
-  EXPECT_EQ(g_last_log_event.message, "message 33");
+  EXPECT_EQ(2u, g_log_calls);
+  EXPECT_EQ(RCUTILS_LOG_SEVERITY_INFO, g_last_log_event.level);
+  EXPECT_EQ("name3", g_last_log_event.name);
+  EXPECT_EQ("message 33", g_last_log_event.message);
 
   rcutils_log(NULL, RCUTILS_LOG_SEVERITY_WARN, "", "");
-  EXPECT_EQ(g_log_calls, 3u);
-  EXPECT_EQ(g_last_log_event.level, RCUTILS_LOG_SEVERITY_WARN);
+  EXPECT_EQ(3u, g_log_calls);
+  EXPECT_EQ(RCUTILS_LOG_SEVERITY_WARN, g_last_log_event.level);
 
   rcutils_log(NULL, RCUTILS_LOG_SEVERITY_ERROR, "", "");
-  EXPECT_EQ(g_log_calls, 4u);
-  EXPECT_EQ(g_last_log_event.level, RCUTILS_LOG_SEVERITY_ERROR);
+  EXPECT_EQ(4u, g_log_calls);
+  EXPECT_EQ(RCUTILS_LOG_SEVERITY_ERROR, g_last_log_event.level);
 
   rcutils_log(NULL, RCUTILS_LOG_SEVERITY_FATAL, NULL, "");
-  EXPECT_EQ(g_log_calls, 5u);
-  EXPECT_EQ(g_last_log_event.level, RCUTILS_LOG_SEVERITY_FATAL);
+  EXPECT_EQ(5u, g_log_calls);
+  EXPECT_EQ(RCUTILS_LOG_SEVERITY_FATAL, g_last_log_event.level);
 
   // restore original state
   rcutils_logging_set_severity_threshold(original_severity_threshold);
   rcutils_logging_set_output_handler(original_function);
   g_rcutils_logging_initialized = false;
-  EXPECT_EQ(g_rcutils_logging_initialized, false);
+  EXPECT_FALSE(g_rcutils_logging_initialized);
 }

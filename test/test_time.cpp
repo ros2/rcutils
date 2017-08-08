@@ -65,7 +65,7 @@ TEST_F(TestTimeFixture, test_rcutils_system_time_now) {
   assert_no_free_end();
   stop_memory_checking();
   EXPECT_EQ(ret, RCUTILS_RET_OK) << rcutils_get_error_string_safe();
-  EXPECT_NE(now, 0u);
+  EXPECT_NE(0u, now);
   // Compare to std::chrono::system_clock time (within a second).
   now = 0;
   ret = rcutils_system_time_now(&now);
@@ -97,7 +97,7 @@ TEST_F(TestTimeFixture, test_rcutils_steady_time_now) {
   assert_no_free_end();
   stop_memory_checking();
   EXPECT_EQ(ret, RCUTILS_RET_OK) << rcutils_get_error_string_safe();
-  EXPECT_NE(now, 0u);
+  EXPECT_NE(0u, now);
   // Compare to std::chrono::steady_clock difference of two times (within a second).
   now = 0;
   ret = rcutils_steady_time_now(&now);
