@@ -30,7 +30,7 @@ void rcutils_logging_initialize()
 {
   if (!g_rcutils_logging_initialized) {
     g_rcutils_logging_output_handler = &rcutils_logging_console_output_handler;
-    g_rcutils_logging_severity_threshold = RCUTILS_LOG_SEVERITY_DEBUG;
+    g_rcutils_logging_severity_threshold = RCUTILS_LOG_SEVERITY_INFO;
     g_rcutils_logging_initialized = true;
   }
 }
