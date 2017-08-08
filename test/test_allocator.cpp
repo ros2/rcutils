@@ -74,13 +74,13 @@ TEST_F(CLASSNAME(TestAllocatorFixture, RMW_IMPLEMENTATION), test_default_allocat
   assert_no_realloc_begin();
   assert_no_free_begin();
   void * allocated_memory = allocator.allocate(1024, allocator.state);
-  EXPECT_EQ(mallocs, 1u);
-  EXPECT_NE(allocated_memory, nullptr);
+  EXPECT_EQ(1u, mallocs);
+  EXPECT_NE(nullptr, allocated_memory);
   allocated_memory = allocator.reallocate(allocated_memory, 2048, allocator.state);
-  EXPECT_EQ(reallocs, 1u);
-  EXPECT_NE(allocated_memory, nullptr);
+  EXPECT_EQ(1u, reallocs);
+  EXPECT_NE(nullptr, allocated_memory);
   allocator.deallocate(allocated_memory, allocator.state);
-  EXPECT_EQ(mallocs, 1u);
-  EXPECT_EQ(reallocs, 1u);
-  EXPECT_EQ(frees, 1u);
+  EXPECT_EQ(1u, mallocs);
+  EXPECT_EQ(1u, reallocs);
+  EXPECT_EQ(1u, frees);
 }
