@@ -10,7 +10,6 @@ if(APPLE)
   # Create an OS X specific version of the memory tools that does interposing.
   # See: http://toves.freeshell.org/interpose/
   add_library(${PROJECT_NAME}_memory_tools_interpose SHARED memory_tools_osx_interpose.cpp)
-  target_link_libraries(${PROJECT_NAME}_memory_tools_interpose ${GMOCK_LIBRARIES})
   list(APPEND extra_test_libraries ${PROJECT_NAME}_memory_tools_interpose)
   list(APPEND extra_test_env
     DYLD_INSERT_LIBRARIES=$<TARGET_FILE:${PROJECT_NAME}_memory_tools_interpose>)
@@ -31,7 +30,7 @@ if(WIN32)  # (memory tools doesn't do anything on Windows)
   set(SKIP_TEST "SKIP_TEST")
 endif()
 
-ament_add_gmock(test_memory_tools test_memory_tools.cpp
+ament_add_gtest(test_memory_tools test_memory_tools.cpp
   ENV ${extra_test_env}
   ${SKIP_TEST}
 )
