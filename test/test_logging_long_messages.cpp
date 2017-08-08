@@ -29,11 +29,11 @@ int main(int, char **)
   }
   message[sizeof(message) - 2] = 'X';
   message[sizeof(message) - 1] = '\0';
-  rcutils_log(&location, RCUTILS_LOG_SEVERITY_DEBUG, "name1", message);
+  rcutils_log(&location, RCUTILS_LOG_SEVERITY_INFO, "name1", message);
 
   message[1] = '%';
   message[2] = 'd';
-  rcutils_log(&location, RCUTILS_LOG_SEVERITY_DEBUG, "name2", message, 42);
+  rcutils_log(&location, RCUTILS_LOG_SEVERITY_INFO, "name2", message, 42);
 
   std::cout.flush();
 
