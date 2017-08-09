@@ -45,6 +45,8 @@ public:
     EXPECT_FALSE(g_rcutils_logging_initialized);
     rcutils_logging_initialize();
     EXPECT_TRUE(g_rcutils_logging_initialized);
+    g_rcutils_logging_severity_threshold = RCUTILS_LOG_SEVERITY_DEBUG;
+    EXPECT_EQ(RCUTILS_LOG_SEVERITY_DEBUG, g_rcutils_logging_severity_threshold);
 
     auto rcutils_logging_console_output_handler = [](
       rcutils_log_location_t * location,
@@ -80,7 +82,7 @@ TEST_F(TestLoggingMacros, test_logging_named) {
   if (g_last_log_event.location) {
     EXPECT_STREQ("TestBody", g_last_log_event.location->function_name);
     EXPECT_THAT(g_last_log_event.location->file_name, EndsWith("test_logging_macros.cpp"));
-    EXPECT_EQ(76u, g_last_log_event.location->line_number);
+    EXPECT_EQ(78u, g_last_log_event.location->line_number);
   }
   EXPECT_EQ(RCUTILS_LOG_SEVERITY_DEBUG, g_last_log_event.level);
   EXPECT_EQ("name", g_last_log_event.name);
