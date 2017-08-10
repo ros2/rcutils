@@ -99,6 +99,11 @@ rcutils_string_map_fini(rcutils_string_map_t * string_map)
     // error message already set
     return ret;
   }
+  rcutils_allocator_t allocator = string_map->impl->allocator;
+
+  allocator.deallocate(string_map->impl, allocator.state);
+  string_map->impl = NULL;
+
   return RCUTILS_RET_OK;
 }
 
