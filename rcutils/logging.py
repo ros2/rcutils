@@ -62,6 +62,25 @@ throttle_doc_lines = [
     'duration.']
 
 
+def get_suffix_from_features(features):
+    # Build up the suffix in a particular order
+    suffix = ''
+    if 'expression' in features:
+        suffix += '_EXPRESSION'
+    if 'function' in features:
+        suffix += '_FUNCTION'
+    if 'skip_first' in features:
+        suffix += '_SKIPFIRST'
+    if 'throttle' in features:
+        suffix += '_THROTTLE'
+    if 'once' in features:
+        suffix += '_ONCE'
+    if 'named' in features:
+        suffix += '_NAMED'
+
+    return suffix
+
+
 class Feature:
     __slots__ = ('params', 'args', 'doc_lines')
 
@@ -78,47 +97,47 @@ class Feature:
 
 
 feature_combinations = OrderedDict((
-    ('', Feature()),
-    ('_NAMED', Feature(
+    (get_suffix_from_features([]), Feature()),
+    (get_suffix_from_features(['named']), Feature(
         params=name_params,
         args=name_args)),
-    ('_ONCE', Feature(
+    (get_suffix_from_features(['once']), Feature(
         params=None,
         args=once_args,
         doc_lines=name_doc_lines)),
-    ('_ONCE_NAMED', Feature(
+    (get_suffix_from_features(['once', 'named']), Feature(
         params=name_params,
         args={**once_args, **name_args},
         doc_lines=name_doc_lines)),
-    ('_EXPRESSION', Feature(
+    (get_suffix_from_features(['expression']), Feature(
         params=expression_params,
         args=expression_args,
         doc_lines=expression_doc_lines)),
-    ('_EXPRESSION_NAMED', Feature(
+    (get_suffix_from_features(['expression', 'named']), Feature(
         params=OrderedDict((*expression_params.items(), *name_params.items())),
         args={**expression_args, **name_args},
         doc_lines=expression_doc_lines + name_doc_lines)),
-    ('_FUNCTION', Feature(
+    (get_suffix_from_features(['function']), Feature(
         params=function_params,
         args=function_args,
         doc_lines=function_doc_lines)),
-    ('_FUNCTION_NAMED', Feature(
+    (get_suffix_from_features(['function', 'named']), Feature(
         params=OrderedDict((*function_params.items(), *name_params.items())),
         args={**function_args, **name_args},
         doc_lines=function_doc_lines + name_doc_lines)),
-    ('_SKIPFIRST', Feature(
+    (get_suffix_from_features(['skip_first']), Feature(
         params=None,
         args=skipfirst_args,
         doc_lines=skipfirst_doc_lines)),
-    ('_SKIPFIRST_NAMED', Feature(
+    (get_suffix_from_features(['skip_first', 'named']), Feature(
         params=name_params,
         args={**skipfirst_args, **name_args},
         doc_lines=skipfirst_doc_lines)),
-    ('_THROTTLE', Feature(
+    (get_suffix_from_features(['throttle']), Feature(
         params=throttle_params,
         args=throttle_args,
         doc_lines=throttle_doc_lines)),
-    ('_SKIPFIRST_THROTTLE', Feature(
+    (get_suffix_from_features(['skip_first', 'throttle']), Feature(
         params=throttle_params,
         args={
             'condition_before': ' '.join([
@@ -128,11 +147,11 @@ feature_combinations = OrderedDict((
                 throttle_args['condition_after'], skipfirst_args['condition_after']]),
         },
         doc_lines=skipfirst_doc_lines + throttle_doc_lines)),
-    ('_THROTTLE_NAMED', Feature(
+    (get_suffix_from_features(['throttle', 'named']), Feature(
         params=OrderedDict((*throttle_params.items(), *name_params.items())),
         args={**throttle_args, **name_args},
         doc_lines=throttle_doc_lines)),
-    ('_SKIPFIRST_THROTTLE_NAMED', Feature(
+    (get_suffix_from_features(['skip_first', 'throttle', 'named']), Feature(
         params=OrderedDict((*throttle_params.items(), *name_params.items())),
         args={
             **{
