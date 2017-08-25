@@ -149,7 +149,7 @@ feature_combinations = OrderedDict((
 
 
 def get_macro_parameters(suffix):
-    return ''.join([p + ', ' for p in feature_combinations[suffix].params.keys()])
+    return feature_combinations[suffix].params
 
 
 def get_macro_arguments(suffix):
@@ -157,4 +157,4 @@ def get_macro_arguments(suffix):
     for k, default_value in default_args.items():
         value = feature_combinations[suffix].args.get(k, default_value)
         args.append(value)
-    return ''.join([a + ', ' for a in args])
+    return args

@@ -234,7 +234,7 @@ from rcutils.logging import severities
 // empty logging macros for severity @(severity) when being disabled at compile time
 @[ for suffix in feature_combinations]@
 /// Empty logging macro due to the preprocessor definition of RCUTILS_LOG_MIN_SEVERITY.
-# define RCUTILS_LOG_@(severity)@(suffix)(@(get_macro_parameters(suffix))format, ...)
+# define RCUTILS_LOG_@(severity)@(suffix)(@(''.join([p + ', ' for p in get_macro_parameters(suffix).keys()]))format, ...)
 @[ end for]@
 
 #else
@@ -255,10 +255,10 @@ from rcutils.logging import severities
 @[ end for]@
  * \param ... The format string, followed by the variable arguments for the format string
  */
-# define RCUTILS_LOG_@(severity)@(suffix)(@(get_macro_parameters(suffix))...) \
+# define RCUTILS_LOG_@(severity)@(suffix)(@(''.join([p + ', ' for p in get_macro_parameters(suffix).keys()]))...) \
   RCUTILS_LOG_COND_NAMED( \
     RCUTILS_LOG_SEVERITY_@(severity), \
-    @(get_macro_arguments(suffix))\
+    @(''.join([str(a) + ', ' for a in get_macro_arguments(suffix)]))\
     __VA_ARGS__)
 @[ end for]@
 #endif
