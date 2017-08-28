@@ -273,7 +273,7 @@ throttle_args = {
 throttle_doc_lines = [
   'Log calls are being ignored if the last logged message is not longer ago than the specified duration.']
 
-class Feature(object):
+class Feature:
   __slots__ = ('params', 'args', 'doc_lines')
   def __init__(self, *, params=None, args=None, doc_lines=None):
     if params is None:
