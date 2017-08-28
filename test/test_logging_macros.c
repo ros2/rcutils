@@ -15,6 +15,7 @@
 #include <string.h>
 
 #include "rcutils/logging_macros.h"
+#include "rcutils/time.h"
 
 size_t g_log_calls = 0;
 
@@ -71,7 +72,7 @@ int main(int argc, char ** argv)
   if (strcmp(g_last_log_event.location->function_name, "main")) {
     return 5;
   }
-  if (g_last_log_event.location->line_number != 64u) {
+  if (g_last_log_event.location->line_number != 65u) {
     return 6;
   }
   if (g_last_log_event.severity != RCUTILS_LOG_SEVERITY_INFO) {
@@ -94,7 +95,7 @@ int main(int argc, char ** argv)
   if (strcmp(g_last_log_event.location->function_name, "main")) {
     return 12;
   }
-  if (g_last_log_event.location->line_number != 87u) {
+  if (g_last_log_event.location->line_number != 88u) {
     return 13;
   }
   if (g_last_log_event.severity != RCUTILS_LOG_SEVERITY_INFO) {
@@ -106,6 +107,10 @@ int main(int argc, char ** argv)
   if (strcmp(g_last_log_event.message, "message foo")) {
     return 16;
   }
+
+  // Check throttling calls work from within C when passing variable as duration
+  rcutils_duration_value_t duration_ms = 50;
+  RCUTILS_LOG_ERROR_THROTTLE(RCUTILS_STEADY_TIME, duration_ms, "throttled message")
 
   rcutils_logging_set_output_handler(previous_output_handler);
   if (g_last_log_event.message) {
