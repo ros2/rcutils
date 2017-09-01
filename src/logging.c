@@ -52,7 +52,8 @@ int rcutils_logging_get_severity_threshold()
 
 void rcutils_logging_set_severity_threshold(int severity)
 {
-  g_rcutils_logging_severity_threshold = severity;
+  RCUTILS_LOGGING_AUTOINIT
+    g_rcutils_logging_severity_threshold = severity;
 }
 
 void rcutils_log(

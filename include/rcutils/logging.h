@@ -211,6 +211,42 @@ void rcutils_logging_console_output_handler(
   rcutils_log_location_t * location,
   int severity, const char * name, const char * format, va_list * args);
 
+// Provide the compiler with branch prediction information
+#ifndef _WIN32
+/**
+ * \def RCUTILS_LIKELY
+ * Instruct the compiler to optimize for the case where the argument equals 1.
+ */
+# define RCUTILS_LIKELY(x) __builtin_expect((x), 1)
+/**
+ * \def RCUTILS_UNLIKELY
+ * Instruct the compiler to optimize for the case where the argument equals 0.
+ */
+# define RCUTILS_UNLIKELY(x) __builtin_expect((x), 0)
+#else
+/**
+ * \def RCUTILS_LIKELY
+ * No op since Windows doesn't support providing branch prediction information.
+ */
+# define RCUTILS_LIKELY(x) (x)
+/**
+ * \def RCUTILS_UNLIKELY
+ * No op since Windows doesn't support providing branch prediction information.
+ */
+# define RCUTILS_UNLIKELY(x) (x)
+#endif  // _WIN32
+
+/**
+ * \def RCUTILS_LOGGING_AUTOINIT
+ * \brief Initialize the rcl logging library.
+ * Usually it is unnecessary to call the macro directly.
+ * All logging macros ensure that this has been called once.
+ */
+#define RCUTILS_LOGGING_AUTOINIT \
+  if (RCUTILS_UNLIKELY(!g_rcutils_logging_initialized)) { \
+    rcutils_logging_initialize(); \
+  }
+
 #if __cplusplus
 }
 #endif
