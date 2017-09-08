@@ -24,7 +24,8 @@ extern "C"
 #include "rcutils/logging.h"
 
 bool g_rcutils_logging_initialized = false;
-const char * g_rcutils_logging_output_format_string = "[{severity}] [{name}]: {message} {line_number}";
+const char * g_rcutils_logging_output_format_string = \
+  "[{severity}] [{name}]: {message} {line_number}";
 
 rcutils_logging_output_handler_t g_rcutils_logging_output_handler = NULL;
 
@@ -34,8 +35,8 @@ void rcutils_logging_initialize()
 {
   if (!g_rcutils_logging_initialized) {
     g_rcutils_logging_output_handler = &rcutils_logging_console_output_handler;
-    g_rcutils_logging_severity_threshold = RCUTILS_LOG_SEVERITY_INFO;
-    // Check for the environment variable to disable output formatting
+    g_rcutils_logging_severity_threshold = RCUTILS_LOG_SEVERITY_DEBUG;
+    // Check for the environment variable for custom output formatting
     const char * output_format;
     const char * ret;
     ret = rcutils_get_env("RCUTILS_CONSOLE_OUTPUT_FORMAT", &output_format);
@@ -146,8 +147,8 @@ void rcutils_logging_console_output_handler(
   }
 
   if (!location) {
-    // TODO before merge
-    //location = empty_location;
+    // TODO(dhood) before merge
+    // location = empty_location;
   }
 
   // Process the format string looking for known tokens
@@ -164,44 +165,42 @@ void rcutils_logging_console_output_handler(
       memset(token, '\0', sizeof(token));
       size_t j = i + 1;
       // Look for a token end delimeter
-      for (j = i + 1; j < size && str[j] != token_end_delimiter; j++);
+      for (j = i + 1; j < size && str[j] != token_end_delimiter; j++) {
+      }
       if (j >= size) {
-          // No end delimiters found; there won't be any more tokens so shortcut the rest of the checking
-          strcat(output_buffer, str + i);
-          break;
+        // No end delimiters found;
+        // there won't be any more tokens so shortcut the rest of the checking
+        snprintf(output_buffer, sizeof(output_buffer), "%s", str + i);
+        break;
       }
       size_t token_len = j - i - 1;  // not including delimeters
-      strncpy(token, str + i+1 , token_len);
-        char token_buffer[1024];
-        int n = 0;
-        bool known_token = false;
-        if (strcmp("severity", token) == 0)
-        {
-          n = sprintf(token_buffer, "%s", severity_string);
-          known_token = true;
-        }
-        if (!known_token && strcmp("line_number", token) == 0)
-        {
-          n = sprintf(token_buffer, "%zu", location->line_number);
-          known_token = true;
-        }
-        if (!known_token && strcmp("message", token) == 0)
-        {
-          n = sprintf(token_buffer, "%s", message_buffer);
-          known_token = true;
-        }
-        if (!known_token && strcmp("name", token) == 0)
-        {
-          n = sprintf(token_buffer, "%s", name);
-          known_token = true;
-        }
-        if (known_token) {
-          strncat(output_buffer, token_buffer, n);
-          i += token_len + 1;  // Skip ahead to avoid re-printing these characters
-          continue;
-        }
+      strncpy(token, str + i + 1, token_len);
+      char token_buffer[1024];
+      int n = 0;
+      bool known_token = false;
+      if (strcmp("severity", token) == 0) {
+        n = snprintf(token_buffer, sizeof(token_buffer), "%s", severity_string);
+        known_token = true;
+      }
+      if (!known_token && strcmp("line_number", token) == 0) {
+        n = snprintf(token_buffer, sizeof(token_buffer), "%zu", location->line_number);
+        known_token = true;
+      }
+      if (!known_token && strcmp("message", token) == 0) {
+        n = snprintf(token_buffer, sizeof(token_buffer), "%s", message_buffer);
+        known_token = true;
+      }
+      if (!known_token && strcmp("name", token) == 0) {
+        n = snprintf(token_buffer, sizeof(token_buffer), "%s", name);
+        known_token = true;
+      }
+      if (known_token) {
+        strncat(output_buffer, token_buffer, n);
+        i += token_len + 1;  // Skip ahead to avoid re-printing these characters
+        continue;
+      }
     }
-        strncat(output_buffer, str + i, 1);
+    strncat(output_buffer, str + i, 1);
   }
   fprintf(stream, "%s\n", output_buffer);
 
