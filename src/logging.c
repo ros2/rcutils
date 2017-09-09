@@ -25,7 +25,8 @@ extern "C"
 #include "rcutils/snprintf.h"
 
 bool g_rcutils_logging_initialized = false;
-char * g_rcutils_logging_output_format_string = \
+char g_rcutils_logging_output_format_string[1024];
+static char * rcutils_default_output_format = \
   "[{severity}] [{name}]: {message} ({function_name}() at {file_name}:{line_number})";
 
 rcutils_logging_output_handler_t g_rcutils_logging_output_handler = NULL;
@@ -36,16 +37,19 @@ void rcutils_logging_initialize()
 {
   if (!g_rcutils_logging_initialized) {
     g_rcutils_logging_output_handler = &rcutils_logging_console_output_handler;
-    g_rcutils_logging_severity_threshold = RCUTILS_LOG_SEVERITY_DEBUG;
+    g_rcutils_logging_severity_threshold = RCUTILS_LOG_SEVERITY_INFO;
+
+    int max_output_format_len = sizeof(g_rcutils_logging_output_format_string);
+    memset(g_rcutils_logging_output_format_string, '\0', max_output_format_len);
     // Check for the environment variable for custom output formatting
     const char * output_format;
     const char * ret;
     ret = rcutils_get_env("RCUTILS_CONSOLE_OUTPUT_FORMAT", &output_format);
     if (!ret && strcmp(output_format, "") != 0) {
-      rcutils_allocator_t allocator = rcutils_get_default_allocator();
-      g_rcutils_logging_output_format_string = \
-        allocator.allocate(strlen(output_format) + 1, allocator.state);
-      memcpy(g_rcutils_logging_output_format_string, output_format, strlen(output_format) + 1);
+      strncpy(g_rcutils_logging_output_format_string, output_format, max_output_format_len - 1);
+    } else {
+      strncpy(g_rcutils_logging_output_format_string, rcutils_default_output_format, \
+        max_output_format_len - 1);
     }
     g_rcutils_logging_initialized = true;
   }
