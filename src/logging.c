@@ -232,6 +232,7 @@ void rcutils_logging_console_output_handler(
         } while (required_output_buffer_size >= output_buffer_size);
         void * dynamic_output_buffer = allocator.allocate(output_buffer_size, allocator.state);
         strncpy(dynamic_output_buffer, output_buffer, strlen(output_buffer));
+        // TODO(dhood): uncomment this once it's tested.
         /*
         if (output_buffer != static_output_buffer) {
           allocator.deallocate(output_buffer, allocator.state);
@@ -248,16 +249,12 @@ void rcutils_logging_console_output_handler(
   }
   fprintf(stream, "%s\n", output_buffer);
 
-  // TODO(dhood) before merge: fix de-allocation
-  // (throws "free(): invalid next size (normal)")
-  /*
-  if (output_buffer != static_output_buffer) {
-    allocator.deallocate(output_buffer, allocator.state);
-  }
-  */
-
   if (message_buffer != buffer) {
     allocator.deallocate(message_buffer, allocator.state);
+  }
+
+  if (output_buffer != static_output_buffer) {
+    allocator.deallocate(output_buffer, allocator.state);
   }
 }
 
