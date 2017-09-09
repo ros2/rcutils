@@ -25,7 +25,7 @@ extern "C"
 #include "rcutils/snprintf.h"
 
 bool g_rcutils_logging_initialized = false;
-const char * g_rcutils_logging_output_format_string = \
+char * g_rcutils_logging_output_format_string = \
   "[{severity}] [{name}]: {message} ({function_name}() at {file_name}:{line_number})";
 
 rcutils_logging_output_handler_t g_rcutils_logging_output_handler = NULL;
@@ -42,7 +42,10 @@ void rcutils_logging_initialize()
     const char * ret;
     ret = rcutils_get_env("RCUTILS_CONSOLE_OUTPUT_FORMAT", &output_format);
     if (!ret && strcmp(output_format, "") != 0) {
-      g_rcutils_logging_output_format_string = output_format;
+      rcutils_allocator_t allocator = rcutils_get_default_allocator();
+      g_rcutils_logging_output_format_string = \
+        allocator.allocate(strlen(output_format) + 1, allocator.state);
+      memcpy(g_rcutils_logging_output_format_string, output_format, strlen(output_format) + 1);
     }
     g_rcutils_logging_initialized = true;
   }
