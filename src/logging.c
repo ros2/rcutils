@@ -89,9 +89,15 @@ void rcutils_log(
 }
 
 void rcutils_logging_console_output_handler(
-  rcutils_log_location_t * location,
+  rcutils_log_location_t * location_,
   int severity, const char * name, const char * format, va_list * args)
 {
+  rcutils_log_location_t * location = location_;
+  rcutils_log_location_t dummy_location = {"", "", 0};
+  if (!location) {
+    location = &dummy_location;
+  }
+
   FILE * stream = NULL;
   const char * severity_string = "";
   switch (severity) {
@@ -148,11 +154,6 @@ void rcutils_logging_console_output_handler(
       return;
     }
     message_buffer = (char *)dynamic_buffer;
-  }
-
-  if (!location) {
-    // TODO(dhood) before merge
-    // location = empty_location;
   }
 
   // Process the format string looking for known tokens
