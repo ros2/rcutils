@@ -26,7 +26,7 @@ extern "C"
 
 bool g_rcutils_logging_initialized = false;
 char g_rcutils_logging_output_format_string[1024];
-static char * rcutils_default_output_format = \
+static char * rcutils_default_output_format =
   "[{severity}] [{name}]: {message} ({function_name}() at {file_name}:{line_number})";
 
 rcutils_logging_output_handler_t g_rcutils_logging_output_handler = NULL;
@@ -163,29 +163,35 @@ void rcutils_logging_console_output_handler(
   // Process the format string looking for known tokens
   char token_start_delimiter = '{';
   char token_end_delimiter = '}';
-  char output_buffer[1024];
-  memset(output_buffer, '\0', sizeof(output_buffer));
+  char static_output_buffer[1024];
+  memset(static_output_buffer, '\0', sizeof(static_output_buffer));
+  // Start with a fixed size buffer and if during token expansion we need longer,
+  // we'll dynamically allocate space.
+  char * output_buffer = static_output_buffer;
+  size_t output_buffer_size = sizeof(static_output_buffer);
   const char * str = g_rcutils_logging_output_format_string;
   size_t size = strlen(g_rcutils_logging_output_format_string);
 
+  int n = 0;
   for (size_t i = 0; i < size; ++i) {
     if (str[i] != token_start_delimiter) {
+      // TODO(dhood) before merge: dynamically allocate more space if required.
       strncat(output_buffer, str + i, 1);
       continue;
     }
     // Found a token start delimiter: determine if there's a token or not.
-    char token[20];  // the largest known token
+    char token[1024];  // No token can be longer than the max format string length.
     memset(token, '\0', sizeof(token));
-    char token_buffer[1024];
-    int n = 0;
+    char static_token_buffer[1024];  // Tokens can't expand to more than this; they'll be truncated.
+    char * token_buffer = static_token_buffer;
     size_t j;
-    // Look for a token end delimiter
+    // Look for a token end delimiter.
     for (j = i + 1; j < size && str[j] != token_end_delimiter; j++) {
     }
     if (j >= size) {
-      // No end delimiters found;
+      // No end delimiters found in the remainder of the format string;
       // there won't be any more tokens so shortcut the rest of the checking
-      n = rcutils_snprintf(token_buffer, sizeof(token_buffer), "%s", severity_string);
+      // TODO(dhood) before merge: dynamically allocate more space if required.
       strncat(output_buffer, token_buffer, n);
       break;
     }
@@ -193,31 +199,62 @@ void rcutils_logging_console_output_handler(
     size_t token_len = j - i - 1;  // not including delimiters
     strncpy(token, str + i + 1, token_len);
     if (strcmp("severity", token) == 0) {
-      n = rcutils_snprintf(token_buffer, sizeof(token_buffer), "%s", severity_string);
+      n = rcutils_snprintf(token_buffer, sizeof(static_token_buffer), "%s", severity_string);
     } else if (strcmp("name", token) == 0) {
-      n = rcutils_snprintf(token_buffer, sizeof(token_buffer), "%s", name);
+      n = rcutils_snprintf(token_buffer, sizeof(static_token_buffer), "%s", name);
     } else if (strcmp("message", token) == 0) {
-      n = rcutils_snprintf(token_buffer, sizeof(token_buffer), "%s", message_buffer);
+      // This has already been expanded above and is able to be larger than the static size.
+      token_buffer = message_buffer;
+      n = strlen(token_buffer);
     } else if (strcmp("function_name", token) == 0) {
-      n = rcutils_snprintf(token_buffer, sizeof(token_buffer), "%s", location->function_name);
+      n =
+        rcutils_snprintf(token_buffer, sizeof(static_token_buffer), "%s", location->function_name);
     } else if (strcmp("file_name", token) == 0) {
-      n = rcutils_snprintf(token_buffer, sizeof(token_buffer), "%s", location->file_name);
+      n = rcutils_snprintf(token_buffer, sizeof(static_token_buffer), "%s", location->file_name);
     } else if (strcmp("line_number", token) == 0) {
-      n = rcutils_snprintf(token_buffer, sizeof(token_buffer), "%zu", location->line_number);
+      n = rcutils_snprintf(token_buffer, sizeof(static_token_buffer), "%zu", location->line_number);
     } else {
       // This wasn't a token; print the start delimiter and continue the search as usual
       // (it might contain more start delimiters)
+      // TODO(dhood) before merge: dynamically allocate more space if required.
       strncat(output_buffer, str + i, 1);
       continue;
     }
 
     if (n >= 0) {
+      size_t required_output_buffer_size = strlen(output_buffer) + n;
+      // printf("Token expansion size=%i, Required output buffer size will be: %zu\n",
+      // n, required_output_buffer_size);
+      if (required_output_buffer_size >= output_buffer_size) {
+        // Token expansion won't fit: allocate more memory dynamically.
+        do {
+          output_buffer_size *= 2;
+        } while (required_output_buffer_size >= output_buffer_size);
+        void * dynamic_output_buffer = allocator.allocate(output_buffer_size, allocator.state);
+        strncpy(dynamic_output_buffer, output_buffer, strlen(output_buffer));
+        /*
+        if (output_buffer != static_output_buffer) {
+          allocator.deallocate(output_buffer, allocator.state);
+        }
+        */
+        output_buffer = (char *)dynamic_output_buffer;
+        // printf("New output buffer size: %zu\n", output_buffer_size);
+      }
       strncat(output_buffer, token_buffer, n);
+      // printf("Output string length=%zu\n", strlen(output_buffer));
       i += token_len + 1;  // Skip ahead to avoid re-printing these characters
       continue;
     }
   }
   fprintf(stream, "%s\n", output_buffer);
+
+  // TODO(dhood) before merge: fix de-allocation
+  // (throws "free(): invalid next size (normal)")
+  /*
+  if (output_buffer != static_output_buffer) {
+    allocator.deallocate(output_buffer, allocator.state);
+  }
+  */
 
   if (message_buffer != buffer) {
     allocator.deallocate(message_buffer, allocator.state);
