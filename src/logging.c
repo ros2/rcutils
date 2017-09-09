@@ -22,6 +22,7 @@ extern "C"
 #include "rcutils/allocator.h"
 #include "rcutils/get_env.h"
 #include "rcutils/logging.h"
+#include "rcutils/snprintf.h"
 
 bool g_rcutils_logging_initialized = false;
 const char * g_rcutils_logging_output_format_string = \
@@ -176,7 +177,7 @@ void rcutils_logging_console_output_handler(
     if (j >= size) {
       // No end delimiters found;
       // there won't be any more tokens so shortcut the rest of the checking
-      n = snprintf(token_buffer, sizeof(token_buffer), "%s", severity_string);
+      n = rcutils_snprintf(token_buffer, sizeof(token_buffer), "%s", severity_string);
       strncat(output_buffer, token_buffer, n);
       break;
     }
@@ -184,17 +185,17 @@ void rcutils_logging_console_output_handler(
     size_t token_len = j - i - 1;  // not including delimiters
     strncpy(token, str + i + 1, token_len);
     if (strcmp("severity", token) == 0) {
-      n = snprintf(token_buffer, sizeof(token_buffer), "%s", severity_string);
+      n = rcutils_snprintf(token_buffer, sizeof(token_buffer), "%s", severity_string);
     } else if (strcmp("name", token) == 0) {
-      n = snprintf(token_buffer, sizeof(token_buffer), "%s", name);
+      n = rcutils_snprintf(token_buffer, sizeof(token_buffer), "%s", name);
     } else if (strcmp("message", token) == 0) {
-      n = snprintf(token_buffer, sizeof(token_buffer), "%s", message_buffer);
+      n = rcutils_snprintf(token_buffer, sizeof(token_buffer), "%s", message_buffer);
     } else if (strcmp("function_name", token) == 0) {
-      n = snprintf(token_buffer, sizeof(token_buffer), "%s", location->function_name);
+      n = rcutils_snprintf(token_buffer, sizeof(token_buffer), "%s", location->function_name);
     } else if (strcmp("file_name", token) == 0) {
-      n = snprintf(token_buffer, sizeof(token_buffer), "%s", location->file_name);
+      n = rcutils_snprintf(token_buffer, sizeof(token_buffer), "%s", location->file_name);
     } else if (strcmp("line_number", token) == 0) {
-      n = snprintf(token_buffer, sizeof(token_buffer), "%zu", location->line_number);
+      n = rcutils_snprintf(token_buffer, sizeof(token_buffer), "%zu", location->line_number);
     } else {
       // This wasn't a token; print the start delimiter and continue the search as usual
       // (it might contain more start delimiters)
