@@ -25,7 +25,7 @@ extern "C"
 
 bool g_rcutils_logging_initialized = false;
 const char * g_rcutils_logging_output_format_string = \
-  "[{severity}] [{name}]: {message} {line_number}";
+  "[{severity}] [{name}]: {message} ({function_name}() at {file_name}:{line_number})";
 
 rcutils_logging_output_handler_t g_rcutils_logging_output_handler = NULL;
 
@@ -185,15 +185,19 @@ void rcutils_logging_console_output_handler(
     strncpy(token, str + i + 1, token_len);
     if (strcmp("severity", token) == 0) {
       n = snprintf(token_buffer, sizeof(token_buffer), "%s", severity_string);
-    } else if (strcmp("line_number", token) == 0) {
-      n = snprintf(token_buffer, sizeof(token_buffer), "%zu", location->line_number);
-    } else if (strcmp("message", token) == 0) {
-      n = snprintf(token_buffer, sizeof(token_buffer), "%s", message_buffer);
     } else if (strcmp("name", token) == 0) {
       n = snprintf(token_buffer, sizeof(token_buffer), "%s", name);
+    } else if (strcmp("message", token) == 0) {
+      n = snprintf(token_buffer, sizeof(token_buffer), "%s", message_buffer);
+    } else if (strcmp("function_name", token) == 0) {
+      n = snprintf(token_buffer, sizeof(token_buffer), "%s", location->function_name);
+    } else if (strcmp("file_name", token) == 0) {
+      n = snprintf(token_buffer, sizeof(token_buffer), "%s", location->file_name);
+    } else if (strcmp("line_number", token) == 0) {
+      n = snprintf(token_buffer, sizeof(token_buffer), "%zu", location->line_number);
     } else {
-      // This wasn't a token.
-      // Print the start delimiter and continue the search as usual (it might contain more start delims)
+      // This wasn't a token; print the start delimiter and continue the search as usual
+      // (it might contain more start delimiters)
       strncat(output_buffer, str + i, 1);
       continue;
     }
