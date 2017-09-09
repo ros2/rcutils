@@ -160,47 +160,49 @@ void rcutils_logging_console_output_handler(
   size_t size = strlen(g_rcutils_logging_output_format_string);
 
   for (size_t i = 0; i < size; ++i) {
-    if (str[i] == token_start_delimiter) {
-      char token[20];
-      memset(token, '\0', sizeof(token));
-      size_t j = i + 1;
-      // Look for a token end delimeter
-      for (j = i + 1; j < size && str[j] != token_end_delimiter; j++) {
-      }
-      if (j >= size) {
-        // No end delimiters found;
-        // there won't be any more tokens so shortcut the rest of the checking
-        snprintf(output_buffer, sizeof(output_buffer), "%s", str + i);
-        break;
-      }
-      size_t token_len = j - i - 1;  // not including delimeters
-      strncpy(token, str + i + 1, token_len);
-      char token_buffer[1024];
-      int n = 0;
-      bool known_token = false;
-      if (strcmp("severity", token) == 0) {
-        n = snprintf(token_buffer, sizeof(token_buffer), "%s", severity_string);
-        known_token = true;
-      }
-      if (!known_token && strcmp("line_number", token) == 0) {
-        n = snprintf(token_buffer, sizeof(token_buffer), "%zu", location->line_number);
-        known_token = true;
-      }
-      if (!known_token && strcmp("message", token) == 0) {
-        n = snprintf(token_buffer, sizeof(token_buffer), "%s", message_buffer);
-        known_token = true;
-      }
-      if (!known_token && strcmp("name", token) == 0) {
-        n = snprintf(token_buffer, sizeof(token_buffer), "%s", name);
-        known_token = true;
-      }
-      if (known_token) {
-        strncat(output_buffer, token_buffer, n);
-        i += token_len + 1;  // Skip ahead to avoid re-printing these characters
-        continue;
-      }
+    if (str[i] != token_start_delimiter) {
+      strncat(output_buffer, str + i, 1);
+      continue;
     }
-    strncat(output_buffer, str + i, 1);
+    // Found a token start delimiter: determine if there's a token or not.
+    char token[20];  // the largest known token
+    memset(token, '\0', sizeof(token));
+    char token_buffer[1024];
+    int n = 0;
+    size_t j;
+    // Look for a token end delimiter
+    for (j = i + 1; j < size && str[j] != token_end_delimiter; j++) {
+    }
+    if (j >= size) {
+      // No end delimiters found;
+      // there won't be any more tokens so shortcut the rest of the checking
+      n = snprintf(token_buffer, sizeof(token_buffer), "%s", severity_string);
+      strncat(output_buffer, token_buffer, n);
+      break;
+    }
+    // Found what looks like a token; determine if it's recognized.
+    size_t token_len = j - i - 1;  // not including delimiters
+    strncpy(token, str + i + 1, token_len);
+    if (strcmp("severity", token) == 0) {
+      n = snprintf(token_buffer, sizeof(token_buffer), "%s", severity_string);
+    } else if (strcmp("line_number", token) == 0) {
+      n = snprintf(token_buffer, sizeof(token_buffer), "%zu", location->line_number);
+    } else if (strcmp("message", token) == 0) {
+      n = snprintf(token_buffer, sizeof(token_buffer), "%s", message_buffer);
+    } else if (strcmp("name", token) == 0) {
+      n = snprintf(token_buffer, sizeof(token_buffer), "%s", name);
+    } else {
+      // This wasn't a token.
+      // Print the start delimiter and continue the search as usual (it might contain more start delims)
+      strncat(output_buffer, str + i, 1);
+      continue;
+    }
+
+    if (n >= 0) {
+      strncat(output_buffer, token_buffer, n);
+      i += token_len + 1;  // Skip ahead to avoid re-printing these characters
+      continue;
+    }
   }
   fprintf(stream, "%s\n", output_buffer);
 
