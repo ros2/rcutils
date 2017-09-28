@@ -207,24 +207,26 @@ void rcutils_logging_console_output_handler(
       RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(chars_to_start_delim, output_buffer_size, allocator, output_buffer, static_output_buffer);
       strncat(output_buffer, str + i, chars_to_start_delim);
       i += chars_to_start_delim;
+      if (i >= size)
+      {
+        break;
+      }
     }
-    // We are at a token start delimiter: determine if there's a token or not.
+    // We are at a token start delimiter: determine if there's a known token or not.
     char token[1024];  // No token can be longer than the max format string length.
     memset(token, '\0', sizeof(token));
-    size_t j;
     // Look for a token end delimiter.
-    for (j = i + 1; j < size && str[j] != token_end_delimiter; j++) {
-    }
-    if (j >= size) {
+    size_t chars_to_end_delim = rcutils_find(str + i, token_end_delimiter);
+    size_t remaining_chars = size - i;
+    if (chars_to_end_delim > remaining_chars) {
       // No end delimiters found in the remainder of the format string;
       // there won't be any more tokens so shortcut the rest of the checking.
-      size_t remaining_chars = size - i;
       RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(remaining_chars, output_buffer_size, allocator, output_buffer, static_output_buffer);
       strncat(output_buffer, str + i, remaining_chars);
       break;
     }
     // Found what looks like a token; determine if it's recognized.
-    size_t token_len = j - i - 1;  // not including delimiters
+    size_t token_len = chars_to_end_delim - 1;  // not including delimiters
     strncpy(token, str + i + 1, token_len);
     if (strcmp("severity", token) == 0) {
       n = strlen(severity_string);
