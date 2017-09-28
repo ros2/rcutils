@@ -20,6 +20,7 @@ extern "C"
 #include <string.h>
 
 #include "rcutils/allocator.h"
+#include "rcutils/find.h"
 #include "rcutils/get_env.h"
 #include "rcutils/logging.h"
 #include "rcutils/snprintf.h"
@@ -182,8 +183,8 @@ void rcutils_logging_console_output_handler(
   }
 
   // Process the format string looking for known tokens
-  char token_start_delimiter = '{';
-  char token_end_delimiter = '}';
+  const char token_start_delimiter = '{';
+  const char token_end_delimiter = '}';
   char static_output_buffer[1024];
   memset(static_output_buffer, '\0', sizeof(static_output_buffer));
   // Start with a fixed size buffer and if during token expansion we need longer,
@@ -195,15 +196,19 @@ void rcutils_logging_console_output_handler(
 
   // Walk through the format string and expand tokens when they're encountered.
   int n = 0;
-  for (size_t i = 0; i < size; ++i) {
+  size_t i = 0;
+  while (i < size) {
     printf("Current output buffer size: %zu\n", strlen(output_buffer));
     printf("Current output buffer: %s\n", output_buffer);
-    if (str[i] != token_start_delimiter) {
-      RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(1, output_buffer_size, allocator, output_buffer, static_output_buffer);
-      strncat(output_buffer, str + i, 1);
-      continue;
+    // Print everything up to the next token start delimiter.
+    size_t chars_to_start_delim = rcutils_find(str + i, token_start_delimiter);
+    if (chars_to_start_delim > 0)
+    {
+      RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(chars_to_start_delim, output_buffer_size, allocator, output_buffer, static_output_buffer);
+      strncat(output_buffer, str + i, chars_to_start_delim);
+      i += chars_to_start_delim;
     }
-    // Found a token start delimiter: determine if there's a token or not.
+    // We are at a token start delimiter: determine if there's a token or not.
     char token[1024];  // No token can be longer than the max format string length.
     memset(token, '\0', sizeof(token));
     size_t j;
@@ -250,11 +255,12 @@ void rcutils_logging_console_output_handler(
       // (the format string might contain more start delimiters)
       RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(1, output_buffer_size, allocator, output_buffer, static_output_buffer);
       strncat(output_buffer, str + i, 1);
+      i++;
       continue;
     }
-    // Skip ahead to avoid re-printing the token characters.
     printf("Token expansion size=%i\n", n);
-    i += token_len + 1;
+    // Skip ahead to avoid re-printing the token characters.
+    i += token_len + 2;  // Also skip the two delimiters
     continue;
   }
   fprintf(stream, "%s\n", output_buffer);
