@@ -92,6 +92,25 @@ void rcutils_log(
   }
 }
 
+#define rcutils_logging_ensure_large_enough_buffer(required_output_buffer_size, output_buffer_size, allocator, output_buffer, static_output_buffer) \
+      printf("Required output buffer size will be: %zu\n", required_output_buffer_size); \
+      if (required_output_buffer_size >= output_buffer_size) { \
+        do { \
+          output_buffer_size *= 2; \
+        } while (required_output_buffer_size >= output_buffer_size); \
+        if (output_buffer == static_output_buffer) \
+        { \
+          printf("Allocating new memory\n"); \
+          void * dynamic_output_buffer = allocator.allocate(output_buffer_size, allocator.state); \
+          memset(dynamic_output_buffer, '\0', output_buffer_size); \
+          strncpy(dynamic_output_buffer, output_buffer, strlen(output_buffer)); \
+          output_buffer = (char *)dynamic_output_buffer; \
+        } else { \
+          printf("Reallocating memory\n"); \
+          output_buffer = (char *)allocator.reallocate(output_buffer, output_buffer_size, allocator.state); \
+        } \
+      }
+
 void rcutils_logging_console_output_handler(
   rcutils_log_location_t * location_,
   int severity, const char * name, const char * format, va_list * args)
@@ -172,8 +191,11 @@ void rcutils_logging_console_output_handler(
   const char * str = g_rcutils_logging_output_format_string;
   size_t size = strlen(g_rcutils_logging_output_format_string);
 
+  // Walk through the format string and expand tokens when they're encountered.
+  // Each token expansion will be truncated, with the exception of the message.
   int n = 0;
   for (size_t i = 0; i < size; ++i) {
+    printf("Current output buffer size: %zu\n", strlen(output_buffer));
     if (str[i] != token_start_delimiter) {
       // TODO(dhood) before merge: dynamically allocate more space if required.
       strncat(output_buffer, str + i, 1);
@@ -190,7 +212,7 @@ void rcutils_logging_console_output_handler(
     }
     if (j >= size) {
       // No end delimiters found in the remainder of the format string;
-      // there won't be any more tokens so shortcut the rest of the checking
+      // there won't be any more tokens so shortcut the rest of the checking.
       // TODO(dhood) before merge: dynamically allocate more space if required.
       strncat(output_buffer, token_buffer, n);
       break;
@@ -207,15 +229,17 @@ void rcutils_logging_console_output_handler(
       token_buffer = message_buffer;
       n = strlen(token_buffer);
     } else if (strcmp("function_name", token) == 0) {
-      n =
-        rcutils_snprintf(token_buffer, sizeof(static_token_buffer), "%s", location->function_name);
+      token_buffer = message_buffer;
+      n = strlen(token_buffer);
+      //n =
+        //rcutils_snprintf(token_buffer, sizeof(static_token_buffer), "%s", location->function_name);
     } else if (strcmp("file_name", token) == 0) {
       n = rcutils_snprintf(token_buffer, sizeof(static_token_buffer), "%s", location->file_name);
     } else if (strcmp("line_number", token) == 0) {
       n = rcutils_snprintf(token_buffer, sizeof(static_token_buffer), "%zu", location->line_number);
     } else {
       // This wasn't a token; print the start delimiter and continue the search as usual
-      // (it might contain more start delimiters)
+      // (the format string might contain more start delimiters)
       // TODO(dhood) before merge: dynamically allocate more space if required.
       strncat(output_buffer, str + i, 1);
       continue;
@@ -223,26 +247,9 @@ void rcutils_logging_console_output_handler(
 
     if (n >= 0) {
       size_t required_output_buffer_size = strlen(output_buffer) + n;
-      // printf("Token expansion size=%i, Required output buffer size will be: %zu\n",
-      // n, required_output_buffer_size);
-      if (required_output_buffer_size >= output_buffer_size) {
-        // Token expansion won't fit: allocate more memory dynamically.
-        do {
-          output_buffer_size *= 2;
-        } while (required_output_buffer_size >= output_buffer_size);
-        void * dynamic_output_buffer = allocator.allocate(output_buffer_size, allocator.state);
-        strncpy(dynamic_output_buffer, output_buffer, strlen(output_buffer));
-        // TODO(dhood): uncomment this once it's tested.
-        /*
-        if (output_buffer != static_output_buffer) {
-          allocator.deallocate(output_buffer, allocator.state);
-        }
-        */
-        output_buffer = (char *)dynamic_output_buffer;
-        // printf("New output buffer size: %zu\n", output_buffer_size);
-      }
+      printf("Token expansion size=%i\n", n);
+      rcutils_logging_ensure_large_enough_buffer(required_output_buffer_size, output_buffer_size, allocator, output_buffer, static_output_buffer);
       strncat(output_buffer, token_buffer, n);
-      // printf("Output string length=%zu\n", strlen(output_buffer));
       i += token_len + 1;  // Skip ahead to avoid re-printing these characters
       continue;
     }
