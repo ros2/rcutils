@@ -92,7 +92,7 @@ void rcutils_log(
   }
 }
 
-#define rcutils_logging_ensure_large_enough_buffer(required_output_buffer_size, output_buffer_size, allocator, output_buffer, static_output_buffer) \
+#define RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(required_output_buffer_size, output_buffer_size, allocator, output_buffer, static_output_buffer) \
       printf("Required output buffer size will be: %zu\n", required_output_buffer_size); \
       if (required_output_buffer_size >= output_buffer_size) { \
         do { \
@@ -199,7 +199,7 @@ void rcutils_logging_console_output_handler(
     printf("Current output buffer size: %zu\n", strlen(output_buffer));
     if (str[i] != token_start_delimiter) {
       size_t required_output_buffer_size = strlen(output_buffer) + 1;
-      rcutils_logging_ensure_large_enough_buffer(required_output_buffer_size, output_buffer_size, allocator, output_buffer, static_output_buffer);
+      RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(required_output_buffer_size, output_buffer_size, allocator, output_buffer, static_output_buffer);
       strncat(output_buffer, str + i, 1);
       continue;
     }
@@ -216,7 +216,7 @@ void rcutils_logging_console_output_handler(
       // No end delimiters found in the remainder of the format string;
       // there won't be any more tokens so shortcut the rest of the checking.
       size_t required_output_buffer_size = strlen(output_buffer) + n;
-      rcutils_logging_ensure_large_enough_buffer(required_output_buffer_size, output_buffer_size, allocator, output_buffer, static_output_buffer);
+      RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(required_output_buffer_size, output_buffer_size, allocator, output_buffer, static_output_buffer);
       strncat(output_buffer, token_buffer, n);
       break;
     }
@@ -232,10 +232,8 @@ void rcutils_logging_console_output_handler(
       token_buffer = message_buffer;
       n = strlen(token_buffer);
     } else if (strcmp("function_name", token) == 0) {
-      token_buffer = message_buffer;
-      n = strlen(token_buffer);
-      //n =
-        //rcutils_snprintf(token_buffer, sizeof(static_token_buffer), "%s", location->function_name);
+      n =
+        rcutils_snprintf(token_buffer, sizeof(static_token_buffer), "%s", location->function_name);
     } else if (strcmp("file_name", token) == 0) {
       n = rcutils_snprintf(token_buffer, sizeof(static_token_buffer), "%s", location->file_name);
     } else if (strcmp("line_number", token) == 0) {
@@ -245,14 +243,14 @@ void rcutils_logging_console_output_handler(
       // (the format string might contain more start delimiters)
       strncat(output_buffer, str + i, 1);
       size_t required_output_buffer_size = strlen(output_buffer) + 1;
-      rcutils_logging_ensure_large_enough_buffer(required_output_buffer_size, output_buffer_size, allocator, output_buffer, static_output_buffer);
+      RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(required_output_buffer_size, output_buffer_size, allocator, output_buffer, static_output_buffer);
       continue;
     }
 
     if (n >= 0) {
       size_t required_output_buffer_size = strlen(output_buffer) + n;
       printf("Token expansion size=%i\n", n);
-      rcutils_logging_ensure_large_enough_buffer(required_output_buffer_size, output_buffer_size, allocator, output_buffer, static_output_buffer);
+      RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(required_output_buffer_size, output_buffer_size, allocator, output_buffer, static_output_buffer);
       strncat(output_buffer, token_buffer, n);
       i += token_len + 1;  // Skip ahead to avoid re-printing these characters
       continue;
