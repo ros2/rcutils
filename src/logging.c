@@ -247,9 +247,10 @@ void rcutils_logging_console_output_handler(
       RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(n, output_buffer_size, allocator, output_buffer, static_output_buffer);
       strncat(output_buffer, location->file_name, n);
     } else if (strcmp("line_number", token) == 0) {
-      n = snprintf(NULL, 0, "%zu", location->line_number);
+      char line_number_expansion[10];  // Allow 9 digits for the line number expansion.
+      n = snprintf(line_number_expansion, sizeof(line_number_expansion), "%zu", location->line_number);
       RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(n, output_buffer_size, allocator, output_buffer, static_output_buffer);
-      rcutils_snprintf(output_buffer, output_buffer_size, "%zu", location->line_number);
+      strncat(output_buffer, line_number_expansion, n);
     } else {
       // This wasn't a token; print the start delimiter and continue the search as usual
       // (the format string might contain more start delimiters)
