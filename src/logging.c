@@ -25,9 +25,11 @@ extern "C"
 #include "rcutils/logging.h"
 #include "rcutils/snprintf.h"
 
+#define RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN 1024
+
 bool g_rcutils_logging_initialized = false;
-char g_rcutils_logging_output_format_string[1024];
-static char * rcutils_default_output_format =
+char g_rcutils_logging_output_format_string[RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN];
+static const char * rcutils_default_output_format =
   "[{severity}] [{name}]: {message} ({function_name}() at {file_name}:{line_number})";
 
 rcutils_logging_output_handler_t g_rcutils_logging_output_handler = NULL;
@@ -40,18 +42,17 @@ void rcutils_logging_initialize()
     g_rcutils_logging_output_handler = &rcutils_logging_console_output_handler;
     g_rcutils_logging_severity_threshold = RCUTILS_LOG_SEVERITY_INFO;
 
-    int max_output_format_len = sizeof(g_rcutils_logging_output_format_string);
-    memset(g_rcutils_logging_output_format_string, '\0', max_output_format_len);
     // Check for the environment variable for custom output formatting
     const char * output_format;
-    const char * ret;
-    ret = rcutils_get_env("RCUTILS_CONSOLE_OUTPUT_FORMAT", &output_format);
+    const char * ret = rcutils_get_env("RCUTILS_CONSOLE_OUTPUT_FORMAT", &output_format);
     if (!ret && strcmp(output_format, "") != 0) {
-      strncpy(g_rcutils_logging_output_format_string, output_format, max_output_format_len - 1);
+      strncpy(g_rcutils_logging_output_format_string, output_format,
+        RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN);
     } else {
-      strncpy(g_rcutils_logging_output_format_string, rcutils_default_output_format, \
-        max_output_format_len - 1);
+      strncpy(g_rcutils_logging_output_format_string, rcutils_default_output_format,
+        RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN);
     }
+    g_rcutils_logging_output_format_string[RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN - 1] = '\0';
     g_rcutils_logging_initialized = true;
   }
 }
@@ -104,9 +105,9 @@ void rcutils_log(
         { \
           printf("Allocating new memory\n"); \
           void * dynamic_output_buffer = allocator.allocate(output_buffer_size, allocator.state); \
-          memset(dynamic_output_buffer, '\0', output_buffer_size); \
-          strncpy(dynamic_output_buffer, output_buffer, strlen(output_buffer)); \
+          strncpy(dynamic_output_buffer, output_buffer, output_buffer_size); \
           output_buffer = (char *)dynamic_output_buffer; \
+          output_buffer[output_buffer_size - 1] = '\0'; \
         } else { \
           printf("Reallocating memory\n"); \
           output_buffer = (char *)allocator.reallocate(output_buffer, output_buffer_size, allocator.state); \
@@ -186,7 +187,7 @@ void rcutils_logging_console_output_handler(
   const char token_start_delimiter = '{';
   const char token_end_delimiter = '}';
   char static_output_buffer[1024];
-  memset(static_output_buffer, '\0', sizeof(static_output_buffer));
+  static_output_buffer[0] = '\0';
   // Start with a fixed size buffer and if during token expansion we need longer,
   // we'll dynamically allocate space.
   char * output_buffer = static_output_buffer;
@@ -213,8 +214,8 @@ void rcutils_logging_console_output_handler(
       }
     }
     // We are at a token start delimiter: determine if there's a known token or not.
-    char token[1024];  // No token can be longer than the max format string length.
-    memset(token, '\0', sizeof(token));
+    // Potential tokens can't possibly be longer than the format string itself.
+    char token[RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN];
     // Look for a token end delimiter.
     size_t chars_to_end_delim = rcutils_find(str + i, token_end_delimiter);
     size_t remaining_chars = size - i;
@@ -226,8 +227,9 @@ void rcutils_logging_console_output_handler(
       break;
     }
     // Found what looks like a token; determine if it's recognized.
-    size_t token_len = chars_to_end_delim - 1;  // not including delimiters
+    size_t token_len = chars_to_end_delim - 1;  // Not including delimiters
     strncpy(token, str + i + 1, token_len);
+    token[token_len] = '\0';
     if (strcmp("severity", token) == 0) {
       n = strlen(severity_string);
       RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(n, output_buffer_size, allocator, output_buffer, static_output_buffer);
