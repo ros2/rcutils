@@ -109,6 +109,7 @@ void rcutils_log(
           printf("Reallocating memory\n"); \
           output_buffer = (char *)allocator.reallocate(output_buffer, output_buffer_size, allocator.state); \
         } \
+        printf("Size of output buffer is now: %zu\n", output_buffer_size); \
       }
 
 void rcutils_logging_console_output_handler(
@@ -197,7 +198,8 @@ void rcutils_logging_console_output_handler(
   for (size_t i = 0; i < size; ++i) {
     printf("Current output buffer size: %zu\n", strlen(output_buffer));
     if (str[i] != token_start_delimiter) {
-      // TODO(dhood) before merge: dynamically allocate more space if required.
+      size_t required_output_buffer_size = strlen(output_buffer) + 1;
+      rcutils_logging_ensure_large_enough_buffer(required_output_buffer_size, output_buffer_size, allocator, output_buffer, static_output_buffer);
       strncat(output_buffer, str + i, 1);
       continue;
     }
@@ -213,7 +215,8 @@ void rcutils_logging_console_output_handler(
     if (j >= size) {
       // No end delimiters found in the remainder of the format string;
       // there won't be any more tokens so shortcut the rest of the checking.
-      // TODO(dhood) before merge: dynamically allocate more space if required.
+      size_t required_output_buffer_size = strlen(output_buffer) + n;
+      rcutils_logging_ensure_large_enough_buffer(required_output_buffer_size, output_buffer_size, allocator, output_buffer, static_output_buffer);
       strncat(output_buffer, token_buffer, n);
       break;
     }
@@ -240,8 +243,9 @@ void rcutils_logging_console_output_handler(
     } else {
       // This wasn't a token; print the start delimiter and continue the search as usual
       // (the format string might contain more start delimiters)
-      // TODO(dhood) before merge: dynamically allocate more space if required.
       strncat(output_buffer, str + i, 1);
+      size_t required_output_buffer_size = strlen(output_buffer) + 1;
+      rcutils_logging_ensure_large_enough_buffer(required_output_buffer_size, output_buffer_size, allocator, output_buffer, static_output_buffer);
       continue;
     }
 
