@@ -61,15 +61,18 @@ TEST_F(CLASSNAME(TestAllocatorFixture, RMW_IMPLEMENTATION), test_default_allocat
   size_t mallocs = 0;
   size_t reallocs = 0;
   size_t frees = 0;
-  set_on_unexpected_malloc_callback([&mallocs]() {
-    mallocs++;
-  });
-  set_on_unexpected_realloc_callback([&reallocs]() {
-    reallocs++;
-  });
-  set_on_unexpected_free_callback([&frees]() {
-    frees++;
-  });
+  set_on_unexpected_malloc_callback(
+    [&mallocs]() {
+      mallocs++;
+    });
+  set_on_unexpected_realloc_callback(
+    [&reallocs]() {
+      reallocs++;
+    });
+  set_on_unexpected_free_callback(
+    [&frees]() {
+      frees++;
+    });
   assert_no_malloc_begin();
   assert_no_realloc_begin();
   assert_no_free_begin();

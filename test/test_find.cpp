@@ -20,7 +20,7 @@
 
 #if ENABLE_LOGGING
 #define LOG(expected, actual) { \
-    printf("Expected: %zu Actual: %zu\n", expected, actual); }
+    printf("Expected: %zu Actual: %zu\n", expected, actual);}
 #else
 #define LOG(X, arg) {}
 #endif
