@@ -46,13 +46,16 @@ void rcutils_logging_initialize()
     const char * output_format;
     const char * ret = rcutils_get_env("RCUTILS_CONSOLE_OUTPUT_FORMAT", &output_format);
     if (!ret && strcmp(output_format, "") != 0) {
-      strncpy(g_rcutils_logging_output_format_string, output_format,
-        RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN);
+      size_t chars_to_copy = strlen(output_format);
+      if (chars_to_copy > RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN - 1) {
+        chars_to_copy = RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN - 1;
+      }
+      memcpy(g_rcutils_logging_output_format_string, output_format, chars_to_copy);
+      g_rcutils_logging_output_format_string[chars_to_copy] = '\0';
     } else {
-      strncpy(g_rcutils_logging_output_format_string, rcutils_default_output_format,
-        RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN);
+      memcpy(g_rcutils_logging_output_format_string, rcutils_default_output_format,
+        strlen(rcutils_default_output_format) + 1);
     }
-    g_rcutils_logging_output_format_string[RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN - 1] = '\0';
     g_rcutils_logging_initialized = true;
   }
 }
@@ -107,7 +110,7 @@ void rcutils_log(
     if (output_buffer == static_output_buffer) { \
       void * dynamic_output_buffer = allocator.allocate(output_buffer_size, allocator.state); \
       memset(dynamic_output_buffer, '\0', output_buffer_size); \
-      strncpy(dynamic_output_buffer, output_buffer, output_buffer_size); \
+      memcpy(dynamic_output_buffer, output_buffer, strlen(output_buffer)); \
       output_buffer = (char *)dynamic_output_buffer; \
       output_buffer[output_buffer_size - 1] = '\0'; \
     } else { \
@@ -234,7 +237,7 @@ void rcutils_logging_console_output_handler(
     }
     // Found what looks like a token; determine if it's recognized.
     size_t token_len = chars_to_end_delim - 1;  // Not including delimiters.
-    strncpy(token, str + i + 1, token_len);  // Skip the start delimiter.
+    memcpy(token, str + i + 1, token_len);  // Skip the start delimiter.
     token[token_len] = '\0';
     if (strcmp("severity", token) == 0) {
       n = strlen(severity_string);
