@@ -206,6 +206,10 @@ void rcutils_logging_console_output_handler(
     size_t chars_to_start_delim = rcutils_find(str + i, token_start_delimiter);
     size_t remaining_chars = size - i;
     if (chars_to_start_delim > 0) {
+      if (chars_to_start_delim > remaining_chars) {
+        // Don't allow for printing more than what's left if we didn't find a start delimiter.
+        chars_to_start_delim = remaining_chars;
+      }
       RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(
         chars_to_start_delim, output_buffer_size, allocator, output_buffer, static_output_buffer)
       memcpy(output_buffer + strlen(output_buffer), str + i, chars_to_start_delim);
