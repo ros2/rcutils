@@ -139,6 +139,12 @@ if(BUILD_TESTING)
     WORKING_DIRECTORY "$<TARGET_FILE_DIR:test_logging_long_messages>"
     TIMEOUT 10)
 
+  ament_add_nose_test(test_logging_output_format
+    "test/test_logging_output_format.py"
+    APPEND_LIBRARY_DIRS ${extra_lib_dirs}
+    WORKING_DIRECTORY "$<TARGET_FILE_DIR:test_logging_long_messages>"
+    TIMEOUT 10)
+
   ament_add_gmock(test_logging_macros test/test_logging_macros.cpp
     APPEND_LIBRARY_DIRS ${extra_lib_dirs})
   target_link_libraries(test_logging_macros ${PROJECT_NAME})
