@@ -202,7 +202,7 @@ void rcutils_logging_console_output_handler(
   size_t size = strlen(g_rcutils_logging_output_format_string);
 
   // Walk through the format string and expand tokens when they're encountered.
-  int n = 0;
+  size_t n = 0;
   size_t i = 0;
   while (i < size) {
     // Print everything up to the next token start delimiter.
@@ -266,7 +266,7 @@ void rcutils_logging_console_output_handler(
       memcpy(output_buffer + strlen(output_buffer), location->file_name, n);
     } else if (strcmp("line_number", token) == 0) {
       char line_number_expansion[10];  // Allow 9 digits for the line number expansion.
-      n = snprintf(
+      n = (size_t)snprintf(
         line_number_expansion, sizeof(line_number_expansion), "%zu", location->line_number);
       RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(
         n, output_buffer_size, allocator, output_buffer, static_output_buffer)
