@@ -94,26 +94,26 @@ void rcutils_log(
   }
 }
 
-#define RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(n, output_buffer_size, allocator, output_buffer, static_output_buffer) \
-      size_t required_output_buffer_size = strlen(output_buffer) + n; \
-      printf("Required output buffer size will be: %zu\n", required_output_buffer_size); \
-      if (required_output_buffer_size >= output_buffer_size) { \
-        do { \
-          output_buffer_size *= 2; \
-        } while (required_output_buffer_size >= output_buffer_size); \
-        if (output_buffer == static_output_buffer) \
-        { \
-          printf("Allocating new memory\n"); \
-          void * dynamic_output_buffer = allocator.allocate(output_buffer_size, allocator.state); \
-          strncpy(dynamic_output_buffer, output_buffer, output_buffer_size); \
-          output_buffer = (char *)dynamic_output_buffer; \
-          output_buffer[output_buffer_size - 1] = '\0'; \
-        } else { \
-          printf("Reallocating memory\n"); \
-          output_buffer = (char *)allocator.reallocate(output_buffer, output_buffer_size, allocator.state); \
-        } \
-        printf("Size of output buffer is now: %zu\n", output_buffer_size); \
-      }
+// Macro for (re)allocating a dynamic buffer if the ouput buffer doesn't have enough space for an
+// additional n characters. Whether to allocate or re-allocate is determined by if the
+// output_buffer points to the original static_output_buffer or not.
+#define RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(n, output_buffer_size, allocator, \
+    output_buffer, static_output_buffer) \
+  size_t required_output_buffer_size = strlen(output_buffer) + n; \
+  if (required_output_buffer_size >= output_buffer_size) { \
+    do { \
+      output_buffer_size *= 2; \
+    } while (required_output_buffer_size >= output_buffer_size); \
+    if (output_buffer == static_output_buffer) { \
+      void * dynamic_output_buffer = allocator.allocate(output_buffer_size, allocator.state); \
+      strncpy(dynamic_output_buffer, output_buffer, output_buffer_size); \
+      output_buffer = (char *)dynamic_output_buffer; \
+      output_buffer[output_buffer_size - 1] = '\0'; \
+    } else { \
+      output_buffer = (char *)allocator.reallocate(output_buffer, output_buffer_size, \
+          allocator.state); \
+    } \
+  }
 
 void rcutils_logging_console_output_handler(
   rcutils_log_location_t * location_,
@@ -183,13 +183,13 @@ void rcutils_logging_console_output_handler(
     message_buffer = (char *)dynamic_buffer;
   }
 
-  // Process the format string looking for known tokens
+  // Process the format string looking for known tokens.
   const char token_start_delimiter = '{';
   const char token_end_delimiter = '}';
-  char static_output_buffer[1024];
-  static_output_buffer[0] = '\0';
   // Start with a fixed size buffer and if during token expansion we need longer,
   // we'll dynamically allocate space.
+  char static_output_buffer[1024];
+  static_output_buffer[0] = '\0';
   char * output_buffer = static_output_buffer;
   size_t output_buffer_size = sizeof(static_output_buffer);
   const char * str = g_rcutils_logging_output_format_string;
@@ -199,17 +199,14 @@ void rcutils_logging_console_output_handler(
   int n = 0;
   size_t i = 0;
   while (i < size) {
-    printf("Current output buffer size: %zu\n", strlen(output_buffer));
-    printf("Current output buffer: %s\n", output_buffer);
     // Print everything up to the next token start delimiter.
     size_t chars_to_start_delim = rcutils_find(str + i, token_start_delimiter);
-    if (chars_to_start_delim > 0)
-    {
-      RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(chars_to_start_delim, output_buffer_size, allocator, output_buffer, static_output_buffer);
+    if (chars_to_start_delim > 0) {
+      RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(
+        chars_to_start_delim, output_buffer_size, allocator, output_buffer, static_output_buffer)
       strncat(output_buffer, str + i, chars_to_start_delim);
       i += chars_to_start_delim;
-      if (i >= size)
-      {
+      if (i >= size) {
         break;
       }
     }
@@ -222,50 +219,58 @@ void rcutils_logging_console_output_handler(
     if (chars_to_end_delim > remaining_chars) {
       // No end delimiters found in the remainder of the format string;
       // there won't be any more tokens so shortcut the rest of the checking.
-      RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(remaining_chars, output_buffer_size, allocator, output_buffer, static_output_buffer);
+      RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(
+        remaining_chars, output_buffer_size, allocator, output_buffer, static_output_buffer)
       strncat(output_buffer, str + i, remaining_chars);
       break;
     }
     // Found what looks like a token; determine if it's recognized.
-    size_t token_len = chars_to_end_delim - 1;  // Not including delimiters
-    strncpy(token, str + i + 1, token_len);
+    size_t token_len = chars_to_end_delim - 1;  // Not including delimiters.
+    strncpy(token, str + i + 1, token_len);  // Skip the start delimiter.
     token[token_len] = '\0';
     if (strcmp("severity", token) == 0) {
       n = strlen(severity_string);
-      RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(n, output_buffer_size, allocator, output_buffer, static_output_buffer);
+      RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(
+        n, output_buffer_size, allocator, output_buffer, static_output_buffer)
       strncat(output_buffer, severity_string, n);
     } else if (strcmp("name", token) == 0) {
       n = strlen(name);
-      RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(n, output_buffer_size, allocator, output_buffer, static_output_buffer);
+      RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(
+        n, output_buffer_size, allocator, output_buffer, static_output_buffer)
       strncat(output_buffer, name, n);
     } else if (strcmp("message", token) == 0) {
       n = strlen(message_buffer);
-      RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(n, output_buffer_size, allocator, output_buffer, static_output_buffer);
+      RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(
+        n, output_buffer_size, allocator, output_buffer, static_output_buffer)
       strncat(output_buffer, message_buffer, n);
     } else if (strcmp("function_name", token) == 0) {
       n = strlen(location->function_name);
-      RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(n, output_buffer_size, allocator, output_buffer, static_output_buffer);
+      RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(
+        n, output_buffer_size, allocator, output_buffer, static_output_buffer)
       strncat(output_buffer, location->function_name, n);
     } else if (strcmp("file_name", token) == 0) {
       n = strlen(location->file_name);
-      RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(n, output_buffer_size, allocator, output_buffer, static_output_buffer);
+      RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(
+        n, output_buffer_size, allocator, output_buffer, static_output_buffer)
       strncat(output_buffer, location->file_name, n);
     } else if (strcmp("line_number", token) == 0) {
       char line_number_expansion[10];  // Allow 9 digits for the line number expansion.
-      n = snprintf(line_number_expansion, sizeof(line_number_expansion), "%zu", location->line_number);
-      RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(n, output_buffer_size, allocator, output_buffer, static_output_buffer);
+      n = snprintf(
+        line_number_expansion, sizeof(line_number_expansion), "%zu", location->line_number);
+      RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(
+        n, output_buffer_size, allocator, output_buffer, static_output_buffer)
       strncat(output_buffer, line_number_expansion, n);
     } else {
       // This wasn't a token; print the start delimiter and continue the search as usual
-      // (the format string might contain more start delimiters)
-      RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(1, output_buffer_size, allocator, output_buffer, static_output_buffer);
+      // (the format string might contain more start delimiters).
+      RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(
+        1, output_buffer_size, allocator, output_buffer, static_output_buffer)
       strncat(output_buffer, str + i, 1);
       i++;
       continue;
     }
-    printf("Token expansion size=%i\n", n);
-    // Skip ahead to avoid re-printing the token characters.
-    i += token_len + 2;  // Also skip the two delimiters
+    // Skip ahead to avoid re-processing the token characters (including the 2 delimiters).
+    i += token_len + 2;
     continue;
   }
   fprintf(stream, "%s\n", output_buffer);
