@@ -271,9 +271,17 @@ void rcutils_logging_console_output_handler(
         n, output_buffer_size, allocator, output_buffer, static_output_buffer)
       memcpy(output_buffer + strlen(output_buffer), location->file_name, n);
     } else if (strcmp("line_number", token) == 0) {
-      char line_number_expansion[10];  // Allow 9 digits for the line number expansion.
-      n = (size_t)snprintf(
+      char line_number_expansion[10];  // Allow 9 digits for the expansion (otherwise, truncate).
+      written = rcutils_snprintf(
         line_number_expansion, sizeof(line_number_expansion), "%zu", location->line_number);
+      if (written < 0) {
+        fprintf(
+          stderr,
+          "failed to format line number: '%zu'\n",
+          location->line_number);
+        return;
+      }
+      n = (size_t)written;
       RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(
         n, output_buffer_size, allocator, output_buffer, static_output_buffer)
       memcpy(output_buffer + strlen(output_buffer), line_number_expansion, n);
