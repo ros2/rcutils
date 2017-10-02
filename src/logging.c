@@ -97,11 +97,16 @@ void rcutils_log(
   }
 }
 
-// Macro for (re)allocating a dynamic buffer if the ouput buffer doesn't have enough space for an
-// additional n characters. Whether to allocate or re-allocate is determined by if the
-// output_buffer points to the original static_output_buffer or not.
-#define RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(n, output_buffer_size, allocator, \
-    output_buffer, static_output_buffer) \
+/*!
+  RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(
+   n, output_buffer_size, allocator, output_buffer, static_output_buffer)
+  Macro for (re)allocating a dynamic buffer if the ouput buffer doesn't have enough space for an
+  additional n characters. Whether to allocate or re-allocate is determined by if the
+  output_buffer points to the original static_output_buffer or not.
+*/
+
+#define RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER( \
+    n, output_buffer_size, allocator, output_buffer, static_output_buffer) \
   size_t required_output_buffer_size = strlen(output_buffer) + n; \
   if (required_output_buffer_size >= output_buffer_size) { \
     do { \
@@ -114,10 +119,10 @@ void rcutils_log(
       output_buffer = (char *)dynamic_output_buffer; \
       output_buffer[output_buffer_size - 1] = '\0'; \
     } else { \
-      output_buffer = (char *)allocator.reallocate(output_buffer, output_buffer_size, \
-          allocator.state); \
-      memset(output_buffer + strlen(output_buffer), '\0', \
-        output_buffer_size - strlen(output_buffer)); \
+      output_buffer = (char *)allocator.reallocate( \
+        output_buffer, output_buffer_size, allocator.state); \
+      memset( \
+        output_buffer + strlen(output_buffer), '\0', output_buffer_size - strlen(output_buffer)); \
     } \
   }
 
@@ -210,7 +215,7 @@ void rcutils_logging_console_output_handler(
     size_t remaining_chars = size - i;
     if (chars_to_start_delim > 0) {
       if (chars_to_start_delim > remaining_chars) {
-        // Don't allow for printing more than what's left if we didn't find a start delimiter.
+        // No start delimiters found; don't allow printing more of than what's left if.
         chars_to_start_delim = remaining_chars;
       }
       RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(
@@ -273,7 +278,7 @@ void rcutils_logging_console_output_handler(
       memcpy(output_buffer + strlen(output_buffer), line_number_expansion, n);
     } else {
       // This wasn't a token; print the start delimiter and continue the search as usual
-      // (the format string might contain more start delimiters).
+      // (the substring might contain more start delimiters).
       RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(
         1, output_buffer_size, allocator, output_buffer, static_output_buffer)
       memcpy(output_buffer + strlen(output_buffer), str + i, 1);
