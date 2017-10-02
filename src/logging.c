@@ -101,13 +101,14 @@ void rcutils_log(
   RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(
    n, output_buffer_size, allocator, output_buffer, static_output_buffer)
   Macro for (re)allocating a dynamic buffer if the ouput buffer doesn't have enough space for an
-  additional n characters. Whether to allocate or re-allocate is determined by if the
-  output_buffer points to the original static_output_buffer or not.
+  additional n characters and null terminator. Whether to allocate or re-allocate is determined by
+  if the output_buffer points to the original static_output_buffer or not. If a new buffer is
+  allocated it will be padded with NUL.
 */
 
 #define RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER( \
     n, output_buffer_size, allocator, output_buffer, static_output_buffer) \
-  size_t required_output_buffer_size = strlen(output_buffer) + n; \
+  size_t required_output_buffer_size = strlen(output_buffer) + n + 1; \
   if (required_output_buffer_size >= output_buffer_size) { \
     do { \
       output_buffer_size *= 2; \
