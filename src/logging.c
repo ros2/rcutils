@@ -24,6 +24,7 @@ extern "C"
 #include "rcutils/get_env.h"
 #include "rcutils/logging.h"
 #include "rcutils/snprintf.h"
+#include "rcutils/types/string_map.h"
 
 #define RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN 2048
 
@@ -33,6 +34,7 @@ static const char * g_rcutils_logging_default_output_format =
   "[{severity}] [{name}]: {message} ({function_name}() at {file_name}:{line_number})";
 
 rcutils_logging_output_handler_t g_rcutils_logging_output_handler = NULL;
+rcutils_string_map_t g_rcutils_logging_severities_map;
 
 int g_rcutils_logging_severity_threshold = 0;
 
@@ -62,6 +64,11 @@ void rcutils_logging_initialize()
       memcpy(g_rcutils_logging_output_format_string, g_rcutils_logging_default_output_format,
         strlen(g_rcutils_logging_default_output_format) + 1);
     }
+
+    g_rcutils_logging_severities_map = rcutils_get_zero_initialized_string_map();
+    rcutils_allocator_t allocator = rcutils_get_default_allocator();
+    rcutils_ret_t ret = rcutils_string_map_init(&g_rcutils_logging_severities_map, 0, allocator);
+
     g_rcutils_logging_initialized = true;
   }
 }
@@ -78,13 +85,61 @@ void rcutils_logging_set_output_handler(rcutils_logging_output_handler_t functio
 
 int rcutils_logging_get_severity_threshold()
 {
+  RCUTILS_LOGGING_AUTOINIT
   return g_rcutils_logging_severity_threshold;
+}
+
+int rcutils_logging_get_logger_severity_threshold(const char * name)
+{
+  RCUTILS_LOGGING_AUTOINIT
+  const char * severity_string = rcutils_string_map_get(&g_rcutils_logging_severities_map, name);
+  if (!severity_string) {
+    //error
+    return g_rcutils_logging_severity_threshold;
+  }
+  int severity;
+  if (strcmp("DEBUG", severity_string) == 0) {
+    severity = RCUTILS_LOG_SEVERITY_DEBUG;
+  } else if (strcmp("INFO", severity_string) == 0) {
+    severity = RCUTILS_LOG_SEVERITY_INFO;
+  } else if (strcmp("WARN", severity_string) == 0) {
+    severity = RCUTILS_LOG_SEVERITY_WARN;
+  } else if (strcmp("ERROR", severity_string) == 0) {
+    severity = RCUTILS_LOG_SEVERITY_ERROR;
+  } else if (strcmp("FATAL", severity_string) == 0) {
+    severity = RCUTILS_LOG_SEVERITY_FATAL;
+  } else {
+    severity = g_rcutils_logging_severity_threshold;
+  }
+  return severity;
 }
 
 void rcutils_logging_set_severity_threshold(int severity)
 {
   RCUTILS_LOGGING_AUTOINIT
     g_rcutils_logging_severity_threshold = severity;
+}
+
+void rcutils_logging_set_logger_severity_threshold(const char * name, int severity)
+{
+  RCUTILS_LOGGING_AUTOINIT
+
+  const char * severity_string;
+  if (RCUTILS_LOG_SEVERITY_DEBUG == severity) {
+    severity_string = "DEBUG";
+  } else if (RCUTILS_LOG_SEVERITY_INFO == severity  ) {
+    severity_string = "INFO";
+  } else if (RCUTILS_LOG_SEVERITY_WARN == severity  ) {
+    severity_string = "WARN";
+  } else if (RCUTILS_LOG_SEVERITY_ERROR == severity  ) {
+    severity_string = "ERROR";
+  } else if (RCUTILS_LOG_SEVERITY_FATAL == severity  ) {
+    severity_string = "FATAL";
+  } else {
+    // error
+    return;
+  }
+  rcutils_ret_t ret = rcutils_string_map_set(&g_rcutils_logging_severities_map, name, severity_string);
 }
 
 void rcutils_log(
