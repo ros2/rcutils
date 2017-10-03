@@ -173,14 +173,14 @@ void rcutils_logging_console_output_handler(
       return;
   }
 
-  char buffer[1024];
-  char * message_buffer = buffer;
+  char static_message_buffer[1024];
+  char * message_buffer = static_message_buffer;
   int written;
   {
     // use copy of args to keep args for potential later user
     va_list args_clone;
     va_copy(args_clone, *args);
-    written = vsnprintf(buffer, sizeof(buffer), format, args_clone);
+    written = vsnprintf(static_message_buffer, sizeof(static_message_buffer), format, args_clone);
     va_end(args_clone);
   }
   if (written < 0) {
@@ -188,24 +188,24 @@ void rcutils_logging_console_output_handler(
     return;
   }
   rcutils_allocator_t allocator = rcutils_get_default_allocator();
-  if ((size_t)written >= sizeof(buffer)) {
+  if ((size_t)written >= sizeof(static_message_buffer)) {
     // write was incomplete, allocate necessary memory dynamically
-    size_t buffer_size = written + 1;
-    void * dynamic_buffer = allocator.allocate(buffer_size, allocator.state);
-    if (!dynamic_buffer) {
+    size_t message_buffer_size = written + 1;
+    void * dynamic_message_buffer = allocator.allocate(message_buffer_size, allocator.state);
+    if (!dynamic_message_buffer) {
       fprintf(stderr, "failed to allocate buffer for message\n");
       return;
     }
-    written = vsnprintf(dynamic_buffer, buffer_size, format, *args);
-    if (written < 0 || (size_t)written >= buffer_size) {
+    written = vsnprintf(dynamic_message_buffer, message_buffer_size, format, *args);
+    if (written < 0 || (size_t)written >= message_buffer_size) {
       fprintf(
         stderr,
         "failed to format message (using dynamically allocated memory): '%s'\n",
         format);
-      allocator.deallocate(dynamic_buffer, allocator.state);
+      allocator.deallocate(dynamic_message_buffer, allocator.state);
       return;
     }
-    message_buffer = (char *)dynamic_buffer;
+    message_buffer = (char *)dynamic_message_buffer;
   }
 
   // Process the format string looking for known tokens.
@@ -314,7 +314,7 @@ void rcutils_logging_console_output_handler(
   fprintf(stream, "%s\n", output_buffer);
 
 cleanup:
-  if (message_buffer && message_buffer != buffer) {
+  if (message_buffer && message_buffer != static_message_buffer) {
     allocator.deallocate(message_buffer, allocator.state);
   }
 
