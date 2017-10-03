@@ -173,8 +173,15 @@ void rcutils_logging_console_output_handler(
       return;
   }
 
+  // Declare variables that will be needed for cleanup ahead of time.
+  char static_output_buffer[1024];
+  char * output_buffer = NULL;
+
+  // Start with a fixed size message buffer and if during message formatting we need longer, we'll
+  // dynamically allocate space.
   char static_message_buffer[1024];
   char * message_buffer = static_message_buffer;
+
   int written;
   {
     // use copy of args to keep args for potential later user
@@ -197,25 +204,23 @@ void rcutils_logging_console_output_handler(
       return;
     }
     written = vsnprintf(dynamic_message_buffer, message_buffer_size, format, *args);
+    message_buffer = (char *)dynamic_message_buffer;
     if (written < 0 || (size_t)written >= message_buffer_size) {
       fprintf(
         stderr,
         "failed to format message (using dynamically allocated memory): '%s'\n",
         format);
-      allocator.deallocate(dynamic_message_buffer, allocator.state);
-      return;
+      goto cleanup;
     }
-    message_buffer = (char *)dynamic_message_buffer;
   }
 
   // Process the format string looking for known tokens.
   const char token_start_delimiter = '{';
   const char token_end_delimiter = '}';
-  // Start with a fixed size buffer and if during token expansion we need longer,
-  // we'll dynamically allocate space.
-  char static_output_buffer[1024];
+  // Start with a fixed size output buffer and if during token expansion we need longer, we'll
+  // dynamically allocate space.
+  output_buffer = static_output_buffer;
   memset(static_output_buffer, '\0', sizeof(static_output_buffer));
-  char * output_buffer = static_output_buffer;
   size_t output_buffer_size = sizeof(static_output_buffer);
   const char * str = g_rcutils_logging_output_format_string;
   size_t size = strlen(g_rcutils_logging_output_format_string);
