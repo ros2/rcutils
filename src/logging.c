@@ -136,15 +136,9 @@ void rcutils_log(
   }
 
 void rcutils_logging_console_output_handler(
-  rcutils_log_location_t * location_,
+  rcutils_log_location_t * location,
   int severity, const char * name, const char * format, va_list * args)
 {
-  rcutils_log_location_t * location = location_;
-  rcutils_log_location_t dummy_location = {"", "", 0};
-  if (!location) {
-    location = &dummy_location;
-  }
-
   FILE * stream = NULL;
   const char * severity_string = "";
   switch (severity) {
@@ -271,21 +265,25 @@ void rcutils_logging_console_output_handler(
     } else if (strcmp("message", token) == 0) {
       token_expansion = message_buffer;
     } else if (strcmp("function_name", token) == 0) {
-      token_expansion = location->function_name;
+      token_expansion = location ? location->function_name : "\"\"";
     } else if (strcmp("file_name", token) == 0) {
-      token_expansion = location->file_name;
+      token_expansion = location ? location->file_name : "\"\"";
     } else if (strcmp("line_number", token) == 0) {
-      char line_number_expansion[10];  // Allow 9 digits for the expansion (otherwise, truncate).
-      written = rcutils_snprintf(
-        line_number_expansion, sizeof(line_number_expansion), "%zu", location->line_number);
-      if (written < 0) {
-        fprintf(
-          stderr,
-          "failed to format line number: '%zu'\n",
-          location->line_number);
-        goto cleanup;
+      if (location) {
+        char line_number_expansion[10];  // Allow 9 digits for the expansion (otherwise, truncate).
+        written = rcutils_snprintf(
+          line_number_expansion, sizeof(line_number_expansion), "%zu", location->line_number);
+        if (written < 0) {
+          fprintf(
+            stderr,
+            "failed to format line number: '%zu'\n",
+            location->line_number);
+          goto cleanup;
+        }
+        token_expansion = line_number_expansion;
+      } else {
+        token_expansion = "0";
       }
-      token_expansion = line_number_expansion;
     } else {
       // This wasn't a token; print the start delimiter and continue the search as usual
       // (the substring might contain more start delimiters).
