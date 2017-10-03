@@ -45,7 +45,7 @@ void rcutils_logging_initialize()
     // Check for the environment variable for custom output formatting
     const char * output_format;
     const char * ret = rcutils_get_env("RCUTILS_CONSOLE_OUTPUT_FORMAT", &output_format);
-    if (!ret && strcmp(output_format, "") != 0) {
+    if (NULL == ret && strcmp(output_format, "") != 0) {
       size_t chars_to_copy = strlen(output_format);
       if (chars_to_copy > RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN - 1) {
         chars_to_copy = RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN - 1;
@@ -53,6 +53,12 @@ void rcutils_logging_initialize()
       memcpy(g_rcutils_logging_output_format_string, output_format, chars_to_copy);
       g_rcutils_logging_output_format_string[chars_to_copy] = '\0';
     } else {
+      if (NULL != ret) {
+        fprintf(
+          stderr,
+          "Failed to get output format from env. variable: %s. Using default output format.\n",
+          ret);
+      }
       memcpy(g_rcutils_logging_output_format_string, rcutils_default_output_format,
         strlen(rcutils_default_output_format) + 1);
     }
