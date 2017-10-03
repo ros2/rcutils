@@ -115,13 +115,21 @@ void rcutils_log(
     } while (required_output_buffer_size >= output_buffer_size); \
     if (output_buffer == static_output_buffer) { \
       void * dynamic_output_buffer = allocator.allocate(output_buffer_size, allocator.state); \
+      if (!dynamic_output_buffer) { \
+        fprintf(stderr, "failed to allocate buffer for logging output\n"); \
+        goto cleanup; \
+      } \
       memset(dynamic_output_buffer, '\0', output_buffer_size); \
       memcpy(dynamic_output_buffer, output_buffer, strlen(output_buffer)); \
       output_buffer = (char *)dynamic_output_buffer; \
-      output_buffer[output_buffer_size - 1] = '\0'; \
     } else { \
-      output_buffer = (char *)allocator.reallocate( \
+      void * new_dynamic_output_buffer = (char *)allocator.reallocate( \
         output_buffer, output_buffer_size, allocator.state); \
+      if (!new_dynamic_output_buffer) { \
+        fprintf(stderr, "failed to reallocate buffer for logging output\n"); \
+        goto cleanup; \
+      } \
+      output_buffer = (char *)new_dynamic_output_buffer; \
       memset( \
         output_buffer + strlen(output_buffer), '\0', output_buffer_size - strlen(output_buffer)); \
     } \
@@ -305,11 +313,12 @@ void rcutils_logging_console_output_handler(
   }
   fprintf(stream, "%s\n", output_buffer);
 
-  if (message_buffer != buffer) {
+cleanup:
+  if (message_buffer && message_buffer != buffer) {
     allocator.deallocate(message_buffer, allocator.state);
   }
 
-  if (output_buffer != static_output_buffer) {
+  if (output_buffer && output_buffer != static_output_buffer) {
     allocator.deallocate(output_buffer, allocator.state);
   }
 }
