@@ -184,12 +184,17 @@ void rcutils_logging_console_output_handler(
     // write was incomplete, allocate necessary memory dynamically
     size_t buffer_size = written + 1;
     void * dynamic_buffer = allocator.allocate(buffer_size, allocator.state);
+    if (!dynamic_buffer) {
+      fprintf(stderr, "failed to allocate buffer for message\n");
+      return;
+    }
     written = vsnprintf(dynamic_buffer, buffer_size, format, *args);
     if (written < 0 || (size_t)written >= buffer_size) {
       fprintf(
         stderr,
         "failed to format message (using dynamically allocated memory): '%s'\n",
         format);
+      allocator.deallocate(dynamic_buffer, allocator.state);
       return;
     }
     message_buffer = (char *)dynamic_buffer;
