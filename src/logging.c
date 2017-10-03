@@ -228,6 +228,7 @@ void rcutils_logging_console_output_handler(
   // Walk through the format string and expand tokens when they're encountered.
   size_t n = 0;
   size_t i = 0;
+  const char * token_expansion = NULL;
   while (i < size) {
     // Print everything up to the next token start delimiter.
     size_t chars_to_start_delim = rcutils_find(str + i, token_start_delimiter);
@@ -264,30 +265,15 @@ void rcutils_logging_console_output_handler(
     memcpy(token, str + i + 1, token_len);  // Skip the start delimiter.
     token[token_len] = '\0';
     if (strcmp("severity", token) == 0) {
-      n = strlen(severity_string);
-      RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(
-        n, output_buffer_size, allocator, output_buffer, static_output_buffer)
-      memcpy(output_buffer + strlen(output_buffer), severity_string, n);
+      token_expansion = severity_string;
     } else if (strcmp("name", token) == 0) {
-      n = strlen(name);
-      RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(
-        n, output_buffer_size, allocator, output_buffer, static_output_buffer)
-      memcpy(output_buffer + strlen(output_buffer), name, n);
+      token_expansion = name;
     } else if (strcmp("message", token) == 0) {
-      n = strlen(message_buffer);
-      RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(
-        n, output_buffer_size, allocator, output_buffer, static_output_buffer)
-      memcpy(output_buffer + strlen(output_buffer), message_buffer, n);
+      token_expansion = message_buffer;
     } else if (strcmp("function_name", token) == 0) {
-      n = strlen(location->function_name);
-      RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(
-        n, output_buffer_size, allocator, output_buffer, static_output_buffer)
-      memcpy(output_buffer + strlen(output_buffer), location->function_name, n);
+      token_expansion = location->function_name;
     } else if (strcmp("file_name", token) == 0) {
-      n = strlen(location->file_name);
-      RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(
-        n, output_buffer_size, allocator, output_buffer, static_output_buffer)
-      memcpy(output_buffer + strlen(output_buffer), location->file_name, n);
+      token_expansion = location->file_name;
     } else if (strcmp("line_number", token) == 0) {
       char line_number_expansion[10];  // Allow 9 digits for the expansion (otherwise, truncate).
       written = rcutils_snprintf(
@@ -297,12 +283,9 @@ void rcutils_logging_console_output_handler(
           stderr,
           "failed to format line number: '%zu'\n",
           location->line_number);
-        return;
+        goto cleanup;
       }
-      n = (size_t)written;
-      RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(
-        n, output_buffer_size, allocator, output_buffer, static_output_buffer)
-      memcpy(output_buffer + strlen(output_buffer), line_number_expansion, n);
+      token_expansion = line_number_expansion;
     } else {
       // This wasn't a token; print the start delimiter and continue the search as usual
       // (the substring might contain more start delimiters).
@@ -312,9 +295,12 @@ void rcutils_logging_console_output_handler(
       i++;
       continue;
     }
+    n = strlen(token_expansion);
+    RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(
+      n, output_buffer_size, allocator, output_buffer, static_output_buffer)
+    memcpy(output_buffer + strlen(output_buffer), token_expansion, n);
     // Skip ahead to avoid re-processing the token characters (including the 2 delimiters).
     i += token_len + 2;
-    continue;
   }
   fprintf(stream, "%s\n", output_buffer);
 
