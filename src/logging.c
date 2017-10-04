@@ -29,16 +29,21 @@ extern "C"
 #define RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN 2048
 
 bool g_rcutils_logging_initialized = false;
+
 char g_rcutils_logging_output_format_string[RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN];
 static const char * g_rcutils_logging_default_output_format =
   "[{severity}] [{name}]: {message} ({function_name}() at {file_name}:{line_number})";
 
+static rcutils_allocator_t __rcutils_allocator;
+
 rcutils_logging_output_handler_t g_rcutils_logging_output_handler = NULL;
-rcutils_string_map_t g_rcutils_logging_severities_map;
+static rcutils_string_map_t g_rcutils_logging_severities_map;
 
 int g_rcutils_logging_severity_threshold = 0;
 
+// TODO(dhood): accept allocator
 void rcutils_logging_initialize()
+
 {
   if (!g_rcutils_logging_initialized) {
     g_rcutils_logging_output_handler = &rcutils_logging_console_output_handler;
@@ -66,11 +71,23 @@ void rcutils_logging_initialize()
     }
 
     g_rcutils_logging_severities_map = rcutils_get_zero_initialized_string_map();
-    rcutils_allocator_t allocator = rcutils_get_default_allocator();
-    rcutils_ret_t ret = rcutils_string_map_init(&g_rcutils_logging_severities_map, 0, allocator);
+    __rcutils_allocator = rcutils_get_default_allocator();  // will this memory stay?
+    rcutils_ret_t ret = rcutils_string_map_init(
+      &g_rcutils_logging_severities_map, 0, __rcutils_allocator);
+    // check ret
 
     g_rcutils_logging_initialized = true;
   }
+}
+
+void rcutils_logging_fini()
+{
+  if (!g_rcutils_logging_initialized)
+  {
+    return;
+  }
+  rcutils_string_map_fini(&g_rcutils_logging_severities_map);
+  fprintf(stderr, "Finid severities map\n");
 }
 
 rcutils_logging_output_handler_t rcutils_logging_get_output_handler()

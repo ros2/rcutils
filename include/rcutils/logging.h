@@ -37,13 +37,15 @@ extern bool g_rcutils_logging_initialized;
  * <hr>
  * Attribute          | Adherence
  * ------------------ | -------------
- * Allocates Memory   | No
+ * Allocates Memory   | Yes
  * Thread-Safe        | No
  * Uses Atomics       | No
  * Lock-Free          | Yes
  */
 RCUTILS_PUBLIC
 void rcutils_logging_initialize();
+RCUTILS_PUBLIC
+void rcutils_logging_fini();
 
 /// The structure identifying the caller location in the source code.
 typedef struct rcutils_log_location_t
