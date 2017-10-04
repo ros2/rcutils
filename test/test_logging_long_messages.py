@@ -15,7 +15,7 @@
 import os
 
 from launch import LaunchDescriptor
-from launch.exit_handler import default_exit_handler
+from launch.exit_handler import ignore_exit_handler
 from launch.launcher import DefaultLauncher
 from launch.output_handler import ConsoleOutput
 from launch_testing import create_handler
@@ -37,7 +37,7 @@ def test_logging_long_messages():
     launch_descriptor.add_process(
         cmd=[executable],
         name='test_logging_long_messages',
-        exit_handler=default_exit_handler,
+        exit_handler=ignore_exit_handler,  # The process will automatically exit after printing.
         output_handlers=[ConsoleOutput(), handler],
     )
 
