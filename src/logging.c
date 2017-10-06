@@ -25,7 +25,7 @@ extern "C"
 #include "rcutils/logging.h"
 #include "rcutils/snprintf.h"
 
-#define RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN 1024
+#define RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN 2048
 
 bool g_rcutils_logging_initialized = false;
 char g_rcutils_logging_output_format_string[RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN];
