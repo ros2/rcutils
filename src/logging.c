@@ -255,8 +255,7 @@ void rcutils_logging_console_output_handler(
       // there won't be any more tokens so shortcut the rest of the checking.
       RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(
         remaining_chars, output_buffer_size, allocator, output_buffer, static_output_buffer)
-      memcpy(output_buffer + old_output_buffer_len, str + i, remaining_chars);
-      output_buffer[old_output_buffer_len + remaining_chars] = '\0';
+      memcpy(output_buffer + old_output_buffer_len, str + i, remaining_chars + 1);
       break;
     }
     // Found what looks like a token; determine if it's recognized.
@@ -306,8 +305,7 @@ void rcutils_logging_console_output_handler(
     size_t n = strlen(token_expansion);
     RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(
       n, output_buffer_size, allocator, output_buffer, static_output_buffer)
-    memcpy(output_buffer + old_output_buffer_len, token_expansion, n);
-    output_buffer[old_output_buffer_len + n] = '\0';
+    memcpy(output_buffer + old_output_buffer_len, token_expansion, n + 1);
     // Skip ahead to avoid re-processing the token characters (including the 2 delimiters).
     i += token_len + 2;
   }
