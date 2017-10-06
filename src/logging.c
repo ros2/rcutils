@@ -115,10 +115,10 @@ void rcutils_log(
 #define RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER( \
     n, output_buffer_size, allocator, output_buffer, static_output_buffer) \
   size_t required_output_buffer_size = strlen(output_buffer) + n + 1; \
-  if (required_output_buffer_size >= output_buffer_size) { \
+  if (required_output_buffer_size > output_buffer_size) { \
     do { \
       output_buffer_size *= 2; \
-    } while (required_output_buffer_size >= output_buffer_size); \
+    } while (required_output_buffer_size > output_buffer_size); \
     if (output_buffer == static_output_buffer) { \
       void * dynamic_output_buffer = allocator.allocate(output_buffer_size, allocator.state); \
       if (!dynamic_output_buffer) { \
