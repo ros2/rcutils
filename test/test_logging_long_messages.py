@@ -15,20 +15,18 @@
 import os
 
 from launch import LaunchDescriptor
-from launch.exit_handler import default_exit_handler
+from launch.exit_handler import ignore_exit_handler
 from launch.launcher import DefaultLauncher
 from launch.output_handler import ConsoleOutput
 from launch_testing import create_handler
-from launch_testing import get_default_filtered_prefixes
 
 
 def test_logging_long_messages():
     launch_descriptor = LaunchDescriptor()
 
     output_file = os.path.join(os.path.dirname(__file__), 'test_logging_long_messages')
-    filtered = get_default_filtered_prefixes()
     handler = create_handler(
-        'test_logging_long_messages', launch_descriptor, output_file, filtered_prefixes=filtered)
+        'test_logging_long_messages', launch_descriptor, output_file)
     assert handler, 'Cannot find appropriate handler for %s' % output_file
 
     executable = os.path.join(os.getcwd(), 'test_logging_long_messages')
@@ -37,7 +35,7 @@ def test_logging_long_messages():
     launch_descriptor.add_process(
         cmd=[executable],
         name='test_logging_long_messages',
-        exit_handler=default_exit_handler,
+        exit_handler=ignore_exit_handler,  # The process will automatically exit after printing.
         output_handlers=[ConsoleOutput(), handler],
     )
 
