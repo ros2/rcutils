@@ -15,7 +15,7 @@
 import os
 
 from launch import LaunchDescriptor
-from launch.exit_handler import default_exit_handler
+from launch.exit_handler import ignore_exit_handler
 from launch.launcher import DefaultLauncher
 from launch.output_handler import ConsoleOutput
 from launch_testing import create_handler
@@ -24,22 +24,40 @@ from launch_testing import create_handler
 def test_logging_output_format():
     launch_descriptor = LaunchDescriptor()
 
-    output_file = os.path.join(os.path.dirname(__file__), 'test_logging_output_format')
-    handler = create_handler(
-        'test_logging_output_format', launch_descriptor, output_file)
-    assert handler, 'Cannot find appropriate handler for %s' % output_file
-
+    # Re-use the test_logging_long_messages test binary and modify the output format from an
+    # environment variable.
     executable = os.path.join(os.getcwd(), 'test_logging_long_messages')
-    env = dict(os.environ)
-    env['RCUTILS_CONSOLE_OUTPUT_FORMAT'] = \
-        '[{{name}}].({severity}) output: {file_name}:{line_number} {message}, again: {message} ({function_name}()){'  # noqa
     if os.name == 'nt':
         executable += '.exe'
+    env_long = dict(os.environ)
+    # In this custom output, the long message is output twice, to test both dynamic allocation and
+    # re-allocation.
+    env_long['RCUTILS_CONSOLE_OUTPUT_FORMAT'] = \
+        '[{{name}}].({severity}) output: {file_name}:{line_number} {message}, again: {message} ({function_name}()){'  # noqa
+    name = 'test_logging_output_format_long'
+    output_file = os.path.join(os.path.dirname(__file__), name)
+    handler = create_handler(name, launch_descriptor, output_file)
+    assert handler, 'Cannot find appropriate handler for %s' % output_file
     launch_descriptor.add_process(
         cmd=[executable],
-        env=env,
-        name='test_logging_output_format',
-        exit_handler=default_exit_handler,
+        env=env_long,
+        name=name,
+        exit_handler=ignore_exit_handler,
+        output_handlers=[ConsoleOutput(), handler],
+    )
+
+    env_edge_cases = dict(os.environ)
+    # This custom output is to check different edge cases of the output format string parsing.
+    env_edge_cases['RCUTILS_CONSOLE_OUTPUT_FORMAT'] = '[{}}].({unknown_token}) {{{{'
+    name = 'test_logging_output_format_edge_cases'
+    output_file = os.path.join(os.path.dirname(__file__), name)
+    handler = create_handler(name, launch_descriptor, output_file)
+    assert handler, 'Cannot find appropriate handler for %s' % output_file
+    launch_descriptor.add_process(
+        cmd=[executable],
+        env=env_edge_cases,
+        name=name,
+        exit_handler=ignore_exit_handler,
         output_handlers=[ConsoleOutput(), handler],
     )
 
