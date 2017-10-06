@@ -191,7 +191,7 @@ void rcutils_log(
  * The console output format of the logged message can be configured through
  * the `RCUTILS_CONSOLE_OUTPUT_FORMAT` environment variable.
  * By default, the severity and name is prepended and the location
- * information is appended when available.
+ * information is appended.
  *
  * <hr>
  * Attribute          | Adherence
