@@ -48,7 +48,7 @@ def test_logging_output_format():
 
     env_edge_cases = dict(os.environ)
     # This custom output is to check different edge cases of the output format string parsing.
-    env_edge_cases['RCUTILS_CONSOLE_OUTPUT_FORMAT'] = '[{}}].({unknown_token}) {{{{'
+    env_edge_cases['RCUTILS_CONSOLE_OUTPUT_FORMAT'] = '{}}].({unknown_token}) {{{{'
     name = 'test_logging_output_format_edge_cases'
     output_file = os.path.join(os.path.dirname(__file__), name)
     handler = create_handler(name, launch_descriptor, output_file)
