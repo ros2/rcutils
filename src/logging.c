@@ -226,7 +226,6 @@ void rcutils_logging_console_output_handler(
   size_t size = strlen(g_rcutils_logging_output_format_string);
 
   // Walk through the format string and expand tokens when they're encountered.
-  size_t n = 0;
   size_t i = 0;
   const char * token_expansion = NULL;
   while (i < size) {
@@ -299,7 +298,7 @@ void rcutils_logging_console_output_handler(
       i++;
       continue;
     }
-    n = strlen(token_expansion);
+    size_t n = strlen(token_expansion);
     RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(
       n, output_buffer_size, allocator, output_buffer, static_output_buffer)
     memcpy(output_buffer + strlen(output_buffer), token_expansion, n);
