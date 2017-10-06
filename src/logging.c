@@ -129,7 +129,7 @@ void rcutils_log(
       memcpy(dynamic_output_buffer, output_buffer, strlen(output_buffer)); \
       output_buffer = (char *)dynamic_output_buffer; \
     } else { \
-      void * new_dynamic_output_buffer = (char *)allocator.reallocate( \
+      void * new_dynamic_output_buffer = allocator.reallocate( \
         output_buffer, output_buffer_size, allocator.state); \
       if (!new_dynamic_output_buffer) { \
         fprintf(stderr, "failed to reallocate buffer for logging output\n"); \
