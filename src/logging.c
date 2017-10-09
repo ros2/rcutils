@@ -71,7 +71,7 @@ void rcutils_logging_initialize()
     }
 
     g_rcutils_logging_severities_map = rcutils_get_zero_initialized_string_map();
-    __rcutils_allocator = rcutils_get_default_allocator();  // will this memory stay?
+    __rcutils_allocator = rcutils_get_default_allocator();
     rcutils_ret_t ret = rcutils_string_map_init(
       &g_rcutils_logging_severities_map, 0, __rcutils_allocator);
     // check ret
@@ -87,7 +87,6 @@ void rcutils_logging_fini()
     return;
   }
   rcutils_string_map_fini(&g_rcutils_logging_severities_map);
-  fprintf(stderr, "Finid severities map\n");
 }
 
 rcutils_logging_output_handler_t rcutils_logging_get_output_handler()
@@ -109,6 +108,10 @@ int rcutils_logging_get_severity_threshold()
 int rcutils_logging_get_logger_severity_threshold(const char * name)
 {
   RCUTILS_LOGGING_AUTOINIT
+  // TODO(dhood): replace string map with int map.
+  if (strcmp(name, "") == 0) {
+    return g_rcutils_logging_severity_threshold;
+  }
   const char * severity_string = rcutils_string_map_get(&g_rcutils_logging_severities_map, name);
   if (!severity_string) {
     //error
@@ -156,7 +159,8 @@ void rcutils_logging_set_logger_severity_threshold(const char * name, int severi
     // error
     return;
   }
-  rcutils_ret_t ret = rcutils_string_map_set(&g_rcutils_logging_severities_map, name, severity_string);
+  rcutils_ret_t ret = rcutils_string_map_set(
+    &g_rcutils_logging_severities_map, name, severity_string);
 }
 
 void rcutils_log(
