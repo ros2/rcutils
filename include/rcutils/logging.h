@@ -90,19 +90,8 @@ typedef void (* rcutils_logging_output_handler_t)(
  * \param The severity level
  * \return True if the logger is enabled for the severity; false otherwise.
  */
-typedef bool (* rcutils_logging_is_enabled_for_t)(
-  const char *,  // name
-  int  // severity
-);
-
 RCUTILS_PUBLIC
-bool rcutils_logging_default_is_enabled_for(
-  const char * name,
-  int severity);
-
-/// The function pointer of the current output handler.
-RCUTILS_PUBLIC
-extern rcutils_logging_is_enabled_for_t g_rcutils_logging_is_enabled_for;
+bool rcutils_logging_is_enabled_for(const char * name, int severity);
 
 /// The function pointer of the current output handler.
 RCUTILS_PUBLIC

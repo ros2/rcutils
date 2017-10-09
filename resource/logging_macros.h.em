@@ -53,7 +53,7 @@ extern "C"
     RCUTILS_LOGGING_AUTOINIT \
     static rcutils_log_location_t __rcutils_logging_location = {__func__, __FILE__, __LINE__}; \
     condition_before \
-    if (g_rcutils_logging_is_enabled_for && g_rcutils_logging_is_enabled_for(name, severity)) { \
+    if (rcutils_logging_is_enabled_for(name, severity)) { \
       rcutils_log(&__rcutils_logging_location, severity, name, __VA_ARGS__); \
     } \
     condition_after \

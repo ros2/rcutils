@@ -37,7 +37,6 @@ static const char * g_rcutils_logging_default_output_format =
 static rcutils_allocator_t __rcutils_allocator;
 
 rcutils_logging_output_handler_t g_rcutils_logging_output_handler = NULL;
-rcutils_logging_is_enabled_for_t g_rcutils_logging_is_enabled_for = NULL;
 static rcutils_string_map_t g_rcutils_logging_severities_map;
 
 int g_rcutils_logging_severity_threshold = 0;
@@ -48,7 +47,6 @@ void rcutils_logging_initialize()
 {
   if (!g_rcutils_logging_initialized) {
     g_rcutils_logging_output_handler = &rcutils_logging_console_output_handler;
-    g_rcutils_logging_is_enabled_for = &rcutils_logging_default_is_enabled_for;
     g_rcutils_logging_severity_threshold = RCUTILS_LOG_SEVERITY_INFO;
 
     // Check for the environment variable for custom output formatting
@@ -136,7 +134,7 @@ int rcutils_logging_get_logger_severity_threshold(const char * name)
   return severity;
 }
 
-bool rcutils_logging_default_is_enabled_for(const char * name, int severity) {
+bool rcutils_logging_is_enabled_for(const char * name, int severity) {
   // This does not consider any hierarchy.
   return severity >= rcutils_logging_get_logger_severity_threshold(name);
 }
