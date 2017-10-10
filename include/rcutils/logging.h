@@ -187,7 +187,7 @@ void rcutils_logging_set_severity_threshold(int severity);
  * Uses Atomics       | No
  * Lock-Free          | Yes
  *
- * \param name The name of the logger
+ * \param name The name of the logger, must be null terminated c string
  * \return The severity threshold if it has been set, or
  * \return `RCUTILS_LOG_SEVERITY_UNSET` if unset
  */
@@ -207,10 +207,10 @@ int rcutils_logging_get_logger_severity_threshold(const char * name);
  * Uses Atomics       | No
  * Lock-Free          | Yes
  *
- * \param name The name of the logger.
- * \param name_length Logger name length.
+ * \param name The name of the logger
+ * \param name_length Logger name length
  * \return The severity threshold if it has been set, or
- * \return `RCUTILS_LOG_SEVERITY_UNSET` if unset.
+ * \return `RCUTILS_LOG_SEVERITY_UNSET` if unset
  */
 RCUTILS_PUBLIC
 int rcutils_logging_get_logger_severity_thresholdn(const char * name, size_t name_length);
@@ -220,12 +220,13 @@ int rcutils_logging_get_logger_severity_thresholdn(const char * name, size_t nam
  * <hr>
  * Attribute          | Adherence
  * ------------------ | -------------
- * Allocates Memory   | Yes
+ * Allocates Memory   | No, for logger that has already had its threshold set
+ *                    | Yes, for logger with previously unset threshold
  * Thread-Safe        | No
  * Uses Atomics       | No
  * Lock-Free          | Yes
  *
- * \param name The name of the logger.
+ * \param name The name of the logger, must be null terminated c string.
  * \param severity The severity threshold to be used.
  */
 RCUTILS_PUBLIC
@@ -241,7 +242,7 @@ void rcutils_logging_set_logger_severity_threshold(const char * name, int severi
  * Uses Atomics       | No
  * Lock-Free          | Yes
  *
- * \param The name of the logger.
+ * \param The name of the logger, must be null terminated c string.
  * \param The severity level.
  *
  * \return True if the logger is enabled for the severity; false otherwise.
@@ -264,7 +265,7 @@ bool rcutils_logging_is_enabled_for(const char * name, int severity);
  * Uses Atomics       | No
  * Lock-Free          | Yes
  *
- * \param The name of the logger.
+ * \param The name of the logger, must be null terminated c string.
  *
  * \return The severity threshold.
  */
@@ -319,7 +320,7 @@ void rcutils_log(
  *
  * \param location The pointer to the location struct
  * \param severity The severity level
- * \param name The name of the logger
+ * \param name The name of the logger, must be null terminated c string
  * \param format The format string for the message contents
  * \param args The variable argument list for the message format string
  */
