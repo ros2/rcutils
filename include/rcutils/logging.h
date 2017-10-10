@@ -93,6 +93,8 @@ typedef void (* rcutils_logging_output_handler_t)(
  */
 RCUTILS_PUBLIC
 bool rcutils_logging_is_enabled_for(const char * name, int severity);
+RCUTILS_PUBLIC
+int rcutils_logging_get_logger_effective_threshold(const char * name);
 
 /// The function pointer of the current output handler.
 RCUTILS_PUBLIC
