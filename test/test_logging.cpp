@@ -70,9 +70,7 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logging) {
   rcutils_logging_output_handler_t original_function = rcutils_logging_get_output_handler();
   rcutils_logging_set_output_handler(rcutils_logging_console_output_handler);
 
-  EXPECT_EQ(
-    RCUTILS_LOG_SEVERITY_DEBUG,
-    rcutils_logging_get_logger_severity_threshold(RCUTILS_LOGGING_ROOT_LOGGER_NAME));
+  EXPECT_EQ(RCUTILS_LOG_SEVERITY_DEBUG, rcutils_logging_get_logger_severity_threshold(""));
 
   // check all attributes for a debug log message
   rcutils_log_location_t location = {"func", "file", 42u};
@@ -90,13 +88,9 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logging) {
   EXPECT_EQ("message 11", g_last_log_event.message);
 
   // check global severity threshold
-  int original_severity_threshold =
-    rcutils_logging_get_logger_severity_threshold(RCUTILS_LOGGING_ROOT_LOGGER_NAME);
-  rcutils_logging_set_logger_severity_threshold(
-    RCUTILS_LOGGING_ROOT_LOGGER_NAME, RCUTILS_LOG_SEVERITY_INFO);
-  EXPECT_EQ(
-    RCUTILS_LOG_SEVERITY_INFO,
-    rcutils_logging_get_logger_severity_threshold(RCUTILS_LOGGING_ROOT_LOGGER_NAME));
+  int original_severity_threshold = rcutils_logging_get_logger_severity_threshold("");
+  rcutils_logging_set_logger_severity_threshold("", RCUTILS_LOG_SEVERITY_INFO);
+  EXPECT_EQ(RCUTILS_LOG_SEVERITY_INFO, rcutils_logging_get_logger_severity_threshold(""));
   rcutils_log(NULL, RCUTILS_LOG_SEVERITY_DEBUG, "name2", "message %d", 22);
   EXPECT_EQ(1u, g_log_calls);
 
@@ -144,8 +138,7 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logging) {
     rcutils_logging_get_logger_effective_threshold("rcutils_test_logging_cpp.testing2"));
 
   // restore original state
-  rcutils_logging_set_logger_severity_threshold(
-    RCUTILS_LOGGING_ROOT_LOGGER_NAME, original_severity_threshold);
+  rcutils_logging_set_logger_severity_threshold("", original_severity_threshold);
   rcutils_logging_set_output_handler(original_function);
   g_rcutils_logging_initialized = false;
   EXPECT_FALSE(g_rcutils_logging_initialized);

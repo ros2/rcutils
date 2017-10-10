@@ -22,8 +22,6 @@
 #include "rcutils/allocator.h"
 #include "rcutils/visibility_control.h"
 
-#define RCUTILS_LOGGING_ROOT_LOGGER_NAME ""
-
 #if __cplusplus
 extern "C"
 {
