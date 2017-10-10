@@ -133,10 +133,8 @@ int rcutils_logging_get_logger_severity_thresholdn(const char * name, size_t nam
 {
   RCUTILS_LOGGING_AUTOINIT
 
-  printf("Getting sev. of: %.*s\n", name_length, name);
   // Bypass map lookup if root logger specified.
   if (strcmp(name, "") == 0) {
-    fprintf(stderr, "returning root severity\n");
     return g_rcutils_logging_severity_threshold;
   }
 
@@ -150,7 +148,6 @@ int rcutils_logging_get_logger_severity_thresholdn(const char * name, size_t nam
   if (!severity_string) {
     return RCUTILS_LOG_SEVERITY_UNSET;
   }
-  fprintf(stderr, "got severity: %s\n", severity_string);
   int severity;
   if (strcmp("DEBUG", severity_string) == 0) {
     severity = RCUTILS_LOG_SEVERITY_DEBUG;
@@ -198,9 +195,7 @@ int rcutils_logging_get_logger_effective_threshold(const char * name)
       return g_rcutils_logging_severity_threshold;
     }
     substring_end = index_last_separator;  // Shorten the substring to the next ancestor.
-    fprintf(stderr, "shortening name %s to have substring_end=%d\n", name, substring_end);
   }
-  fprintf(stderr, "no, shouldn't be here.. name: %s\n", name);
   return -1;
 }
 
@@ -231,8 +226,6 @@ void rcutils_logging_set_logger_severity_threshold(const char * name, int severi
   if (ret != RCUTILS_RET_OK) {
     fprintf(stderr, "Error setting severity for logger named '%s'", name);
   }
-  fprintf(stderr, "set severity of name: %s to: %d\n", name, severity);
-  fprintf(stderr, "set severity: %s\n", severity_string);
 }
 
 bool rcutils_logging_is_enabled_for(const char * name, int severity)
