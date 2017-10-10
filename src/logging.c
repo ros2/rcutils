@@ -95,7 +95,10 @@ void rcutils_logging_shutdown()
     return;
   }
   if (g_rcutils_logging_severities_map_valid) {
-    rcutils_string_map_fini(&g_rcutils_logging_severities_map);
+    rcutils_ret_t ret = rcutils_string_map_fini(&g_rcutils_logging_severities_map);
+    if (ret != RCUTILS_RET_OK) {
+      fprintf(stderr, "Failed to finalize logging severities map: return code %d", ret);
+    }
   }
   g_rcutils_logging_initialized = false;
 }
@@ -146,7 +149,10 @@ int rcutils_logging_get_logger_severity_threshold(const char * name)
   } else if (strcmp("FATAL", severity_string) == 0) {
     severity = RCUTILS_LOG_SEVERITY_FATAL;
   } else {
-    severity = g_rcutils_logging_severity_threshold;
+      fprintf(
+        stderr,
+        "Logger named '%s' has an invalid severity threshold: %s\n", name, severity_string);
+    severity = RCUTILS_LOG_SEVERITY_UNSET;
   }
   return severity;
 }
@@ -181,11 +187,14 @@ void rcutils_logging_set_logger_severity_threshold(const char * name, int severi
   } else if (RCUTILS_LOG_SEVERITY_FATAL == severity  ) {
     severity_string = "FATAL";
   } else {
-    // error
+    fprintf(stderr, "Invalid severity specified for logger named '%s': %d", name, severity);
     return;
   }
   rcutils_ret_t ret = rcutils_string_map_set(
     &g_rcutils_logging_severities_map, name, severity_string);
+  if (ret != RCUTILS_RET_OK) {
+    fprintf(stderr, "Error setting severity for logger named '%s'", name);
+  }
 }
 
 void rcutils_log(
