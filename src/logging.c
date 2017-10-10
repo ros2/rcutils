@@ -166,7 +166,7 @@ int rcutils_logging_get_logger_effective_threshold(const char * name)
     return g_rcutils_logging_root_logger_severity_threshold;
   }
   size_t substring_end = strlen(name);
-  while (substring_end != 0) {
+  while (substring_end > 0) {
     int severity = rcutils_logging_get_logger_severity_thresholdn(name, substring_end);
     if (severity != RCUTILS_LOG_SEVERITY_UNSET) {
       return severity;
@@ -184,11 +184,11 @@ int rcutils_logging_get_logger_effective_threshold(const char * name)
       // There are no more separators in the substring.
       // The name we just checked was the last that we needed to, and it was unset.
       // Therefore, return the default severity threshold.
-      return g_rcutils_logging_root_logger_severity_threshold;
+      break;
     }
     substring_end = index_last_separator;  // Shorten the substring to the next ancestor.
   }
-  return -1;
+  return g_rcutils_logging_root_logger_severity_threshold;
 }
 
 void rcutils_logging_set_logger_severity_threshold(const char * name, int severity)
