@@ -156,6 +156,8 @@ RCUTILS_PUBLIC
 int rcutils_logging_get_severity_threshold();
 RCUTILS_PUBLIC
 int rcutils_logging_get_logger_severity_threshold(const char * name);
+RCUTILS_PUBLIC
+int rcutils_logging_get_logger_severity_thresholdn(const char * name, size_t name_length);
 
 /// Set the global severity threshold.
 /**

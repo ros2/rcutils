@@ -24,7 +24,6 @@ extern "C"
 #include "rcutils/get_env.h"
 #include "rcutils/logging.h"
 #include "rcutils/snprintf.h"
-#include "rcutils/strdup.h"
 #include "rcutils/types/string_map.h"
 
 #define RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN 2048
@@ -120,10 +119,14 @@ int rcutils_logging_get_severity_threshold()
   return g_rcutils_logging_severity_threshold;
 }
 
-int rcutils_logging_get_logger_severity_threshold(const char * name)
+int rcutils_logging_get_logger_severity_threshold(const char * name) {
+  return rcutils_logging_get_logger_severity_thresholdn(name, strlen(name));
+}
+int rcutils_logging_get_logger_severity_thresholdn(const char * name, size_t name_length)
 {
   RCUTILS_LOGGING_AUTOINIT
 
+printf("Getting sev. of: %.*s\n", name_length, name);
   // Bypass map lookup if root logger specified.
   if (strcmp(name, "") == 0) {
   fprintf(stderr, "returning root severity\n");
@@ -135,9 +138,9 @@ int rcutils_logging_get_logger_severity_threshold(const char * name)
   }
 
   // TODO(dhood): replace string map with int map.
-  const char * severity_string = rcutils_string_map_get(&g_rcutils_logging_severities_map, name);
+  const char * severity_string = rcutils_string_map_getn(
+    &g_rcutils_logging_severities_map, name, name_length);
   if (!severity_string) {
-  fprintf(stderr, "didn't find name in severity map: %s\n", name);
     return RCUTILS_LOG_SEVERITY_UNSET;
   }
   fprintf(stderr, "got severity: %s\n", severity_string);
@@ -155,7 +158,7 @@ int rcutils_logging_get_logger_severity_threshold(const char * name)
   } else {
       fprintf(
         stderr,
-        "Logger named '%s' has an invalid severity threshold: %s\n", name, severity_string);
+        "Logger has an invalid severity threshold: %s\n", severity_string);
     severity = RCUTILS_LOG_SEVERITY_UNSET;
   }
   return severity;
@@ -165,31 +168,28 @@ int rcutils_logging_get_logger_effective_threshold(const char * name) {
   if (strcmp("", name) == 0) {
     return g_rcutils_logging_severity_threshold;
   }
-  // Make a copy of the full name that we can shorten
-  char * name_copy = rcutils_strdup(name, __rcutils_allocator);
-  if (!name_copy) {
-    fprintf(stderr, "Error duplicating name string.\n");
-    return g_rcutils_logging_severity_threshold;
-  }
   int substring_end = strlen(name);
   while (substring_end != 0) {
-    int severity = rcutils_logging_get_logger_severity_threshold(name_copy);
-    fprintf(stderr, "name_copy: %s; severity: %d\n", name_copy, severity);
+    int severity = rcutils_logging_get_logger_severity_thresholdn(name, substring_end);
     if (severity != RCUTILS_LOG_SEVERITY_UNSET) {
       return severity;
     }
-    char * p_last_separator = strrchr(name_copy, '.');
-    int i_last_separator = p_last_separator - name_copy;
-    if (i_last_separator >= substring_end) {
+    // Traverse the substring from end to beginning in search of separators.
+    size_t index_last_separator;
+    for (index_last_separator = substring_end - 1;
+      name[index_last_separator] != '.' && index_last_separator > 0;
+      index_last_separator--
+    );
+    if (0 == index_last_separator) {
       // There are no more separators in the substring.
       // The name we just checked was the last that we needed to, and it was unset.
       // Therefore, return the default severity threshold.
       return g_rcutils_logging_severity_threshold;
     }
-    substring_end = i_last_separator;
-    name_copy[i_last_separator] = '\0';  // Shorten the substring to the next ancestor.
+    substring_end = index_last_separator;  // Shorten the substring to the next ancestor.
+    fprintf(stderr, "shortening name %s to have substring_end=%d\n", name, substring_end);
   }
-    fprintf(stderr, "no, shouldn't be here.. name_copy: %s\n", name_copy);
+    fprintf(stderr, "no, shouldn't be here.. name_copy: %s\n", name);
     return -1;
 }
 bool rcutils_logging_is_enabled_for(const char * name, int severity) {

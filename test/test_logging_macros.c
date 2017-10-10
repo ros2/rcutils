@@ -108,8 +108,10 @@ int main(int argc, char ** argv)
   }
 
   rcutils_logging_set_logger_severity_threshold(
-    "rcutils_test_logging_macros_c.x", RCUTILS_LOG_SEVERITY_ERROR);
-  RCUTILS_LOG_INFO_NAMED("rcutils_test_logging_macros_c.x.testing.foo", "message %s", "foo");
+    "rcutils_test_logging_macros_c", RCUTILS_LOG_SEVERITY_WARN);
+  rcutils_logging_set_logger_severity_threshold(
+    "rcutils_test_logging_macros_c.testing", RCUTILS_LOG_SEVERITY_ERROR);
+  RCUTILS_LOG_INFO_NAMED("rcutils_test_logging_macros_c.testing.x.foo.fasd", "message %s", "foo");
   if (g_log_calls != 2u) {
     return 17;
   }
