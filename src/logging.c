@@ -42,9 +42,13 @@ bool g_rcutils_logging_severities_map_valid = false;
 
 int g_rcutils_logging_root_logger_severity_threshold = 0;
 
-// TODO(dhood): accept allocator
 void rcutils_logging_initialize()
 
+{
+  rcutils_logging_initialize_with_allocator(rcutils_get_default_allocator());
+}
+
+void rcutils_logging_initialize_with_allocator(rcutils_allocator_t allocator)
 {
   if (!g_rcutils_logging_initialized) {
     g_rcutils_logging_output_handler = &rcutils_logging_console_output_handler;
@@ -71,8 +75,8 @@ void rcutils_logging_initialize()
         strlen(g_rcutils_logging_default_output_format) + 1);
     }
 
+    __rcutils_allocator = allocator;
     g_rcutils_logging_severities_map = rcutils_get_zero_initialized_string_map();
-    __rcutils_allocator = rcutils_get_default_allocator();
     rcutils_ret_t ret = rcutils_string_map_init(
       &g_rcutils_logging_severities_map, 0, __rcutils_allocator);
     if (ret != RCUTILS_RET_OK) {
@@ -343,11 +347,11 @@ void rcutils_logging_console_output_handler(
     fprintf(stderr, "failed to format message: '%s'\n", format);
     return;
   }
-  rcutils_allocator_t allocator = rcutils_get_default_allocator();
   if ((size_t)written >= sizeof(static_message_buffer)) {
     // write was incomplete, allocate necessary memory dynamically
     size_t message_buffer_size = written + 1;
-    void * dynamic_message_buffer = allocator.allocate(message_buffer_size, allocator.state);
+    void * dynamic_message_buffer = __rcutils_allocator.allocate(
+      message_buffer_size, __rcutils_allocator.state);
     if (!dynamic_message_buffer) {
       fprintf(stderr, "failed to allocate buffer for message\n");
       return;
@@ -463,11 +467,11 @@ void rcutils_logging_console_output_handler(
 
 cleanup:
   if (message_buffer && message_buffer != static_message_buffer) {
-    allocator.deallocate(message_buffer, allocator.state);
+    __rcutils_allocator.deallocate(message_buffer, __rcutils_allocator.state);
   }
 
   if (output_buffer && output_buffer != static_output_buffer) {
-    allocator.deallocate(output_buffer, allocator.state);
+    __rcutils_allocator.deallocate(output_buffer, __rcutils_allocator.state);
   }
 }
 

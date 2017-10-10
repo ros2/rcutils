@@ -19,6 +19,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 
+#include "rcutils/allocator.h"
 #include "rcutils/visibility_control.h"
 
 #define RCUTILS_LOGGING_ROOT_LOGGER_NAME ""
@@ -32,9 +33,25 @@ extern "C"
 RCUTILS_PUBLIC
 extern bool g_rcutils_logging_initialized;
 
+/// Initialize the logging system using the specified allocator.
+/**
+ * <hr>
+ * Attribute          | Adherence
+ * ------------------ | -------------
+ * Allocates Memory   | Yes
+ * Thread-Safe        | No
+ * Uses Atomics       | No
+ * Lock-Free          | Yes
+ *
+ * \param allocator rcutils_allocator_t to be used.
+ */
+RCUTILS_PUBLIC
+void rcutils_logging_initialize_with_allocator(rcutils_allocator_t allocator);
+
 /// Initialize the logging system.
 /**
- * The function is called automatically when using the logging macros.
+ * Call rcutils_logging_initialize_with_allocator() using the default allocator.
+ * This function is called automatically when using the logging macros.
  *
  * <hr>
  * Attribute          | Adherence
