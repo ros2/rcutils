@@ -119,17 +119,20 @@ int rcutils_logging_get_severity_threshold()
 int rcutils_logging_get_logger_severity_threshold(const char * name)
 {
   RCUTILS_LOGGING_AUTOINIT
-  if (!g_rcutils_logging_severities_map_valid) {
-    return g_rcutils_logging_severity_threshold;
-  }
-  // TODO(dhood): replace string map with int map.
+
+  // Bypass map lookup if root logger specified.
   if (strcmp(name, "") == 0) {
     return g_rcutils_logging_severity_threshold;
   }
+
+  if (!g_rcutils_logging_severities_map_valid) {
+    return RCUTILS_LOG_SEVERITY_UNSET;
+  }
+
+  // TODO(dhood): replace string map with int map.
   const char * severity_string = rcutils_string_map_get(&g_rcutils_logging_severities_map, name);
   if (!severity_string) {
-    //error
-    return g_rcutils_logging_severity_threshold;
+    return RCUTILS_LOG_SEVERITY_UNSET;
   }
   int severity;
   if (strcmp("DEBUG", severity_string) == 0) {
