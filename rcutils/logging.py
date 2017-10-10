@@ -13,12 +13,13 @@
 # limitations under the License.
 
 from collections import OrderedDict
+RCUTILS_LOGGING_ROOT_LOGGER_NAME = '""'
 
 severities = ('DEBUG', 'INFO', 'WARN', 'ERROR', 'FATAL')
 default_args = OrderedDict((
     ('condition_before', 'RCUTILS_LOG_CONDITION_EMPTY'),
     ('condition_after', 'RCUTILS_LOG_CONDITION_EMPTY'),
-    ('name', '""'),
+    ('name', RCUTILS_LOGGING_ROOT_LOGGER_NAME),
 ))
 name_params = OrderedDict((
     ('name', 'The name of the logger'),

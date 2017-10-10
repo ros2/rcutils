@@ -134,7 +134,7 @@ int rcutils_logging_get_logger_severity_thresholdn(const char * name, size_t nam
   RCUTILS_LOGGING_AUTOINIT
 
   // Bypass map lookup if root logger specified.
-  if (strcmp(name, "") == 0) {
+  if (strcmp(name, RCUTILS_LOGGING_ROOT_LOGGER_NAME) == 0) {
     return g_rcutils_logging_severity_threshold;
   }
 
@@ -170,7 +170,7 @@ int rcutils_logging_get_logger_severity_thresholdn(const char * name, size_t nam
 
 int rcutils_logging_get_logger_effective_threshold(const char * name)
 {
-  if (strcmp("", name) == 0) {
+  if (strcmp(RCUTILS_LOGGING_ROOT_LOGGER_NAME, name) == 0) {
     return g_rcutils_logging_severity_threshold;
   }
   size_t substring_end = strlen(name);
@@ -237,14 +237,16 @@ void rcutils_log(
   rcutils_log_location_t * location,
   int severity, const char * name, const char * format, ...)
 {
-  if (!rcutils_logging_is_enabled_for(name ? name : "", severity)) {
+  // Use the root severity if the logger name isn't specified.
+  if (!rcutils_logging_is_enabled_for(name ? name : RCUTILS_LOGGING_ROOT_LOGGER_NAME, severity)) {
     return;
   }
   rcutils_logging_output_handler_t output_handler = g_rcutils_logging_output_handler;
   if (output_handler) {
     va_list args;
     va_start(args, format);
-    (*output_handler)(location, severity, name ? name : "", format, &args);
+    (*output_handler)(
+      location, severity, name ? name : "", format, &args);
     va_end(args);
   }
 }
