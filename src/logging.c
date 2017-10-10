@@ -38,6 +38,7 @@ static rcutils_allocator_t __rcutils_allocator;
 
 rcutils_logging_output_handler_t g_rcutils_logging_output_handler = NULL;
 static rcutils_string_map_t g_rcutils_logging_severities_map;
+bool g_rcutils_logging_severities_map_valid = false;
 
 int g_rcutils_logging_severity_threshold = 0;
 
@@ -74,7 +75,14 @@ void rcutils_logging_initialize()
     __rcutils_allocator = rcutils_get_default_allocator();
     rcutils_ret_t ret = rcutils_string_map_init(
       &g_rcutils_logging_severities_map, 0, __rcutils_allocator);
-    // check ret
+    if (ret != RCUTILS_RET_OK) {
+      fprintf(
+        stderr,
+        "Failed to initialize map for logger severities. Severities will not be configurable.\n");
+      g_rcutils_logging_severities_map_valid = false;
+    } else {
+      g_rcutils_logging_severities_map_valid = true;
+    }
 
     g_rcutils_logging_initialized = true;
   }
@@ -86,7 +94,9 @@ void rcutils_logging_shutdown()
   {
     return;
   }
-  rcutils_string_map_fini(&g_rcutils_logging_severities_map);
+  if (g_rcutils_logging_severities_map_valid) {
+    rcutils_string_map_fini(&g_rcutils_logging_severities_map);
+  }
   g_rcutils_logging_initialized = false;
 }
 
@@ -109,6 +119,9 @@ int rcutils_logging_get_severity_threshold()
 int rcutils_logging_get_logger_severity_threshold(const char * name)
 {
   RCUTILS_LOGGING_AUTOINIT
+  if (!g_rcutils_logging_severities_map_valid) {
+    return g_rcutils_logging_severity_threshold;
+  }
   // TODO(dhood): replace string map with int map.
   if (strcmp(name, "") == 0) {
     return g_rcutils_logging_severity_threshold;
@@ -149,6 +162,9 @@ void rcutils_logging_set_severity_threshold(int severity)
 void rcutils_logging_set_logger_severity_threshold(const char * name, int severity)
 {
   RCUTILS_LOGGING_AUTOINIT
+  if (!g_rcutils_logging_severities_map_valid) {
+    return;
+  }
 
   const char * severity_string;
   if (RCUTILS_LOG_SEVERITY_DEBUG == severity) {
