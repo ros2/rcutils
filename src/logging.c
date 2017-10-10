@@ -244,14 +244,14 @@ void rcutils_log(
   rcutils_log_location_t * location,
   int severity, const char * name, const char * format, ...)
 {
-  if (severity < g_rcutils_logging_severity_threshold) {
+  if (!rcutils_logging_is_enabled_for(name ? name : "", severity)) {
     return;
   }
   rcutils_logging_output_handler_t output_handler = g_rcutils_logging_output_handler;
   if (output_handler) {
     va_list args;
     va_start(args, format);
-    (*output_handler)(location, severity, name, format, &args);
+    (*output_handler)(location, severity, name ? name : "", format, &args);
     va_end(args);
   }
 }
