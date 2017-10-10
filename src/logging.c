@@ -80,13 +80,14 @@ void rcutils_logging_initialize()
   }
 }
 
-void rcutils_logging_fini()
+void rcutils_logging_shutdown()
 {
   if (!g_rcutils_logging_initialized)
   {
     return;
   }
   rcutils_string_map_fini(&g_rcutils_logging_severities_map);
+  g_rcutils_logging_initialized = false;
 }
 
 rcutils_logging_output_handler_t rcutils_logging_get_output_handler()

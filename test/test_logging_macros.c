@@ -115,11 +115,11 @@ int main(int argc, char ** argv)
   }
 
   rcutils_logging_set_output_handler(previous_output_handler);
-  rcutils_logging_fini();
   if (g_last_log_event.message) {
     free(g_last_log_event.message);
   }
-  g_rcutils_logging_initialized = false;
+
+  rcutils_logging_shutdown();
   if (g_rcutils_logging_initialized) {
     return 18;
   }

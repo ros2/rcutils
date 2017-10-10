@@ -45,7 +45,7 @@ extern bool g_rcutils_logging_initialized;
 RCUTILS_PUBLIC
 void rcutils_logging_initialize();
 RCUTILS_PUBLIC
-void rcutils_logging_fini();
+void rcutils_logging_shutdown();
 
 /// The structure identifying the caller location in the source code.
 typedef struct rcutils_log_location_t
