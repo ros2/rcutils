@@ -155,7 +155,7 @@ extern int g_rcutils_logging_severity_threshold;
  * \return The severity threshold.
  */
 RCUTILS_PUBLIC
-int rcutils_logging_get_severity_threshold();
+int rcutils_logging_get_global_severity_threshold();
 
 /// Set the global severity threshold.
 /**
@@ -170,7 +170,7 @@ int rcutils_logging_get_severity_threshold();
  * \param severity The severity threshold to be used.
  */
 RCUTILS_PUBLIC
-void rcutils_logging_set_severity_threshold(int severity);
+void rcutils_logging_set_global_severity_threshold(int severity);
 
 /// Get the severity threshold for a logger.
 /**

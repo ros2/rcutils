@@ -112,13 +112,13 @@ void rcutils_logging_set_output_handler(rcutils_logging_output_handler_t functio
   g_rcutils_logging_output_handler = function;
 }
 
-int rcutils_logging_get_severity_threshold()
+int rcutils_logging_get_global_severity_threshold()
 {
   RCUTILS_LOGGING_AUTOINIT
   return g_rcutils_logging_severity_threshold;
 }
 
-void rcutils_logging_set_severity_threshold(int severity)
+void rcutils_logging_set_global_severity_threshold(int severity)
 {
   RCUTILS_LOGGING_AUTOINIT
     g_rcutils_logging_severity_threshold = severity;
