@@ -40,7 +40,7 @@ rcutils_logging_output_handler_t g_rcutils_logging_output_handler = NULL;
 static rcutils_string_map_t g_rcutils_logging_severities_map;
 bool g_rcutils_logging_severities_map_valid = false;
 
-int g_rcutils_logging_root_logger_severity_threshold = 0;
+int g_rcutils_logging_default_severity_threshold = 0;
 
 void rcutils_logging_initialize()
 
@@ -52,7 +52,7 @@ void rcutils_logging_initialize_with_allocator(rcutils_allocator_t allocator)
 {
   if (!g_rcutils_logging_initialized) {
     g_rcutils_logging_output_handler = &rcutils_logging_console_output_handler;
-    g_rcutils_logging_root_logger_severity_threshold = RCUTILS_LOG_SEVERITY_INFO;
+    g_rcutils_logging_default_severity_threshold = RCUTILS_LOG_SEVERITY_INFO;
 
     // Check for the environment variable for custom output formatting
     const char * output_format;
@@ -116,6 +116,18 @@ void rcutils_logging_set_output_handler(rcutils_logging_output_handler_t functio
   g_rcutils_logging_output_handler = function;
 }
 
+int rcutils_logging_get_default_severity_threshold()
+{
+  RCUTILS_LOGGING_AUTOINIT
+  return g_rcutils_logging_default_severity_threshold;
+}
+
+void rcutils_logging_set_default_severity_threshold(int severity)
+{
+  RCUTILS_LOGGING_AUTOINIT
+    g_rcutils_logging_default_severity_threshold = severity;
+}
+
 int rcutils_logging_get_logger_severity_threshold(const char * name)
 {
   return rcutils_logging_get_logger_severity_thresholdn(name, strlen(name));
@@ -127,7 +139,7 @@ int rcutils_logging_get_logger_severity_thresholdn(const char * name, size_t nam
 
   // Bypass map lookup if logger name not specified.
   if (strcmp(name, "") == 0) {
-    return g_rcutils_logging_root_logger_severity_threshold;
+    return g_rcutils_logging_default_severity_threshold;
   }
 
   if (!g_rcutils_logging_severities_map_valid) {
@@ -163,7 +175,7 @@ int rcutils_logging_get_logger_severity_thresholdn(const char * name, size_t nam
 int rcutils_logging_get_logger_effective_threshold(const char * name)
 {
   if (strcmp("", name) == 0) {
-    return g_rcutils_logging_root_logger_severity_threshold;
+    return g_rcutils_logging_default_severity_threshold;
   }
   size_t substring_end = strlen(name);
   while (substring_end > 0) {
@@ -188,7 +200,7 @@ int rcutils_logging_get_logger_effective_threshold(const char * name)
     }
     substring_end = index_last_separator;  // Shorten the substring to the next ancestor.
   }
-  return g_rcutils_logging_root_logger_severity_threshold;
+  return g_rcutils_logging_default_severity_threshold;
 }
 
 void rcutils_logging_set_logger_severity_threshold(const char * name, int severity)

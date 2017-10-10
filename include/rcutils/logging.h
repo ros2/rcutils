@@ -149,17 +149,50 @@ rcutils_logging_output_handler_t rcutils_logging_get_output_handler();
 RCUTILS_PUBLIC
 void rcutils_logging_set_output_handler(rcutils_logging_output_handler_t function);
 
-/// The root severity threshold.
+/// The default severity threshold for loggers.
+/**
+ * This severity threshold is used for nameless loggers and loogers with
+ * effective severity thresholds that are otherwise unspecified.
+ */
 RCUTILS_PUBLIC
-extern int g_rcutils_logging_root_logger_severity_threshold;
+extern int g_rcutils_logging_default_severity_threshold;
+
+/// Get the default severity threshold for loggers.
+/**
+ * <hr>
+ * Attribute          | Adherence
+ * ------------------ | -------------
+ * Allocates Memory   | No
+ * Thread-Safe        | No
+ * Uses Atomics       | No
+ * Lock-Free          | Yes
+ *
+ * \return The severity threshold.
+ */
+RCUTILS_PUBLIC
+int rcutils_logging_get_default_severity_threshold();
+
+/// Set the default severity threshold for loggers.
+/**
+ * <hr>
+ * Attribute          | Adherence
+ * ------------------ | -------------
+ * Allocates Memory   | No
+ * Thread-Safe        | No
+ * Uses Atomics       | No
+ * Lock-Free          | Yes
+ *
+ * \param severity The severity threshold to be used.
+ */
+RCUTILS_PUBLIC
+void rcutils_logging_set_default_severity_threshold(int severity);
 
 /// Get the severity threshold for a logger.
 /**
- * This considers the severity threshold of the logger only.
+ * This considers the severity threshold of the specifed logger only.
  * To get the effective severity threshold of a logger given the severity
- * threshold of its ancestors,
- * see rcutils_logging_get_logger_effective_threshold().
- * Use `RCUTILS_LOGGING_ROOT_LOGGER_NAME` for the default root logger name.
+ * threshold of its ancestors, see
+ * rcutils_logging_get_logger_effective_threshold().
  *
  * <hr>
  * Attribute          | Adherence
@@ -236,8 +269,8 @@ bool rcutils_logging_is_enabled_for(const char * name, int severity);
 /**
  * The effective severity threshold is determined as the severity of the logger
  * if it is set, otherwise it is the first specified severity threshold of the
- * logger's ancestors. If no ancestors have the severity threshold set, the
- * global severity threshold is used.
+ * logger's ancestors. If the severity threshold has not been set for the logger
+ * nor any of its ancestors, the default severity threshold is used.
  *
  * <hr>
  * Attribute          | Adherence
