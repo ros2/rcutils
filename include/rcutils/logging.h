@@ -134,45 +134,9 @@ rcutils_logging_output_handler_t rcutils_logging_get_output_handler();
 RCUTILS_PUBLIC
 void rcutils_logging_set_output_handler(rcutils_logging_output_handler_t function);
 
-/// The global severity threshold before calling the output handler.
-/**
- * The global severity threshold is being checked after the conditions when
- * using the various logging macros.
- *
- * \param severity The global severity threshold to be used.
- */
+/// The root severity threshold.
 RCUTILS_PUBLIC
-extern int g_rcutils_logging_severity_threshold;
-
-/// Get the global severity threshold.
-/**
- * <hr>
- * Attribute          | Adherence
- * ------------------ | -------------
- * Allocates Memory   | No
- * Thread-Safe        | No
- * Uses Atomics       | No
- * Lock-Free          | Yes
- *
- * \return The severity threshold.
- */
-RCUTILS_PUBLIC
-int rcutils_logging_get_severity_threshold();
-
-/// Set the global severity threshold.
-/**
- * <hr>
- * Attribute          | Adherence
- * ------------------ | -------------
- * Allocates Memory   | No
- * Thread-Safe        | No
- * Uses Atomics       | No
- * Lock-Free          | Yes
- *
- * \param severity The severity threshold to be used.
- */
-RCUTILS_PUBLIC
-void rcutils_logging_set_severity_threshold(int severity);
+extern int g_rcutils_logging_root_logger_severity_threshold;
 
 /// Get the severity threshold for a logger.
 /**
@@ -180,6 +144,7 @@ void rcutils_logging_set_severity_threshold(int severity);
  * To get the effective severity threshold of a logger given the severity
  * threshold of its ancestors,
  * see rcutils_logging_get_logger_effective_threshold().
+ * Use `RCUTILS_LOGGING_ROOT_LOGGER_NAME` for the default root logger name.
  *
  * <hr>
  * Attribute          | Adherence
