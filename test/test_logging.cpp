@@ -113,6 +113,30 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logging) {
   EXPECT_EQ(5u, g_log_calls);
   EXPECT_EQ(RCUTILS_LOG_SEVERITY_FATAL, g_last_log_event.level);
 
+  // check resolving of effective thresholds in hierarchy of loggers
+  rcutils_logging_set_logger_severity_threshold(
+    "rcutils_test_logging_cpp", RCUTILS_LOG_SEVERITY_WARN);
+  rcutils_logging_set_logger_severity_threshold(
+    "rcutils_test_logging_cpp.testing", RCUTILS_LOG_SEVERITY_DEBUG);
+  rcutils_logging_set_logger_severity_threshold(
+    "rcutils_test_logging_cpp.testing.x", RCUTILS_LOG_SEVERITY_ERROR);
+
+  EXPECT_EQ(
+    RCUTILS_LOG_SEVERITY_ERROR,
+    rcutils_logging_get_logger_effective_threshold("rcutils_test_logging_cpp.testing.x"));
+  EXPECT_EQ(
+    RCUTILS_LOG_SEVERITY_ERROR,
+    rcutils_logging_get_logger_effective_threshold("rcutils_test_logging_cpp.testing.x.y.x"));
+  EXPECT_EQ(
+    RCUTILS_LOG_SEVERITY_DEBUG,
+    rcutils_logging_get_logger_effective_threshold("rcutils_test_logging_cpp.testing"));
+  EXPECT_EQ(
+    RCUTILS_LOG_SEVERITY_WARN,
+    rcutils_logging_get_logger_effective_threshold("rcutils_test_logging_cpp"));
+  EXPECT_EQ(
+    RCUTILS_LOG_SEVERITY_WARN,
+    rcutils_logging_get_logger_effective_threshold("rcutils_test_logging_cpp.testing2"));
+
   // restore original state
   rcutils_logging_set_severity_threshold(original_severity_threshold);
   rcutils_logging_set_output_handler(original_function);

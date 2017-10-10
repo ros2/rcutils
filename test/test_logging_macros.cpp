@@ -154,3 +154,11 @@ TEST_F(TestLoggingMacros, test_logging_skipfirst_throttle) {
   EXPECT_EQ("", g_last_log_event.name);
   EXPECT_EQ("throttled message 8", g_last_log_event.message);
 }
+
+TEST_F(TestLoggingMacros, test_logger_hierarchy) {
+  rcutils_logging_set_logger_severity_threshold(
+    "rcutils_test_logging_macros_cpp", RCUTILS_LOG_SEVERITY_WARN);
+  RCUTILS_LOG_INFO_NAMED("rcutils_test_logging_macros_cpp.testing.x.y.x", "message");
+  // check that no call was made to the underlying log function
+  EXPECT_EQ(0u, g_log_calls);
+}
