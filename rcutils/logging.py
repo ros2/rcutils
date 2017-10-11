@@ -18,7 +18,7 @@ severities = ('DEBUG', 'INFO', 'WARN', 'ERROR', 'FATAL')
 default_args = OrderedDict((
     ('condition_before', 'RCUTILS_LOG_CONDITION_EMPTY'),
     ('condition_after', 'RCUTILS_LOG_CONDITION_EMPTY'),
-    ('name', '""'),
+    ('name', 'NULL'),
 ))
 name_params = OrderedDict((
     ('name', 'The name of the logger'),

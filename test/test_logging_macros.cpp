@@ -161,4 +161,11 @@ TEST_F(TestLoggingMacros, test_logger_hierarchy) {
   RCUTILS_LOG_INFO_NAMED("rcutils_test_logging_macros_cpp.testing.x.y.x", "message");
   // check that no call was made to the underlying log function
   EXPECT_EQ(0u, g_log_calls);
+
+  // check that nameless "loggers" aren't affected by hierarchy of named loggers
+  rcutils_logging_set_logger_severity_threshold("", RCUTILS_LOG_SEVERITY_DEBUG);
+  rcutils_logging_set_logger_severity_threshold(".", RCUTILS_LOG_SEVERITY_DEBUG);
+  rcutils_logging_set_default_severity_threshold(RCUTILS_LOG_SEVERITY_INFO);
+  RCUTILS_LOG_DEBUG("message");
+  EXPECT_EQ(0u, g_log_calls);
 }

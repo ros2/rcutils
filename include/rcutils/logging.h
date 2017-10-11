@@ -236,7 +236,8 @@ int rcutils_logging_get_logger_severity_thresholdn(const char * name, size_t nam
  * Attribute          | Adherence
  * ------------------ | -------------
  * Allocates Memory   | No, for logger that has already had its threshold set
- *                    | Yes, for logger with previously unset threshold
+ *                    | Yes, for logger with previously unset threshold, if more
+ *                    | storage is required
  * Thread-Safe        | No
  * Uses Atomics       | No
  * Lock-Free          | Yes
@@ -257,7 +258,7 @@ void rcutils_logging_set_logger_severity_threshold(const char * name, int severi
  * Uses Atomics       | No
  * Lock-Free          | Yes
  *
- * \param The name of the logger, must be null terminated c string.
+ * \param The name of the logger, must be null terminated c string or NULL.
  * \param The severity level.
  *
  * \return True if the logger is enabled for the severity; false otherwise.
@@ -300,9 +301,9 @@ int rcutils_logging_get_logger_effective_threshold(const char * name);
  * Uses Atomics       | No
  * Lock-Free          | Yes
  *
- * \param location The pointer to the location struct
+ * \param location The pointer to the location struct or NULL
  * \param severity The severity level
- * \param name The name of the logger
+ * \param name The name of the logger, must be null terminated c string or NULL
  * \param format The format string
  * \param ... The variable arguments
  */
@@ -333,7 +334,7 @@ void rcutils_log(
  * Uses Atomics       | No
  * Lock-Free          | Yes
  *
- * \param location The pointer to the location struct
+ * \param location The pointer to the location struct or NULL
  * \param severity The severity level
  * \param name The name of the logger, must be null terminated c string
  * \param format The format string for the message contents

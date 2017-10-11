@@ -137,11 +137,6 @@ int rcutils_logging_get_logger_severity_thresholdn(const char * name, size_t nam
 {
   RCUTILS_LOGGING_AUTOINIT
 
-  // Bypass map lookup if logger name not specified.
-  if (strcmp(name, "") == 0) {
-    return g_rcutils_logging_default_severity_threshold;
-  }
-
   if (!g_rcutils_logging_severities_map_valid) {
     return RCUTILS_LOG_SEVERITY_UNSET;
   }
@@ -174,32 +169,29 @@ int rcutils_logging_get_logger_severity_thresholdn(const char * name, size_t nam
 
 int rcutils_logging_get_logger_effective_threshold(const char * name)
 {
-  if (strcmp("", name) == 0) {
-    return g_rcutils_logging_default_severity_threshold;
-  }
   size_t substring_end = strlen(name);
-  while (substring_end > 0) {
+  while (true) {
     int severity = rcutils_logging_get_logger_severity_thresholdn(name, substring_end);
     if (severity != RCUTILS_LOG_SEVERITY_UNSET) {
       return severity;
     }
     // Traverse the substring from end to beginning in search of separators.
-    size_t index_last_separator;
+    int index_last_separator;
     for (index_last_separator = substring_end - 1;
-      name[index_last_separator] != '.' && index_last_separator > 0;
+      name[index_last_separator] != '.' && index_last_separator >= 0;
       index_last_separator--
     )
     {
       continue;
     }
-    if (0 == index_last_separator) {
+    if (index_last_separator < 0) {
       // There are no more separators in the substring.
       // The name we just checked was the last that we needed to, and it was unset.
-      // Therefore, return the default severity threshold.
       break;
     }
     substring_end = index_last_separator;  // Shorten the substring to the next ancestor.
   }
+  // Neither the logger nor its ancestors have had their severity threshold specified.
   return g_rcutils_logging_default_severity_threshold;
 }
 
@@ -208,10 +200,6 @@ void rcutils_logging_set_logger_severity_threshold(const char * name, int severi
   RCUTILS_LOGGING_AUTOINIT
   if (!g_rcutils_logging_severities_map_valid) {
     return;
-  }
-
-  if (strcmp("", name) == 0) {
-    g_rcutils_logging_default_severity_threshold = severity;
   }
 
   const char * severity_string;
@@ -238,14 +226,18 @@ void rcutils_logging_set_logger_severity_threshold(const char * name, int severi
 
 bool rcutils_logging_is_enabled_for(const char * name, int severity)
 {
-  return severity >= rcutils_logging_get_logger_effective_threshold(name);
+  int severity_threshold = g_rcutils_logging_default_severity_threshold;
+  if (name) {
+    severity_threshold = rcutils_logging_get_logger_effective_threshold(name);
+  }
+  return severity >= severity_threshold;
 }
 
 void rcutils_log(
   rcutils_log_location_t * location,
   int severity, const char * name, const char * format, ...)
 {
-  if (!rcutils_logging_is_enabled_for(name ? name : "", severity)) {
+  if (!rcutils_logging_is_enabled_for(name, severity)) {
     return;
   }
   rcutils_logging_output_handler_t output_handler = g_rcutils_logging_output_handler;
