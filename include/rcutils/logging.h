@@ -235,9 +235,7 @@ int rcutils_logging_get_logger_severity_thresholdn(const char * name, size_t nam
  * <hr>
  * Attribute          | Adherence
  * ------------------ | -------------
- * Allocates Memory   | No, for logger that has already had its threshold set
- *                    | Yes, for logger with previously unset threshold, if more
- *                    | storage is required
+ * Allocates Memory   | Yes
  * Thread-Safe        | No
  * Uses Atomics       | No
  * Lock-Free          | Yes
