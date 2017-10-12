@@ -103,17 +103,27 @@ void rcutils_log(
   }
 }
 
-/*!
-  RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(
-   n, output_buffer_size, allocator, output_buffer, static_output_buffer)
-  Macro for (re)allocating a dynamic buffer if the ouput buffer doesn't have enough space for an
-  additional n characters and null terminator. Whether to allocate or re-allocate is determined by
-  if the output_buffer points to the original static_output_buffer or not. If a new buffer is
-  allocated it will be padded with NUL.
-*/
-
+/// Ensures the logging buffer is large enough.
+/**
+ * Macro for (re)allocating a dynamic buffer if the ouput buffer doesn't have
+ * enough space for an additional n characters and null terminator.
+ * Whether to allocate or re-allocate is determined by if the output_buffer
+ * points to the original static_output_buffer or not.
+ * If a new buffer is allocated it will be null-terminated.
+ *
+ * /param n Number of characters requiring space (not including null terminator)
+ * /param output_buffer_size Size allocated for the output buffer
+ * /param allocator rcutils_allocator_t to use for (re)allocation
+ * /param output_buffer The output buffer to ensure has enough space
+ * /param static_output_buffer The static buffer initially used as the output
+ */
 #define RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER( \
-    n, output_buffer_size, allocator, output_buffer, static_output_buffer) \
+    n, \
+    output_buffer_size, \
+    allocator, \
+    output_buffer, \
+    static_output_buffer \
+) \
   size_t old_output_buffer_len = strlen(output_buffer); \
   size_t required_output_buffer_size = old_output_buffer_len + n + 1; \
   if (required_output_buffer_size > output_buffer_size) { \
