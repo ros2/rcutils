@@ -61,6 +61,21 @@ def test_logging_output_format():
         output_handlers=[ConsoleOutput(), handler],
     )
 
+    env_no_tokens = dict(os.environ)
+    # This custom output is to check that there are no issues when no tokens are used.
+    env_no_tokens['RCUTILS_CONSOLE_OUTPUT_FORMAT'] = 'no_tokens'
+    name = 'test_logging_output_format_no_tokens'
+    output_file = os.path.join(os.path.dirname(__file__), name)
+    handler = create_handler(name, launch_descriptor, output_file)
+    assert handler, 'Cannot find appropriate handler for %s' % output_file
+    launch_descriptor.add_process(
+        cmd=[executable],
+        env=env_no_tokens,
+        name=name,
+        exit_handler=ignore_exit_handler,
+        output_handlers=[ConsoleOutput(), handler],
+    )
+
     launcher = DefaultLauncher()
     launcher.add_launch_descriptor(launch_descriptor)
     rc = launcher.launch()
