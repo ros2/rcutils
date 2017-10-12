@@ -29,7 +29,7 @@ extern "C"
 
 bool g_rcutils_logging_initialized = false;
 char g_rcutils_logging_output_format_string[RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN];
-static const char * rcutils_default_output_format =
+static const char * g_rcutils_logging_default_output_format =
   "[{severity}] [{name}]: {message} ({function_name}() at {file_name}:{line_number})";
 
 rcutils_logging_output_handler_t g_rcutils_logging_output_handler = NULL;
@@ -59,8 +59,8 @@ void rcutils_logging_initialize()
           "Failed to get output format from env. variable: %s. Using default output format.\n",
           ret);
       }
-      memcpy(g_rcutils_logging_output_format_string, rcutils_default_output_format,
-        strlen(rcutils_default_output_format) + 1);
+      memcpy(g_rcutils_logging_output_format_string, g_rcutils_logging_default_output_format,
+        strlen(g_rcutils_logging_default_output_format) + 1);
     }
     g_rcutils_logging_initialized = true;
   }
