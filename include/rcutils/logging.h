@@ -188,14 +188,16 @@ void rcutils_log(
  * The messages with a severity `DEBUG` and `INFO` are written to `stdout`.
  * The messages with a severity `WARN`, `ERROR`, and `FATAL` are written to
  * `stderr`.
- * For each message the severity and name is prepended and the location
- * information is appended when available.
+ * The console output format of the logged message can be configured through
+ * the `RCUTILS_CONSOLE_OUTPUT_FORMAT` environment variable.
+ * By default, the severity and name is prepended and the location
+ * information is appended.
  *
  * <hr>
  * Attribute          | Adherence
  * ------------------ | -------------
- * Allocates Memory   | No, for formatted messages <= 1023 characters
- *                    | Yes, for formatted messages >= 1024 characters
+ * Allocates Memory   | No, for formatted outputs <= 1023 characters
+ *                    | Yes, for formatted outputs >= 1024 characters
  * Thread-Safe        | Yes, if the underlying *printf functions are
  * Uses Atomics       | No
  * Lock-Free          | Yes
@@ -203,8 +205,8 @@ void rcutils_log(
  * \param location The pointer to the location struct
  * \param severity The severity level
  * \param name The name of the logger
- * \param format The format string
- * \param args The variable argument list
+ * \param format The format string for the message contents
+ * \param args The variable argument list for the message format string
  */
 RCUTILS_PUBLIC
 void rcutils_logging_console_output_handler(
