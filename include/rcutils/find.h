@@ -27,9 +27,33 @@ RCUTILS_PUBLIC
 size_t
 rcutils_find(const char * str, char delimiter);
 
+/// Return the last index of a character in a string.
+/**
+ * Search in a string for the last occurence of a delimiter.
+ *
+ * \param[in] str null terminated c string to search
+ * \param[in] delimiter the character to search for
+ * \returns the index of the last occurence of the delimiter if found, or
+ * \returns string_length if the delimiter is not found
+ */
 RCUTILS_PUBLIC
 size_t
 rcutils_find_last(const char * str, char delimiter);
+
+/// Return the last index of a character in a string of specifed length.
+/**
+ * Identical to rcutils_find_last() but without relying on the string to be a
+ * null terminated c string.
+ *
+ * \param[in] str string to search
+ * \param[in] delimiter the character to search for
+ * \param[in] string_length length of the string to search
+ * \returns the index of the last occurence of the delimiter if found, or
+ * \returns string_length if the delimiter is not found
+ */
+RCUTILS_PUBLIC
+size_t
+rcutils_find_lastn(const char * str, char delimiter, size_t string_length);
 
 #if __cplusplus
 }

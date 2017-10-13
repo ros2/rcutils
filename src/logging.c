@@ -216,27 +216,21 @@ int rcutils_logging_get_logger_effective_threshold(const char * name)
       "call to rcutils_logging_get_logger_effective_threshold failed.\n");
     return RCUTILS_LOG_SEVERITY_UNSET;
   }
-  size_t substring_end = strlen(name);
+  size_t substring_length = strlen(name);
   while (true) {
-    int severity = rcutils_logging_get_logger_severity_thresholdn(name, substring_end);
+    int severity = rcutils_logging_get_logger_severity_thresholdn(name, substring_length);
     if (severity != RCUTILS_LOG_SEVERITY_UNSET) {
       return severity;
     }
-    // Traverse the substring from end to beginning in search of separators.
-    int index_last_separator;
-    for (index_last_separator = substring_end - 1;
-      name[index_last_separator] != '.' && index_last_separator >= 0;
-      index_last_separator--
-    )
-    {
-      continue;
-    }
-    if (index_last_separator < 0) {
+    // Determine the next ancestor's FQN by removing the child's name.
+    size_t index_last_separator = rcutils_find_lastn(name, '.', substring_length);
+    if (index_last_separator == substring_length) {
       // There are no more separators in the substring.
       // The name we just checked was the last that we needed to, and it was unset.
       break;
     }
-    substring_end = index_last_separator;  // Shorten the substring to the next ancestor.
+    // Shorten the substring to be the name of the ancestor (excluding the separator).
+    substring_length = index_last_separator;
   }
   // Neither the logger nor its ancestors have had their severity threshold specified.
   return g_rcutils_logging_default_severity_threshold;
