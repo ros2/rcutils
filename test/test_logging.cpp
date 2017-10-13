@@ -113,7 +113,18 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logging) {
   EXPECT_EQ(5u, g_log_calls);
   EXPECT_EQ(RCUTILS_LOG_SEVERITY_FATAL, g_last_log_event.level);
 
+  // restore original state
+  rcutils_logging_set_default_severity_threshold(original_severity_threshold);
+  rcutils_logging_set_output_handler(original_function);
+  g_rcutils_logging_initialized = false;
+  EXPECT_FALSE(g_rcutils_logging_initialized);
+}
+
+TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logger_severities) {
+  rcutils_logging_initialize();
+
   // check resolving of effective thresholds in hierarchy of loggers
+  rcutils_logging_set_default_severity_threshold(RCUTILS_LOG_SEVERITY_INFO);
   int rcutils_test_logging_cpp_severity = RCUTILS_LOG_SEVERITY_WARN;
   int rcutils_test_logging_cpp_testing_severity = RCUTILS_LOG_SEVERITY_DEBUG;
   int rcutils_test_logging_cpp_testing_x_severity = RCUTILS_LOG_SEVERITY_ERROR;
@@ -151,9 +162,19 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logging) {
     rcutils_logging_get_default_severity_threshold(),
     rcutils_logging_get_logger_effective_threshold("rcutils_test_logging_cpp_testing"));
 
-  // restore original state
-  rcutils_logging_set_default_severity_threshold(original_severity_threshold);
-  rcutils_logging_set_output_handler(original_function);
-  g_rcutils_logging_initialized = false;
-  EXPECT_FALSE(g_rcutils_logging_initialized);
+  // check logger severities get cleared on logging restart
+  rcutils_logging_shutdown();
+  rcutils_logging_initialize();
+  EXPECT_EQ(
+    rcutils_logging_get_default_severity_threshold(),
+    rcutils_logging_get_logger_effective_threshold("rcutils_test_logging_cpp"));
+
+  // check hierarchies including trailing dots (considered as having an empty child name)
+  rcutils_logging_set_default_severity_threshold(RCUTILS_LOG_SEVERITY_INFO);
+  int rcutils_test_logging_cpp_dot_severity = RCUTILS_LOG_SEVERITY_FATAL;
+  rcutils_logging_set_logger_severity_threshold(
+    "rcutils_test_logging_cpp.", rcutils_test_logging_cpp_dot_severity);
+  EXPECT_EQ(
+    rcutils_test_logging_cpp_dot_severity,
+    rcutils_logging_get_logger_effective_threshold("rcutils_test_logging_cpp.."));
 }
