@@ -38,6 +38,9 @@ static rcutils_allocator_t __rcutils_allocator;
 
 rcutils_logging_output_handler_t g_rcutils_logging_output_handler = NULL;
 static rcutils_string_map_t g_rcutils_logging_severities_map;
+
+// If this is false, attempts to use the severities map will be skipped.
+// This can happen if allocation of the map fails at initialization.
 bool g_rcutils_logging_severities_map_valid = false;
 
 int g_rcutils_logging_default_severity_threshold = 0;

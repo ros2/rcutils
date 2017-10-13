@@ -149,9 +149,9 @@ rcutils_logging_output_handler_t rcutils_logging_get_output_handler();
 RCUTILS_PUBLIC
 void rcutils_logging_set_output_handler(rcutils_logging_output_handler_t function);
 
-/// The default severity threshold for loggers.
+/// The default severity threshold for log calls.
 /**
- * This severity threshold is used for nameless loggers and loogers with
+ * This severity threshold is used for nameless log calls and loggers with
  * effective severity thresholds that are otherwise unspecified.
  */
 RCUTILS_PUBLIC
@@ -266,10 +266,14 @@ bool rcutils_logging_is_enabled_for(const char * name, int severity);
 
 /// Determine the effective severity threshold for a logger.
 /**
- * The effective severity threshold is determined as the severity of the logger
- * if it is set, otherwise it is the first specified severity threshold of the
- * logger's ancestors. If the severity threshold has not been set for the logger
- * nor any of its ancestors, the default severity threshold is used.
+ * The effective severity threshold is determined as the severity threshold of
+ * the logger if it is set, otherwise it is the first specified severity
+ * threshold of the logger's ancestors, starting with its closest ancestor.
+ * The ancestor hierarchy is signified by logger names being separated by dots:
+ * a logger named `x` is an ancestor of `x.y`, and both `x` and `x.y` are
+ * ancestors of `x.y.z`, etc.
+ * If the severity threshold has not been set for the logger nor any of its
+ * ancestors, the default severity threshold is used.
  *
  * <hr>
  * Attribute          | Adherence
