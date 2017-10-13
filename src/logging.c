@@ -103,7 +103,7 @@ void rcutils_log(
   }
 }
 
-/// Ensures the logging buffer is large enough.
+/// Ensure that the logging buffer is large enough.
 /**
  * Macro for (re)allocating a dynamic buffer if the ouput buffer doesn't have
  * enough space for an additional n characters and null terminator.
