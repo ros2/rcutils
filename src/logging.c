@@ -46,7 +46,6 @@ bool g_rcutils_logging_severities_map_valid = false;
 int g_rcutils_logging_default_severity_threshold = 0;
 
 void rcutils_logging_initialize()
-
 {
   rcutils_logging_initialize_with_allocator(rcutils_get_default_allocator());
 }
@@ -59,8 +58,8 @@ void rcutils_logging_initialize_with_allocator(rcutils_allocator_t allocator)
 
     // Check for the environment variable for custom output formatting
     const char * output_format;
-    const char * ret = rcutils_get_env("RCUTILS_CONSOLE_OUTPUT_FORMAT", &output_format);
-    if (NULL == ret && strcmp(output_format, "") != 0) {
+    const char * ret_str = rcutils_get_env("RCUTILS_CONSOLE_OUTPUT_FORMAT", &output_format);
+    if (NULL == ret_str && strcmp(output_format, "") != 0) {
       size_t chars_to_copy = strlen(output_format);
       if (chars_to_copy > RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN - 1) {
         chars_to_copy = RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN - 1;
@@ -68,11 +67,11 @@ void rcutils_logging_initialize_with_allocator(rcutils_allocator_t allocator)
       memcpy(g_rcutils_logging_output_format_string, output_format, chars_to_copy);
       g_rcutils_logging_output_format_string[chars_to_copy] = '\0';
     } else {
-      if (NULL != ret) {
+      if (NULL != ret_str) {
         fprintf(
           stderr,
           "Failed to get output format from env. variable: %s. Using default output format.\n",
-          ret);
+          ret_str);
       }
       memcpy(g_rcutils_logging_output_format_string, g_rcutils_logging_default_output_format,
         strlen(g_rcutils_logging_default_output_format) + 1);
@@ -467,7 +466,7 @@ void rcutils_logging_console_output_handler(
         chars_to_start_delim = remaining_chars;
       }
       RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(
-        chars_to_start_delim, output_buffer_size, allocator, output_buffer, static_output_buffer)
+        chars_to_start_delim, output_buffer_size, __rcutils_allocator, output_buffer, static_output_buffer)
       memcpy(output_buffer + old_output_buffer_len, str + i, chars_to_start_delim);
       output_buffer[old_output_buffer_len + chars_to_start_delim] = '\0';
       i += chars_to_start_delim;
@@ -485,7 +484,7 @@ void rcutils_logging_console_output_handler(
       // No end delimiters found in the remainder of the format string;
       // there won't be any more tokens so shortcut the rest of the checking.
       RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(
-        remaining_chars, output_buffer_size, allocator, output_buffer, static_output_buffer)
+        remaining_chars, output_buffer_size, __rcutils_allocator, output_buffer, static_output_buffer)
       memcpy(output_buffer + old_output_buffer_len, str + i, remaining_chars + 1);
       break;
     }
@@ -527,7 +526,7 @@ void rcutils_logging_console_output_handler(
       // This wasn't a token; print the start delimiter and continue the search as usual
       // (the substring might contain more start delimiters).
       RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(
-        1, output_buffer_size, allocator, output_buffer, static_output_buffer)
+        1, output_buffer_size, __rcutils_allocator, output_buffer, static_output_buffer)
       memcpy(output_buffer + old_output_buffer_len, str + i, 1);
       output_buffer[old_output_buffer_len + 1] = '\0';
       i++;
@@ -535,7 +534,7 @@ void rcutils_logging_console_output_handler(
     }
     size_t n = strlen(token_expansion);
     RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(
-      n, output_buffer_size, allocator, output_buffer, static_output_buffer)
+      n, output_buffer_size, __rcutils_allocator, output_buffer, static_output_buffer)
     memcpy(output_buffer + old_output_buffer_len, token_expansion, n + 1);
     // Skip ahead to avoid re-processing the token characters (including the 2 delimiters).
     i += token_len + 2;
