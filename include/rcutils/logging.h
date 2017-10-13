@@ -33,6 +33,9 @@ extern bool g_rcutils_logging_initialized;
 
 /// Initialize the logging system using the specified allocator.
 /**
+ * This function must be called before any configuration of the system can be
+ * performed, and before any log calls can be made.
+ *
  * <hr>
  * Attribute          | Adherence
  * ------------------ | -------------

@@ -111,35 +111,73 @@ void rcutils_logging_shutdown()
 
 rcutils_logging_output_handler_t rcutils_logging_get_output_handler()
 {
+  if (!g_rcutils_logging_initialized) {
+    fprintf(
+      stderr,
+      "logging system isn't initialized: " \
+      "call to rcutils_logging_get_output_handler failed.\n");
+    return NULL;
+  }
   return g_rcutils_logging_output_handler;
 }
 
 void rcutils_logging_set_output_handler(rcutils_logging_output_handler_t function)
 {
+  if (!g_rcutils_logging_initialized) {
+    fprintf(
+      stderr,
+      "logging system isn't initialized: " \
+      "call to rcutils_logging_set_output_handler failed.\n");
+    return;
+  }
   g_rcutils_logging_output_handler = function;
 }
 
 int rcutils_logging_get_default_severity_threshold()
 {
-  RCUTILS_LOGGING_AUTOINIT
+  if (!g_rcutils_logging_initialized) {
+    fprintf(
+      stderr,
+      "logging system isn't initialized: " \
+      "call to rcutils_logging_get_default_severity_threshold failed.\n");
+    return RCUTILS_LOG_SEVERITY_UNSET;
+  }
   return g_rcutils_logging_default_severity_threshold;
 }
 
 void rcutils_logging_set_default_severity_threshold(int severity)
 {
-  RCUTILS_LOGGING_AUTOINIT
-    g_rcutils_logging_default_severity_threshold = severity;
+  if (!g_rcutils_logging_initialized) {
+    fprintf(
+      stderr,
+      "logging system isn't initialized: " \
+      "call to rcutils_logging_set_default_severity_threshold failed.\n");
+    return;
+  }
+  g_rcutils_logging_default_severity_threshold = severity;
 }
 
 int rcutils_logging_get_logger_severity_threshold(const char * name)
 {
+  if (!g_rcutils_logging_initialized) {
+    fprintf(
+      stderr,
+      "logging system isn't initialized: " \
+      "call to rcutils_logging_get_logger_severity_threshold failed.\n");
+    return RCUTILS_LOG_SEVERITY_UNSET;
+  }
   return rcutils_logging_get_logger_severity_thresholdn(name, strlen(name));
 }
 
 int rcutils_logging_get_logger_severity_thresholdn(const char * name, size_t name_length)
 {
-  RCUTILS_LOGGING_AUTOINIT
-
+  if (!g_rcutils_logging_initialized) {
+    fprintf(
+      stderr,
+      "logging system isn't initialized: " \
+      "call to rcutils_logging_get_logger_severity_thresholdn failed.\n");
+    return RCUTILS_LOG_SEVERITY_UNSET;
+  }
   if (!g_rcutils_logging_severities_map_valid) {
     return RCUTILS_LOG_SEVERITY_UNSET;
   }
@@ -172,6 +210,13 @@ int rcutils_logging_get_logger_severity_thresholdn(const char * name, size_t nam
 
 int rcutils_logging_get_logger_effective_threshold(const char * name)
 {
+  if (!g_rcutils_logging_initialized) {
+    fprintf(
+      stderr,
+      "logging system isn't initialized: " \
+      "call to rcutils_logging_get_logger_effective_threshold failed.\n");
+    return RCUTILS_LOG_SEVERITY_UNSET;
+  }
   size_t substring_end = strlen(name);
   while (true) {
     int severity = rcutils_logging_get_logger_severity_thresholdn(name, substring_end);
@@ -200,7 +245,13 @@ int rcutils_logging_get_logger_effective_threshold(const char * name)
 
 void rcutils_logging_set_logger_severity_threshold(const char * name, int severity)
 {
-  RCUTILS_LOGGING_AUTOINIT
+  if (!g_rcutils_logging_initialized) {
+    fprintf(
+      stderr,
+      "logging system isn't initialized: " \
+      "call to rcutils_logging_set_logger_effective_threshold failed.\n");
+    return;
+  }
   if (!g_rcutils_logging_severities_map_valid) {
     return;
   }
@@ -229,6 +280,13 @@ void rcutils_logging_set_logger_severity_threshold(const char * name, int severi
 
 bool rcutils_logging_is_enabled_for(const char * name, int severity)
 {
+  if (!g_rcutils_logging_initialized) {
+    fprintf(
+      stderr,
+      "logging system isn't initialized: " \
+      "call to rcutils_logging_is_enabled_for failed.\n");
+    return false;
+  }
   int severity_threshold = g_rcutils_logging_default_severity_threshold;
   if (name) {
     severity_threshold = rcutils_logging_get_logger_effective_threshold(name);
@@ -240,6 +298,13 @@ void rcutils_log(
   rcutils_log_location_t * location,
   int severity, const char * name, const char * format, ...)
 {
+  if (!g_rcutils_logging_initialized) {
+    fprintf(
+      stderr,
+      "logging system isn't initialized: " \
+      "call to rcutils_log failed.\n");
+    return;
+  }
   if (!rcutils_logging_is_enabled_for(name, severity)) {
     return;
   }
@@ -303,6 +368,13 @@ void rcutils_logging_console_output_handler(
   rcutils_log_location_t * location,
   int severity, const char * name, const char * format, va_list * args)
 {
+  if (!g_rcutils_logging_initialized) {
+    fprintf(
+      stderr,
+      "logging system isn't initialized: " \
+      "call to rcutils_logging_console_output_handler failed.\n");
+    return;
+  }
   FILE * stream = NULL;
   const char * severity_string = "";
   switch (severity) {
