@@ -89,6 +89,7 @@ rcutils_ret_t rcutils_logging_initialize();
 /// Shutdown the logging system.
 /**
  * Free the resources allocated for the logging system.
+ * This puts the system into a state equivalent to being uninitialized.
  *
  * <hr>
  * Attribute          | Adherence
@@ -97,9 +98,13 @@ rcutils_ret_t rcutils_logging_initialize();
  * Thread-Safe        | No
  * Uses Atomics       | No
  * Lock-Free          | Yes
+ *
+ * \return `RCUTILS_RET_OK` if successful.
+ * \return `RCUTILS_RET_LOGGING_SEVERITY_MAP_INVALID` if the internal logger
+ *   severity map cannot be finalized.
  */
 RCUTILS_PUBLIC
-void rcutils_logging_shutdown();
+rcutils_ret_t rcutils_logging_shutdown();
 
 /// The structure identifying the caller location in the source code.
 typedef struct rcutils_log_location_t

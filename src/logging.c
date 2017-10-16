@@ -105,18 +105,22 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
   return ret;
 }
 
-void rcutils_logging_shutdown()
+rcutils_ret_t rcutils_logging_shutdown()
 {
   if (!g_rcutils_logging_initialized) {
-    return;
+    return RCUTILS_RET_OK;
   }
+  rcutils_ret_t ret = RCUTILS_RET_OK;
   if (g_rcutils_logging_severities_map_valid) {
     rcutils_ret_t ret = rcutils_string_map_fini(&g_rcutils_logging_severities_map);
     if (ret != RCUTILS_RET_OK) {
       fprintf(stderr, "Failed to finalize logging severities map: return code %d", ret);
+      g_rcutils_logging_severities_map_valid = false;
+      ret = RCUTILS_RET_LOGGING_SEVERITY_MAP_INVALID;
     }
   }
   g_rcutils_logging_initialized = false;
+  return ret;
 }
 
 rcutils_logging_output_handler_t rcutils_logging_get_output_handler()

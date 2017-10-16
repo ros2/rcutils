@@ -172,7 +172,7 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logger_severities) {
     rcutils_logging_get_logger_effective_threshold("rcutils_test_logging_cpp_testing"));
 
   // check logger severities get cleared on logging restart
-  rcutils_logging_shutdown();
+  ASSERT_EQ(rcutils_logging_shutdown(), RCUTILS_RET_OK);
   ASSERT_EQ(rcutils_logging_initialize(), RCUTILS_RET_OK);
   EXPECT_EQ(
     rcutils_logging_get_default_severity_threshold(),
