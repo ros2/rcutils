@@ -149,6 +149,7 @@ int rcutils_logging_get_logger_severity_thresholdn(const char * name, size_t nam
   const char * severity_string = rcutils_string_map_getn(
     &g_rcutils_logging_severities_map, name, name_length);
   if (!severity_string) {
+    // TODO(dhood): destinguish between unset and error, and return -1 on error
     return RCUTILS_LOG_SEVERITY_UNSET;
   }
   int severity;
@@ -177,6 +178,12 @@ int rcutils_logging_get_logger_effective_threshold(const char * name)
   size_t substring_length = strlen(name);
   while (true) {
     int severity = rcutils_logging_get_logger_severity_thresholdn(name, substring_length);
+    if (-1 == severity) {
+      fprintf(
+        stderr,
+        "Error getting effective severity threshold of logger '%s'\n", name);
+      return -1;
+    }
     if (severity != RCUTILS_LOG_SEVERITY_UNSET) {
       return severity;
     }
@@ -229,6 +236,12 @@ bool rcutils_logging_is_enabled_for(const char * name, int severity)
   int severity_threshold = g_rcutils_logging_default_severity_threshold;
   if (name) {
     severity_threshold = rcutils_logging_get_logger_effective_threshold(name);
+    if (-1 == severity_threshold) {
+      fprintf(
+        stderr,
+        "Error determining if logger '%s' is enabled for severity '%d'", name, severity);
+      return false;
+    }
   }
   return severity >= severity_threshold;
 }

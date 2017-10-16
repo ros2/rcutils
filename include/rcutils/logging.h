@@ -207,7 +207,8 @@ void rcutils_logging_set_default_severity_threshold(int severity);
  *
  * \param name The name of the logger, must be null terminated c string
  * \return The severity threshold if it has been set, or
- * \return `RCUTILS_LOG_SEVERITY_UNSET` if unset
+ * \return `RCUTILS_LOG_SEVERITY_UNSET` if unset, or
+ * \return -1 if an error occurred
  */
 RCUTILS_PUBLIC
 int rcutils_logging_get_logger_severity_threshold(const char * name);
@@ -228,7 +229,8 @@ int rcutils_logging_get_logger_severity_threshold(const char * name);
  * \param name The name of the logger
  * \param name_length Logger name length
  * \return The severity threshold if it has been set, or
- * \return `RCUTILS_LOG_SEVERITY_UNSET` if unset
+ * \return `RCUTILS_LOG_SEVERITY_UNSET` if unset, or
+ * \return -1 if an error occurred
  */
 RCUTILS_PUBLIC
 int rcutils_logging_get_logger_severity_thresholdn(const char * name, size_t name_length);
@@ -288,7 +290,8 @@ bool rcutils_logging_is_enabled_for(const char * name, int severity);
  *
  * \param The name of the logger, must be null terminated c string.
  *
- * \return The severity threshold.
+ * \return The severity threshold, or
+ * \return -1 if an error occurred.
  */
 RCUTILS_PUBLIC
 int rcutils_logging_get_logger_effective_threshold(const char * name);
