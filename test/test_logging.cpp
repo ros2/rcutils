@@ -28,9 +28,9 @@
 
 TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logging_initialization) {
   EXPECT_FALSE(g_rcutils_logging_initialized);
-  rcutils_logging_initialize();
+  ASSERT_EQ(rcutils_logging_initialize(), RCUTILS_RET_OK);
   EXPECT_TRUE(g_rcutils_logging_initialized);
-  rcutils_logging_initialize();
+  ASSERT_EQ(rcutils_logging_initialize(), RCUTILS_RET_OK);
   EXPECT_TRUE(g_rcutils_logging_initialized);
   g_rcutils_logging_initialized = false;
   EXPECT_FALSE(g_rcutils_logging_initialized);
@@ -49,7 +49,7 @@ LogEvent g_last_log_event;
 
 TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logging) {
   EXPECT_FALSE(g_rcutils_logging_initialized);
-  rcutils_logging_initialize();
+  ASSERT_EQ(rcutils_logging_initialize(), RCUTILS_RET_OK);
   EXPECT_TRUE(g_rcutils_logging_initialized);
   g_rcutils_logging_default_severity_threshold = RCUTILS_LOG_SEVERITY_DEBUG;
   EXPECT_EQ(RCUTILS_LOG_SEVERITY_DEBUG, g_rcutils_logging_default_severity_threshold);
@@ -121,7 +121,7 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logging) {
 }
 
 TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logger_severities) {
-  rcutils_logging_initialize();
+  ASSERT_EQ(rcutils_logging_initialize(), RCUTILS_RET_OK);
 
   // check resolving of effective thresholds in hierarchy of loggers
   rcutils_logging_set_default_severity_threshold(RCUTILS_LOG_SEVERITY_INFO);
@@ -173,7 +173,7 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logger_severities) {
 
   // check logger severities get cleared on logging restart
   rcutils_logging_shutdown();
-  rcutils_logging_initialize();
+  ASSERT_EQ(rcutils_logging_initialize(), RCUTILS_RET_OK);
   EXPECT_EQ(
     rcutils_logging_get_default_severity_threshold(),
     rcutils_logging_get_logger_effective_threshold("rcutils_test_logging_cpp"));

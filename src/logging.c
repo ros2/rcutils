@@ -45,13 +45,14 @@ bool g_rcutils_logging_severities_map_valid = false;
 
 int g_rcutils_logging_default_severity_threshold = 0;
 
-void rcutils_logging_initialize()
+rcutils_ret_t rcutils_logging_initialize()
 {
-  rcutils_logging_initialize_with_allocator(rcutils_get_default_allocator());
+  return rcutils_logging_initialize_with_allocator(rcutils_get_default_allocator());
 }
 
-void rcutils_logging_initialize_with_allocator(rcutils_allocator_t allocator)
+rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allocator)
 {
+  rcutils_ret_t ret = RCUTILS_RET_OK;
   if (!g_rcutils_logging_initialized) {
     g_rcutils_logging_output_handler = &rcutils_logging_console_output_handler;
     g_rcutils_logging_default_severity_threshold = RCUTILS_LOG_SEVERITY_INFO;
@@ -72,26 +73,36 @@ void rcutils_logging_initialize_with_allocator(rcutils_allocator_t allocator)
           stderr,
           "Failed to get output format from env. variable: %s. Using default output format.\n",
           ret_str);
+        ret = RCUTILS_RET_INVALID_ARGUMENT;
       }
       memcpy(g_rcutils_logging_output_format_string, g_rcutils_logging_default_output_format,
         strlen(g_rcutils_logging_default_output_format) + 1);
     }
 
+    if (!rcutils_allocator_is_valid(&allocator)) {
+      fprintf(
+        stderr,
+        "Provided allocator is invalid. Using the default allocator.\n");
+      ret = RCUTILS_RET_INVALID_ARGUMENT;
+      allocator = rcutils_get_default_allocator();
+    }
     __rcutils_allocator = allocator;
     g_rcutils_logging_severities_map = rcutils_get_zero_initialized_string_map();
-    rcutils_ret_t ret = rcutils_string_map_init(
+    rcutils_ret_t string_map_ret = rcutils_string_map_init(
       &g_rcutils_logging_severities_map, 0, __rcutils_allocator);
-    if (ret != RCUTILS_RET_OK) {
+    if (string_map_ret != RCUTILS_RET_OK) {
       fprintf(
         stderr,
         "Failed to initialize map for logger severities. Severities will not be configurable.\n");
       g_rcutils_logging_severities_map_valid = false;
+      ret = RCUTILS_RET_STRING_MAP_INVALID;
     } else {
       g_rcutils_logging_severities_map_valid = true;
     }
 
     g_rcutils_logging_initialized = true;
   }
+  return ret;
 }
 
 void rcutils_logging_shutdown()

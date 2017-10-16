@@ -34,8 +34,11 @@ extern bool g_rcutils_logging_initialized;
 
 /// Initialize the logging system using the specified allocator.
 /**
- * This function must be called before any configuration of the system can be
- * performed, and before any log calls can be made.
+ * This function will always set the internal state to initialized even if an
+ * error occurs, to avoid repeated failing initialization attempts since this
+ * function is called automatically from logging macros.
+ * To re-attempt initialization after failure, call rcutils_logging_shutdown()
+ * before re-calling this function.
  *
  * <hr>
  * Attribute          | Adherence
@@ -46,9 +49,18 @@ extern bool g_rcutils_logging_initialized;
  * Lock-Free          | Yes
  *
  * \param allocator rcutils_allocator_t to be used.
+ * \return `RCUTILS_RET_OK` if successful.
+ * \retrun `RCUTILS_RET_INVALID_ARGUMENT` if the allocator is invalid, in which
+ *   case the default allocator will be used.
+ * \return `RCUTILS_RET_INVALID_ARGUMENT` if an error occurs reading the output
+ *   format from the `RCUTILS_CONSOLE_OUTPUT_FORMAT` environment variable, in
+ *   which case the default format will be used.
+ * \return `RCUTILS_RET_LOGGING_SEVERITY_MAP_INVALID` if the internal logger
+ *   severity map cannot be initialized, in which case logger severity
+ *   thresholds will not be configurable.
  */
 RCUTILS_PUBLIC
-void rcutils_logging_initialize_with_allocator(rcutils_allocator_t allocator);
+rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allocator);
 
 /// Initialize the logging system.
 /**
@@ -62,9 +74,17 @@ void rcutils_logging_initialize_with_allocator(rcutils_allocator_t allocator);
  * Thread-Safe        | No
  * Uses Atomics       | No
  * Lock-Free          | Yes
+ *
+ * \return `RCUTILS_RET_OK` if successful.
+ * \return `RCUTILS_RET_INVALID_ARGUMENT` if an error occurs reading the output
+ *   format from the `RCUTILS_CONSOLE_OUTPUT_FORMAT` environment variable, in
+ *   which case the default format will be used.
+ * \return `RCUTILS_RET_LOGGING_SEVERITY_MAP_INVALID` if the internal logger
+ *   severity map cannot be initialized, in which case logger severity
+ *   thresholds will not be configurable.
  */
 RCUTILS_PUBLIC
-void rcutils_logging_initialize();
+rcutils_ret_t rcutils_logging_initialize();
 
 /// Shutdown the logging system.
 /**

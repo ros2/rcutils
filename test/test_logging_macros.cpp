@@ -43,7 +43,7 @@ public:
   {
     g_log_calls = 0;
     EXPECT_FALSE(g_rcutils_logging_initialized);
-    rcutils_logging_initialize();
+    ASSERT_EQ(rcutils_logging_initialize(), RCUTILS_RET_OK);
     EXPECT_TRUE(g_rcutils_logging_initialized);
     g_rcutils_logging_default_severity_threshold = RCUTILS_LOG_SEVERITY_DEBUG;
     EXPECT_EQ(RCUTILS_LOG_SEVERITY_DEBUG, g_rcutils_logging_default_severity_threshold);
