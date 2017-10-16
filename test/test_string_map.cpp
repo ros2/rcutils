@@ -938,7 +938,7 @@ TEST(test_string_map, key_existsn) {
   auto allocator = rcutils_get_default_allocator();
   rcutils_ret_t ret;
 
-  // get normal key, which is longer than compared
+  // key_existsn on normal key, which is longer than compared
   {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&string_map, 2, allocator);
