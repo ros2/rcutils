@@ -201,11 +201,11 @@ int rcutils_logging_get_logger_effective_threshold(const char * name)
   return g_rcutils_logging_default_severity_threshold;
 }
 
-void rcutils_logging_set_logger_severity_threshold(const char * name, int severity)
+rcutils_ret_t rcutils_logging_set_logger_severity_threshold(const char * name, int severity)
 {
   RCUTILS_LOGGING_AUTOINIT
   if (!g_rcutils_logging_severities_map_valid) {
-    return;
+    return RCUTILS_RET_LOGGING_SEVERITY_MAP_INVALID;
   }
 
   const char * severity_string;
@@ -221,13 +221,15 @@ void rcutils_logging_set_logger_severity_threshold(const char * name, int severi
     severity_string = "FATAL";
   } else {
     fprintf(stderr, "Invalid severity specified for logger named '%s': %d", name, severity);
-    return;
+    return RCUTILS_RET_INVALID_ARGUMENT;
   }
   rcutils_ret_t ret = rcutils_string_map_set(
     &g_rcutils_logging_severities_map, name, severity_string);
   if (ret != RCUTILS_RET_OK) {
     fprintf(stderr, "Error setting severity for logger named '%s'", name);
+    return ret;
   }
+  return RCUTILS_RET_OK;
 }
 
 bool rcutils_logging_is_enabled_for(const char * name, int severity)

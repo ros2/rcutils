@@ -20,6 +20,7 @@
 #include <stdio.h>
 
 #include "rcutils/allocator.h"
+#include "rcutils/types/rcutils_ret.h"
 #include "rcutils/visibility_control.h"
 
 #if __cplusplus
@@ -247,9 +248,13 @@ int rcutils_logging_get_logger_severity_thresholdn(const char * name, size_t nam
  *
  * \param name The name of the logger, must be null terminated c string.
  * \param severity The severity threshold to be used.
+ * \return `RCL_RET_OK` if successful, or
+ * \return `RCUTILS_RET_INVALID_ARGUMENT` if invalid severity specifed, or
+ * \return `RCUTILS_RET_LOGGING_SEVERITY_MAP_INVALID` if severity map invalid, or
+ * \return `RCUTILS_RET_ERROR` if an unspecified error occured
  */
 RCUTILS_PUBLIC
-void rcutils_logging_set_logger_severity_threshold(const char * name, int severity);
+rcutils_ret_t rcutils_logging_set_logger_severity_threshold(const char * name, int severity);
 
 /// Determine if a logger is enabled for a severity.
 /**
