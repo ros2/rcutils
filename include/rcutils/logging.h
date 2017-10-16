@@ -127,7 +127,7 @@ extern rcutils_logging_output_handler_t g_rcutils_logging_output_handler;
  * <hr>
  * Attribute          | Adherence
  * ------------------ | -------------
- * Allocates Memory   | No
+ * Allocates Memory   | No, provided logging system is already initialized
  * Thread-Safe        | No
  * Uses Atomics       | No
  * Lock-Free          | Yes
@@ -142,7 +142,7 @@ rcutils_logging_output_handler_t rcutils_logging_get_output_handler();
  * <hr>
  * Attribute          | Adherence
  * ------------------ | -------------
- * Allocates Memory   | No
+ * Allocates Memory   | No, provided logging system is already initialized
  * Thread-Safe        | No
  * Uses Atomics       | No
  * Lock-Free          | Yes
@@ -165,7 +165,7 @@ extern int g_rcutils_logging_default_severity_threshold;
  * <hr>
  * Attribute          | Adherence
  * ------------------ | -------------
- * Allocates Memory   | No
+ * Allocates Memory   | No, provided logging system is already initialized
  * Thread-Safe        | No
  * Uses Atomics       | No
  * Lock-Free          | Yes
@@ -180,7 +180,7 @@ int rcutils_logging_get_default_severity_threshold();
  * <hr>
  * Attribute          | Adherence
  * ------------------ | -------------
- * Allocates Memory   | No
+ * Allocates Memory   | No, provided logging system is already initialized
  * Thread-Safe        | No
  * Uses Atomics       | No
  * Lock-Free          | Yes
@@ -200,7 +200,7 @@ void rcutils_logging_set_default_severity_threshold(int severity);
  * <hr>
  * Attribute          | Adherence
  * ------------------ | -------------
- * Allocates Memory   | No
+ * Allocates Memory   | No, provided logging system is already initialized
  * Thread-Safe        | No
  * Uses Atomics       | No
  * Lock-Free          | Yes
@@ -220,7 +220,7 @@ int rcutils_logging_get_logger_severity_threshold(const char * name);
  * <hr>
  * Attribute          | Adherence
  * ------------------ | -------------
- * Allocates Memory   | No
+ * Allocates Memory   | No, provided logging system is already initialized
  * Thread-Safe        | No
  * Uses Atomics       | No
  * Lock-Free          | Yes
@@ -254,7 +254,7 @@ void rcutils_logging_set_logger_severity_threshold(const char * name, int severi
  * <hr>
  * Attribute          | Adherence
  * ------------------ | -------------
- * Allocates Memory   | No
+ * Allocates Memory   | No, provided logging system is already initialized
  * Thread-Safe        | No
  * Uses Atomics       | No
  * Lock-Free          | Yes
@@ -281,7 +281,7 @@ bool rcutils_logging_is_enabled_for(const char * name, int severity);
  * <hr>
  * Attribute          | Adherence
  * ------------------ | -------------
- * Allocates Memory   | No
+ * Allocates Memory   | No, provided logging system is already initialized
  * Thread-Safe        | No
  * Uses Atomics       | No
  * Lock-Free          | Yes
