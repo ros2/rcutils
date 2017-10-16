@@ -879,23 +879,23 @@ TEST(test_string_map, key_exists) {
     ret = rcutils_string_map_init(&string_map, 2, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
     key_exists = rcutils_string_map_key_exists(&string_map, "key1");
-    EXPECT_EQ(false, key_exists);
+    EXPECT_FALSE(key_exists);
     key_exists = rcutils_string_map_key_exists(&string_map, "key2");
-    EXPECT_EQ(false, key_exists);
+    EXPECT_FALSE(key_exists);
 
     ret = rcutils_string_map_set(&string_map, "key1", "value1");
     ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
     key_exists = rcutils_string_map_key_exists(&string_map, "key1");
-    EXPECT_EQ(true, key_exists);
+    EXPECT_TRUE(key_exists);
     key_exists = rcutils_string_map_key_exists(&string_map, "key2");
-    EXPECT_EQ(false, key_exists);
+    EXPECT_FALSE(key_exists);
 
     ret = rcutils_string_map_unset(&string_map, "key1");
     ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
     key_exists = rcutils_string_map_key_exists(&string_map, "key1");
-    EXPECT_EQ(false, key_exists);
+    EXPECT_FALSE(key_exists);
     key_exists = rcutils_string_map_key_exists(&string_map, "key2");
-    EXPECT_EQ(false, key_exists);
+    EXPECT_FALSE(key_exists);
 
     ret = rcutils_string_map_fini(&string_map);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
@@ -904,7 +904,7 @@ TEST(test_string_map, key_exists) {
   // key_exists with string_map as null
   {
     key_exists = rcutils_string_map_key_exists(NULL, "key");
-    EXPECT_EQ(false, key_exists);
+    EXPECT_FALSE(key_exists);
   }
 
   // key_exists with key as null
@@ -914,7 +914,7 @@ TEST(test_string_map, key_exists) {
     ASSERT_EQ(RCUTILS_RET_OK, ret);
 
     key_exists = rcutils_string_map_key_exists(&string_map, NULL);
-    EXPECT_EQ(false, key_exists);
+    EXPECT_FALSE(key_exists);
 
     ret = rcutils_string_map_fini(&string_map);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
@@ -927,7 +927,7 @@ TEST(test_string_map, key_exists) {
     ASSERT_EQ(RCUTILS_RET_OK, ret);
 
     key_exists = rcutils_string_map_key_exists(&string_map, "missing");
-    EXPECT_EQ(false, key_exists);
+    EXPECT_FALSE(key_exists);
 
     ret = rcutils_string_map_fini(&string_map);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
@@ -949,9 +949,9 @@ TEST(test_string_map, key_existsn) {
     ret = rcutils_string_map_set(&string_map, "key2", "value2");
     ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
 
-    EXPECT_EQ(true, rcutils_string_map_key_existsn(&string_map, "key1andsome", 4));
-    EXPECT_EQ(true, rcutils_string_map_key_existsn(&string_map, "key2andsome", 4));
-    EXPECT_EQ(false, rcutils_string_map_key_existsn(&string_map, "key1andsome", 5));
+    EXPECT_TRUE(rcutils_string_map_key_existsn(&string_map, "key1andsome", 4));
+    EXPECT_TRUE(rcutils_string_map_key_existsn(&string_map, "key2andsome", 4));
+    EXPECT_FALSE(rcutils_string_map_key_existsn(&string_map, "key1andsome", 5));
 
     ret = rcutils_string_map_fini(&string_map);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
