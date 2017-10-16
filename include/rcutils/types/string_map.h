@@ -273,6 +273,47 @@ RCUTILS_WARN_UNUSED
 rcutils_ret_t
 rcutils_string_map_unset(rcutils_string_map_t * string_map, const char * key);
 
+/// Get whether or not a key exists.
+/**
+ * The key needs to be a null terminated c string.
+ *
+ * This function can fail and return false if the key is not found,
+ * or the string_map is NULL or invalid, or if the key is NULL.
+ * In all cases no error message is set.
+ *
+ * \param[in] string_map rcutils_string_map_t to be searched
+ * \param[in] key map key, must be null terminated c string
+ * \return `true` if key is in the map, or
+ * \return `false` if key is not in the map, or
+ * \return `false` for invalid arguments, or
+ * \return `false` if the string map is invalid, or
+ * \return `false` if an unknown error occurs
+ */
+RCUTILS_PUBLIC
+bool
+rcutils_string_map_key_exists(const rcutils_string_map_t * string_map, const char * key);
+
+/// Get whether or not a key of known length exists.
+/**
+ * Identical to rcutils_string_map_key_exists() but without relying on key to be
+ * a null terminated c string.
+ *
+ * \param[in] string_map rcutils_string_map_t to be searched
+ * \param[in] key map key
+ * \param[in] key_length map key length
+ * \return `true` if key is in the map, or
+ * \return `false` if key is not in the map, or
+ * \return `false` for invalid arguments, or
+ * \return `false` if the string map is invalid, or
+ * \return `false` if an unknown error occurs
+ */
+RCUTILS_PUBLIC
+bool
+rcutils_string_map_key_existsn(
+  const rcutils_string_map_t * string_map,
+  const char * key,
+  size_t key_length);
+
 /// Get value given a key.
 /**
  * The key needs to be a null terminated c string.

@@ -362,6 +362,29 @@ rcutils_string_map_unset(rcutils_string_map_t * string_map, const char * key)
   return RCUTILS_RET_OK;
 }
 
+bool
+rcutils_string_map_key_exists(const rcutils_string_map_t * string_map, const char * key)
+{
+  if (!key) {
+    return false;
+  }
+  return rcutils_string_map_key_existsn(string_map, key, strlen(key));
+}
+
+bool
+rcutils_string_map_key_existsn(
+  const rcutils_string_map_t * string_map,
+  const char * key,
+  size_t key_length)
+{
+  if (!string_map || !string_map->impl || !key) {
+    return false;
+  }
+  size_t key_index;
+  bool key_exists = __get_index_of_key_if_exists(string_map->impl, key, key_length, &key_index);
+  return key_exists;
+}
+
 const char *
 rcutils_string_map_get(const rcutils_string_map_t * string_map, const char * key)
 {

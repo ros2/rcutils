@@ -164,7 +164,10 @@ int rcutils_logging_get_logger_severity_thresholdn(const char * name, size_t nam
   const char * severity_string = rcutils_string_map_getn(
     &g_rcutils_logging_severities_map, name, name_length);
   if (!severity_string) {
-    // TODO(dhood): destinguish between unset and error, and return -1 on error
+    if (rcutils_string_map_key_existsn(&g_rcutils_logging_severities_map, name, name_length)) {
+      // The severity threshold has been specified but couldn't be retrieved.
+      return -1;
+    }
     return RCUTILS_LOG_SEVERITY_UNSET;
   }
   int severity;
