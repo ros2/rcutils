@@ -28,9 +28,9 @@
 
 TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logging_initialization) {
   EXPECT_FALSE(g_rcutils_logging_initialized);
-  ASSERT_EQ(rcutils_logging_initialize(), RCUTILS_RET_OK);
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_initialize());
   EXPECT_TRUE(g_rcutils_logging_initialized);
-  ASSERT_EQ(rcutils_logging_initialize(), RCUTILS_RET_OK);
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_initialize());
   EXPECT_TRUE(g_rcutils_logging_initialized);
   g_rcutils_logging_initialized = false;
   EXPECT_FALSE(g_rcutils_logging_initialized);
@@ -49,7 +49,7 @@ LogEvent g_last_log_event;
 
 TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logging) {
   EXPECT_FALSE(g_rcutils_logging_initialized);
-  ASSERT_EQ(rcutils_logging_initialize(), RCUTILS_RET_OK);
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_initialize());
   EXPECT_TRUE(g_rcutils_logging_initialized);
   g_rcutils_logging_default_severity_threshold = RCUTILS_LOG_SEVERITY_DEBUG;
   EXPECT_EQ(RCUTILS_LOG_SEVERITY_DEBUG, g_rcutils_logging_default_severity_threshold);
