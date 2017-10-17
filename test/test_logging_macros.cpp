@@ -43,7 +43,7 @@ public:
   {
     g_log_calls = 0;
     EXPECT_FALSE(g_rcutils_logging_initialized);
-    ASSERT_EQ(rcutils_logging_initialize(), RCUTILS_RET_OK);
+    ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_initialize());
     EXPECT_TRUE(g_rcutils_logging_initialized);
     g_rcutils_logging_default_severity_threshold = RCUTILS_LOG_SEVERITY_DEBUG;
     EXPECT_EQ(RCUTILS_LOG_SEVERITY_DEBUG, g_rcutils_logging_default_severity_threshold);
@@ -157,20 +157,20 @@ TEST_F(TestLoggingMacros, test_logging_skipfirst_throttle) {
 
 TEST_F(TestLoggingMacros, test_logger_hierarchy) {
   ASSERT_EQ(
+    RCUTILS_RET_OK,
     rcutils_logging_set_logger_severity_threshold(
-      "rcutils_test_logging_macros_cpp", RCUTILS_LOG_SEVERITY_WARN),
-    RCUTILS_RET_OK);
+      "rcutils_test_logging_macros_cpp", RCUTILS_LOG_SEVERITY_WARN));
   RCUTILS_LOG_INFO_NAMED("rcutils_test_logging_macros_cpp.testing.x.y.x", "message");
   // check that no call was made to the underlying log function
   EXPECT_EQ(0u, g_log_calls);
 
   // check that nameless log calls aren't affected by hierarchy of named loggers
   ASSERT_EQ(
-    rcutils_logging_set_logger_severity_threshold("", RCUTILS_LOG_SEVERITY_DEBUG),
-    RCUTILS_RET_OK);
+    RCUTILS_RET_OK,
+    rcutils_logging_set_logger_severity_threshold("", RCUTILS_LOG_SEVERITY_DEBUG));
   ASSERT_EQ(
-    rcutils_logging_set_logger_severity_threshold(".", RCUTILS_LOG_SEVERITY_DEBUG),
-    RCUTILS_RET_OK);
+    RCUTILS_RET_OK,
+    rcutils_logging_set_logger_severity_threshold(".", RCUTILS_LOG_SEVERITY_DEBUG));
   rcutils_logging_set_default_severity_threshold(RCUTILS_LOG_SEVERITY_INFO);
   RCUTILS_LOG_DEBUG("message");
   EXPECT_EQ(0u, g_log_calls);
