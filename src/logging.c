@@ -115,9 +115,9 @@ rcutils_ret_t rcutils_logging_shutdown()
     rcutils_ret_t ret = rcutils_string_map_fini(&g_rcutils_logging_severities_map);
     if (ret != RCUTILS_RET_OK) {
       fprintf(stderr, "Failed to finalize logging severities map: return code %d", ret);
-      g_rcutils_logging_severities_map_valid = false;
       ret = RCUTILS_RET_LOGGING_SEVERITY_MAP_INVALID;
     }
+    g_rcutils_logging_severities_map_valid = false;
   }
   g_rcutils_logging_initialized = false;
   return ret;
