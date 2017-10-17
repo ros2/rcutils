@@ -38,6 +38,7 @@ extern "C"
 #define RCUTILS_LOG_MIN_SEVERITY RCUTILS_LOG_SEVERITY_DEBUG
 #endif
 
+// TODO(dhood): optimise severity check via notifyLoggerLevelsChanged concept or similar.
 /**
  * \def RCUTILS_LOG_COND_NAMED
  * The logging macro all other logging macros call directly or indirectly.
@@ -46,7 +47,6 @@ extern "C"
  * \param condition_after The condition macro(s) inserted after the log call
  * \param name The name of the logger
  * \param ... The format string, followed by the variable arguments for the format string
- * // TODO(dhood): optimise severity check via notifyLoggerLevelsChanged concept or similar.
  */
 #define RCUTILS_LOG_COND_NAMED(severity, condition_before, condition_after, name, ...) \
   { \
