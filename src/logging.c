@@ -355,27 +355,27 @@ void rcutils_logging_console_output_handler(
   switch (severity) {
     case RCUTILS_LOG_SEVERITY_DEBUG:
       stream = stdout;
-      severity_string = "DEBUG";
       break;
     case RCUTILS_LOG_SEVERITY_INFO:
       stream = stdout;
-      severity_string = "INFO";
       break;
     case RCUTILS_LOG_SEVERITY_WARN:
       stream = stderr;
-      severity_string = "WARN";
       break;
     case RCUTILS_LOG_SEVERITY_ERROR:
       stream = stderr;
-      severity_string = "ERROR";
       break;
     case RCUTILS_LOG_SEVERITY_FATAL:
       stream = stderr;
-      severity_string = "FATAL";
       break;
     default:
       fprintf(stderr, "unknown severity level: %d\n", severity);
       return;
+  }
+  severity_string = g_rcutils_log_severity_names[severity];
+  if (!severity_string) {
+    fprintf(stderr, "couldn't determine name for severity level: %d\n", severity);
+    return;
   }
 
   // Declare variables that will be needed for cleanup ahead of time.
