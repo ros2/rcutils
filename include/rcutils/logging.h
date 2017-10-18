@@ -120,12 +120,12 @@ typedef struct rcutils_log_location_t
 /// The severity levels of log messages / logger thresholds.
 enum RCUTILS_LOG_SEVERITY
 {
-  RCUTILS_LOG_SEVERITY_DEBUG = 0,  ///< The debug log level
-  RCUTILS_LOG_SEVERITY_INFO = 1,  ///< The info log level
-  RCUTILS_LOG_SEVERITY_WARN = 2,  ///< The warn log level
-  RCUTILS_LOG_SEVERITY_ERROR = 3,  ///< The error log level
-  RCUTILS_LOG_SEVERITY_FATAL = 4,  ///< The fatal log level
-  RCUTILS_LOG_SEVERITY_UNSET = 100,  ///< The unset log level
+  RCUTILS_LOG_SEVERITY_UNSET = 0,  ///< The unset log level
+  RCUTILS_LOG_SEVERITY_DEBUG = 10,  ///< The debug log level
+  RCUTILS_LOG_SEVERITY_INFO = 20,  ///< The info log level
+  RCUTILS_LOG_SEVERITY_WARN = 30,  ///< The warn log level
+  RCUTILS_LOG_SEVERITY_ERROR = 40,  ///< The error log level
+  RCUTILS_LOG_SEVERITY_FATAL = 50,  ///< The fatal log level
 };
 
 /// The function signature to log messages.
