@@ -128,6 +128,9 @@ enum RCUTILS_LOG_SEVERITY
   RCUTILS_LOG_SEVERITY_FATAL = 50,  ///< The fatal log level
 };
 
+/// The names of severity levels.
+extern const char * g_rcutils_log_severity_names[RCUTILS_LOG_SEVERITY_FATAL + 1];
+
 /// The function signature to log messages.
 /**
  * \param location The pointer to the location struct

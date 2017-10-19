@@ -28,6 +28,15 @@ extern "C"
 
 #define RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN 2048
 
+const char * g_rcutils_log_severity_names[] = {
+  [RCUTILS_LOG_SEVERITY_UNSET] = "UNSET",
+  [RCUTILS_LOG_SEVERITY_DEBUG] = "DEBUG",
+  [RCUTILS_LOG_SEVERITY_INFO] = "INFO",
+  [RCUTILS_LOG_SEVERITY_WARN] = "WARN",
+  [RCUTILS_LOG_SEVERITY_ERROR] = "ERROR",
+  [RCUTILS_LOG_SEVERITY_FATAL] = "FATAL",
+};
+
 bool g_rcutils_logging_initialized = false;
 
 char g_rcutils_logging_output_format_string[RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN];
@@ -170,22 +179,25 @@ int rcutils_logging_get_logger_severity_thresholdn(const char * name, size_t nam
     }
     return RCUTILS_LOG_SEVERITY_UNSET;
   }
-  int severity;
-  if (strcmp("DEBUG", severity_string) == 0) {
-    severity = RCUTILS_LOG_SEVERITY_DEBUG;
-  } else if (strcmp("INFO", severity_string) == 0) {
-    severity = RCUTILS_LOG_SEVERITY_INFO;
-  } else if (strcmp("WARN", severity_string) == 0) {
-    severity = RCUTILS_LOG_SEVERITY_WARN;
-  } else if (strcmp("ERROR", severity_string) == 0) {
-    severity = RCUTILS_LOG_SEVERITY_ERROR;
-  } else if (strcmp("FATAL", severity_string) == 0) {
-    severity = RCUTILS_LOG_SEVERITY_FATAL;
-  } else {
+
+  // Determine the severity value matching the severity name.
+  int severity = -1;
+  for (size_t i = 0;
+    i < sizeof(g_rcutils_log_severity_names) / sizeof(g_rcutils_log_severity_names[0]);
+    ++i)
+  {
+    const char * severity_string_i = g_rcutils_log_severity_names[i];
+    if (severity_string_i && strcmp(severity_string_i, severity_string) == 0) {
+      severity = (enum RCUTILS_LOG_SEVERITY)i;
+      break;
+    }
+  }
+
+  if (severity < 0) {
     fprintf(
       stderr,
       "Logger has an invalid severity threshold: %s\n", severity_string);
-    severity = RCUTILS_LOG_SEVERITY_UNSET;
+    return -1;
   }
   return severity;
 }
@@ -226,19 +238,18 @@ rcutils_ret_t rcutils_logging_set_logger_severity_threshold(const char * name, i
     return RCUTILS_RET_LOGGING_SEVERITY_MAP_INVALID;
   }
 
-  const char * severity_string;
-  if (RCUTILS_LOG_SEVERITY_DEBUG == severity) {
-    severity_string = "DEBUG";
-  } else if (RCUTILS_LOG_SEVERITY_INFO == severity) {
-    severity_string = "INFO";
-  } else if (RCUTILS_LOG_SEVERITY_WARN == severity) {
-    severity_string = "WARN";
-  } else if (RCUTILS_LOG_SEVERITY_ERROR == severity) {
-    severity_string = "ERROR";
-  } else if (RCUTILS_LOG_SEVERITY_FATAL == severity) {
-    severity_string = "FATAL";
-  } else {
+  // Convert the severity value into a string for storage.
+  // TODO(dhood): replace string map with int map.
+  if (severity < 0 ||
+    severity >
+    (int)(sizeof(g_rcutils_log_severity_names) / sizeof(g_rcutils_log_severity_names[0])))
+  {
     fprintf(stderr, "Invalid severity specified for logger named '%s': %d", name, severity);
+    return RCUTILS_RET_INVALID_ARGUMENT;
+  }
+  const char * severity_string = g_rcutils_log_severity_names[severity];
+  if (!severity_string) {
+    fprintf(stderr, "Unable to determine severity_string for severity: %d", severity);
     return RCUTILS_RET_INVALID_ARGUMENT;
   }
   rcutils_ret_t ret = rcutils_string_map_set(
