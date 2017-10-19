@@ -186,7 +186,7 @@ void rcutils_logging_set_output_handler(rcutils_logging_output_handler_t functio
  * This severity threshold is used for (1) nameless log calls and (2) named log
  * calls where the effective severity threshold of the name is unspecified.
  *
- * \see rcutils_logging_get_logger_effective_threshold()
+ * \see rcutils_logging_get_logger_effective_severity_threshold()
  */
 RCUTILS_PUBLIC
 extern int g_rcutils_logging_default_severity_threshold;
@@ -226,7 +226,7 @@ void rcutils_logging_set_default_severity_threshold(int severity);
  * This considers the severity threshold of the specifed logger only.
  * To get the effective severity threshold of a logger given the severity
  * threshold of its ancestors, see
- * rcutils_logging_get_logger_effective_threshold().
+ * rcutils_logging_get_logger_effective_severity_threshold().
  *
  * <hr>
  * Attribute          | Adherence
@@ -329,7 +329,7 @@ bool rcutils_logging_is_enabled_for(const char * name, int severity);
  * \return -1 if an error occurred.
  */
 RCUTILS_PUBLIC
-int rcutils_logging_get_logger_effective_threshold(const char * name);
+int rcutils_logging_get_logger_effective_severity_threshold(const char * name);
 
 /// Log a message.
 /**

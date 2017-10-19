@@ -202,7 +202,7 @@ int rcutils_logging_get_logger_severity_thresholdn(const char * name, size_t nam
   return severity;
 }
 
-int rcutils_logging_get_logger_effective_threshold(const char * name)
+int rcutils_logging_get_logger_effective_severity_threshold(const char * name)
 {
   RCUTILS_LOGGING_AUTOINIT
   size_t substring_length = strlen(name);
@@ -266,7 +266,7 @@ bool rcutils_logging_is_enabled_for(const char * name, int severity)
   RCUTILS_LOGGING_AUTOINIT
   int severity_threshold = g_rcutils_logging_default_severity_threshold;
   if (name) {
-    severity_threshold = rcutils_logging_get_logger_effective_threshold(name);
+    severity_threshold = rcutils_logging_get_logger_effective_severity_threshold(name);
     if (-1 == severity_threshold) {
       fprintf(
         stderr,

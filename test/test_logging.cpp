@@ -134,14 +134,14 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logger_severities) {
     rcutils_logging_get_logger_severity_threshold("rcutils_test_loggers"));
   ASSERT_EQ(
     RCUTILS_LOG_SEVERITY_WARN,
-    rcutils_logging_get_logger_effective_threshold("rcutils_test_loggers"));
+    rcutils_logging_get_logger_effective_severity_threshold("rcutils_test_loggers"));
   ASSERT_EQ(
     RCUTILS_RET_OK,
     rcutils_logging_set_logger_severity_threshold(
       "rcutils_test_loggers", RCUTILS_LOG_SEVERITY_UNSET));
   ASSERT_EQ(
     rcutils_logging_get_default_severity_threshold(),
-    rcutils_logging_get_logger_effective_threshold("rcutils_test_loggers"));
+    rcutils_logging_get_logger_effective_severity_threshold("rcutils_test_loggers"));
 
   // check setting of invalid severities
   ASSERT_EQ(
@@ -179,35 +179,36 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logger_severity_hierarchy)
 
   EXPECT_EQ(
     rcutils_test_logging_cpp_testing_x_severity,
-    rcutils_logging_get_logger_effective_threshold("rcutils_test_logging_cpp.testing.x"));
+    rcutils_logging_get_logger_effective_severity_threshold("rcutils_test_logging_cpp.testing.x"));
   EXPECT_EQ(
     rcutils_test_logging_cpp_testing_x_severity,
-    rcutils_logging_get_logger_effective_threshold("rcutils_test_logging_cpp.testing.x.y.x"));
+    rcutils_logging_get_logger_effective_severity_threshold(
+      "rcutils_test_logging_cpp.testing.x.y.x"));
   EXPECT_EQ(
     rcutils_test_logging_cpp_testing_severity,
-    rcutils_logging_get_logger_effective_threshold("rcutils_test_logging_cpp.testing"));
+    rcutils_logging_get_logger_effective_severity_threshold("rcutils_test_logging_cpp.testing"));
   EXPECT_EQ(
     rcutils_test_logging_cpp_severity,
-    rcutils_logging_get_logger_effective_threshold("rcutils_test_logging_cpp"));
+    rcutils_logging_get_logger_effective_severity_threshold("rcutils_test_logging_cpp"));
   EXPECT_EQ(
     rcutils_test_logging_cpp_severity,
-    rcutils_logging_get_logger_effective_threshold("rcutils_test_logging_cpp.testing2"));
+    rcutils_logging_get_logger_effective_severity_threshold("rcutils_test_logging_cpp.testing2"));
   EXPECT_EQ(
     empty_name_severity,
-    rcutils_logging_get_logger_effective_threshold(""));
+    rcutils_logging_get_logger_effective_severity_threshold(""));
   EXPECT_EQ(
     empty_name_severity,
-    rcutils_logging_get_logger_effective_threshold(".name"));
+    rcutils_logging_get_logger_effective_severity_threshold(".name"));
   EXPECT_EQ(
     rcutils_logging_get_default_severity_threshold(),
-    rcutils_logging_get_logger_effective_threshold("rcutils_test_logging_cpp_testing"));
+    rcutils_logging_get_logger_effective_severity_threshold("rcutils_test_logging_cpp_testing"));
 
   // check logger severities get cleared on logging restart
   ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_shutdown());
   ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_initialize());
   EXPECT_EQ(
     rcutils_logging_get_default_severity_threshold(),
-    rcutils_logging_get_logger_effective_threshold("rcutils_test_logging_cpp"));
+    rcutils_logging_get_logger_effective_severity_threshold("rcutils_test_logging_cpp"));
 
   // check hierarchies including trailing dots (considered as having an empty child name)
   rcutils_logging_set_default_severity_threshold(RCUTILS_LOG_SEVERITY_INFO);
@@ -218,5 +219,5 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logger_severity_hierarchy)
       "rcutils_test_logging_cpp.", rcutils_test_logging_cpp_dot_severity));
   EXPECT_EQ(
     rcutils_test_logging_cpp_dot_severity,
-    rcutils_logging_get_logger_effective_threshold("rcutils_test_logging_cpp.."));
+    rcutils_logging_get_logger_effective_severity_threshold("rcutils_test_logging_cpp.."));
 }
