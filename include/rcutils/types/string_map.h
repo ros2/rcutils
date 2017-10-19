@@ -286,8 +286,7 @@ rcutils_string_map_unset(rcutils_string_map_t * string_map, const char * key);
  * \return `true` if key is in the map, or
  * \return `false` if key is not in the map, or
  * \return `false` for invalid arguments, or
- * \return `false` if the string map is invalid, or
- * \return `false` if an unknown error occurs
+ * \return `false` if the string map is invalid
  */
 RCUTILS_PUBLIC
 bool
@@ -304,8 +303,7 @@ rcutils_string_map_key_exists(const rcutils_string_map_t * string_map, const cha
  * \return `true` if key is in the map, or
  * \return `false` if key is not in the map, or
  * \return `false` for invalid arguments, or
- * \return `false` if the string map is invalid, or
- * \return `false` if an unknown error occurs
+ * \return `false` if the string map is invalid
  */
 RCUTILS_PUBLIC
 bool
