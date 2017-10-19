@@ -122,6 +122,38 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logging) {
 
 TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logger_severities) {
   ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_initialize());
+  rcutils_logging_set_default_severity_threshold(RCUTILS_LOG_SEVERITY_INFO);
+
+  // check setting of acceptable severities
+  ASSERT_EQ(
+    RCUTILS_RET_OK,
+    rcutils_logging_set_logger_severity_threshold(
+      "rcutils_test_loggers", RCUTILS_LOG_SEVERITY_WARN));
+  ASSERT_EQ(
+    RCUTILS_LOG_SEVERITY_WARN,
+    rcutils_logging_get_logger_severity_threshold("rcutils_test_loggers"));
+  ASSERT_EQ(
+    RCUTILS_LOG_SEVERITY_WARN,
+    rcutils_logging_get_logger_effective_threshold("rcutils_test_loggers"));
+  ASSERT_EQ(
+    RCUTILS_RET_OK,
+    rcutils_logging_set_logger_severity_threshold(
+      "rcutils_test_loggers", RCUTILS_LOG_SEVERITY_UNSET));
+  ASSERT_EQ(
+    rcutils_logging_get_default_severity_threshold(),
+    rcutils_logging_get_logger_effective_threshold("rcutils_test_loggers"));
+
+  // check setting of invalid severities
+  ASSERT_EQ(
+    RCUTILS_RET_INVALID_ARGUMENT,
+    rcutils_logging_set_logger_severity_threshold("rcutils_test_loggers", -1));
+  ASSERT_EQ(
+    RCUTILS_RET_INVALID_ARGUMENT,
+    rcutils_logging_set_logger_severity_threshold("rcutils_test_loggers", 1000));
+}
+
+TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logger_severity_hierarchy) {
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_initialize());
 
   // check resolving of effective thresholds in hierarchy of loggers
   rcutils_logging_set_default_severity_threshold(RCUTILS_LOG_SEVERITY_INFO);
