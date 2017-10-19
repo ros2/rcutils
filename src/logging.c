@@ -261,7 +261,7 @@ rcutils_ret_t rcutils_logging_set_logger_severity_threshold(const char * name, i
   return RCUTILS_RET_OK;
 }
 
-bool rcutils_logging_is_enabled_for(const char * name, int severity)
+bool rcutils_logging_logger_is_enabled_for(const char * name, int severity)
 {
   RCUTILS_LOGGING_AUTOINIT
   int severity_threshold = g_rcutils_logging_default_severity_threshold;
@@ -281,7 +281,7 @@ void rcutils_log(
   rcutils_log_location_t * location,
   int severity, const char * name, const char * format, ...)
 {
-  if (!rcutils_logging_is_enabled_for(name, severity)) {
+  if (!rcutils_logging_logger_is_enabled_for(name, severity)) {
     return;
   }
   rcutils_logging_output_handler_t output_handler = g_rcutils_logging_output_handler;

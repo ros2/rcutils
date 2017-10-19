@@ -302,7 +302,7 @@ rcutils_ret_t rcutils_logging_set_logger_severity_threshold(const char * name, i
  * \return True if the logger is enabled for the severity; false otherwise.
  */
 RCUTILS_PUBLIC
-bool rcutils_logging_is_enabled_for(const char * name, int severity);
+bool rcutils_logging_logger_is_enabled_for(const char * name, int severity);
 
 /// Determine the effective severity threshold for a logger.
 /**
