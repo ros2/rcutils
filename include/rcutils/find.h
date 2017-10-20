@@ -37,7 +37,7 @@ RCUTILS_PUBLIC
 size_t
 rcutils_find(const char * str, char delimiter);
 
-/// Return the first index of a character in a string of specifed length.
+/// Return the first index of a character in a string of specified length.
 /**
  * Identical to rcutils_find_first() but without relying on the string to be a
  * null terminated c string.
