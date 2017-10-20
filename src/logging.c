@@ -140,8 +140,10 @@ rcutils_logging_output_handler_t rcutils_logging_get_output_handler()
 
 void rcutils_logging_set_output_handler(rcutils_logging_output_handler_t function)
 {
+  // *INDENT-OFF* (prevent uncrustify from making unnecessary indents here)
   RCUTILS_LOGGING_AUTOINIT
-    g_rcutils_logging_output_handler = function;
+  g_rcutils_logging_output_handler = function;
+  // *INDENT-ON*
 }
 
 int rcutils_logging_get_default_severity_threshold()
@@ -152,8 +154,10 @@ int rcutils_logging_get_default_severity_threshold()
 
 void rcutils_logging_set_default_severity_threshold(int severity)
 {
+  // *INDENT-OFF* (prevent uncrustify from making unnecessary indents here)
   RCUTILS_LOGGING_AUTOINIT
-    g_rcutils_logging_default_severity_threshold = severity;
+  g_rcutils_logging_default_severity_threshold = severity;
+  // *INDENT-ON*
 }
 
 int rcutils_logging_get_logger_severity_threshold(const char * name)
