@@ -188,6 +188,7 @@ sys.path.insert(0, rcutils_module_path)
 from rcutils.logging import feature_combinations
 from rcutils.logging import get_macro_arguments
 from rcutils.logging import get_macro_parameters
+from rcutils.logging import get_suffix_from_features
 from rcutils.logging import severities
 }@
 @[for severity in severities]@
@@ -196,33 +197,35 @@ from rcutils.logging import severities
 ///@@{
 #if (RCUTILS_LOG_MIN_SEVERITY > RCUTILS_LOG_SEVERITY_@(severity))
 // empty logging macros for severity @(severity) when being disabled at compile time
-@[ for suffix in feature_combinations]@
+@[ for feature_combination in feature_combinations]@
+@{suffix = get_suffix_from_features(feature_combination)}@
 /// Empty logging macro due to the preprocessor definition of RCUTILS_LOG_MIN_SEVERITY.
-# define RCUTILS_LOG_@(severity)@(suffix)(@(''.join([p + ', ' for p in get_macro_parameters(suffix).keys()]))format, ...)
+# define RCUTILS_LOG_@(severity)@(suffix)(@(''.join([p + ', ' for p in get_macro_parameters(feature_combination).keys()]))format, ...)
 @[ end for]@
 
 #else
-@[ for suffix in feature_combinations]@
+@[ for feature_combination in feature_combinations]@
+@{suffix = get_suffix_from_features(feature_combination)}@
 /**
  * \def RCUTILS_LOG_@(severity)@(suffix)
  * Log a message with severity @(severity)@
-@[ if feature_combinations[suffix].doc_lines]@
+@[ if feature_combinations[feature_combination].doc_lines]@
  with the following conditions:
 @[ else]@
 .
 @[ end if]@
-@[ for doc_line in feature_combinations[suffix].doc_lines]@
+@[ for doc_line in feature_combinations[feature_combination].doc_lines]@
  * @(doc_line)
 @[ end for]@
-@[ for param_name, doc_line in feature_combinations[suffix].params.items()]@
+@[ for param_name, doc_line in feature_combinations[feature_combination].params.items()]@
  * \param @(param_name) @(doc_line)
 @[ end for]@
  * \param ... The format string, followed by the variable arguments for the format string
  */
-# define RCUTILS_LOG_@(severity)@(suffix)(@(''.join([p + ', ' for p in get_macro_parameters(suffix).keys()]))...) \
+# define RCUTILS_LOG_@(severity)@(suffix)(@(''.join([p + ', ' for p in get_macro_parameters(feature_combination).keys()]))...) \
   RCUTILS_LOG_COND_NAMED( \
     RCUTILS_LOG_SEVERITY_@(severity), \
-    @(''.join([str(a) + ', ' for a in get_macro_arguments(suffix)]))\
+    @(''.join([str(a) + ', ' for a in get_macro_arguments(feature_combination)]))\
     __VA_ARGS__)
 @[ end for]@
 #endif
