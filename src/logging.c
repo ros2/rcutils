@@ -168,7 +168,13 @@ int rcutils_logging_get_logger_severity_threshold(const char * name)
 
 int rcutils_logging_get_logger_severity_thresholdn(const char * name, size_t name_length)
 {
+  if (!name) {
+    return -1;
+  }
   RCUTILS_LOGGING_AUTOINIT
+  if (0 == name_length) {
+    return g_rcutils_logging_default_severity_threshold;
+  }
   if (!g_rcutils_logging_severities_map_valid) {
     return RCUTILS_LOG_SEVERITY_UNSET;
   }
@@ -208,6 +214,9 @@ int rcutils_logging_get_logger_severity_thresholdn(const char * name, size_t nam
 
 int rcutils_logging_get_logger_effective_severity_threshold(const char * name)
 {
+  if (!name) {
+    return -1;
+  }
   RCUTILS_LOGGING_AUTOINIT
   size_t substring_length = strlen(name);
   while (true) {
@@ -237,7 +246,14 @@ int rcutils_logging_get_logger_effective_severity_threshold(const char * name)
 
 rcutils_ret_t rcutils_logging_set_logger_severity_threshold(const char * name, int severity)
 {
+  if (!name) {
+    return RCUTILS_RET_INVALID_ARGUMENT;
+  }
   RCUTILS_LOGGING_AUTOINIT
+  if (strlen(name) == 0) {
+    g_rcutils_logging_default_severity_threshold = severity;
+    return RCUTILS_RET_OK;
+  }
   if (!g_rcutils_logging_severities_map_valid) {
     return RCUTILS_RET_LOGGING_SEVERITY_MAP_INVALID;
   }

@@ -143,6 +143,21 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logger_severities) {
     rcutils_logging_get_default_severity_threshold(),
     rcutils_logging_get_logger_effective_severity_threshold("rcutils_test_loggers"));
 
+  // check setting of the default via empty-named logger
+  int empty_name_severity = RCUTILS_LOG_SEVERITY_FATAL;
+  ASSERT_EQ(
+    RCUTILS_RET_OK,
+    rcutils_logging_set_logger_severity_threshold("", empty_name_severity));
+  ASSERT_EQ(
+    empty_name_severity,
+    rcutils_logging_get_default_severity_threshold());
+  ASSERT_EQ(
+    empty_name_severity,
+    rcutils_logging_get_logger_severity_threshold(""));
+  ASSERT_EQ(
+    empty_name_severity,
+    rcutils_logging_get_logger_effective_severity_threshold(""));
+
   // check setting of invalid severities
   ASSERT_EQ(
     RCUTILS_RET_INVALID_ARGUMENT,
@@ -160,7 +175,6 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logger_severity_hierarchy)
   int rcutils_test_logging_cpp_severity = RCUTILS_LOG_SEVERITY_WARN;
   int rcutils_test_logging_cpp_testing_severity = RCUTILS_LOG_SEVERITY_DEBUG;
   int rcutils_test_logging_cpp_testing_x_severity = RCUTILS_LOG_SEVERITY_ERROR;
-  int empty_name_severity = RCUTILS_LOG_SEVERITY_FATAL;
   ASSERT_EQ(
     RCUTILS_RET_OK,
     rcutils_logging_set_logger_severity_threshold(
@@ -173,9 +187,6 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logger_severity_hierarchy)
     RCUTILS_RET_OK,
     rcutils_logging_set_logger_severity_threshold(
       "rcutils_test_logging_cpp.testing.x", rcutils_test_logging_cpp_testing_x_severity));
-  ASSERT_EQ(
-    RCUTILS_RET_OK,
-    rcutils_logging_set_logger_severity_threshold("", empty_name_severity));
 
   EXPECT_EQ(
     rcutils_test_logging_cpp_testing_x_severity,
@@ -194,10 +205,7 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logger_severity_hierarchy)
     rcutils_test_logging_cpp_severity,
     rcutils_logging_get_logger_effective_severity_threshold("rcutils_test_logging_cpp.testing2"));
   EXPECT_EQ(
-    empty_name_severity,
-    rcutils_logging_get_logger_effective_severity_threshold(""));
-  EXPECT_EQ(
-    empty_name_severity,
+    rcutils_logging_get_default_severity_threshold(),
     rcutils_logging_get_logger_effective_severity_threshold(".name"));
   EXPECT_EQ(
     rcutils_logging_get_default_severity_threshold(),

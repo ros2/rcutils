@@ -164,13 +164,7 @@ TEST_F(TestLoggingMacros, test_logger_hierarchy) {
   // check that no call was made to the underlying log function
   EXPECT_EQ(0u, g_log_calls);
 
-  // check that nameless log calls aren't affected by hierarchy of named loggers
-  ASSERT_EQ(
-    RCUTILS_RET_OK,
-    rcutils_logging_set_logger_severity_threshold("", RCUTILS_LOG_SEVERITY_DEBUG));
-  ASSERT_EQ(
-    RCUTILS_RET_OK,
-    rcutils_logging_set_logger_severity_threshold(".", RCUTILS_LOG_SEVERITY_DEBUG));
+  // check that nameless log calls get the default severity threshold
   rcutils_logging_set_default_severity_threshold(RCUTILS_LOG_SEVERITY_INFO);
   RCUTILS_LOG_DEBUG("message");
   EXPECT_EQ(0u, g_log_calls);

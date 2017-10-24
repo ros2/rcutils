@@ -237,8 +237,10 @@ void rcutils_logging_set_default_severity_threshold(int severity);
  * Lock-Free          | Yes
  *
  * \param name The name of the logger, must be null terminated c string
- * \return The severity threshold if it has been set, or
+ * \return The severity threshold of the logger if it has been set, or
  * \return `RCUTILS_LOG_SEVERITY_UNSET` if unset, or
+ * \return `g_rcutils_logging_default_severity_threshold` for an empty name, or
+ * \return -1 on invalid arguments, or
  * \return -1 if an error occurred
  */
 RCUTILS_PUBLIC
@@ -259,8 +261,10 @@ int rcutils_logging_get_logger_severity_threshold(const char * name);
  *
  * \param name The name of the logger
  * \param name_length Logger name length
- * \return The severity threshold if it has been set, or
+ * \return The severity threshold of the logger if it has been set, or
  * \return `RCUTILS_LOG_SEVERITY_UNSET` if unset, or
+ * \return `g_rcutils_logging_default_severity_threshold` for `name_length` of `0`, or
+ * \return -1 on invalid arguments, or
  * \return -1 if an error occurred
  */
 RCUTILS_PUBLIC
@@ -268,6 +272,9 @@ int rcutils_logging_get_logger_severity_thresholdn(const char * name, size_t nam
 
 /// Set the severity threshold for a logger.
 /**
+ * If an empty string is specified as the name, the
+ * `g_rcutils_logging_default_severity_threshold` will be set.
+ *
  * <hr>
  * Attribute          | Adherence
  * ------------------ | -------------
@@ -279,7 +286,7 @@ int rcutils_logging_get_logger_severity_thresholdn(const char * name, size_t nam
  * \param name The name of the logger, must be null terminated c string.
  * \param severity The severity threshold to be used.
  * \return `RCUTILS_RET_OK` if successful, or
- * \return `RCUTILS_RET_INVALID_ARGUMENT` if invalid severity specifed, or
+ * \return `RCUTILS_RET_INVALID_ARGUMENT` on invalid arguments, or
  * \return `RCUTILS_RET_LOGGING_SEVERITY_MAP_INVALID` if severity map invalid, or
  * \return `RCUTILS_RET_ERROR` if an unspecified error occured
  */
@@ -326,6 +333,7 @@ bool rcutils_logging_logger_is_enabled_for(const char * name, int severity);
  * \param name The name of the logger, must be null terminated c string.
  *
  * \return The severity threshold, or
+ * \return -1 on invalid arguments, or
  * \return -1 if an error occurred.
  */
 RCUTILS_PUBLIC
