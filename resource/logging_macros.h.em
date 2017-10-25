@@ -29,13 +29,21 @@ extern "C"
 {
 #endif
 
+// These are used for compiling out logging macros lower than a minimum severity.
+#define RCUTILS_LOG_MIN_SEVERITY_DEBUG 0
+#define RCUTILS_LOG_MIN_SEVERITY_INFO 1
+#define RCUTILS_LOG_MIN_SEVERITY_WARN 2
+#define RCUTILS_LOG_MIN_SEVERITY_ERROR 3
+#define RCUTILS_LOG_MIN_SEVERITY_FATAL 4
+#define RCUTILS_LOG_MIN_SEVERITY_NONE 5
+
 /**
  * \def RCUTILS_LOG_MIN_SEVERITY
- * Define RCUTILS_LOG_MIN_SEVERITY=RCUTILS_LOG_SEVERITY_[DEBUG|INFO|WARN|ERROR|FATAL]
+ * Define RCUTILS_LOG_MIN_SEVERITY=RCUTILS_LOG_MIN_SEVERITY_[DEBUG|INFO|WARN|ERROR|FATAL|NONE]
  * in your build options to compile out anything below that severity.
  */
 #ifndef RCUTILS_LOG_MIN_SEVERITY
-#define RCUTILS_LOG_MIN_SEVERITY RCUTILS_LOG_SEVERITY_DEBUG
+#define RCUTILS_LOG_MIN_SEVERITY RCUTILS_LOG_MIN_SEVERITY_DEBUG
 #endif
 
 /**
@@ -194,7 +202,7 @@ from rcutils.logging import severities
 /** @@name Logging macros for severity @(severity).
  */
 ///@@{
-#if (RCUTILS_LOG_MIN_SEVERITY > RCUTILS_LOG_SEVERITY_@(severity))
+#if (RCUTILS_LOG_MIN_SEVERITY > RCUTILS_LOG_MIN_SEVERITY_@(severity))
 // empty logging macros for severity @(severity) when being disabled at compile time
 @[ for suffix in feature_combinations]@
 /// Empty logging macro due to the preprocessor definition of RCUTILS_LOG_MIN_SEVERITY.
