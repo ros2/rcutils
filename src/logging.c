@@ -273,6 +273,9 @@ void rcutils_logging_console_output_handler(
     memcpy(token, str + i + 1, token_len);  // Skip the start delimiter.
     token[token_len] = '\0';
     const char * token_expansion = NULL;
+    // Allow 9 digits for the expansion (otherwise, truncate). Even in the case of truncation
+    // the result will still be null-terminated.
+    char line_number_expansion[10];
     // The resulting token_expansion string must always be null-terminated.
     if (strcmp("severity", token) == 0) {
       token_expansion = severity_string;
@@ -286,9 +289,6 @@ void rcutils_logging_console_output_handler(
       token_expansion = location ? location->file_name : "\"\"";
     } else if (strcmp("line_number", token) == 0) {
       if (location) {
-        // Allow 9 digits for the expansion (otherwise, truncate). Even in the case of truncation
-        // the result will still be null-terminated.
-        char line_number_expansion[10];
         written = rcutils_snprintf(
           line_number_expansion, sizeof(line_number_expansion), "%zu", location->line_number);
         if (written < 0) {
