@@ -354,8 +354,7 @@ rcutils_string_map_unset(rcutils_string_map_t * string_map, const char * key)
   size_t key_index;
   if (!__get_index_of_key_if_exists(string_map->impl, key, strlen(key), &key_index)) {
     char * msg = rcutils_format_string(allocator, "key '%s' not found", key);
-    RCUTILS_SET_ERROR_MSG(msg, allocator)
-    allocator.deallocate(msg, allocator.state);
+    rcutils_set_formatted_error(msg, allocator);
     return RCUTILS_RET_STRING_KEY_NOT_FOUND;
   }
   __remove_key_and_value_at_index(string_map->impl, key_index);

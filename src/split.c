@@ -115,7 +115,7 @@ fail:
   if (rcutils_string_array_fini(string_array) != RCUTILS_RET_OK) {
     error_msg = rcutils_format_string(allocator, "FATAL: %s. Leaking memory", error_msg);
   }
-  RCUTILS_SET_ERROR_MSG(error_msg, allocator);
+  rcutils_set_formatted_error(error_msg, allocator);
   return RCUTILS_RET_ERROR;
 }
 
