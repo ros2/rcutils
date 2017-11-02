@@ -172,6 +172,9 @@ int rcutils_logging_get_logger_severity_thresholdn(const char * name, size_t nam
     return -1;
   }
   RCUTILS_LOGGING_AUTOINIT
+
+  // Skip the map lookup if the default was requested,
+  // as it can still be used even if the severity map is invalid.
   if (0 == name_length) {
     return g_rcutils_logging_default_severity_threshold;
   }
