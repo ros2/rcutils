@@ -167,24 +167,6 @@ rcutils_set_error_state(
   __rcutils_reset_error_string(&__rcutils_error_string, __rcutils_error_state->allocator);
 }
 
-bool 
-rcutils_set_formatted_error(
-  char * formatted_msg,
-  rcutils_allocator_t allocator)
-{
-  if (!formatted_msg) {
-    RCUTILS_SET_ERROR_MSG("No invalid memory allocated to format string", allocator);
-    return false;
-  }
-
-  RCUTILS_SET_ERROR_MSG(formatted_msg, allocator);
-
-  allocator.deallocate(formatted_msg, allocator.state);
-  formatted_msg = nullptr;
-
-  return true;
-}
-
 const rcutils_error_state_t *
 rcutils_get_error_state()
 {

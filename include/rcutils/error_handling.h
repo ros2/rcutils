@@ -23,6 +23,8 @@ extern "C"
 #endif
 
 #include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <stddef.h>
 
 #include "rcutils/allocator.h"
@@ -38,6 +40,8 @@ typedef struct rcutils_error_state_t
   size_t line_number;
   rcutils_allocator_t allocator;
 } rcutils_error_state_t;
+
+#define SAFE_FWRITE_TO_STDERR(msg) fwrite(msg, sizeof(char), sizeof(msg), stderr)
 
 /// Copy an error state into a destination error state.
 /**
@@ -103,21 +107,24 @@ rcutils_set_error_state(
 #define RCUTILS_SET_ERROR_MSG(msg, allocator) \
   rcutils_set_error_state(msg, __FILE__, __LINE__, allocator);
 
-/// Set the formatted error msg and free its memory allocated
+/// Set the error msg with the format specified
 /**
- * This function sets the error msg with the format specified and free the 
- * corresponding memory allocated from function rcutils_format_string_limit() 
- * or macro rcutils_format_string drived from it to avoid memory leak.
+ * This function sets the error msg with the format specified and free the
+ * corresponding memory allocated from rcutils_format_string_limit() or its
+ * macro rcutils_format_string to avoid memory leak unconsciously.
  *
- * \param[in] formatted_msg the output formatted with memory allocated
+ * \param[in] fmt_str format string or msg with a certain format string inline
  * \param[in] allocator the allocator to use for allocation
- * \returns `false` if invalid memory allocation to format, otherwise `true` 
  */
-RCUTILS_PUBLIC
-bool 
-rcutils_set_formatted_error(
-  char * formatted_msg,
-  rcutils_allocator_t allocator);
+#define RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(allocator, fmt_str, ...) \
+  char * output_msg = NULL; \
+  output_msg = rcutils_format_string(allocator, fmt_str, __VA_ARGS__); \
+  if (output_msg) { \
+    RCUTILS_SET_ERROR_MSG(output_msg, allocator); \
+    allocator.deallocate(output_msg, allocator.state); \
+  } else { \
+    SAFE_FWRITE_TO_STDERR("Failed to allocate memory for error message"); \
+  }
 
 /// Return `true` if the error is set, otherwise `false`.
 RCUTILS_PUBLIC

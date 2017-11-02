@@ -113,9 +113,8 @@ rcutils_split(
 fail:
   error_msg = "unable to allocate memory for string array data";
   if (rcutils_string_array_fini(string_array) != RCUTILS_RET_OK) {
-    error_msg = rcutils_format_string(allocator, "FATAL: %s. Leaking memory", error_msg);
+    RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(allocator, "FATAL: %s. Leaking memory", error_msg);
   }
-  rcutils_set_formatted_error(error_msg, allocator);
   return RCUTILS_RET_ERROR;
 }
 
