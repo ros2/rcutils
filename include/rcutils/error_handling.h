@@ -107,18 +107,18 @@ rcutils_set_error_state(
 #define RCUTILS_SET_ERROR_MSG(msg, allocator) \
   rcutils_set_error_state(msg, __FILE__, __LINE__, allocator);
 
-/// Set the error msg with the format specified
+/// Set the error message using a format stirng and format arguments.
 /**
- * This function sets the error msg with the format specified and free the
- * corresponding memory allocated from rcutils_format_string_limit() or its
- * macro rcutils_format_string to avoid memory leak unconsciously.
+ * This function sets the error message using the given format string and
+ * then frees the memory allocated during the string formatting.
  *
- * \param[in] fmt_str format string or msg with a certain format string inline
- * \param[in] allocator the allocator to use for allocation
+ * \param[in] allocator The allocator to be used when allocating space for the error state.
+ * \param[in] format_string The string to be used as the format of the error message.
+ * \param[in] ... Arguments for the format string.
  */
-#define RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(allocator, fmt_str, ...) \
+#define RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(allocator, format_string, ...) \
   char * output_msg = NULL; \
-  output_msg = rcutils_format_string(allocator, fmt_str, __VA_ARGS__); \
+  output_msg = rcutils_format_string(allocator, format_string, __VA_ARGS__); \
   if (output_msg) { \
     RCUTILS_SET_ERROR_MSG(output_msg, allocator); \
     allocator.deallocate(output_msg, allocator.state); \
