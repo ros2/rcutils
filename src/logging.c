@@ -87,6 +87,10 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
       g_rcutils_logging_output_format_string[chars_to_copy] = '\0';
     } else {
       if (NULL != ret_str) {
+        if (rcutils_error_is_set()) {
+          fprintf(stderr, "Overwriting error message: %s\n", rcutils_get_error_string_safe());
+          rcutils_reset_error();
+        }
         RCUTILS_SET_ERROR_MSG(
           "Failed to get output format from env. variable. Using default output format.",
           g_rcutils_logging_allocator);
