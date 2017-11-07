@@ -114,7 +114,7 @@ rcutils_is_readable_and_writable(const char * abs_path);
  *         NULL on failure
  */
 RCUTILS_PUBLIC
-const char *
+char *
 rcutils_join_path(const char * left_hand_path, const char * right_hand_path);
 
 #if __cplusplus
