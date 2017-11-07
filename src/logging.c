@@ -63,6 +63,15 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
 {
   rcutils_ret_t ret = RCUTILS_RET_OK;
   if (!g_rcutils_logging_initialized) {
+    if (!rcutils_allocator_is_valid(&allocator)) {
+      fprintf(
+        stderr,
+        "Provided allocator is invalid. Using the default allocator.\n");
+      ret = RCUTILS_RET_INVALID_ARGUMENT;
+      allocator = rcutils_get_default_allocator();
+    }
+    g_rcutils_logging_allocator = allocator;
+
     g_rcutils_logging_output_handler = &rcutils_logging_console_output_handler;
     g_rcutils_logging_default_severity_threshold = RCUTILS_LOG_SEVERITY_INFO;
 
@@ -88,14 +97,6 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
         strlen(g_rcutils_logging_default_output_format) + 1);
     }
 
-    if (!rcutils_allocator_is_valid(&allocator)) {
-      fprintf(
-        stderr,
-        "Provided allocator is invalid. Using the default allocator.\n");
-      ret = RCUTILS_RET_INVALID_ARGUMENT;
-      allocator = rcutils_get_default_allocator();
-    }
-    g_rcutils_logging_allocator = allocator;
     g_rcutils_logging_severities_map = rcutils_get_zero_initialized_string_map();
     rcutils_ret_t string_map_ret = rcutils_string_map_init(
       &g_rcutils_logging_severities_map, 0, g_rcutils_logging_allocator);
