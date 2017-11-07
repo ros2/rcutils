@@ -105,11 +105,15 @@ RCUTILS_PUBLIC
 bool
 rcutils_is_readable_and_writable(const char * abs_path);
 
-/// Concatenate path adding the right delimiter according to the platform.
+/// Return a newly allocated string that contains left_hand_path, followed by
+/// the correct delimiter for the platform, followed by right_hand_path.
 /**
+ * This function allocates memory and returns it to the caller.  It is up to the
+ * caller to release the memory once it is done with it by calling `free`.
+ *
  * \param[in] left_hand_path
  * \param[in] right_hand_path
- * \return const char * concatenated path on success
+ * \return char * concatenated path on success
  *         NULL on invalid arguments
  *         NULL on failure
  */

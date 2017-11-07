@@ -22,6 +22,15 @@ extern "C"
 
 #include "rcutils/visibility_control.h"
 
+/// Return a newly allocated string that contains lhs, followed by delimiter, followed by rhs.
+/**
+ * This function allocates memory and returns it to the caller.  It is up to the
+ * caller to release the memory once it is done with it by calling `free`.
+ *
+ * \return char * concatenated string on success
+ *         NULL on invalid arguments
+ *         NULL on failure
+ */
 RCUTILS_PUBLIC
 char *
 rcutils_concat(const char * lhs, const char * rhs, const char * delimiter);
