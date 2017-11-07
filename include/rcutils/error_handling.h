@@ -23,9 +23,9 @@ extern "C"
 #endif
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stddef.h>
 
 #include "rcutils/allocator.h"
 #include "rcutils/macros.h"
@@ -41,7 +41,7 @@ typedef struct rcutils_error_state_t
   rcutils_allocator_t allocator;
 } rcutils_error_state_t;
 
-#define SAFE_FWRITE_TO_STDERR(msg) fwrite(msg, sizeof(char), sizeof(msg), stderr)
+#define RCUTILS_SAFE_FWRITE_TO_STDERR(msg) fwrite(msg, sizeof(char), sizeof(msg), stderr)
 
 /// Copy an error state into a destination error state.
 /**
@@ -123,7 +123,7 @@ rcutils_set_error_state(
     RCUTILS_SET_ERROR_MSG(output_msg, allocator); \
     allocator.deallocate(output_msg, allocator.state); \
   } else { \
-    SAFE_FWRITE_TO_STDERR("Failed to allocate memory for error message"); \
+    RCUTILS_SAFE_FWRITE_TO_STDERR("Failed to allocate memory for error message"); \
   }
 
 /// Return `true` if the error is set, otherwise `false`.
