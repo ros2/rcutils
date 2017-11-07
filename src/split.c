@@ -87,6 +87,7 @@ rcutils_split(
         string_array->data[token_counter] =
           allocator.allocate((rhs - lhs + 2) * sizeof(char), allocator.state);
         if (!string_array->data[token_counter]) {
+          string_array->size = token_counter;
           goto fail;
         }
         snprintf(string_array->data[token_counter], (rhs - lhs + 1), "%s", str + lhs);
@@ -111,10 +112,8 @@ rcutils_split(
   return RCUTILS_RET_OK;
 
 fail:
-  error_msg = "unable to allocate memory for string array data";
-  if (rcutils_string_array_fini(string_array) != RCUTILS_RET_OK) {
-    RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(allocator, "FATAL: %s. Leaking memory", error_msg);
-  }
+  RCUTILS_SET_ERROR_MSG("unable to allocate memory for string array data", allocator);
+  rcutils_string_array_fini(string_array);
   return RCUTILS_RET_ERROR;
 }
 
