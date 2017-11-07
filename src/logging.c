@@ -94,7 +94,11 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
         RCUTILS_SET_ERROR_MSG(
           "Failed to get output format from env. variable. Using default output format.",
           g_rcutils_logging_allocator);
-        ret = RCUTILS_RET_INVALID_ARGUMENT;
+        if (ret != RCUTILS_RET_OK) {
+          ret = RCUTILS_RET_MULTIPLE_ERRORS;
+        } else {
+          ret = RCUTILS_RET_INVALID_ARGUMENT;
+        }
       }
       memcpy(g_rcutils_logging_output_format_string, g_rcutils_logging_default_output_format,
         strlen(g_rcutils_logging_default_output_format) + 1);
@@ -112,7 +116,11 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
         "Failed to initialize map for logger severities. Severities will not be configurable.",
         g_rcutils_logging_allocator);
       g_rcutils_logging_severities_map_valid = false;
-      ret = RCUTILS_RET_STRING_MAP_INVALID;
+      if (ret != RCUTILS_RET_OK) {
+        ret = RCUTILS_RET_MULTIPLE_ERRORS;
+      } else {
+        ret = RCUTILS_RET_LOGGING_SEVERITY_MAP_INVALID;
+      }
     } else {
       g_rcutils_logging_severities_map_valid = true;
     }

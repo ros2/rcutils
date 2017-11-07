@@ -24,6 +24,7 @@ typedef int rcutils_ret_t;
 #define RCUTILS_RET_OK 0
 #define RCUTILS_RET_WARN 1
 #define RCUTILS_RET_ERROR 2
+#define RCUTILS_RET_MULTIPLE_ERRORS 3
 
 /// Failed to allocate memory return code.
 #define RCUTILS_RET_BAD_ALLOC 10

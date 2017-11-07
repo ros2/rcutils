@@ -58,6 +58,8 @@ extern bool g_rcutils_logging_initialized;
  * \return `RCUTILS_RET_LOGGING_SEVERITY_MAP_INVALID` if the internal logger
  *   severity map cannot be initialized, in which case logger severity
  *   thresholds will not be configurable.
+ * \return `RCUTILS_RET_MULTIPLE_ERRORS` if multiple errors occur, in which
+ *   case the error message will contain that of the last error to occur.
  */
 RCUTILS_PUBLIC
 rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allocator);
@@ -82,6 +84,8 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
  * \return `RCUTILS_RET_LOGGING_SEVERITY_MAP_INVALID` if the internal logger
  *   severity map cannot be initialized, in which case logger severity
  *   thresholds will not be configurable.
+ * \return `RCUTILS_RET_MULTIPLE_ERRORS` if multiple errors occur, in which
+ *   case the error message will contain that of the last error to occur.
  */
 RCUTILS_PUBLIC
 rcutils_ret_t rcutils_logging_initialize();
