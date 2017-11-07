@@ -137,8 +137,8 @@ rcutils_ret_t rcutils_logging_shutdown()
   }
   rcutils_ret_t ret = RCUTILS_RET_OK;
   if (g_rcutils_logging_severities_map_valid) {
-    rcutils_ret_t ret = rcutils_string_map_fini(&g_rcutils_logging_severities_map);
-    if (ret != RCUTILS_RET_OK) {
+    rcutils_ret_t string_map_ret = rcutils_string_map_fini(&g_rcutils_logging_severities_map);
+    if (string_map_ret != RCUTILS_RET_OK) {
       fprintf(
         stderr,
         "Failed to finalize logging severities map: %s\n", rcutils_get_error_string_safe());
@@ -302,9 +302,9 @@ rcutils_ret_t rcutils_logging_set_logger_severity_threshold(const char * name, i
       "Unable to determine severity_string for severity", g_rcutils_logging_allocator);
     return RCUTILS_RET_INVALID_ARGUMENT;
   }
-  rcutils_ret_t ret = rcutils_string_map_set(
+  rcutils_ret_t string_map_ret = rcutils_string_map_set(
     &g_rcutils_logging_severities_map, name, severity_string);
-  if (ret != RCUTILS_RET_OK) {
+  if (string_map_ret != RCUTILS_RET_OK) {
     fprintf(
       stderr,
       "Error setting severity for logger named '%s': %s\n", name, rcutils_get_error_string_safe());
