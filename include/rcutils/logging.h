@@ -306,7 +306,7 @@ rcutils_ret_t rcutils_logging_set_logger_severity_threshold(const char * name, i
  * \param name The name of the logger, must be null terminated c string or NULL.
  * \param severity The severity level.
  *
- * \return True if the logger is enabled for the severity; false otherwise.
+ * \return true if the logger is enabled for the severity; false otherwise.
  */
 RCUTILS_PUBLIC
 bool rcutils_logging_logger_is_enabled_for(const char * name, int severity);
