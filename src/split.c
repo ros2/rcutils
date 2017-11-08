@@ -112,8 +112,14 @@ rcutils_split(
   return RCUTILS_RET_OK;
 
 fail:
+  if (rcutils_string_array_fini(string_array) != RCUTILS_RET_OK) {
+    RCUTILS_SAFE_FWRITE_TO_STDERR("failed to finalize string array during error handling: ");
+    RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string_safe());
+    RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
+    rcutils_reset_error();
+  }
+
   RCUTILS_SET_ERROR_MSG("unable to allocate memory for string array data", allocator);
-  rcutils_string_array_fini(string_array);
   return RCUTILS_RET_ERROR;
 }
 
