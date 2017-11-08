@@ -125,7 +125,7 @@ do {
     allocator.deallocate(output_msg, allocator.state); \
   } else { \
     RCUTILS_SAFE_FWRITE_TO_STDERR("Failed to allocate memory for error message\n"); \
-  }
+  } \
 } while (0)
 
 /// Return `true` if the error is set, otherwise `false`.
