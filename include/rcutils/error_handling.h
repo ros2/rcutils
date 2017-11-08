@@ -117,14 +117,16 @@ rcutils_set_error_state(
  * \param[in] ... Arguments for the format string.
  */
 #define RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(allocator, format_string, ...) \
+do {  
   char * output_msg = NULL; \
   output_msg = rcutils_format_string(allocator, format_string, __VA_ARGS__); \
   if (output_msg) { \
     RCUTILS_SET_ERROR_MSG(output_msg, allocator); \
     allocator.deallocate(output_msg, allocator.state); \
   } else { \
-    RCUTILS_SAFE_FWRITE_TO_STDERR("Failed to allocate memory for error message"); \
+    RCUTILS_SAFE_FWRITE_TO_STDERR("Failed to allocate memory for error message\n"); \
   }
+} while (0)
 
 /// Return `true` if the error is set, otherwise `false`.
 RCUTILS_PUBLIC
