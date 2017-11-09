@@ -35,12 +35,15 @@ extern bool g_rcutils_logging_initialized;
 /// Initialize the logging system using the specified allocator.
 /**
  * Initialize the logging system only if it was not in an initialized state.
+ *
  * If an invalid allocator is passed, the initialization will fail.
  * Otherwise, this function will still set the internal state to initialized
  * even if an error occurs, to avoid repeated failing initialization attempts
  * since this function is called automatically from logging macros.
- * To re-attempt initialization after failure, call rcutils_logging_shutdown()
- * before re-calling this function.
+ * To re-attempt initialization, call rcutils_logging_shutdown() before
+ * re-calling this function.
+ *
+ * If multiple errors occur, the error code of the last error will be returned.
  *
  * <hr>
  * Attribute          | Adherence
