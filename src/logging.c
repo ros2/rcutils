@@ -24,28 +24,52 @@ extern "C"
 #include "rcutils/get_env.h"
 #include "rcutils/logging.h"
 #include "rcutils/snprintf.h"
+#include "rcutils/types/string_map.h"
 
 #define RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN 2048
 
+const char * g_rcutils_log_severity_names[] = {
+  [RCUTILS_LOG_SEVERITY_UNSET] = "UNSET",
+  [RCUTILS_LOG_SEVERITY_DEBUG] = "DEBUG",
+  [RCUTILS_LOG_SEVERITY_INFO] = "INFO",
+  [RCUTILS_LOG_SEVERITY_WARN] = "WARN",
+  [RCUTILS_LOG_SEVERITY_ERROR] = "ERROR",
+  [RCUTILS_LOG_SEVERITY_FATAL] = "FATAL",
+};
+
 bool g_rcutils_logging_initialized = false;
+
 char g_rcutils_logging_output_format_string[RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN];
 static const char * g_rcutils_logging_default_output_format =
   "[{severity}] [{name}]: {message} ({function_name}() at {file_name}:{line_number})";
 
+static rcutils_allocator_t g_rcutils_logging_allocator;
+
 rcutils_logging_output_handler_t g_rcutils_logging_output_handler = NULL;
+static rcutils_string_map_t g_rcutils_logging_severities_map;
 
-int g_rcutils_logging_severity_threshold = 0;
+// If this is false, attempts to use the severities map will be skipped.
+// This can happen if allocation of the map fails at initialization.
+bool g_rcutils_logging_severities_map_valid = false;
 
-void rcutils_logging_initialize()
+int g_rcutils_logging_default_severity_threshold = 0;
+
+rcutils_ret_t rcutils_logging_initialize()
 {
+  return rcutils_logging_initialize_with_allocator(rcutils_get_default_allocator());
+}
+
+rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allocator)
+{
+  rcutils_ret_t ret = RCUTILS_RET_OK;
   if (!g_rcutils_logging_initialized) {
     g_rcutils_logging_output_handler = &rcutils_logging_console_output_handler;
-    g_rcutils_logging_severity_threshold = RCUTILS_LOG_SEVERITY_INFO;
+    g_rcutils_logging_default_severity_threshold = RCUTILS_LOG_SEVERITY_INFO;
 
     // Check for the environment variable for custom output formatting
     const char * output_format;
-    const char * ret = rcutils_get_env("RCUTILS_CONSOLE_OUTPUT_FORMAT", &output_format);
-    if (NULL == ret && strcmp(output_format, "") != 0) {
+    const char * ret_str = rcutils_get_env("RCUTILS_CONSOLE_OUTPUT_FORMAT", &output_format);
+    if (NULL == ret_str && strcmp(output_format, "") != 0) {
       size_t chars_to_copy = strlen(output_format);
       if (chars_to_copy > RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN - 1) {
         chars_to_copy = RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN - 1;
@@ -53,52 +77,241 @@ void rcutils_logging_initialize()
       memcpy(g_rcutils_logging_output_format_string, output_format, chars_to_copy);
       g_rcutils_logging_output_format_string[chars_to_copy] = '\0';
     } else {
-      if (NULL != ret) {
+      if (NULL != ret_str) {
         fprintf(
           stderr,
           "Failed to get output format from env. variable: %s. Using default output format.\n",
-          ret);
+          ret_str);
+        ret = RCUTILS_RET_INVALID_ARGUMENT;
       }
       memcpy(g_rcutils_logging_output_format_string, g_rcutils_logging_default_output_format,
         strlen(g_rcutils_logging_default_output_format) + 1);
     }
+
+    if (!rcutils_allocator_is_valid(&allocator)) {
+      fprintf(
+        stderr,
+        "Provided allocator is invalid. Using the default allocator.\n");
+      ret = RCUTILS_RET_INVALID_ARGUMENT;
+      allocator = rcutils_get_default_allocator();
+    }
+    g_rcutils_logging_allocator = allocator;
+    g_rcutils_logging_severities_map = rcutils_get_zero_initialized_string_map();
+    rcutils_ret_t string_map_ret = rcutils_string_map_init(
+      &g_rcutils_logging_severities_map, 0, g_rcutils_logging_allocator);
+    if (string_map_ret != RCUTILS_RET_OK) {
+      fprintf(
+        stderr,
+        "Failed to initialize map for logger severities. Severities will not be configurable.\n");
+      g_rcutils_logging_severities_map_valid = false;
+      ret = RCUTILS_RET_STRING_MAP_INVALID;
+    } else {
+      g_rcutils_logging_severities_map_valid = true;
+    }
+
     g_rcutils_logging_initialized = true;
   }
+  return ret;
+}
+
+rcutils_ret_t rcutils_logging_shutdown()
+{
+  if (!g_rcutils_logging_initialized) {
+    return RCUTILS_RET_OK;
+  }
+  rcutils_ret_t ret = RCUTILS_RET_OK;
+  if (g_rcutils_logging_severities_map_valid) {
+    rcutils_ret_t ret = rcutils_string_map_fini(&g_rcutils_logging_severities_map);
+    if (ret != RCUTILS_RET_OK) {
+      fprintf(stderr, "Failed to finalize logging severities map: return code %d", ret);
+      ret = RCUTILS_RET_LOGGING_SEVERITY_MAP_INVALID;
+    }
+    g_rcutils_logging_severities_map_valid = false;
+  }
+  g_rcutils_logging_initialized = false;
+  return ret;
 }
 
 rcutils_logging_output_handler_t rcutils_logging_get_output_handler()
 {
+  RCUTILS_LOGGING_AUTOINIT
   return g_rcutils_logging_output_handler;
 }
 
 void rcutils_logging_set_output_handler(rcutils_logging_output_handler_t function)
 {
+  // *INDENT-OFF* (prevent uncrustify from making unnecessary indents here)
+  RCUTILS_LOGGING_AUTOINIT
   g_rcutils_logging_output_handler = function;
+  // *INDENT-ON*
 }
 
-int rcutils_logging_get_severity_threshold()
-{
-  return g_rcutils_logging_severity_threshold;
-}
-
-void rcutils_logging_set_severity_threshold(int severity)
+int rcutils_logging_get_default_severity_threshold()
 {
   RCUTILS_LOGGING_AUTOINIT
-    g_rcutils_logging_severity_threshold = severity;
+  return g_rcutils_logging_default_severity_threshold;
+}
+
+void rcutils_logging_set_default_severity_threshold(int severity)
+{
+  // *INDENT-OFF* (prevent uncrustify from making unnecessary indents here)
+  RCUTILS_LOGGING_AUTOINIT
+  g_rcutils_logging_default_severity_threshold = severity;
+  // *INDENT-ON*
+}
+
+int rcutils_logging_get_logger_severity_threshold(const char * name)
+{
+  RCUTILS_LOGGING_AUTOINIT
+  return rcutils_logging_get_logger_severity_thresholdn(name, strlen(name));
+}
+
+int rcutils_logging_get_logger_severity_thresholdn(const char * name, size_t name_length)
+{
+  if (!name) {
+    return -1;
+  }
+  RCUTILS_LOGGING_AUTOINIT
+
+  // Skip the map lookup if the default was requested,
+  // as it can still be used even if the severity map is invalid.
+  if (0 == name_length) {
+    return g_rcutils_logging_default_severity_threshold;
+  }
+  if (!g_rcutils_logging_severities_map_valid) {
+    return RCUTILS_LOG_SEVERITY_UNSET;
+  }
+
+  // TODO(dhood): replace string map with int map.
+  const char * severity_string = rcutils_string_map_getn(
+    &g_rcutils_logging_severities_map, name, name_length);
+  if (!severity_string) {
+    if (rcutils_string_map_key_existsn(&g_rcutils_logging_severities_map, name, name_length)) {
+      // The severity threshold has been specified but couldn't be retrieved.
+      return -1;
+    }
+    return RCUTILS_LOG_SEVERITY_UNSET;
+  }
+
+  // Determine the severity value matching the severity name.
+  int severity = -1;
+  for (size_t i = 0;
+    i < sizeof(g_rcutils_log_severity_names) / sizeof(g_rcutils_log_severity_names[0]);
+    ++i)
+  {
+    const char * severity_string_i = g_rcutils_log_severity_names[i];
+    if (severity_string_i && strcmp(severity_string_i, severity_string) == 0) {
+      severity = (enum RCUTILS_LOG_SEVERITY)i;
+      break;
+    }
+  }
+
+  if (severity < 0) {
+    fprintf(
+      stderr,
+      "Logger has an invalid severity threshold: %s\n", severity_string);
+    return -1;
+  }
+  return severity;
+}
+
+int rcutils_logging_get_logger_effective_severity_threshold(const char * name)
+{
+  if (!name) {
+    return -1;
+  }
+  RCUTILS_LOGGING_AUTOINIT
+  size_t substring_length = strlen(name);
+  while (true) {
+    int severity = rcutils_logging_get_logger_severity_thresholdn(name, substring_length);
+    if (-1 == severity) {
+      fprintf(
+        stderr,
+        "Error getting effective severity threshold of logger '%s'\n", name);
+      return -1;
+    }
+    if (severity != RCUTILS_LOG_SEVERITY_UNSET) {
+      return severity;
+    }
+    // Determine the next ancestor's FQN by removing the child's name.
+    size_t index_last_separator = rcutils_find_lastn(name, '.', substring_length);
+    if (index_last_separator == substring_length) {
+      // There are no more separators in the substring.
+      // The name we just checked was the last that we needed to, and it was unset.
+      break;
+    }
+    // Shorten the substring to be the name of the ancestor (excluding the separator).
+    substring_length = index_last_separator;
+  }
+  // Neither the logger nor its ancestors have had their severity threshold specified.
+  return g_rcutils_logging_default_severity_threshold;
+}
+
+rcutils_ret_t rcutils_logging_set_logger_severity_threshold(const char * name, int severity)
+{
+  if (!name) {
+    return RCUTILS_RET_INVALID_ARGUMENT;
+  }
+  RCUTILS_LOGGING_AUTOINIT
+  if (strlen(name) == 0) {
+    g_rcutils_logging_default_severity_threshold = severity;
+    return RCUTILS_RET_OK;
+  }
+  if (!g_rcutils_logging_severities_map_valid) {
+    return RCUTILS_RET_LOGGING_SEVERITY_MAP_INVALID;
+  }
+
+  // Convert the severity value into a string for storage.
+  // TODO(dhood): replace string map with int map.
+  if (severity < 0 ||
+    severity >
+    (int)(sizeof(g_rcutils_log_severity_names) / sizeof(g_rcutils_log_severity_names[0])))
+  {
+    fprintf(stderr, "Invalid severity specified for logger named '%s': %d", name, severity);
+    return RCUTILS_RET_INVALID_ARGUMENT;
+  }
+  const char * severity_string = g_rcutils_log_severity_names[severity];
+  if (!severity_string) {
+    fprintf(stderr, "Unable to determine severity_string for severity: %d", severity);
+    return RCUTILS_RET_INVALID_ARGUMENT;
+  }
+  rcutils_ret_t ret = rcutils_string_map_set(
+    &g_rcutils_logging_severities_map, name, severity_string);
+  if (ret != RCUTILS_RET_OK) {
+    fprintf(stderr, "Error setting severity for logger named '%s'", name);
+    return ret;
+  }
+  return RCUTILS_RET_OK;
+}
+
+bool rcutils_logging_logger_is_enabled_for(const char * name, int severity)
+{
+  RCUTILS_LOGGING_AUTOINIT
+  int severity_threshold = g_rcutils_logging_default_severity_threshold;
+  if (name) {
+    severity_threshold = rcutils_logging_get_logger_effective_severity_threshold(name);
+    if (-1 == severity_threshold) {
+      fprintf(
+        stderr,
+        "Error determining if logger '%s' is enabled for severity '%d'", name, severity);
+      return false;
+    }
+  }
+  return severity >= severity_threshold;
 }
 
 void rcutils_log(
   rcutils_log_location_t * location,
   int severity, const char * name, const char * format, ...)
 {
-  if (severity < g_rcutils_logging_severity_threshold) {
+  if (!rcutils_logging_logger_is_enabled_for(name, severity)) {
     return;
   }
   rcutils_logging_output_handler_t output_handler = g_rcutils_logging_output_handler;
   if (output_handler) {
     va_list args;
     va_start(args, format);
-    (*output_handler)(location, severity, name, format, &args);
+    (*output_handler)(location, severity, name ? name : "", format, &args);
     va_end(args);
   }
 }
@@ -113,14 +326,12 @@ void rcutils_log(
  *
  * /param n Number of characters requiring space (not including null terminator)
  * /param output_buffer_size Size allocated for the output buffer
- * /param allocator rcutils_allocator_t to use for (re)allocation
  * /param output_buffer The output buffer to ensure has enough space
  * /param static_output_buffer The static buffer initially used as the output
  */
 #define RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER( \
     n, \
     output_buffer_size, \
-    allocator, \
     output_buffer, \
     static_output_buffer \
 ) \
@@ -131,7 +342,8 @@ void rcutils_log(
       output_buffer_size *= 2; \
     } while (required_output_buffer_size > output_buffer_size); \
     if (output_buffer == static_output_buffer) { \
-      void * dynamic_output_buffer = allocator.allocate(output_buffer_size, allocator.state); \
+      void * dynamic_output_buffer = g_rcutils_logging_allocator.allocate( \
+        output_buffer_size, g_rcutils_logging_allocator.state); \
       if (!dynamic_output_buffer) { \
         fprintf(stderr, "failed to allocate buffer for logging output\n"); \
         goto cleanup; \
@@ -139,8 +351,8 @@ void rcutils_log(
       memcpy(dynamic_output_buffer, output_buffer, old_output_buffer_len); \
       output_buffer = (char *)dynamic_output_buffer; \
     } else { \
-      void * new_dynamic_output_buffer = allocator.reallocate( \
-        output_buffer, output_buffer_size, allocator.state); \
+      void * new_dynamic_output_buffer = g_rcutils_logging_allocator.reallocate( \
+        output_buffer, output_buffer_size, g_rcutils_logging_allocator.state); \
       if (!new_dynamic_output_buffer) { \
         fprintf(stderr, "failed to reallocate buffer for logging output\n"); \
         goto cleanup; \
@@ -154,32 +366,39 @@ void rcutils_logging_console_output_handler(
   rcutils_log_location_t * location,
   int severity, const char * name, const char * format, va_list * args)
 {
+  if (!g_rcutils_logging_initialized) {
+    fprintf(
+      stderr,
+      "logging system isn't initialized: " \
+      "call to rcutils_logging_console_output_handler failed.\n");
+    return;
+  }
   FILE * stream = NULL;
   const char * severity_string = "";
   switch (severity) {
     case RCUTILS_LOG_SEVERITY_DEBUG:
       stream = stdout;
-      severity_string = "DEBUG";
       break;
     case RCUTILS_LOG_SEVERITY_INFO:
       stream = stdout;
-      severity_string = "INFO";
       break;
     case RCUTILS_LOG_SEVERITY_WARN:
       stream = stderr;
-      severity_string = "WARN";
       break;
     case RCUTILS_LOG_SEVERITY_ERROR:
       stream = stderr;
-      severity_string = "ERROR";
       break;
     case RCUTILS_LOG_SEVERITY_FATAL:
       stream = stderr;
-      severity_string = "FATAL";
       break;
     default:
       fprintf(stderr, "unknown severity level: %d\n", severity);
       return;
+  }
+  severity_string = g_rcutils_log_severity_names[severity];
+  if (!severity_string) {
+    fprintf(stderr, "couldn't determine name for severity level: %d\n", severity);
+    return;
   }
 
   // Declare variables that will be needed for cleanup ahead of time.
@@ -203,11 +422,11 @@ void rcutils_logging_console_output_handler(
     fprintf(stderr, "failed to format message: '%s'\n", format);
     return;
   }
-  rcutils_allocator_t allocator = rcutils_get_default_allocator();
   if ((size_t)written >= sizeof(static_message_buffer)) {
     // write was incomplete, allocate necessary memory dynamically
     size_t message_buffer_size = written + 1;
-    void * dynamic_message_buffer = allocator.allocate(message_buffer_size, allocator.state);
+    void * dynamic_message_buffer = g_rcutils_logging_allocator.allocate(
+      message_buffer_size, g_rcutils_logging_allocator.state);
     if (!dynamic_message_buffer) {
       fprintf(stderr, "failed to allocate buffer for message\n");
       return;
@@ -246,7 +465,7 @@ void rcutils_logging_console_output_handler(
         chars_to_start_delim = remaining_chars;
       }
       RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(
-        chars_to_start_delim, output_buffer_size, allocator, output_buffer, static_output_buffer)
+        chars_to_start_delim, output_buffer_size, output_buffer, static_output_buffer)
       memcpy(output_buffer + old_output_buffer_len, str + i, chars_to_start_delim);
       output_buffer[old_output_buffer_len + chars_to_start_delim] = '\0';
       i += chars_to_start_delim;
@@ -264,7 +483,7 @@ void rcutils_logging_console_output_handler(
       // No end delimiters found in the remainder of the format string;
       // there won't be any more tokens so shortcut the rest of the checking.
       RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(
-        remaining_chars, output_buffer_size, allocator, output_buffer, static_output_buffer)
+        remaining_chars, output_buffer_size, output_buffer, static_output_buffer)
       memcpy(output_buffer + old_output_buffer_len, str + i, remaining_chars + 1);
       break;
     }
@@ -307,7 +526,7 @@ void rcutils_logging_console_output_handler(
       // This wasn't a token; print the start delimiter and continue the search as usual
       // (the substring might contain more start delimiters).
       RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(
-        1, output_buffer_size, allocator, output_buffer, static_output_buffer)
+        1, output_buffer_size, output_buffer, static_output_buffer)
       memcpy(output_buffer + old_output_buffer_len, str + i, 1);
       output_buffer[old_output_buffer_len + 1] = '\0';
       i++;
@@ -315,7 +534,7 @@ void rcutils_logging_console_output_handler(
     }
     size_t n = strlen(token_expansion);
     RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(
-      n, output_buffer_size, allocator, output_buffer, static_output_buffer)
+      n, output_buffer_size, output_buffer, static_output_buffer)
     memcpy(output_buffer + old_output_buffer_len, token_expansion, n + 1);
     // Skip ahead to avoid re-processing the token characters (including the 2 delimiters).
     i += token_len + 2;
@@ -324,11 +543,11 @@ void rcutils_logging_console_output_handler(
 
 cleanup:
   if (message_buffer && message_buffer != static_message_buffer) {
-    allocator.deallocate(message_buffer, allocator.state);
+    g_rcutils_logging_allocator.deallocate(message_buffer, g_rcutils_logging_allocator.state);
   }
 
   if (output_buffer && output_buffer != static_output_buffer) {
-    allocator.deallocate(output_buffer, allocator.state);
+    g_rcutils_logging_allocator.deallocate(output_buffer, g_rcutils_logging_allocator.state);
   }
 }
 

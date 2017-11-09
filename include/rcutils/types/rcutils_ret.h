@@ -39,6 +39,9 @@ typedef int rcutils_ret_t;
 /// Given key not found in given string map.
 #define RCUTILS_RET_STRING_KEY_NOT_FOUND 32
 
+/// Internal severity map for logger thresholds is invalid.
+#define RCUTILS_RET_LOGGING_SEVERITY_MAP_INVALID 40
+
 #if __cplusplus
 }
 #endif

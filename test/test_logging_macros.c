@@ -111,7 +111,8 @@ int main(int argc, char ** argv)
   if (g_last_log_event.message) {
     free(g_last_log_event.message);
   }
-  g_rcutils_logging_initialized = false;
+
+  rcutils_logging_shutdown();
   if (g_rcutils_logging_initialized) {
     return 17;
   }

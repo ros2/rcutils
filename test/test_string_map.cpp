@@ -869,6 +869,95 @@ TEST(test_string_map, set) {
   }
 }
 
+TEST(test_string_map, key_exists) {
+  auto allocator = rcutils_get_default_allocator();
+  rcutils_ret_t ret;
+  bool key_exists;
+
+  {
+    rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
+    ret = rcutils_string_map_init(&string_map, 2, allocator);
+    ASSERT_EQ(RCUTILS_RET_OK, ret);
+    key_exists = rcutils_string_map_key_exists(&string_map, "key1");
+    EXPECT_FALSE(key_exists);
+    key_exists = rcutils_string_map_key_exists(&string_map, "key2");
+    EXPECT_FALSE(key_exists);
+
+    ret = rcutils_string_map_set(&string_map, "key1", "value1");
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    key_exists = rcutils_string_map_key_exists(&string_map, "key1");
+    EXPECT_TRUE(key_exists);
+    key_exists = rcutils_string_map_key_exists(&string_map, "key2");
+    EXPECT_FALSE(key_exists);
+
+    ret = rcutils_string_map_unset(&string_map, "key1");
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    key_exists = rcutils_string_map_key_exists(&string_map, "key1");
+    EXPECT_FALSE(key_exists);
+    key_exists = rcutils_string_map_key_exists(&string_map, "key2");
+    EXPECT_FALSE(key_exists);
+
+    ret = rcutils_string_map_fini(&string_map);
+    ASSERT_EQ(RCUTILS_RET_OK, ret);
+  }
+
+  // key_exists with string_map as null
+  {
+    key_exists = rcutils_string_map_key_exists(NULL, "key");
+    EXPECT_FALSE(key_exists);
+  }
+
+  // key_exists with key as null
+  {
+    rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
+    ret = rcutils_string_map_init(&string_map, 2, allocator);
+    ASSERT_EQ(RCUTILS_RET_OK, ret);
+
+    key_exists = rcutils_string_map_key_exists(&string_map, NULL);
+    EXPECT_FALSE(key_exists);
+
+    ret = rcutils_string_map_fini(&string_map);
+    ASSERT_EQ(RCUTILS_RET_OK, ret);
+  }
+
+  // key_exists on empty map
+  {
+    rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
+    ret = rcutils_string_map_init(&string_map, 0, allocator);
+    ASSERT_EQ(RCUTILS_RET_OK, ret);
+
+    key_exists = rcutils_string_map_key_exists(&string_map, "missing");
+    EXPECT_FALSE(key_exists);
+
+    ret = rcutils_string_map_fini(&string_map);
+    ASSERT_EQ(RCUTILS_RET_OK, ret);
+  }
+}
+
+TEST(test_string_map, key_existsn) {
+  auto allocator = rcutils_get_default_allocator();
+  rcutils_ret_t ret;
+
+  // key_existsn on normal key, which is longer than compared
+  {
+    rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
+    ret = rcutils_string_map_init(&string_map, 2, allocator);
+    ASSERT_EQ(RCUTILS_RET_OK, ret);
+
+    ret = rcutils_string_map_set(&string_map, "key1", "value1");
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ret = rcutils_string_map_set(&string_map, "key2", "value2");
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+
+    EXPECT_TRUE(rcutils_string_map_key_existsn(&string_map, "key1andsome", 4));
+    EXPECT_TRUE(rcutils_string_map_key_existsn(&string_map, "key2andsome", 4));
+    EXPECT_FALSE(rcutils_string_map_key_existsn(&string_map, "key1andsome", 5));
+
+    ret = rcutils_string_map_fini(&string_map);
+    ASSERT_EQ(RCUTILS_RET_OK, ret);
+  }
+}
+
 TEST(test_string_map, unset) {
   auto allocator = rcutils_get_default_allocator();
   rcutils_ret_t ret;

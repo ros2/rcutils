@@ -19,6 +19,8 @@
 #include <stdbool.h>
 #include <stdio.h>
 
+#include "rcutils/allocator.h"
+#include "rcutils/types/rcutils_ret.h"
 #include "rcutils/visibility_control.h"
 
 #if __cplusplus
@@ -30,9 +32,64 @@ extern "C"
 RCUTILS_PUBLIC
 extern bool g_rcutils_logging_initialized;
 
+/// Initialize the logging system using the specified allocator.
+/**
+ * This function will always set the internal state to initialized even if an
+ * error occurs, to avoid repeated failing initialization attempts since this
+ * function is called automatically from logging macros.
+ * To re-attempt initialization after failure, call rcutils_logging_shutdown()
+ * before re-calling this function.
+ *
+ * <hr>
+ * Attribute          | Adherence
+ * ------------------ | -------------
+ * Allocates Memory   | Yes
+ * Thread-Safe        | No
+ * Uses Atomics       | No
+ * Lock-Free          | Yes
+ *
+ * \param allocator rcutils_allocator_t to be used.
+ * \return `RCUTILS_RET_OK` if successful.
+ * \retrun `RCUTILS_RET_INVALID_ARGUMENT` if the allocator is invalid, in which
+ *   case the default allocator will be used.
+ * \return `RCUTILS_RET_INVALID_ARGUMENT` if an error occurs reading the output
+ *   format from the `RCUTILS_CONSOLE_OUTPUT_FORMAT` environment variable, in
+ *   which case the default format will be used.
+ * \return `RCUTILS_RET_LOGGING_SEVERITY_MAP_INVALID` if the internal logger
+ *   severity map cannot be initialized, in which case logger severity
+ *   thresholds will not be configurable.
+ */
+RCUTILS_PUBLIC
+rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allocator);
+
 /// Initialize the logging system.
 /**
- * The function is called automatically when using the logging macros.
+ * Call rcutils_logging_initialize_with_allocator() using the default allocator.
+ * This function is called automatically when using the logging macros.
+ *
+ * <hr>
+ * Attribute          | Adherence
+ * ------------------ | -------------
+ * Allocates Memory   | Yes
+ * Thread-Safe        | No
+ * Uses Atomics       | No
+ * Lock-Free          | Yes
+ *
+ * \return `RCUTILS_RET_OK` if successful.
+ * \return `RCUTILS_RET_INVALID_ARGUMENT` if an error occurs reading the output
+ *   format from the `RCUTILS_CONSOLE_OUTPUT_FORMAT` environment variable, in
+ *   which case the default format will be used.
+ * \return `RCUTILS_RET_LOGGING_SEVERITY_MAP_INVALID` if the internal logger
+ *   severity map cannot be initialized, in which case logger severity
+ *   thresholds will not be configurable.
+ */
+RCUTILS_PUBLIC
+rcutils_ret_t rcutils_logging_initialize();
+
+/// Shutdown the logging system.
+/**
+ * Free the resources allocated for the logging system.
+ * This puts the system into a state equivalent to being uninitialized.
  *
  * <hr>
  * Attribute          | Adherence
@@ -41,9 +98,13 @@ extern bool g_rcutils_logging_initialized;
  * Thread-Safe        | No
  * Uses Atomics       | No
  * Lock-Free          | Yes
+ *
+ * \return `RCUTILS_RET_OK` if successful.
+ * \return `RCUTILS_RET_LOGGING_SEVERITY_MAP_INVALID` if the internal logger
+ *   severity map cannot be finalized.
  */
 RCUTILS_PUBLIC
-void rcutils_logging_initialize();
+rcutils_ret_t rcutils_logging_shutdown();
 
 /// The structure identifying the caller location in the source code.
 typedef struct rcutils_log_location_t
@@ -56,23 +117,27 @@ typedef struct rcutils_log_location_t
   size_t line_number;
 } rcutils_log_location_t;
 
-/// The severity levels of log message.
+/// The severity levels of log messages / logger thresholds.
 enum RCUTILS_LOG_SEVERITY
 {
-  RCUTILS_LOG_SEVERITY_DEBUG = 0,  ///< The debug log level
-  RCUTILS_LOG_SEVERITY_INFO = 1,  ///< The info log level
-  RCUTILS_LOG_SEVERITY_WARN = 2,  ///< The warn log level
-  RCUTILS_LOG_SEVERITY_ERROR = 3,  ///< The error log level
-  RCUTILS_LOG_SEVERITY_FATAL = 4,  ///< The fatal log level
+  RCUTILS_LOG_SEVERITY_UNSET = 0,  ///< The unset log level
+  RCUTILS_LOG_SEVERITY_DEBUG = 10,  ///< The debug log level
+  RCUTILS_LOG_SEVERITY_INFO = 20,  ///< The info log level
+  RCUTILS_LOG_SEVERITY_WARN = 30,  ///< The warn log level
+  RCUTILS_LOG_SEVERITY_ERROR = 40,  ///< The error log level
+  RCUTILS_LOG_SEVERITY_FATAL = 50,  ///< The fatal log level
 };
+
+/// The names of severity levels.
+extern const char * g_rcutils_log_severity_names[RCUTILS_LOG_SEVERITY_FATAL + 1];
 
 /// The function signature to log messages.
 /**
- * \param The pointer to the location struct
- * \param The severity level
- * \param The name of the logger
- * \param The format string
- * \param The variable argument list
+ * \param location The pointer to the location struct
+ * \param severity The severity level
+ * \param name The name of the logger
+ * \param format The format string
+ * \param args The variable argument list
  */
 typedef void (* rcutils_logging_output_handler_t)(
   rcutils_log_location_t *,  // location
@@ -91,7 +156,7 @@ extern rcutils_logging_output_handler_t g_rcutils_logging_output_handler;
  * <hr>
  * Attribute          | Adherence
  * ------------------ | -------------
- * Allocates Memory   | No
+ * Allocates Memory   | No, provided logging system is already initialized
  * Thread-Safe        | No
  * Uses Atomics       | No
  * Lock-Free          | Yes
@@ -106,7 +171,7 @@ rcutils_logging_output_handler_t rcutils_logging_get_output_handler();
  * <hr>
  * Attribute          | Adherence
  * ------------------ | -------------
- * Allocates Memory   | No
+ * Allocates Memory   | No, provided logging system is already initialized
  * Thread-Safe        | No
  * Uses Atomics       | No
  * Lock-Free          | Yes
@@ -116,22 +181,22 @@ rcutils_logging_output_handler_t rcutils_logging_get_output_handler();
 RCUTILS_PUBLIC
 void rcutils_logging_set_output_handler(rcutils_logging_output_handler_t function);
 
-/// The global severity threshold before calling the output handler.
+/// The default severity threshold for log calls.
 /**
- * The global severity threshold is being checked after the conditions when
- * using the various logging macros.
+ * This severity threshold is used for (1) nameless log calls and (2) named log
+ * calls where the effective severity threshold of the name is unspecified.
  *
- * \param severity The global severity threshold to be used.
+ * \see rcutils_logging_get_logger_effective_severity_threshold()
  */
 RCUTILS_PUBLIC
-extern int g_rcutils_logging_severity_threshold;
+extern int g_rcutils_logging_default_severity_threshold;
 
-/// Get the global severity threshold.
+/// Get the default severity threshold for loggers.
 /**
  * <hr>
  * Attribute          | Adherence
  * ------------------ | -------------
- * Allocates Memory   | No
+ * Allocates Memory   | No, provided logging system is already initialized
  * Thread-Safe        | No
  * Uses Atomics       | No
  * Lock-Free          | Yes
@@ -139,14 +204,14 @@ extern int g_rcutils_logging_severity_threshold;
  * \return The severity threshold.
  */
 RCUTILS_PUBLIC
-int rcutils_logging_get_severity_threshold();
+int rcutils_logging_get_default_severity_threshold();
 
-/// Set the global severity threshold.
+/// Set the default severity threshold for loggers.
 /**
  * <hr>
  * Attribute          | Adherence
  * ------------------ | -------------
- * Allocates Memory   | No
+ * Allocates Memory   | No, provided logging system is already initialized
  * Thread-Safe        | No
  * Uses Atomics       | No
  * Lock-Free          | Yes
@@ -154,7 +219,125 @@ int rcutils_logging_get_severity_threshold();
  * \param severity The severity threshold to be used.
  */
 RCUTILS_PUBLIC
-void rcutils_logging_set_severity_threshold(int severity);
+void rcutils_logging_set_default_severity_threshold(int severity);
+
+/// Get the severity threshold for a logger.
+/**
+ * This considers the severity threshold of the specifed logger only.
+ * To get the effective severity threshold of a logger given the severity
+ * threshold of its ancestors, see
+ * rcutils_logging_get_logger_effective_severity_threshold().
+ *
+ * <hr>
+ * Attribute          | Adherence
+ * ------------------ | -------------
+ * Allocates Memory   | No, provided logging system is already initialized
+ * Thread-Safe        | No
+ * Uses Atomics       | No
+ * Lock-Free          | Yes
+ *
+ * \param name The name of the logger, must be null terminated c string
+ * \return The severity threshold of the logger if it has been set, or
+ * \return `RCUTILS_LOG_SEVERITY_UNSET` if unset, or
+ * \return `g_rcutils_logging_default_severity_threshold` for an empty name, or
+ * \return -1 on invalid arguments, or
+ * \return -1 if an error occurred
+ */
+RCUTILS_PUBLIC
+int rcutils_logging_get_logger_severity_threshold(const char * name);
+
+/// Get the severity threshold for a logger and its name length.
+/**
+ * Identical to rcutils_logging_get_logger_severity_threshold() but without
+ * relying on the logger name to be a null terminated c string.
+ *
+ * <hr>
+ * Attribute          | Adherence
+ * ------------------ | -------------
+ * Allocates Memory   | No, provided logging system is already initialized
+ * Thread-Safe        | No
+ * Uses Atomics       | No
+ * Lock-Free          | Yes
+ *
+ * \param name The name of the logger
+ * \param name_length Logger name length
+ * \return The severity threshold of the logger if it has been set, or
+ * \return `RCUTILS_LOG_SEVERITY_UNSET` if unset, or
+ * \return `g_rcutils_logging_default_severity_threshold` for `name_length` of `0`, or
+ * \return -1 on invalid arguments, or
+ * \return -1 if an error occurred
+ */
+RCUTILS_PUBLIC
+int rcutils_logging_get_logger_severity_thresholdn(const char * name, size_t name_length);
+
+/// Set the severity threshold for a logger.
+/**
+ * If an empty string is specified as the name, the
+ * `g_rcutils_logging_default_severity_threshold` will be set.
+ *
+ * <hr>
+ * Attribute          | Adherence
+ * ------------------ | -------------
+ * Allocates Memory   | Yes
+ * Thread-Safe        | No
+ * Uses Atomics       | No
+ * Lock-Free          | Yes
+ *
+ * \param name The name of the logger, must be null terminated c string.
+ * \param severity The severity threshold to be used.
+ * \return `RCUTILS_RET_OK` if successful, or
+ * \return `RCUTILS_RET_INVALID_ARGUMENT` on invalid arguments, or
+ * \return `RCUTILS_RET_LOGGING_SEVERITY_MAP_INVALID` if severity map invalid, or
+ * \return `RCUTILS_RET_ERROR` if an unspecified error occured
+ */
+RCUTILS_PUBLIC
+rcutils_ret_t rcutils_logging_set_logger_severity_threshold(const char * name, int severity);
+
+/// Determine if a logger is enabled for a severity.
+/**
+ * <hr>
+ * Attribute          | Adherence
+ * ------------------ | -------------
+ * Allocates Memory   | No, provided logging system is already initialized
+ * Thread-Safe        | No
+ * Uses Atomics       | No
+ * Lock-Free          | Yes
+ *
+ * \param name The name of the logger, must be null terminated c string or NULL.
+ * \param severity The severity level.
+ *
+ * \return true if the logger is enabled for the severity; false otherwise.
+ */
+RCUTILS_PUBLIC
+bool rcutils_logging_logger_is_enabled_for(const char * name, int severity);
+
+/// Determine the effective severity threshold for a logger.
+/**
+ * The effective severity threshold is determined as the severity threshold of
+ * the logger if it is set, otherwise it is the first specified severity
+ * threshold of the logger's ancestors, starting with its closest ancestor.
+ * The ancestor hierarchy is signified by logger names being separated by dots:
+ * a logger named `x` is an ancestor of `x.y`, and both `x` and `x.y` are
+ * ancestors of `x.y.z`, etc.
+ * If the severity threshold has not been set for the logger nor any of its
+ * ancestors, the default severity threshold is used.
+ *
+ * <hr>
+ * Attribute          | Adherence
+ * ------------------ | -------------
+ * Allocates Memory   | No, provided logging system is already initialized
+ * Thread-Safe        | No
+ * Uses Atomics       | No
+ * Lock-Free          | Yes
+ *
+ * \param name The name of the logger, must be null terminated c string.
+ *
+ * \return The severity threshold, or
+ * \return -1 on invalid arguments, or
+ * \return -1 if an error occurred.
+ */
+RCUTILS_PUBLIC
+int rcutils_logging_get_logger_effective_severity_threshold(const char * name);
 
 /// Log a message.
 /**
@@ -169,9 +352,9 @@ void rcutils_logging_set_severity_threshold(int severity);
  * Uses Atomics       | No
  * Lock-Free          | Yes
  *
- * \param location The pointer to the location struct
+ * \param location The pointer to the location struct or NULL
  * \param severity The severity level
- * \param name The name of the logger
+ * \param name The name of the logger, must be null terminated c string or NULL
  * \param format The format string
  * \param ... The variable arguments
  */
@@ -202,9 +385,9 @@ void rcutils_log(
  * Uses Atomics       | No
  * Lock-Free          | Yes
  *
- * \param location The pointer to the location struct
+ * \param location The pointer to the location struct or NULL
  * \param severity The severity level
- * \param name The name of the logger
+ * \param name The name of the logger, must be null terminated c string
  * \param format The format string for the message contents
  * \param args The variable argument list for the message format string
  */

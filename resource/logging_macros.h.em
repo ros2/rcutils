@@ -47,6 +47,7 @@ extern "C"
 #define RCUTILS_LOG_MIN_SEVERITY RCUTILS_LOG_MIN_SEVERITY_DEBUG
 #endif
 
+// TODO(dhood): optimise severity check via notifyLoggerLevelsChanged concept or similar.
 /**
  * \def RCUTILS_LOG_COND_NAMED
  * The logging macro all other logging macros call directly or indirectly.
@@ -61,7 +62,7 @@ extern "C"
     RCUTILS_LOGGING_AUTOINIT \
     static rcutils_log_location_t __rcutils_logging_location = {__func__, __FILE__, __LINE__}; \
     condition_before \
-    if (severity >= g_rcutils_logging_severity_threshold) { \
+    if (rcutils_logging_logger_is_enabled_for(name, severity)) { \
       rcutils_log(&__rcutils_logging_location, severity, name, __VA_ARGS__); \
     } \
     condition_after \
