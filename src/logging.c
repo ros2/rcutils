@@ -100,6 +100,7 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
     rcutils_ret_t string_map_ret = rcutils_string_map_init(
       &g_rcutils_logging_severities_map, 0, g_rcutils_logging_allocator);
     if (string_map_ret != RCUTILS_RET_OK) {
+      // If an error message was set it will have been overwritten by rcutils_string_map_init.
       char * msg = rcutils_format_string(
         g_rcutils_logging_allocator,
         "Failed to initialize map for logger severities [%s]. Severities will not be configurable.",
