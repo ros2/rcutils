@@ -87,9 +87,10 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
       g_rcutils_logging_output_format_string[chars_to_copy] = '\0';
     } else {
       if (NULL != ret_str) {
-        RCUTILS_SET_ERROR_MSG(
-          "Failed to get output format from env. variable. Using default output format.",
-          g_rcutils_logging_allocator);
+        RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
+          g_rcutils_logging_allocator,
+          "Failed to get output format from env. variable [%s]. Using default output format.",
+          ret_str);
         ret = RCUTILS_RET_INVALID_ARGUMENT;
       }
       memcpy(g_rcutils_logging_output_format_string, g_rcutils_logging_default_output_format,
