@@ -107,7 +107,7 @@ rcutils_set_error_state(
 #define RCUTILS_SET_ERROR_MSG(msg, allocator) \
   rcutils_set_error_state(msg, __FILE__, __LINE__, allocator);
 
-/// Set the error message using a format stirng and format arguments.
+/// Set the error message using a format string and format arguments.
 /**
  * This function sets the error message using the given format string and
  * then frees the memory allocated during the string formatting.
