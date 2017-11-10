@@ -89,6 +89,36 @@ void
 rcutils_set_error_state(
   const char * error_msg, const char * file, size_t line_number, rcutils_allocator_t allocator);
 
+/// Check an argument for a null value.
+/**
+ * If the argument's value is null, set the error message saying so and
+ * return the error_return_type after setting the error message.
+ *
+ * \param[in] argument The argument to test.
+ * \param[in] error_return_type The type to return in case of an error.
+ * \param[in] allocator The allocator to use if an error message needs to be allocated.
+ */
+#define RCUTILS_CHECK_ARGUMENT_FOR_NULL(argument, error_return_type, allocator) \
+  RCUTILS_CHECK_FOR_NULL_WITH_MSG(argument, #argument " argument is null", \
+    return error_return_type, allocator)
+
+/// Check an value for a null value with a user defined message and error statement.
+/**
+ * If the argument's value is null, set the error statement will be evaluated
+ * after setting the error message.
+ *
+ * \param[in] value The value to test.
+ * \param[in] msg The error message if value is false.
+ * \param[in] error_statement The statement to evaluate if value is false.
+ * \param[in] allocator The allocator to use if an error message needs to be allocated.
+ */
+#define RCUTILS_CHECK_FOR_NULL_WITH_MSG(value, msg, error_statement, allocator) \
+  if (!(value)) { \
+    RCUTILS_SET_ERROR_MSG(msg, allocator); \
+    error_statement; \
+  }
+
+
 /// Set the error message, as well as append the current file and line number.
 /**
  * If an error message was previously set, and rcutils_reset_error() was not called
