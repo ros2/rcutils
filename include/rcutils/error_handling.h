@@ -117,7 +117,7 @@ rcutils_set_error_state(
  * \param[in] ... Arguments for the format string.
  */
 #define RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(allocator, format_string, ...) \
-do {  
+do { \
   char * output_msg = NULL; \
   output_msg = rcutils_format_string(allocator, format_string, __VA_ARGS__); \
   if (output_msg) { \
