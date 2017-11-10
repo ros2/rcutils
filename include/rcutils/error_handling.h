@@ -102,7 +102,7 @@ rcutils_set_error_state(
   RCUTILS_CHECK_FOR_NULL_WITH_MSG(argument, #argument " argument is null", \
     return error_return_type, allocator)
 
-/// Check an value for a null value with a user defined message and error statement.
+/// Check an argument for a null value, with a user defined message and error statement.
 /**
  * If the argument's value is null, set the error statement will be evaluated
  * after setting the error message.
