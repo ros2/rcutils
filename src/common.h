@@ -22,16 +22,6 @@ extern "C"
 
 #include "rcutils/error_handling.h"
 
-#define RCUTILS_CHECK_ARGUMENT_FOR_NULL(argument, error_return_type, allocator) \
-  RCUTILS_CHECK_FOR_NULL_WITH_MSG(argument, #argument " argument is null", \
-    return error_return_type, allocator)
-
-#define RCUTILS_CHECK_FOR_NULL_WITH_MSG(value, msg, error_statement, allocator) \
-  if (!(value)) { \
-    RCUTILS_SET_ERROR_MSG(msg, allocator); \
-    error_statement; \
-  }
-
 #if __cplusplus
 }
 #endif

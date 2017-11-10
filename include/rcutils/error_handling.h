@@ -118,7 +118,6 @@ rcutils_set_error_state(
     error_statement; \
   }
 
-
 /// Set the error message, as well as append the current file and line number.
 /**
  * If an error message was previously set, and rcutils_reset_error() was not called
