@@ -58,7 +58,6 @@ rcutils_split(
     rhs_offset = 1;
   }
 
-  const char * error_msg;
   string_array->size = 1;
   for (size_t i = lhs_offset; i < string_size - rhs_offset; ++i) {
     if (str[i] == delimiter) {
