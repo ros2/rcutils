@@ -126,7 +126,7 @@ rcutils_set_error_state(
     } else { \
       RCUTILS_SAFE_FWRITE_TO_STDERR("Failed to allocate memory for error message\n"); \
     } \
-  } while (0)
+  } while (false)
 
 /// Return `true` if the error is set, otherwise `false`.
 RCUTILS_PUBLIC
