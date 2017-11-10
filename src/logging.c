@@ -101,13 +101,10 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
       &g_rcutils_logging_severities_map, 0, g_rcutils_logging_allocator);
     if (string_map_ret != RCUTILS_RET_OK) {
       // If an error message was set it will have been overwritten by rcutils_string_map_init.
-      char * msg = rcutils_format_string(
+      RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
         g_rcutils_logging_allocator,
         "Failed to initialize map for logger severities [%s]. Severities will not be configurable.",
         rcutils_get_error_string_safe());
-      rcutils_reset_error();
-      RCUTILS_SET_ERROR_MSG(msg, g_rcutils_logging_allocator)
-      g_rcutils_logging_allocator.deallocate(msg, g_rcutils_logging_allocator.state);
       g_rcutils_logging_severities_map_valid = false;
       ret = RCUTILS_RET_STRING_MAP_INVALID;
     } else {
@@ -128,13 +125,10 @@ rcutils_ret_t rcutils_logging_shutdown()
   if (g_rcutils_logging_severities_map_valid) {
     rcutils_ret_t string_map_ret = rcutils_string_map_fini(&g_rcutils_logging_severities_map);
     if (string_map_ret != RCUTILS_RET_OK) {
-      char * msg = rcutils_format_string(
+      RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
         g_rcutils_logging_allocator,
         "Failed to finalize map for logger severities: %s",
         rcutils_get_error_string_safe());
-      rcutils_reset_error();
-      RCUTILS_SET_ERROR_MSG(msg, g_rcutils_logging_allocator)
-      g_rcutils_logging_allocator.deallocate(msg, g_rcutils_logging_allocator.state);
       ret = RCUTILS_RET_LOGGING_SEVERITY_MAP_INVALID;
     }
     g_rcutils_logging_severities_map_valid = false;
@@ -295,12 +289,9 @@ rcutils_ret_t rcutils_logging_set_logger_severity_threshold(const char * name, i
   rcutils_ret_t string_map_ret = rcutils_string_map_set(
     &g_rcutils_logging_severities_map, name, severity_string);
   if (string_map_ret != RCUTILS_RET_OK) {
-    char * msg = rcutils_format_string(
+    RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
       g_rcutils_logging_allocator,
       "Error setting severity for logger named '%s': %s", name, rcutils_get_error_string_safe());
-    rcutils_reset_error();
-    RCUTILS_SET_ERROR_MSG(msg, g_rcutils_logging_allocator)
-    g_rcutils_logging_allocator.deallocate(msg, g_rcutils_logging_allocator.state);
     return RCUTILS_RET_ERROR;
   }
   return RCUTILS_RET_OK;
