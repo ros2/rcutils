@@ -91,11 +91,11 @@ rcutils_set_error_state(
 
 /// Check an argument for a null value.
 /**
- * If the argument's value is null, set the error message saying so and
+ * If the argument's value is `NULL`, set the error message saying so and
  * return the `error_return_type`.
  *
  * \param[in] argument The argument to test.
- * \param[in] error_return_type The type to return if the argument is null.
+ * \param[in] error_return_type The type to return if the argument is `NULL`.
  * \param[in] allocator The allocator to use if an error message needs to be allocated.
  */
 #define RCUTILS_CHECK_ARGUMENT_FOR_NULL(argument, error_return_type, allocator) \
@@ -104,12 +104,12 @@ rcutils_set_error_state(
 
 /// Check a value for null, with an error message and error statement.
 /**
- * If `value` is null, the error statement will be evaluated after
+ * If `value` is `NULL`, the error statement will be evaluated after
  * setting the error message.
  *
  * \param[in] value The value to test.
- * \param[in] msg The error message if `value` is null.
- * \param[in] error_statement The statement to evaluate if `value` is null.
+ * \param[in] msg The error message if `value` is `NULL`.
+ * \param[in] error_statement The statement to evaluate if `value` is `NULL`.
  * \param[in] allocator The allocator to use if an error message needs to be allocated.
  */
 #define RCUTILS_CHECK_FOR_NULL_WITH_MSG(value, msg, error_statement, allocator) \
