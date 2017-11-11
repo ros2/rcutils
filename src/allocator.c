@@ -92,10 +92,10 @@ rcutils_allocator_is_valid(const rcutils_allocator_t * allocator)
 void *
 rcutils_reallocf(void * pointer, size_t size, rcutils_allocator_t * allocator)
 {
-  if (!allocator || !allocator->reallocate || !allocator->deallocate) {
+  if (!rcutils_allocator_is_valid(allocator)) {
     // cannot deallocate pointer, so print message to stderr and return NULL
     RCUTILS_SAFE_FWRITE_TO_STDERR(
-      "[c_utilties|allocator.c:" RCUTILS_STRINGIFY(__LINE__) "] rcutils_reallocf(): "
+      "[rcutils|allocator.c:" RCUTILS_STRINGIFY(__LINE__) "] rcutils_reallocf(): "
       "invalid allocator or allocator function pointers, memory leaked\n");
     return NULL;
   }
