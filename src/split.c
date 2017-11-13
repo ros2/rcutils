@@ -58,7 +58,6 @@ rcutils_split(
     rhs_offset = 1;
   }
 
-  const char * error_msg;
   string_array->size = 1;
   for (size_t i = lhs_offset; i < string_size - rhs_offset; ++i) {
     if (str[i] == delimiter) {
@@ -87,6 +86,7 @@ rcutils_split(
         string_array->data[token_counter] =
           allocator.allocate((rhs - lhs + 2) * sizeof(char), allocator.state);
         if (!string_array->data[token_counter]) {
+          string_array->size = token_counter;
           goto fail;
         }
         snprintf(string_array->data[token_counter], (rhs - lhs + 1), "%s", str + lhs);
@@ -111,11 +111,14 @@ rcutils_split(
   return RCUTILS_RET_OK;
 
 fail:
-  error_msg = "unable to allocate memory for string array data";
   if (rcutils_string_array_fini(string_array) != RCUTILS_RET_OK) {
-    error_msg = rcutils_format_string(allocator, "FATAL: %s. Leaking memory", error_msg);
+    RCUTILS_SAFE_FWRITE_TO_STDERR("failed to finalize string array during error handling: ");
+    RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string_safe());
+    RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
+    rcutils_reset_error();
   }
-  RCUTILS_SET_ERROR_MSG(error_msg, allocator);
+
+  RCUTILS_SET_ERROR_MSG("unable to allocate memory for string array data", allocator);
   return RCUTILS_RET_ERROR;
 }
 

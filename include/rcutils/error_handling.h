@@ -24,6 +24,8 @@ extern "C"
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #include "rcutils/allocator.h"
 #include "rcutils/macros.h"
@@ -38,6 +40,8 @@ typedef struct rcutils_error_state_t
   size_t line_number;
   rcutils_allocator_t allocator;
 } rcutils_error_state_t;
+
+#define RCUTILS_SAFE_FWRITE_TO_STDERR(msg) fwrite(msg, sizeof(char), sizeof(msg), stderr)
 
 /// Copy an error state into a destination error state.
 /**
@@ -131,6 +135,27 @@ rcutils_set_error_state(
  */
 #define RCUTILS_SET_ERROR_MSG(msg, allocator) \
   rcutils_set_error_state(msg, __FILE__, __LINE__, allocator);
+
+/// Set the error message using a format string and format arguments.
+/**
+ * This function sets the error message using the given format string and
+ * then frees the memory allocated during the string formatting.
+ *
+ * \param[in] allocator The allocator to be used when allocating space for the error state.
+ * \param[in] format_string The string to be used as the format of the error message.
+ * \param[in] ... Arguments for the format string.
+ */
+#define RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(allocator, format_string, ...) \
+  do { \
+    char * output_msg = NULL; \
+    output_msg = rcutils_format_string(allocator, format_string, __VA_ARGS__); \
+    if (output_msg) { \
+      RCUTILS_SET_ERROR_MSG(output_msg, allocator); \
+      allocator.deallocate(output_msg, allocator.state); \
+    } else { \
+      RCUTILS_SAFE_FWRITE_TO_STDERR("Failed to allocate memory for error message\n"); \
+    } \
+  } while (false)
 
 /// Return `true` if the error is set, otherwise `false`.
 RCUTILS_PUBLIC
