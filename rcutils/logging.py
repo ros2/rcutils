@@ -26,10 +26,11 @@ name_params = OrderedDict((
     ('name', 'The name of the logger'),
 ))
 name_args = {'name': 'name'}
+name_doc_lines = []
 once_args = {
     'condition_before': 'RCUTILS_LOG_CONDITION_ONCE_BEFORE',
     'condition_after': 'RCUTILS_LOG_CONDITION_ONCE_AFTER'}
-name_doc_lines = [
+once_doc_lines = [
     'All subsequent log calls except the first one are being ignored.']
 expression_params = OrderedDict((
     ('expression', 'The expression determining if the message should be logged'),
@@ -102,15 +103,16 @@ feature_combinations = OrderedDict((
     ((), Feature()),
     (('named'), Feature(
         params=name_params,
-        args=name_args)),
+        args=name_args,
+        doc_lines=name_doc_lines)),
     (('once'), Feature(
         params=None,
         args=once_args,
-        doc_lines=name_doc_lines)),
+        doc_lines=once_doc_lines)),
     (('once', 'named'), Feature(
         params=name_params,
         args={**once_args, **name_args},
-        doc_lines=name_doc_lines)),
+        doc_lines=once_doc_lines + name_doc_lines)),
     (('expression'), Feature(
         params=expression_params,
         args=expression_args,
@@ -134,7 +136,7 @@ feature_combinations = OrderedDict((
     (('skip_first', 'named'), Feature(
         params=name_params,
         args={**skipfirst_args, **name_args},
-        doc_lines=skipfirst_doc_lines)),
+        doc_lines=skipfirst_doc_lines + name_doc_lines)),
     (('throttle'), Feature(
         params=throttle_params,
         args=throttle_args,
@@ -152,7 +154,7 @@ feature_combinations = OrderedDict((
     (('throttle', 'named'), Feature(
         params=OrderedDict((*throttle_params.items(), *name_params.items())),
         args={**throttle_args, **name_args},
-        doc_lines=throttle_doc_lines)),
+        doc_lines=throttle_doc_lines + name_doc_lines)),
     (('skip_first', 'throttle', 'named'), Feature(
         params=OrderedDict((*throttle_params.items(), *name_params.items())),
         args={
@@ -165,7 +167,7 @@ feature_combinations = OrderedDict((
                     skipfirst_args['condition_after']]),
             }, **name_args
         },
-        doc_lines=skipfirst_doc_lines + throttle_doc_lines)),
+        doc_lines=skipfirst_doc_lines + throttle_doc_lines + name_doc_lines)),
 ))
 
 
