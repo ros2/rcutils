@@ -98,7 +98,7 @@ if(BUILD_TESTING)
 
   find_package(ament_cmake_gmock REQUIRED)
   find_package(ament_cmake_gtest REQUIRED)
-  find_package(ament_cmake_nose REQUIRED)
+  find_package(ament_cmake_pytest REQUIRED)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
 
@@ -133,13 +133,13 @@ if(BUILD_TESTING)
 
   add_executable(test_logging_long_messages test/test_logging_long_messages.cpp)
   target_link_libraries(test_logging_long_messages ${PROJECT_NAME})
-  ament_add_nose_test(test_logging_long_messages
+  ament_add_pytest_test(test_logging_long_messages
     "test/test_logging_long_messages.py"
     APPEND_LIBRARY_DIRS ${extra_lib_dirs}
     WORKING_DIRECTORY "$<TARGET_FILE_DIR:test_logging_long_messages>"
     TIMEOUT 10)
 
-  ament_add_nose_test(test_logging_output_format
+  ament_add_pytest_test(test_logging_output_format
     "test/test_logging_output_format.py"
     APPEND_LIBRARY_DIRS ${extra_lib_dirs}
     WORKING_DIRECTORY "$<TARGET_FILE_DIR:test_logging_long_messages>"
