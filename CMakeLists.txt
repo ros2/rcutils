@@ -50,10 +50,14 @@ set_source_files_properties(
   ${rcutils_sources}
   PROPERTIES language "C")
 
-# "watch" template for changes
+# "watch" template/inputs for changes
 configure_file(
   "resource/logging_macros.h.em"
   "logging_macros.h.em.watch"
+  COPYONLY)
+configure_file(
+  "rcutils/logging.py"
+  "logging.py.watch"
   COPYONLY)
 # generate header with logging macros
 set(rcutils_module_path ${CMAKE_CURRENT_SOURCE_DIR})
@@ -64,7 +68,7 @@ string(REPLACE ";" "$<SEMICOLON>" python_code "${python_code}")
 add_custom_command(OUTPUT include/rcutils/logging_macros.h
   COMMAND ${CMAKE_COMMAND} -E make_directory "include/rcutils"
   COMMAND ${PYTHON_EXECUTABLE} ARGS -c "${python_code}"
-  DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/logging_macros.h.em.watch"
+  DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/logging_macros.h.em.watch" "${CMAKE_CURRENT_BINARY_DIR}/logging.py.watch"
   COMMENT "Expanding logging_macros.h.em"
   VERBATIM
 )
