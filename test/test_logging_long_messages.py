@@ -29,6 +29,9 @@ def test_logging_long_messages():
         'test_logging_long_messages', launch_descriptor, output_file)
     assert handler, 'Cannot find appropriate handler for %s' % output_file
 
+    # Set the output format to a "verbose" format that is expected by the executable output
+    os.environ['RCUTILS_CONSOLE_OUTPUT_FORMAT'] = \
+        '[{severity}] [{name}]: {message} ({function_name}() at {file_name}:{line_number})'
     executable = os.path.join(os.getcwd(), 'test_logging_long_messages')
     if os.name == 'nt':
         executable += '.exe'

@@ -42,8 +42,7 @@ const char * g_rcutils_log_severity_names[] = {
 bool g_rcutils_logging_initialized = false;
 
 char g_rcutils_logging_output_format_string[RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN];
-static const char * g_rcutils_logging_default_output_format =
-  "[{severity}] [{name}]: {message} ({function_name}() at {file_name}:{line_number})";
+static const char * g_rcutils_logging_default_output_format = "[{severity}] [{name}]: {message}";
 
 static rcutils_allocator_t g_rcutils_logging_allocator;
 

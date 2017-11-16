@@ -45,6 +45,21 @@ extern bool g_rcutils_logging_initialized;
  *
  * If multiple errors occur, the error code of the last error will be returned.
  *
+ * The `RCUTILS_CONSOLE_OUTPUT_FORMAT` environment variable can be used to set
+ * the output format of messages logged to the console.
+ * Available tokens are:
+ *   - `file_name`, the full file name of the caller including the path
+ *   - `function_name`, the function name of the caller
+ *   - `line_number`, the line number of the caller
+ *   - `message`, the message string after it has been formatted
+ *   - `name`, the full logger name
+ *   - `severity`, the name of the severity level, e.g. `INFO`
+ *
+ * The format string can use these tokens by referencing them in curly brackets,
+ * e.g. `"[{severity}] [{name}]: {message} ({function_name}() at {file_name}:{line_number})"`.
+ * Any number of tokens can be used.
+ * The limit of the format string is 2048 characters.
+ *
  * <hr>
  * Attribute          | Adherence
  * ------------------ | -------------
