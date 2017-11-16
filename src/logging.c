@@ -20,7 +20,9 @@ extern "C"
 #include <string.h>
 
 #include "rcutils/allocator.h"
+#include "rcutils/error_handling.h"
 #include "rcutils/find.h"
+#include "rcutils/format_string.h"
 #include "rcutils/get_env.h"
 #include "rcutils/logging.h"
 #include "rcutils/snprintf.h"
@@ -63,6 +65,13 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
 {
   rcutils_ret_t ret = RCUTILS_RET_OK;
   if (!g_rcutils_logging_initialized) {
+    if (!rcutils_allocator_is_valid(&allocator)) {
+      RCUTILS_SET_ERROR_MSG(
+        "Provided allocator is invalid.", rcutils_get_default_allocator());
+      return RCUTILS_RET_INVALID_ARGUMENT;
+    }
+    g_rcutils_logging_allocator = allocator;
+
     g_rcutils_logging_output_handler = &rcutils_logging_console_output_handler;
     g_rcutils_logging_default_severity_threshold = RCUTILS_LOG_SEVERITY_INFO;
 
@@ -78,9 +87,9 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
       g_rcutils_logging_output_format_string[chars_to_copy] = '\0';
     } else {
       if (NULL != ret_str) {
-        fprintf(
-          stderr,
-          "Failed to get output format from env. variable: %s. Using default output format.\n",
+        RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
+          g_rcutils_logging_allocator,
+          "Failed to get output format from env. variable [%s]. Using default output format.",
           ret_str);
         ret = RCUTILS_RET_INVALID_ARGUMENT;
       }
@@ -88,21 +97,15 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
         strlen(g_rcutils_logging_default_output_format) + 1);
     }
 
-    if (!rcutils_allocator_is_valid(&allocator)) {
-      fprintf(
-        stderr,
-        "Provided allocator is invalid. Using the default allocator.\n");
-      ret = RCUTILS_RET_INVALID_ARGUMENT;
-      allocator = rcutils_get_default_allocator();
-    }
-    g_rcutils_logging_allocator = allocator;
     g_rcutils_logging_severities_map = rcutils_get_zero_initialized_string_map();
     rcutils_ret_t string_map_ret = rcutils_string_map_init(
       &g_rcutils_logging_severities_map, 0, g_rcutils_logging_allocator);
     if (string_map_ret != RCUTILS_RET_OK) {
-      fprintf(
-        stderr,
-        "Failed to initialize map for logger severities. Severities will not be configurable.\n");
+      // If an error message was set it will have been overwritten by rcutils_string_map_init.
+      RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
+        g_rcutils_logging_allocator,
+        "Failed to initialize map for logger severities [%s]. Severities will not be configurable.",
+        rcutils_get_error_string_safe());
       g_rcutils_logging_severities_map_valid = false;
       ret = RCUTILS_RET_STRING_MAP_INVALID;
     } else {
@@ -121,9 +124,12 @@ rcutils_ret_t rcutils_logging_shutdown()
   }
   rcutils_ret_t ret = RCUTILS_RET_OK;
   if (g_rcutils_logging_severities_map_valid) {
-    rcutils_ret_t ret = rcutils_string_map_fini(&g_rcutils_logging_severities_map);
-    if (ret != RCUTILS_RET_OK) {
-      fprintf(stderr, "Failed to finalize logging severities map: return code %d", ret);
+    rcutils_ret_t string_map_ret = rcutils_string_map_fini(&g_rcutils_logging_severities_map);
+    if (string_map_ret != RCUTILS_RET_OK) {
+      RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
+        g_rcutils_logging_allocator,
+        "Failed to finalize map for logger severities: %s",
+        rcutils_get_error_string_safe());
       ret = RCUTILS_RET_LOGGING_SEVERITY_MAP_INVALID;
     }
     g_rcutils_logging_severities_map_valid = false;
@@ -250,6 +256,8 @@ int rcutils_logging_get_logger_effective_severity_threshold(const char * name)
 rcutils_ret_t rcutils_logging_set_logger_severity_threshold(const char * name, int severity)
 {
   if (!name) {
+    RCUTILS_SET_ERROR_MSG(
+      "Invalid logger name", g_rcutils_logging_allocator);
     return RCUTILS_RET_INVALID_ARGUMENT;
   }
   RCUTILS_LOGGING_AUTOINIT
@@ -258,6 +266,8 @@ rcutils_ret_t rcutils_logging_set_logger_severity_threshold(const char * name, i
     return RCUTILS_RET_OK;
   }
   if (!g_rcutils_logging_severities_map_valid) {
+    RCUTILS_SET_ERROR_MSG(
+      "Logger severity map is invalid", g_rcutils_logging_allocator);
     return RCUTILS_RET_LOGGING_SEVERITY_MAP_INVALID;
   }
 
@@ -267,19 +277,23 @@ rcutils_ret_t rcutils_logging_set_logger_severity_threshold(const char * name, i
     severity >
     (int)(sizeof(g_rcutils_log_severity_names) / sizeof(g_rcutils_log_severity_names[0])))
   {
-    fprintf(stderr, "Invalid severity specified for logger named '%s': %d", name, severity);
+    RCUTILS_SET_ERROR_MSG(
+      "Invalid severity specified for logger", g_rcutils_logging_allocator);
     return RCUTILS_RET_INVALID_ARGUMENT;
   }
   const char * severity_string = g_rcutils_log_severity_names[severity];
   if (!severity_string) {
-    fprintf(stderr, "Unable to determine severity_string for severity: %d", severity);
+    RCUTILS_SET_ERROR_MSG(
+      "Unable to determine severity_string for severity", g_rcutils_logging_allocator);
     return RCUTILS_RET_INVALID_ARGUMENT;
   }
-  rcutils_ret_t ret = rcutils_string_map_set(
+  rcutils_ret_t string_map_ret = rcutils_string_map_set(
     &g_rcutils_logging_severities_map, name, severity_string);
-  if (ret != RCUTILS_RET_OK) {
-    fprintf(stderr, "Error setting severity for logger named '%s'", name);
-    return ret;
+  if (string_map_ret != RCUTILS_RET_OK) {
+    RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
+      g_rcutils_logging_allocator,
+      "Error setting severity for logger named '%s': %s", name, rcutils_get_error_string_safe());
+    return RCUTILS_RET_ERROR;
   }
   return RCUTILS_RET_OK;
 }
@@ -293,7 +307,7 @@ bool rcutils_logging_logger_is_enabled_for(const char * name, int severity)
     if (-1 == severity_threshold) {
       fprintf(
         stderr,
-        "Error determining if logger '%s' is enabled for severity '%d'", name, severity);
+        "Error determining if logger '%s' is enabled for severity '%d'\n", name, severity);
       return false;
     }
   }
