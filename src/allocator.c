@@ -16,6 +16,8 @@
 #include <stdio.h>
 
 #include "rcutils/allocator.h"
+
+#include "rcutils/error_handling.h"
 #include "rcutils/macros.h"
 
 static void *
@@ -92,10 +94,9 @@ rcutils_reallocf(void * pointer, size_t size, rcutils_allocator_t * allocator)
 {
   if (!allocator || !allocator->reallocate || !allocator->deallocate) {
     // cannot deallocate pointer, so print message to stderr and return NULL
-    static const char * msg =
+    RCUTILS_SAFE_FWRITE_TO_STDERR(
       "[c_utilties|allocator.c:" RCUTILS_STRINGIFY(__LINE__) "] rcutils_reallocf(): "
-      "invalid allocator or allocator function pointers, memory leaked\n";
-    fwrite(msg, sizeof(char), sizeof(msg), stderr);
+      "invalid allocator or allocator function pointers, memory leaked\n");
     return NULL;
   }
   void * new_pointer = allocator->reallocate(pointer, size, allocator->state);
