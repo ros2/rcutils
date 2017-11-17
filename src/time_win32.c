@@ -35,7 +35,7 @@ rcutils_system_time_now(rcutils_time_point_value_t * now)
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(
     now, RCUTILS_RET_INVALID_ARGUMENT, rcutils_get_default_allocator());
   FILETIME ft;
-  GetSystemTimeAsFileTime(&ft);
+  GetSystemTimePreciseAsFileTime(&ft);
   ULARGE_INTEGER uli;
   uli.LowPart = ft.dwLowDateTime;
   uli.HighPart = ft.dwHighDateTime;
