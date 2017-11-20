@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <stdint.h>
+
 #include "gtest/gtest.h"
 
 #include "rcutils/find.h"
@@ -54,10 +56,10 @@ size_t test_find_lastn(const char * str, char delimiter, size_t str_len, size_t 
 }
 
 TEST(test_find, find) {
-  size_t ret0 = test_find("", '/', 0);
+  size_t ret0 = test_find("", '/', SIZE_MAX);
   LOG((size_t)0, ret0);
 
-  size_t ret00 = test_find(NULL, '/', 0);
+  size_t ret00 = test_find(NULL, '/', SIZE_MAX);
   LOG((size_t)0, ret00);
 
   size_t ret1 = test_find("hello_world", '/', strlen("hello_world"));
@@ -80,10 +82,10 @@ TEST(test_find, find) {
 }
 
 TEST(test_find, findn) {
-  size_t ret0 = test_findn("", '/', 0, 0);
+  size_t ret0 = test_findn("", '/', 0, SIZE_MAX);
   LOG((size_t)0, ret0);
 
-  size_t ret1 = test_findn(NULL, '/', 10, 0);
+  size_t ret1 = test_findn(NULL, '/', 10, SIZE_MAX);
   LOG((size_t)0, ret1);
 
   size_t ret2 = test_findn("hello_world", '/', strlen("hello_world"), strlen("hello_world"));
@@ -97,10 +99,10 @@ TEST(test_find, findn) {
 }
 
 TEST(test_find, find_last) {
-  size_t ret0 = test_find_last("", '/', 0);
+  size_t ret0 = test_find_last("", '/', SIZE_MAX);
   LOG((size_t)0, ret0);
 
-  size_t ret00 = test_find_last(NULL, '/', 0);
+  size_t ret00 = test_find_last(NULL, '/', SIZE_MAX);
   LOG((size_t)0, ret00);
 
   size_t ret1 = test_find_last("hello_world", '/', strlen("hello_world"));
@@ -123,10 +125,10 @@ TEST(test_find, find_last) {
 }
 
 TEST(test_find, find_lastn) {
-  size_t ret0 = test_find_lastn("", '/', 0, 0);
+  size_t ret0 = test_find_lastn("", '/', 0, SIZE_MAX);
   LOG((size_t)0, ret0);
 
-  size_t ret1 = test_find_lastn(NULL, '/', 10, 0);
+  size_t ret1 = test_find_lastn(NULL, '/', 10, SIZE_MAX);
   LOG((size_t)0, ret1);
 
   size_t ret2 = test_find_lastn("hello_world", '/', strlen("hello_world"), strlen("hello_world"));
