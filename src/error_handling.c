@@ -84,7 +84,7 @@ rcutils_set_error_state(
   if (!rcutils_allocator_is_valid(&allocator)) {
 #if RCUTILS_REPORT_ERROR_HANDLING_ERRORS
     // rcutils_allocator is invalid, logging to stderr instead
-    SAFE_FWRITE_TO_STDERR(
+    RCUTILS_SAFE_FWRITE_TO_STDERR(
       "[rcutils|error_handling.c:" RCUTILS_STRINGIFY(__LINE__)
       "] provided allocator is invalid, error state not updated\n");
 #endif
