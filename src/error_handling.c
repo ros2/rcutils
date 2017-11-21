@@ -81,6 +81,15 @@ rcutils_set_error_state(
   size_t line_number,
   rcutils_allocator_t allocator)
 {
+  if (!rcutils_allocator_is_valid(&allocator)) {
+#if RCUTILS_REPORT_ERROR_HANDLING_ERRORS
+    // rcutils_allocator is invalid, logging to stderr instead
+    RCUTILS_SAFE_FWRITE_TO_STDERR(
+      "[rcutils|error_handling.c:" RCUTILS_STRINGIFY(__LINE__)
+      "] provided allocator is invalid, error state not updated\n");
+#endif
+    return;
+  }
 #ifdef RCUTILS_THREAD_LOCAL_PTHREAD
   rcutils_error_state_t * __rcutils_error_state =
     (rcutils_error_state_t *)pthread_getspecific(__rcutils_error_state_key);
@@ -260,12 +269,13 @@ __rcutils_reset_error_string(char ** error_string_ptr, rcutils_allocator_t alloc
   if (!error_string_ptr) {
     return;
   }
+
   rcutils_allocator_t local_allocator = allocator;
-  if (!local_allocator.deallocate) {
+  if (!rcutils_allocator_is_valid(&allocator)) {
 #if RCUTILS_REPORT_ERROR_HANDLING_ERRORS
     RCUTILS_SAFE_FWRITE_TO_STDERR(
       "[rcutils|error_handling.c:" RCUTILS_STRINGIFY(__LINE__) "]: "
-      "invalid allocator, deallocate function pointer is null\n");
+      "invalid allocator\n");
 #endif
     local_allocator = rcutils_get_default_allocator();
   }

@@ -20,6 +20,14 @@
 #include "rcutils/error_handling.h"
 #include "rcutils/macros.h"
 
+// When this define evaluates to true (default), then messages will printed to
+// stderr when an error is encoutered while setting the error state.
+// For example, when memory cannot be allocated or a previous error state is
+// being overwritten.
+#ifndef RCUTILS_REPORT_ERROR_HANDLING_ERRORS
+#define RCUTILS_REPORT_ERROR_HANDLING_ERRORS 1
+#endif
+
 static void *
 __default_allocate(size_t size, void * state)
 {
@@ -92,11 +100,13 @@ rcutils_allocator_is_valid(const rcutils_allocator_t * allocator)
 void *
 rcutils_reallocf(void * pointer, size_t size, rcutils_allocator_t * allocator)
 {
-  if (!allocator || !allocator->reallocate || !allocator->deallocate) {
+  if (!rcutils_allocator_is_valid(allocator)) {
     // cannot deallocate pointer, so print message to stderr and return NULL
+#if RCUTILS_REPORT_ERROR_HANDLING_ERRORS
     RCUTILS_SAFE_FWRITE_TO_STDERR(
-      "[c_utilties|allocator.c:" RCUTILS_STRINGIFY(__LINE__) "] rcutils_reallocf(): "
+      "[rcutils|allocator.c:" RCUTILS_STRINGIFY(__LINE__) "] rcutils_reallocf(): "
       "invalid allocator or allocator function pointers, memory leaked\n");
+#endif
     return NULL;
   }
   void * new_pointer = allocator->reallocate(pointer, size, allocator->state);
