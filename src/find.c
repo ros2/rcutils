@@ -28,7 +28,7 @@ extern "C"
 size_t
 rcutils_find(const char * str, char delimiter)
 {
-  if (!str || strlen(str) == 0) {
+  if (!str || 0 == strlen(str)) {
     return SIZE_MAX;
   }
   return rcutils_findn(str, delimiter, strlen(str));
@@ -37,7 +37,7 @@ rcutils_find(const char * str, char delimiter)
 size_t
 rcutils_findn(const char * str, char delimiter, size_t string_length)
 {
-  if (!str || string_length == 0) {
+  if (!str || 0 == string_length) {
     return SIZE_MAX;
   }
 
@@ -46,13 +46,13 @@ rcutils_findn(const char * str, char delimiter, size_t string_length)
       return i;
     }
   }
-  return string_length;
+  return SIZE_MAX;
 }
 
 size_t
 rcutils_find_last(const char * str, char delimiter)
 {
-  if (!str || strlen(str) == 0) {
+  if (!str || 0 == strlen(str)) {
     return SIZE_MAX;
   }
   return rcutils_find_lastn(str, delimiter, strlen(str));
@@ -61,11 +61,12 @@ rcutils_find_last(const char * str, char delimiter)
 size_t
 rcutils_find_lastn(const char * str, char delimiter, size_t string_length)
 {
-  if (!str || string_length == 0) {
+  if (!str || 0 == string_length) {
     return SIZE_MAX;
   }
-  size_t last_found = string_length;
-  for (size_t i = 0; i < string_length; ++i) {
+
+  size_t last_found = SIZE_MAX;
+  for (size_t i = 0; i < string_length; i++) {
     if (str[i] == delimiter) {
       last_found = i;
     }

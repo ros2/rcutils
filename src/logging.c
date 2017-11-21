@@ -241,7 +241,7 @@ int rcutils_logging_get_logger_effective_severity_threshold(const char * name)
     }
     // Determine the next ancestor's FQN by removing the child's name.
     size_t index_last_separator = rcutils_find_lastn(name, '.', substring_length);
-    if (SIZE_MAX == index_last_separator || index_last_separator == substring_length) {
+    if (SIZE_MAX == index_last_separator) {
       // There are no more separators in the substring.
       // The name we just checked was the last that we needed to, and it was unset.
       break;

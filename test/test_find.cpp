@@ -57,13 +57,13 @@ size_t test_find_lastn(const char * str, char delimiter, size_t str_len, size_t 
 
 TEST(test_find, find) {
   size_t ret0 = test_find("", '/', SIZE_MAX);
-  LOG((size_t)0, ret0);
+  LOG(SIZE_MAX, ret0);
 
   size_t ret00 = test_find(NULL, '/', SIZE_MAX);
-  LOG((size_t)0, ret00);
+  LOG(SIZE_MAX, ret00);
 
-  size_t ret1 = test_find("hello_world", '/', strlen("hello_world"));
-  LOG(strlen("hello_world"), ret1);
+  size_t ret1 = test_find("hello_world", '/', SIZE_MAX);
+  LOG(SIZE_MAX, ret1);
 
   size_t ret2 = test_find("hello/world", '/', 5);
   LOG((size_t)5, ret2);
@@ -83,13 +83,13 @@ TEST(test_find, find) {
 
 TEST(test_find, findn) {
   size_t ret0 = test_findn("", '/', 0, SIZE_MAX);
-  LOG((size_t)0, ret0);
+  LOG((size_t)SIZE_MAX, ret0);
 
   size_t ret1 = test_findn(NULL, '/', 10, SIZE_MAX);
-  LOG((size_t)0, ret1);
+  LOG((size_t)SIZE_MAX, ret1);
 
-  size_t ret2 = test_findn("hello_world", '/', strlen("hello_world"), strlen("hello_world"));
-  LOG(strlen("hello_world"), ret2);
+  size_t ret2 = test_findn("hello_world", '/', strlen("hello_world"), SIZE_MAX);
+  LOG(SIZE_MAX, ret2);
 
   size_t ret3 = test_findn("hello/world", '/', strlen("hello/world"), 5);
   LOG((size_t)5, ret3);
@@ -100,13 +100,13 @@ TEST(test_find, findn) {
 
 TEST(test_find, find_last) {
   size_t ret0 = test_find_last("", '/', SIZE_MAX);
-  LOG((size_t)0, ret0);
+  LOG((size_t)SIZE_MAX, ret0);
 
   size_t ret00 = test_find_last(NULL, '/', SIZE_MAX);
-  LOG((size_t)0, ret00);
+  LOG((size_t)SIZE_MAX, ret00);
 
-  size_t ret1 = test_find_last("hello_world", '/', strlen("hello_world"));
-  LOG(strlen("hello_world"), ret1);
+  size_t ret1 = test_find_last("hello_world", '/', SIZE_MAX);
+  LOG(SIZE_MAX, ret1);
 
   size_t ret2 = test_find_last("hello/world", '/', 5);
   LOG((size_t)5, ret2);
@@ -126,13 +126,13 @@ TEST(test_find, find_last) {
 
 TEST(test_find, find_lastn) {
   size_t ret0 = test_find_lastn("", '/', 0, SIZE_MAX);
-  LOG((size_t)0, ret0);
+  LOG(SIZE_MAX, ret0);
 
   size_t ret1 = test_find_lastn(NULL, '/', 10, SIZE_MAX);
-  LOG((size_t)0, ret1);
+  LOG(SIZE_MAX, ret1);
 
-  size_t ret2 = test_find_lastn("hello_world", '/', strlen("hello_world"), strlen("hello_world"));
-  LOG(strlen("hello_world"), ret2);
+  size_t ret2 = test_find_lastn("hello_world", '/', strlen("hello_world"), SIZE_MAX);
+  LOG(SIZE_MAX, ret2);
 
   size_t ret3 = test_find_lastn("hello/world", '/', strlen("hello/world"), 5);
   LOG((size_t)5, ret3);
