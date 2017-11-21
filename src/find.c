@@ -37,7 +37,7 @@ rcutils_find(const char * str, char delimiter)
 size_t
 rcutils_findn(const char * str, char delimiter, size_t string_length)
 {
-  if (!str || strlen(str) == 0) {
+  if (!str || string_length == 0) {
     return SIZE_MAX;
   }
 
@@ -61,7 +61,7 @@ rcutils_find_last(const char * str, char delimiter)
 size_t
 rcutils_find_lastn(const char * str, char delimiter, size_t string_length)
 {
-  if (!str || strlen(str) == 0) {
+  if (!str || string_length == 0) {
     return SIZE_MAX;
   }
   size_t last_found = string_length;
