@@ -65,13 +65,12 @@ rcutils_find_lastn(const char * str, char delimiter, size_t string_length)
     return SIZE_MAX;
   }
 
-  size_t last_found = SIZE_MAX;
-  for (size_t i = 0; i < string_length; i++) {
+  for (size_t i = string_length - 1; i > 0; --i) {
     if (str[i] == delimiter) {
-      last_found = i;
+      return i;
     }
   }
-  return last_found;
+  return str[0] == delimiter ? 0 : SIZE_MAX;
 }
 
 #if __cplusplus
