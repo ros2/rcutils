@@ -61,11 +61,11 @@ extern "C"
   { \
     RCUTILS_LOGGING_AUTOINIT \
     static rcutils_log_location_t __rcutils_logging_location = {__func__, __FILE__, __LINE__}; \
-    condition_before \
     if (rcutils_logging_logger_is_enabled_for(name, severity)) { \
+      condition_before \
       rcutils_log(&__rcutils_logging_location, severity, name, __VA_ARGS__); \
+      condition_after \
     } \
-    condition_after \
   }
 
 ///@@{
