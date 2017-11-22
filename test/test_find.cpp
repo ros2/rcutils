@@ -83,10 +83,10 @@ TEST(test_find, find) {
 
 TEST(test_find, findn) {
   size_t ret0 = test_findn("", '/', 0, SIZE_MAX);
-  LOG((size_t)SIZE_MAX, ret0);
+  LOG(SIZE_MAX, ret0);
 
   size_t ret1 = test_findn(NULL, '/', 10, SIZE_MAX);
-  LOG((size_t)SIZE_MAX, ret1);
+  LOG(SIZE_MAX, ret1);
 
   size_t ret2 = test_findn("hello_world", '/', strlen("hello_world"), SIZE_MAX);
   LOG(SIZE_MAX, ret2);
@@ -100,10 +100,10 @@ TEST(test_find, findn) {
 
 TEST(test_find, find_last) {
   size_t ret0 = test_find_last("", '/', SIZE_MAX);
-  LOG((size_t)SIZE_MAX, ret0);
+  LOG(SIZE_MAX, ret0);
 
   size_t ret00 = test_find_last(NULL, '/', SIZE_MAX);
-  LOG((size_t)SIZE_MAX, ret00);
+  LOG(SIZE_MAX, ret00);
 
   size_t ret1 = test_find_last("hello_world", '/', SIZE_MAX);
   LOG(SIZE_MAX, ret1);
