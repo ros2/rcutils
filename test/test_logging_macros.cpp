@@ -109,7 +109,7 @@ TEST_F(TestLoggingMacros, test_logging_expression) {
 
 int g_counter = 0;
 
-bool mod3()
+bool not_divisible_by_three()
 {
   return (g_counter % 3) != 0;
 }
@@ -117,7 +117,7 @@ bool mod3()
 TEST_F(TestLoggingMacros, test_logging_function) {
   for (int i : {1, 2, 3, 4, 5, 6}) {
     g_counter = i;
-    RCUTILS_LOG_INFO_FUNCTION(&mod3, "message %d", i);
+    RCUTILS_LOG_INFO_FUNCTION(&not_divisible_by_three, "message %d", i);
   }
   EXPECT_EQ(4u, g_log_calls);
   EXPECT_EQ("message 5", g_last_log_event.message);
