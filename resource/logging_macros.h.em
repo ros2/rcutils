@@ -51,6 +51,9 @@ extern "C"
 /**
  * \def RCUTILS_LOG_COND_NAMED
  * The logging macro all other logging macros call directly or indirectly.
+ *
+ * \note The condition will only be evaluated if this logging statement is enabled.
+ *
  * \param severity The severity level
  * \param condition_before The condition macro(s) inserted before the log call
  * \param condition_after The condition macro(s) inserted after the log call
