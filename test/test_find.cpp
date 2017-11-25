@@ -19,8 +19,9 @@
 #define ENABLE_LOGGING 1
 
 #if ENABLE_LOGGING
-#define LOG(expected, actual) { \
-    printf("Expected: %zu Actual: %zu\n", expected, actual);}
+#define LOG(expected, actual) do { \
+    printf("Expected: %zu Actual: %zu\n", expected, actual); \
+  } while (0)
 #else
 #define LOG(X, arg) {}
 #endif
