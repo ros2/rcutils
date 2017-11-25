@@ -224,12 +224,15 @@ from rcutils.logging import severities
  * Log a message with severity @(severity)@
 @[ if feature_combinations[feature_combination].doc_lines]@
  with the following conditions:
+@[   for doc_line in feature_combinations[feature_combination].doc_lines]@
+ * - @(doc_line)
+@[   end for]@
+ *
+ * \note The conditions will only be evaluated if this logging statement is enabled.
+ *
 @[ else]@
 .
 @[ end if]@
-@[ for doc_line in feature_combinations[feature_combination].doc_lines]@
- * @(doc_line)
-@[ end for]@
 @[ for param_name, doc_line in feature_combinations[feature_combination].params.items()]@
  * \param @(param_name) @(doc_line)
 @[ end for]@
