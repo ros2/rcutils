@@ -119,7 +119,10 @@ bool not_divisible_by_three()
 TEST_F(TestLoggingMacros, test_logging_function) {
   // check that evaluation of a specified function does not occur if the severity is not enabled
   g_rcutils_logging_default_severity_threshold = RCUTILS_LOG_SEVERITY_INFO;
-  RCUTILS_LOG_DEBUG_FUNCTION(&not_divisible_by_three, "should not be logged");
+  for (int i : {0, 1}) {  // cover both true and false return values
+    g_counter = i;
+    RCUTILS_LOG_DEBUG_FUNCTION(&not_divisible_by_three, "message %d", i);
+  }
   EXPECT_EQ(0u, g_log_calls);
   EXPECT_FALSE(g_function_called);
   g_rcutils_logging_default_severity_threshold = RCUTILS_LOG_SEVERITY_DEBUG;
