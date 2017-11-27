@@ -23,7 +23,9 @@
     printf("Expected: %zu Actual: %zu\n", expected, actual); \
 } while (0)
 #else
-#define LOG(X, arg) {}
+#define LOG(X, arg) do { \
+    (void)arg; \
+} while (0)
 #endif
 
 size_t test_find(const char * str, char delimiter, size_t expected_pos)
