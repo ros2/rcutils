@@ -21,7 +21,7 @@
 #if ENABLE_LOGGING
 #define LOG(expected, actual) do { \
     printf("Expected: %zu Actual: %zu\n", expected, actual); \
-  } while (0)
+} while (0)
 #else
 #define LOG(X, arg) {}
 #endif
