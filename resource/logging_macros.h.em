@@ -51,6 +51,9 @@ extern "C"
 /**
  * \def RCUTILS_LOG_COND_NAMED
  * The logging macro all other logging macros call directly or indirectly.
+ *
+ * \note The condition will only be evaluated if this logging statement is enabled.
+ *
  * \param severity The severity level
  * \param condition_before The condition macro(s) inserted before the log call
  * \param condition_after The condition macro(s) inserted after the log call
@@ -61,11 +64,11 @@ extern "C"
   { \
     RCUTILS_LOGGING_AUTOINIT \
     static rcutils_log_location_t __rcutils_logging_location = {__func__, __FILE__, __LINE__}; \
-    condition_before \
     if (rcutils_logging_logger_is_enabled_for(name, severity)) { \
+      condition_before \
       rcutils_log(&__rcutils_logging_location, severity, name, __VA_ARGS__); \
+      condition_after \
     } \
-    condition_after \
   }
 
 ///@@{
@@ -221,12 +224,15 @@ from rcutils.logging import severities
  * Log a message with severity @(severity)@
 @[ if feature_combinations[feature_combination].doc_lines]@
  with the following conditions:
+@[   for doc_line in feature_combinations[feature_combination].doc_lines]@
+ * - @(doc_line)
+@[   end for]@
+ *
+ * \note The conditions will only be evaluated if this logging statement is enabled.
+ *
 @[ else]@
 .
 @[ end if]@
-@[ for doc_line in feature_combinations[feature_combination].doc_lines]@
- * @(doc_line)
-@[ end for]@
 @[ for param_name, doc_line in feature_combinations[feature_combination].params.items()]@
  * \param @(param_name) @(doc_line)
 @[ end for]@
