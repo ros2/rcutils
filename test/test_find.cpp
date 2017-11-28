@@ -24,7 +24,8 @@
 } while (0)
 #else
 #define LOG(X, arg) do { \
-    (void)arg; \
+    (void)(X); \
+    (void)(arg); \
 } while (0)
 #endif
 
