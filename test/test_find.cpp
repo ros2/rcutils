@@ -21,10 +21,14 @@
 #define ENABLE_LOGGING 1
 
 #if ENABLE_LOGGING
-#define LOG(expected, actual) { \
-    printf("Expected: %zu Actual: %zu\n", expected, actual);}
+#define LOG(expected, actual) do { \
+    printf("Expected: %zu Actual: %zu\n", expected, actual); \
+} while (0)
 #else
-#define LOG(X, arg) {}
+#define LOG(X, arg) do { \
+    (void)(X); \
+    (void)(arg); \
+} while (0)
 #endif
 
 size_t test_find(const char * str, char delimiter, size_t expected_pos)
