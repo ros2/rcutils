@@ -15,6 +15,7 @@
 #include <string.h>
 
 #include "rcutils/logging_macros.h"
+#include "rcutils/types/rcutils_ret.h"
 
 size_t g_log_calls = 0;
 
@@ -52,8 +53,8 @@ int main(int argc, char ** argv)
   if (g_rcutils_logging_initialized) {
     return 1;
   }
-  rcutils_logging_initialize();
-  if (!g_rcutils_logging_initialized) {
+  rcutils_ret_t ret = rcutils_logging_initialize();
+  if (ret != RCUTILS_RET_OK || !g_rcutils_logging_initialized) {
     return 2;
   }
 
@@ -71,7 +72,7 @@ int main(int argc, char ** argv)
   if (strcmp(g_last_log_event.location->function_name, "main")) {
     return 5;
   }
-  if (g_last_log_event.location->line_number != 64u) {
+  if (g_last_log_event.location->line_number != 65u) {
     return 6;
   }
   if (g_last_log_event.severity != RCUTILS_LOG_SEVERITY_INFO) {
@@ -94,7 +95,7 @@ int main(int argc, char ** argv)
   if (strcmp(g_last_log_event.location->function_name, "main")) {
     return 12;
   }
-  if (g_last_log_event.location->line_number != 87u) {
+  if (g_last_log_event.location->line_number != 88u) {
     return 13;
   }
   if (g_last_log_event.severity != RCUTILS_LOG_SEVERITY_INFO) {
@@ -112,8 +113,8 @@ int main(int argc, char ** argv)
     free(g_last_log_event.message);
   }
 
-  rcutils_logging_shutdown();
-  if (g_rcutils_logging_initialized) {
+  ret = rcutils_logging_shutdown();
+  if (ret != RCUTILS_RET_OK || g_rcutils_logging_initialized) {
     return 17;
   }
 }

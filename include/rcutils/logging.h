@@ -20,6 +20,7 @@
 #include <stdio.h>
 
 #include "rcutils/allocator.h"
+#include "rcutils/error_handling.h"
 #include "rcutils/types/rcutils_ret.h"
 #include "rcutils/visibility_control.h"
 
@@ -80,6 +81,7 @@ extern bool g_rcutils_logging_initialized;
  *   thresholds will not be configurable.
  */
 RCUTILS_PUBLIC
+RCUTILS_WARN_UNUSED
 rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allocator);
 
 /// Initialize the logging system.
@@ -104,6 +106,7 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
  *   thresholds will not be configurable.
  */
 RCUTILS_PUBLIC
+RCUTILS_WARN_UNUSED
 rcutils_ret_t rcutils_logging_initialize();
 
 /// Shutdown the logging system.
@@ -124,6 +127,7 @@ rcutils_ret_t rcutils_logging_initialize();
  *   severity map cannot be finalized.
  */
 RCUTILS_PUBLIC
+RCUTILS_WARN_UNUSED
 rcutils_ret_t rcutils_logging_shutdown();
 
 /// The structure identifying the caller location in the source code.
@@ -184,6 +188,7 @@ extern rcutils_logging_output_handler_t g_rcutils_logging_output_handler;
  * \return The function pointer of the current output handler.
  */
 RCUTILS_PUBLIC
+RCUTILS_WARN_UNUSED
 rcutils_logging_output_handler_t rcutils_logging_get_output_handler();
 
 /// Set the current output handler.
@@ -224,6 +229,7 @@ extern int g_rcutils_logging_default_severity_threshold;
  * \return The severity threshold.
  */
 RCUTILS_PUBLIC
+RCUTILS_WARN_UNUSED
 int rcutils_logging_get_default_severity_threshold();
 
 /// Set the default severity threshold for loggers.
@@ -264,6 +270,7 @@ void rcutils_logging_set_default_severity_threshold(int severity);
  * \return -1 if an error occurred
  */
 RCUTILS_PUBLIC
+RCUTILS_WARN_UNUSED
 int rcutils_logging_get_logger_severity_threshold(const char * name);
 
 /// Get the severity threshold for a logger and its name length.
@@ -288,6 +295,7 @@ int rcutils_logging_get_logger_severity_threshold(const char * name);
  * \return -1 if an error occurred
  */
 RCUTILS_PUBLIC
+RCUTILS_WARN_UNUSED
 int rcutils_logging_get_logger_severity_thresholdn(const char * name, size_t name_length);
 
 /// Set the severity threshold for a logger.
@@ -311,6 +319,7 @@ int rcutils_logging_get_logger_severity_thresholdn(const char * name, size_t nam
  * \return `RCUTILS_RET_ERROR` if an unspecified error occured
  */
 RCUTILS_PUBLIC
+RCUTILS_WARN_UNUSED
 rcutils_ret_t rcutils_logging_set_logger_severity_threshold(const char * name, int severity);
 
 /// Determine if a logger is enabled for a severity.
@@ -329,6 +338,7 @@ rcutils_ret_t rcutils_logging_set_logger_severity_threshold(const char * name, i
  * \return true if the logger is enabled for the severity; false otherwise.
  */
 RCUTILS_PUBLIC
+RCUTILS_WARN_UNUSED
 bool rcutils_logging_logger_is_enabled_for(const char * name, int severity);
 
 /// Determine the effective severity threshold for a logger.
@@ -357,6 +367,7 @@ bool rcutils_logging_logger_is_enabled_for(const char * name, int severity);
  * \return -1 if an error occurred.
  */
 RCUTILS_PUBLIC
+RCUTILS_WARN_UNUSED
 int rcutils_logging_get_logger_effective_severity_threshold(const char * name);
 
 /// Log a message.
@@ -449,7 +460,15 @@ void rcutils_logging_console_output_handler(
  */
 #define RCUTILS_LOGGING_AUTOINIT \
   if (RCUTILS_UNLIKELY(!g_rcutils_logging_initialized)) { \
-    rcutils_logging_initialize(); \
+    rcutils_ret_t ret = rcutils_logging_initialize(); \
+    if (ret != RCUTILS_RET_OK) { \
+      RCUTILS_SAFE_FWRITE_TO_STDERR( \
+        "[rcutils|" __FILE__ ":" RCUTILS_STRINGIFY(__LINE__) \
+        "] error initializing logging: "); \
+      RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string_safe()); \
+      RCUTILS_SAFE_FWRITE_TO_STDERR("\n"); \
+      rcutils_reset_error(); \
+    } \
   }
 
 #if __cplusplus

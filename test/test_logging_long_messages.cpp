@@ -14,11 +14,17 @@
 
 #include <iostream>
 
+#include "rcutils/error_handling.h"
 #include "rcutils/logging.h"
+#include "rcutils/types/rcutils_ret.h"
 
 int main(int, char **)
 {
-  rcutils_logging_initialize();
+  rcutils_ret_t ret = rcutils_logging_initialize();
+  if (ret != RCUTILS_RET_OK) {
+    fprintf(stderr, "error initializing logging: %s\n", rcutils_get_error_string_safe());
+    return -1;
+  }
 
   // check all attributes for a debug log message
   rcutils_log_location_t location = {"func", "file", 42u};
