@@ -214,7 +214,7 @@ void rcutils_logging_set_output_handler(rcutils_logging_output_handler_t functio
  * \see rcutils_logging_get_logger_effective_level()
  */
 RCUTILS_PUBLIC
-extern int g_rcutils_logging_default_level;
+extern int g_rcutils_logging_default_logger_level;
 
 /// Get the default level for loggers.
 /**
@@ -230,7 +230,7 @@ extern int g_rcutils_logging_default_level;
  */
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
-int rcutils_logging_get_default_level();
+int rcutils_logging_get_default_logger_level();
 
 /// Set the default severity level for loggers.
 /**
@@ -245,7 +245,7 @@ int rcutils_logging_get_default_level();
  * \param level The level to be used.
  */
 RCUTILS_PUBLIC
-void rcutils_logging_set_default_level(int level);
+void rcutils_logging_set_default_logger_level(int level);
 
 /// Get the severity level for a logger.
 /**
@@ -264,7 +264,7 @@ void rcutils_logging_set_default_level(int level);
  * \param name The name of the logger, must be null terminated c string
  * \return The level of the logger if it has been set, or
  * \return `RCUTILS_LOG_SEVERITY_UNSET` if unset, or
- * \return `g_rcutils_logging_default_level` for an empty name, or
+ * \return `g_rcutils_logging_default_logger_level` for an empty name, or
  * \return -1 on invalid arguments, or
  * \return -1 if an error occurred
  */
@@ -289,7 +289,7 @@ int rcutils_logging_get_logger_level(const char * name);
  * \param name_length Logger name length
  * \return The level of the logger if it has been set, or
  * \return `RCUTILS_LOG_SEVERITY_UNSET` if unset, or
- * \return `g_rcutils_logging_default_level` for `name_length` of `0`, or
+ * \return `g_rcutils_logging_default_logger_level` for `name_length` of `0`, or
  * \return -1 on invalid arguments, or
  * \return -1 if an error occurred
  */
@@ -300,7 +300,7 @@ int rcutils_logging_get_logger_leveln(const char * name, size_t name_length);
 /// Set the severity level for a logger.
 /**
  * If an empty string is specified as the name, the
- * `g_rcutils_logging_default_level` will be set.
+ * `g_rcutils_logging_default_logger_level` will be set.
  *
  * <hr>
  * Attribute          | Adherence

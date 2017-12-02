@@ -51,8 +51,8 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logging) {
   EXPECT_FALSE(g_rcutils_logging_initialized);
   ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_initialize());
   EXPECT_TRUE(g_rcutils_logging_initialized);
-  g_rcutils_logging_default_level = RCUTILS_LOG_SEVERITY_DEBUG;
-  EXPECT_EQ(RCUTILS_LOG_SEVERITY_DEBUG, g_rcutils_logging_default_level);
+  g_rcutils_logging_default_logger_level = RCUTILS_LOG_SEVERITY_DEBUG;
+  EXPECT_EQ(RCUTILS_LOG_SEVERITY_DEBUG, g_rcutils_logging_default_logger_level);
 
   auto rcutils_logging_console_output_handler = [](
     rcutils_log_location_t * location,
@@ -70,7 +70,7 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logging) {
   rcutils_logging_output_handler_t original_function = rcutils_logging_get_output_handler();
   rcutils_logging_set_output_handler(rcutils_logging_console_output_handler);
 
-  EXPECT_EQ(RCUTILS_LOG_SEVERITY_DEBUG, rcutils_logging_get_default_level());
+  EXPECT_EQ(RCUTILS_LOG_SEVERITY_DEBUG, rcutils_logging_get_default_logger_level());
 
   // check all attributes for a debug log message
   rcutils_log_location_t location = {"func", "file", 42u};
@@ -88,9 +88,9 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logging) {
   EXPECT_EQ("message 11", g_last_log_event.message);
 
   // check default level
-  int original_level = rcutils_logging_get_default_level();
-  rcutils_logging_set_default_level(RCUTILS_LOG_SEVERITY_INFO);
-  EXPECT_EQ(RCUTILS_LOG_SEVERITY_INFO, rcutils_logging_get_default_level());
+  int original_level = rcutils_logging_get_default_logger_level();
+  rcutils_logging_set_default_logger_level(RCUTILS_LOG_SEVERITY_INFO);
+  EXPECT_EQ(RCUTILS_LOG_SEVERITY_INFO, rcutils_logging_get_default_logger_level());
   rcutils_log(NULL, RCUTILS_LOG_SEVERITY_DEBUG, "name2", "message %d", 22);
   EXPECT_EQ(1u, g_log_calls);
 
@@ -114,7 +114,7 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logging) {
   EXPECT_EQ(RCUTILS_LOG_SEVERITY_FATAL, g_last_log_event.level);
 
   // restore original state
-  rcutils_logging_set_default_level(original_level);
+  rcutils_logging_set_default_logger_level(original_level);
   rcutils_logging_set_output_handler(original_function);
   g_rcutils_logging_initialized = false;
   EXPECT_FALSE(g_rcutils_logging_initialized);
@@ -122,7 +122,7 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logging) {
 
 TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logger_severities) {
   ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_initialize());
-  rcutils_logging_set_default_level(RCUTILS_LOG_SEVERITY_INFO);
+  rcutils_logging_set_default_logger_level(RCUTILS_LOG_SEVERITY_INFO);
 
   // check setting of acceptable severities
   ASSERT_EQ(
@@ -140,7 +140,7 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logger_severities) {
     rcutils_logging_set_logger_level(
       "rcutils_test_loggers", RCUTILS_LOG_SEVERITY_UNSET));
   ASSERT_EQ(
-    rcutils_logging_get_default_level(),
+    rcutils_logging_get_default_logger_level(),
     rcutils_logging_get_logger_effective_level("rcutils_test_loggers"));
 
   // check setting of the default via empty-named logger
@@ -150,7 +150,7 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logger_severities) {
     rcutils_logging_set_logger_level("", empty_name_severity));
   ASSERT_EQ(
     empty_name_severity,
-    rcutils_logging_get_default_level());
+    rcutils_logging_get_default_logger_level());
   ASSERT_EQ(
     empty_name_severity,
     rcutils_logging_get_logger_level(""));
@@ -171,7 +171,7 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logger_severity_hierarchy)
   ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_initialize());
 
   // check resolving of effective thresholds in hierarchy of loggers
-  rcutils_logging_set_default_level(RCUTILS_LOG_SEVERITY_INFO);
+  rcutils_logging_set_default_logger_level(RCUTILS_LOG_SEVERITY_INFO);
   int rcutils_test_logging_cpp_severity = RCUTILS_LOG_SEVERITY_WARN;
   int rcutils_test_logging_cpp_testing_severity = RCUTILS_LOG_SEVERITY_DEBUG;
   int rcutils_test_logging_cpp_testing_x_severity = RCUTILS_LOG_SEVERITY_ERROR;
@@ -205,21 +205,21 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logger_severity_hierarchy)
     rcutils_test_logging_cpp_severity,
     rcutils_logging_get_logger_effective_level("rcutils_test_logging_cpp.testing2"));
   EXPECT_EQ(
-    rcutils_logging_get_default_level(),
+    rcutils_logging_get_default_logger_level(),
     rcutils_logging_get_logger_effective_level(".name"));
   EXPECT_EQ(
-    rcutils_logging_get_default_level(),
+    rcutils_logging_get_default_logger_level(),
     rcutils_logging_get_logger_effective_level("rcutils_test_logging_cpp_testing"));
 
   // check logger severities get cleared on logging restart
   ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_shutdown());
   ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_initialize());
   EXPECT_EQ(
-    rcutils_logging_get_default_level(),
+    rcutils_logging_get_default_logger_level(),
     rcutils_logging_get_logger_effective_level("rcutils_test_logging_cpp"));
 
   // check hierarchies including trailing dots (considered as having an empty child name)
-  rcutils_logging_set_default_level(RCUTILS_LOG_SEVERITY_INFO);
+  rcutils_logging_set_default_logger_level(RCUTILS_LOG_SEVERITY_INFO);
   int rcutils_test_logging_cpp_dot_severity = RCUTILS_LOG_SEVERITY_FATAL;
   ASSERT_EQ(
     RCUTILS_RET_OK,

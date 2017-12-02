@@ -54,7 +54,7 @@ static rcutils_string_map_t g_rcutils_logging_severities_map;
 // This can happen if allocation of the map fails at initialization.
 bool g_rcutils_logging_severities_map_valid = false;
 
-int g_rcutils_logging_default_level = 0;
+int g_rcutils_logging_default_logger_level = 0;
 
 rcutils_ret_t rcutils_logging_initialize()
 {
@@ -73,7 +73,7 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
     g_rcutils_logging_allocator = allocator;
 
     g_rcutils_logging_output_handler = &rcutils_logging_console_output_handler;
-    g_rcutils_logging_default_level = RCUTILS_LOG_SEVERITY_INFO;
+    g_rcutils_logging_default_logger_level = RCUTILS_LOG_SEVERITY_INFO;
 
     // Check for the environment variable for custom output formatting
     const char * output_format;
@@ -152,17 +152,17 @@ void rcutils_logging_set_output_handler(rcutils_logging_output_handler_t functio
   // *INDENT-ON*
 }
 
-int rcutils_logging_get_default_level()
+int rcutils_logging_get_default_logger_level()
 {
   RCUTILS_LOGGING_AUTOINIT
-  return g_rcutils_logging_default_level;
+  return g_rcutils_logging_default_logger_level;
 }
 
-void rcutils_logging_set_default_level(int level)
+void rcutils_logging_set_default_logger_level(int level)
 {
   // *INDENT-OFF* (prevent uncrustify from making unnecessary indents here)
   RCUTILS_LOGGING_AUTOINIT
-  g_rcutils_logging_default_level = level;
+  g_rcutils_logging_default_logger_level = level;
   // *INDENT-ON*
 }
 
@@ -182,7 +182,7 @@ int rcutils_logging_get_logger_leveln(const char * name, size_t name_length)
   // Skip the map lookup if the default was requested,
   // as it can still be used even if the severity map is invalid.
   if (0 == name_length) {
-    return g_rcutils_logging_default_level;
+    return g_rcutils_logging_default_logger_level;
   }
   if (!g_rcutils_logging_severities_map_valid) {
     return RCUTILS_LOG_SEVERITY_UNSET;
@@ -250,7 +250,7 @@ int rcutils_logging_get_logger_effective_level(const char * name)
     substring_length = index_last_separator;
   }
   // Neither the logger nor its ancestors have had their level specified.
-  return g_rcutils_logging_default_level;
+  return g_rcutils_logging_default_logger_level;
 }
 
 rcutils_ret_t rcutils_logging_set_logger_level(const char * name, int level)
@@ -262,7 +262,7 @@ rcutils_ret_t rcutils_logging_set_logger_level(const char * name, int level)
     return RCUTILS_RET_INVALID_ARGUMENT;
   }
   if (strlen(name) == 0) {
-    g_rcutils_logging_default_level = level;
+    g_rcutils_logging_default_logger_level = level;
     return RCUTILS_RET_OK;
   }
   if (!g_rcutils_logging_severities_map_valid) {
@@ -302,7 +302,7 @@ rcutils_ret_t rcutils_logging_set_logger_level(const char * name, int level)
 bool rcutils_logging_logger_is_enabled_for(const char * name, int severity)
 {
   RCUTILS_LOGGING_AUTOINIT
-  int logger_level = g_rcutils_logging_default_level;
+  int logger_level = g_rcutils_logging_default_logger_level;
   if (name) {
     logger_level = rcutils_logging_get_logger_effective_level(name);
     if (-1 == logger_level) {
