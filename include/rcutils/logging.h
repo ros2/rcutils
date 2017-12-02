@@ -403,9 +403,8 @@ void rcutils_log(
  * The messages with a severity `WARN`, `ERROR`, and `FATAL` are written to
  * `stderr`.
  * The console output format of the logged message can be configured through
- * the `RCUTILS_CONSOLE_OUTPUT_FORMAT` environment variable.
- * By default, the severity and name is prepended and the location
- * information is appended.
+ * the `RCUTILS_CONSOLE_OUTPUT_FORMAT` environment variable: see
+ * rcutils_logging_initialize_with_allocator() for details.
  *
  * <hr>
  * Attribute          | Adherence
