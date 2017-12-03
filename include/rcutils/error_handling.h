@@ -26,6 +26,7 @@ extern "C"
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "rcutils/allocator.h"
 #include "rcutils/macros.h"
@@ -41,7 +42,14 @@ typedef struct rcutils_error_state_t
   rcutils_allocator_t allocator;
 } rcutils_error_state_t;
 
-#define RCUTILS_SAFE_FWRITE_TO_STDERR(msg) fwrite(msg, sizeof(char), sizeof(msg), stderr)
+// TODO(dhood): use __STDC_LIB_EXT1__ if/when supported in other implementations.
+#if defined(_WIN32)
+// Limit the buffer size in the `fwrite` call to give an upper bound to buffer overrun in the case
+// of non-null terminated `msg`.
+#define RCUTILS_SAFE_FWRITE_TO_STDERR(msg) fwrite(msg, sizeof(char), strnlen_s(msg, 4096), stderr)
+#else
+#define RCUTILS_SAFE_FWRITE_TO_STDERR(msg) fwrite(msg, sizeof(char), strlen(msg), stderr)
+#endif
 
 /// Copy an error state into a destination error state.
 /**
