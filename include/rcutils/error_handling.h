@@ -22,12 +22,14 @@ extern "C"
 {
 #endif
 
-#define __STDC_WANT_LIB_EXT1__ 1  // needed for `strnlen_s`
-#include <string.h>
+// Needed for `strnlen_s` from `<string.h>` for implementations that define `__STDC_LIB_EXT1__`
+#define __STDC_WANT_LIB_EXT1__ 1
+
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "rcutils/allocator.h"
 #include "rcutils/macros.h"
@@ -43,7 +45,7 @@ typedef struct rcutils_error_state_t
   rcutils_allocator_t allocator;
 } rcutils_error_state_t;
 
-#ifdef __STDC_LIB_EXT1__ || WIN32
+#if defined(__STDC_LIB_EXT1__) || defined(_WIN32)
 // Limit the buffer size in the `fwrite` call to give an upper bound to buffer overrun in the case
 // of non-null terminated `msg`.
 #define RCUTILS_SAFE_FWRITE_TO_STDERR(msg) fwrite(msg, sizeof(char), strnlen_s(msg, 4096), stderr)
