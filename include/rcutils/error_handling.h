@@ -22,9 +22,6 @@ extern "C"
 {
 #endif
 
-// Needed for `strnlen_s` from `<string.h>` for implementations that define `__STDC_LIB_EXT1__`
-#define __STDC_WANT_LIB_EXT1__ 1
-
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -45,7 +42,8 @@ typedef struct rcutils_error_state_t
   rcutils_allocator_t allocator;
 } rcutils_error_state_t;
 
-#if defined(__STDC_LIB_EXT1__) || defined(_WIN32)
+// TODO(dhood): use __STDC_LIB_EXT1__ if/when supported in other implementations.
+#if defined(_WIN32)
 // Limit the buffer size in the `fwrite` call to give an upper bound to buffer overrun in the case
 // of non-null terminated `msg`.
 #define RCUTILS_SAFE_FWRITE_TO_STDERR(msg) fwrite(msg, sizeof(char), strnlen_s(msg, 4096), stderr)
