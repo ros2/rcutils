@@ -174,10 +174,10 @@ int rcutils_logging_get_logger_severity_threshold(const char * name)
 
 int rcutils_logging_get_logger_severity_thresholdn(const char * name, size_t name_length)
 {
+  RCUTILS_LOGGING_AUTOINIT
   if (!name) {
     return -1;
   }
-  RCUTILS_LOGGING_AUTOINIT
 
   // Skip the map lookup if the default was requested,
   // as it can still be used even if the severity map is invalid.
@@ -223,10 +223,10 @@ int rcutils_logging_get_logger_severity_thresholdn(const char * name, size_t nam
 
 int rcutils_logging_get_logger_effective_severity_threshold(const char * name)
 {
+  RCUTILS_LOGGING_AUTOINIT
   if (!name) {
     return -1;
   }
-  RCUTILS_LOGGING_AUTOINIT
   size_t substring_length = strlen(name);
   while (true) {
     int severity = rcutils_logging_get_logger_severity_thresholdn(name, substring_length);
@@ -255,12 +255,12 @@ int rcutils_logging_get_logger_effective_severity_threshold(const char * name)
 
 rcutils_ret_t rcutils_logging_set_logger_severity_threshold(const char * name, int severity)
 {
+  RCUTILS_LOGGING_AUTOINIT
   if (!name) {
     RCUTILS_SET_ERROR_MSG(
       "Invalid logger name", g_rcutils_logging_allocator);
     return RCUTILS_RET_INVALID_ARGUMENT;
   }
-  RCUTILS_LOGGING_AUTOINIT
   if (strlen(name) == 0) {
     g_rcutils_logging_default_severity_threshold = severity;
     return RCUTILS_RET_OK;
