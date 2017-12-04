@@ -77,8 +77,8 @@ extern bool g_rcutils_logging_initialized;
  *   format from the `RCUTILS_CONSOLE_OUTPUT_FORMAT` environment variable, in
  *   which case the default format will be used.
  * \return `RCUTILS_RET_LOGGING_SEVERITY_MAP_INVALID` if the internal logger
- *   severity map cannot be initialized, in which case logger severity
- *   thresholds will not be configurable.
+ *   severity level map cannot be initialized, in which case logger severity
+ *   levels will not be configurable.
  */
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
@@ -102,8 +102,8 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
  *   format from the `RCUTILS_CONSOLE_OUTPUT_FORMAT` environment variable, in
  *   which case the default format will be used.
  * \return `RCUTILS_RET_LOGGING_SEVERITY_MAP_INVALID` if the internal logger
- *   severity map cannot be initialized, in which case logger severity
- *   thresholds will not be configurable.
+ *   severity level map cannot be initialized, in which case logger levels
+ *   will not be configurable.
  */
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
@@ -124,7 +124,7 @@ rcutils_ret_t rcutils_logging_initialize();
  *
  * \return `RCUTILS_RET_OK` if successful.
  * \return `RCUTILS_RET_LOGGING_SEVERITY_MAP_INVALID` if the internal logger
- *   severity map cannot be finalized.
+ *   severity level map cannot be finalized.
  */
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
@@ -141,7 +141,7 @@ typedef struct rcutils_log_location_t
   size_t line_number;
 } rcutils_log_location_t;
 
-/// The severity levels of log messages / logger thresholds.
+/// The severity levels of log messages / loggers.
 enum RCUTILS_LOG_SEVERITY
 {
   RCUTILS_LOG_SEVERITY_UNSET = 0,  ///< The unset log level
@@ -206,17 +206,17 @@ rcutils_logging_output_handler_t rcutils_logging_get_output_handler();
 RCUTILS_PUBLIC
 void rcutils_logging_set_output_handler(rcutils_logging_output_handler_t function);
 
-/// The default severity threshold for log calls.
+/// The default severity level for loggers.
 /**
- * This severity threshold is used for (1) nameless log calls and (2) named log
- * calls where the effective severity threshold of the name is unspecified.
+ * This level is used for (1) nameless log calls and (2) named log
+ * calls where the effective level of the logger name is unspecified.
  *
- * \see rcutils_logging_get_logger_effective_severity_threshold()
+ * \see rcutils_logging_get_logger_effective_level()
  */
 RCUTILS_PUBLIC
-extern int g_rcutils_logging_default_severity_threshold;
+extern int g_rcutils_logging_default_logger_level;
 
-/// Get the default severity threshold for loggers.
+/// Get the default level for loggers.
 /**
  * <hr>
  * Attribute          | Adherence
@@ -226,13 +226,13 @@ extern int g_rcutils_logging_default_severity_threshold;
  * Uses Atomics       | No
  * Lock-Free          | Yes
  *
- * \return The severity threshold.
+ * \return The level.
  */
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
-int rcutils_logging_get_default_severity_threshold();
+int rcutils_logging_get_default_logger_level();
 
-/// Set the default severity threshold for loggers.
+/// Set the default severity level for loggers.
 /**
  * <hr>
  * Attribute          | Adherence
@@ -242,17 +242,16 @@ int rcutils_logging_get_default_severity_threshold();
  * Uses Atomics       | No
  * Lock-Free          | Yes
  *
- * \param severity The severity threshold to be used.
+ * \param level The level to be used.
  */
 RCUTILS_PUBLIC
-void rcutils_logging_set_default_severity_threshold(int severity);
+void rcutils_logging_set_default_logger_level(int level);
 
-/// Get the severity threshold for a logger.
+/// Get the severity level for a logger.
 /**
- * This considers the severity threshold of the specifed logger only.
- * To get the effective severity threshold of a logger given the severity
- * threshold of its ancestors, see
- * rcutils_logging_get_logger_effective_severity_threshold().
+ * This considers the severity level of the specifed logger only.
+ * To get the effective level of a logger given the severity level of its
+ * ancestors, see rcutils_logging_get_logger_effective_level().
  *
  * <hr>
  * Attribute          | Adherence
@@ -263,19 +262,19 @@ void rcutils_logging_set_default_severity_threshold(int severity);
  * Lock-Free          | Yes
  *
  * \param name The name of the logger, must be null terminated c string
- * \return The severity threshold of the logger if it has been set, or
+ * \return The level of the logger if it has been set, or
  * \return `RCUTILS_LOG_SEVERITY_UNSET` if unset, or
- * \return `g_rcutils_logging_default_severity_threshold` for an empty name, or
+ * \return `g_rcutils_logging_default_logger_level` for an empty name, or
  * \return -1 on invalid arguments, or
  * \return -1 if an error occurred
  */
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
-int rcutils_logging_get_logger_severity_threshold(const char * name);
+int rcutils_logging_get_logger_level(const char * name);
 
-/// Get the severity threshold for a logger and its name length.
+/// Get the level for a logger and its name length.
 /**
- * Identical to rcutils_logging_get_logger_severity_threshold() but without
+ * Identical to rcutils_logging_get_logger_level() but without
  * relying on the logger name to be a null terminated c string.
  *
  * <hr>
@@ -288,20 +287,20 @@ int rcutils_logging_get_logger_severity_threshold(const char * name);
  *
  * \param name The name of the logger
  * \param name_length Logger name length
- * \return The severity threshold of the logger if it has been set, or
+ * \return The level of the logger if it has been set, or
  * \return `RCUTILS_LOG_SEVERITY_UNSET` if unset, or
- * \return `g_rcutils_logging_default_severity_threshold` for `name_length` of `0`, or
+ * \return `g_rcutils_logging_default_logger_level` for `name_length` of `0`, or
  * \return -1 on invalid arguments, or
  * \return -1 if an error occurred
  */
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
-int rcutils_logging_get_logger_severity_thresholdn(const char * name, size_t name_length);
+int rcutils_logging_get_logger_leveln(const char * name, size_t name_length);
 
-/// Set the severity threshold for a logger.
+/// Set the severity level for a logger.
 /**
  * If an empty string is specified as the name, the
- * `g_rcutils_logging_default_severity_threshold` will be set.
+ * `g_rcutils_logging_default_logger_level` will be set.
  *
  * <hr>
  * Attribute          | Adherence
@@ -312,7 +311,7 @@ int rcutils_logging_get_logger_severity_thresholdn(const char * name, size_t nam
  * Lock-Free          | Yes
  *
  * \param name The name of the logger, must be null terminated c string.
- * \param severity The severity threshold to be used.
+ * \param level The level to be used.
  * \return `RCUTILS_RET_OK` if successful, or
  * \return `RCUTILS_RET_INVALID_ARGUMENT` on invalid arguments, or
  * \return `RCUTILS_RET_LOGGING_SEVERITY_MAP_INVALID` if severity map invalid, or
@@ -320,9 +319,9 @@ int rcutils_logging_get_logger_severity_thresholdn(const char * name, size_t nam
  */
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
-rcutils_ret_t rcutils_logging_set_logger_severity_threshold(const char * name, int severity);
+rcutils_ret_t rcutils_logging_set_logger_level(const char * name, int level);
 
-/// Determine if a logger is enabled for a severity.
+/// Determine if a logger is enabled for a severity level.
 /**
  * <hr>
  * Attribute          | Adherence
@@ -335,22 +334,22 @@ rcutils_ret_t rcutils_logging_set_logger_severity_threshold(const char * name, i
  * \param name The name of the logger, must be null terminated c string or NULL.
  * \param severity The severity level.
  *
- * \return true if the logger is enabled for the severity; false otherwise.
+ * \return true if the logger is enabled for the level; false otherwise.
  */
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
 bool rcutils_logging_logger_is_enabled_for(const char * name, int severity);
 
-/// Determine the effective severity threshold for a logger.
+/// Determine the effective level for a logger.
 /**
- * The effective severity threshold is determined as the severity threshold of
+ * The effective level is determined as the severity level of
  * the logger if it is set, otherwise it is the first specified severity
- * threshold of the logger's ancestors, starting with its closest ancestor.
+ * level of the logger's ancestors, starting with its closest ancestor.
  * The ancestor hierarchy is signified by logger names being separated by dots:
  * a logger named `x` is an ancestor of `x.y`, and both `x` and `x.y` are
  * ancestors of `x.y.z`, etc.
- * If the severity threshold has not been set for the logger nor any of its
- * ancestors, the default severity threshold is used.
+ * If the level has not been set for the logger nor any of its
+ * ancestors, the default level is used.
  *
  * <hr>
  * Attribute          | Adherence
@@ -362,13 +361,13 @@ bool rcutils_logging_logger_is_enabled_for(const char * name, int severity);
  *
  * \param name The name of the logger, must be null terminated c string.
  *
- * \return The severity threshold, or
+ * \return The level, or
  * \return -1 on invalid arguments, or
  * \return -1 if an error occurred.
  */
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
-int rcutils_logging_get_logger_effective_severity_threshold(const char * name);
+int rcutils_logging_get_logger_effective_level(const char * name);
 
 /// Log a message.
 /**
@@ -399,9 +398,9 @@ void rcutils_log(
 
 /// The default output handler outputs log messages to the standard streams.
 /**
- * The messages with a severity `DEBUG` and `INFO` are written to `stdout`.
- * The messages with a severity `WARN`, `ERROR`, and `FATAL` are written to
- * `stderr`.
+ * The messages with a severity level `DEBUG` and `INFO` are written to `stdout`.
+ * The messages with a severity level `WARN`, `ERROR`, and `FATAL` are written
+ * to `stderr`.
  * The console output format of the logged message can be configured through
  * the `RCUTILS_CONSOLE_OUTPUT_FORMAT` environment variable: see
  * rcutils_logging_initialize_with_allocator() for details.
