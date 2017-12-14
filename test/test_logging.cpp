@@ -164,6 +164,9 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logger_severities) {
     rcutils_logging_set_logger_level("rcutils_test_loggers", -1));
   ASSERT_EQ(
     RCUTILS_RET_INVALID_ARGUMENT,
+    rcutils_logging_set_logger_level("rcutils_test_loggers", 51));
+  ASSERT_EQ(
+    RCUTILS_RET_INVALID_ARGUMENT,
     rcutils_logging_set_logger_level("rcutils_test_loggers", 1000));
 }
 
