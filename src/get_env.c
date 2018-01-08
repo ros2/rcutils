@@ -31,10 +31,10 @@ static char __env_buffer[WINDOWS_ENV_BUFFER_SIZE];
 const char *
 rcutils_get_env(const char * env_name, const char ** env_value)
 {
-  if (!env_name) {
+  if (NULL == env_name) {
     return "argument env_name is null";
   }
-  if (!env_value) {
+  if (NULL == env_value) {
     return "argument env_value is null";
   }
   *env_value = NULL;

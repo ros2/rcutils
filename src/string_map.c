@@ -59,7 +59,7 @@ rcutils_string_map_init(
   RCUTILS_CHECK_ALLOCATOR_WITH_MSG(
     &allocator, "invalid allocator", return RCUTILS_RET_INVALID_ARGUMENT)
   string_map->impl = allocator.allocate(sizeof(rcutils_string_map_impl_t), allocator.state);
-  if (!string_map->impl) {
+  if (NULL == string_map->impl) {
     RCUTILS_SET_ERROR_MSG(
       "failed to allocate memory for string map impl struct",
       // try default allocator, assuming given allocator is not able to allocate memory
@@ -86,7 +86,7 @@ rcutils_string_map_fini(rcutils_string_map_t * string_map)
 {
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(
     string_map, RCUTILS_RET_INVALID_ARGUMENT, rcutils_get_default_allocator())
-  if (!string_map->impl) {
+  if (NULL == string_map->impl) {
     return RCUTILS_RET_OK;
   }
   rcutils_ret_t ret = rcutils_string_map_clear(string_map);
@@ -169,7 +169,7 @@ rcutils_string_map_reserve(rcutils_string_map_t * string_map, size_t capacity)
     // resize the keys, assigning the result only if it succeeds
     char ** new_keys =
       allocator.reallocate(string_map->impl->keys, capacity * sizeof(char *), allocator.state);
-    if (!new_keys) {
+    if (NULL == new_keys) {
       RCUTILS_SET_ERROR_MSG("failed to allocate memory for string_map keys", allocator)
       return RCUTILS_RET_BAD_ALLOC;
     }
@@ -178,7 +178,7 @@ rcutils_string_map_reserve(rcutils_string_map_t * string_map, size_t capacity)
     // resize the values, assigning the result only if it succeeds
     char ** new_values =
       allocator.reallocate(string_map->impl->values, capacity * sizeof(char *), allocator.state);
-    if (!new_values) {
+    if (NULL == new_values) {
       RCUTILS_SET_ERROR_MSG("failed to allocate memory for string_map values", allocator)
       return RCUTILS_RET_BAD_ALLOC;
     }
@@ -264,7 +264,7 @@ __get_index_of_key_if_exists(
 {
   size_t i = 0;
   for (; i < string_map_impl->capacity; ++i) {
-    if (!string_map_impl->keys[i]) {
+    if (NULL == string_map_impl->keys[i]) {
       continue;
     }
     size_t cmp_count = strlen(string_map_impl->keys[i]);
@@ -305,13 +305,13 @@ rcutils_string_map_set_no_resize(
       return RCUTILS_RET_NOT_ENOUGH_SPACE;
     }
     for (key_index = 0; key_index < string_map->impl->capacity; ++key_index) {
-      if (!string_map->impl->keys[key_index]) {
+      if (NULL == string_map->impl->keys[key_index]) {
         break;
       }
     }
     assert(key_index < string_map->impl->capacity);  // defensive, this should not happen
     string_map->impl->keys[key_index] = rcutils_strdup(key, allocator);
-    if (!string_map->impl->keys[key_index]) {
+    if (NULL == string_map->impl->keys[key_index]) {
       RCUTILS_SET_ERROR_MSG("failed to allocate memory for key", rcutils_get_default_allocator())
       return RCUTILS_RET_BAD_ALLOC;
     }
@@ -320,7 +320,7 @@ rcutils_string_map_set_no_resize(
   // at this point the key is in the map, waiting for the value to set/overwritten
   char * original_value = string_map->impl->values[key_index];
   char * new_value = rcutils_strdup(value, allocator);
-  if (!new_value) {
+  if (NULL == new_value) {
     RCUTILS_SET_ERROR_MSG("failed to allocate memory for key", allocator)
     if (should_free_key_on_error) {
       allocator.deallocate(string_map->impl->keys[key_index], allocator.state);
@@ -363,7 +363,7 @@ rcutils_string_map_unset(rcutils_string_map_t * string_map, const char * key)
 bool
 rcutils_string_map_key_exists(const rcutils_string_map_t * string_map, const char * key)
 {
-  if (!key) {
+  if (NULL == key) {
     return false;
   }
   return rcutils_string_map_key_existsn(string_map, key, strlen(key));
@@ -375,7 +375,7 @@ rcutils_string_map_key_existsn(
   const char * key,
   size_t key_length)
 {
-  if (!string_map || !string_map->impl || !key) {
+  if (NULL == string_map || NULL == string_map->impl || NULL == key) {
     return false;
   }
   size_t key_index;
@@ -386,7 +386,7 @@ rcutils_string_map_key_existsn(
 const char *
 rcutils_string_map_get(const rcutils_string_map_t * string_map, const char * key)
 {
-  if (!key) {
+  if (NULL == key) {
     return NULL;
   }
   return rcutils_string_map_getn(string_map, key, strlen(key));
@@ -398,7 +398,7 @@ rcutils_string_map_getn(
   const char * key,
   size_t key_length)
 {
-  if (!string_map || !string_map->impl || !key) {
+  if (NULL == string_map || NULL == string_map->impl || NULL == key) {
     return NULL;
   }
   size_t key_index;
@@ -413,7 +413,7 @@ rcutils_string_map_get_next_key(
   const rcutils_string_map_t * string_map,
   const char * key)
 {
-  if (!string_map || !string_map->impl) {
+  if (NULL == string_map || !string_map->impl) {
     return NULL;
   }
   if (string_map->impl->size == 0) {
@@ -466,7 +466,7 @@ rcutils_string_map_copy(
   const char * key = rcutils_string_map_get_next_key(src_string_map, NULL);
   while (key) {
     const char * value = rcutils_string_map_get(src_string_map, key);
-    if (!value) {
+    if (NULL == value) {
       RCUTILS_SET_ERROR_MSG(
         "unable to get value for known key, should not happen", rcutils_get_default_allocator());
       return RCUTILS_RET_ERROR;

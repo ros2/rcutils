@@ -35,7 +35,7 @@ rcutils_format_string_limit(
   const char * format_string,
   ...)
 {
-  if (!format_string) {
+  if (NULL == format_string) {
     return NULL;
   }
   RCUTILS_CHECK_ALLOCATOR(&allocator, return NULL);
@@ -56,11 +56,11 @@ rcutils_format_string_limit(
     bytes_to_be_written = limit - 1;
   }
   char * output_string = allocator.allocate(bytes_to_be_written + 1, allocator.state);
-  if (!output_string) {
+  if (NULL == output_string) {
     va_end(args2);
     return NULL;
   }
-  // formate the string
+  // format the string
   rcutils_vsnprintf(output_string, bytes_to_be_written + 1, format_string, args2);
   output_string[bytes_to_be_written] = '\0';
   va_end(args2);

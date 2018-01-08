@@ -56,11 +56,11 @@ rcutils_error_state_copy(const rcutils_error_state_t * src, rcutils_error_state_
 {
   dst->allocator = src->allocator;
   dst->message = rcutils_strdup(src->message, dst->allocator);
-  if (!dst->message) {
+  if (NULL == dst->message) {
     return RCUTILS_RET_BAD_ALLOC;
   }
   dst->file = rcutils_strdup(src->file, dst->allocator);
-  if (!dst->file) {
+  if (NULL == dst->file) {
     return RCUTILS_RET_BAD_ALLOC;
   }
   dst->line_number = src->line_number;
@@ -101,7 +101,7 @@ rcutils_set_error_state(
 #endif
   __rcutils_error_state = (rcutils_error_state_t *)allocator.allocate(
     sizeof(rcutils_error_state_t), allocator.state);
-  if (!__rcutils_error_state) {
+  if (NULL == __rcutils_error_state) {
 #if RCUTILS_REPORT_ERROR_HANDLING_ERRORS
     // rcutils_allocate failed, but fwrite might work?
     RCUTILS_SAFE_FWRITE_TO_STDERR(
@@ -119,7 +119,7 @@ rcutils_set_error_state(
   // the memory must be one byte bigger to store the NULL character
   __rcutils_error_state->message =
     (char *)allocator.allocate(error_string_length + 1, allocator.state);
-  if (!__rcutils_error_state->message) {
+  if (NULL == __rcutils_error_state->message) {
 #if RCUTILS_REPORT_ERROR_HANDLING_ERRORS
     // malloc failed, but fwrite might work?
     RCUTILS_SAFE_FWRITE_TO_STDERR(
@@ -207,7 +207,7 @@ format_error_string()
 #ifdef RCUTILS_THREAD_LOCAL_PTHREAD
   pthread_setspecific(__rcutils_error_string_key, __rcutils_error_string);
 #endif
-  if (!__rcutils_error_string) {
+  if (NULL == __rcutils_error_string) {
 #if RCUTILS_REPORT_ERROR_HANDLING_ERRORS
     // rcutils_allocate failed, but fwrite might work?
     RCUTILS_SAFE_FWRITE_TO_STDERR(
@@ -232,7 +232,7 @@ rcutils_get_error_string()
 #ifdef RCUTILS_THREAD_LOCAL_PTHREAD
   char * __rcutils_error_string = (char *)pthread_getspecific(__rcutils_error_string_key);
 #endif
-  if (!__rcutils_error_string) {
+  if (NULL == __rcutils_error_string) {
     format_error_string();
   }
   return __rcutils_error_string;
@@ -266,7 +266,7 @@ rcutils_get_error_string_safe()
 void
 __rcutils_reset_error_string(char ** error_string_ptr, rcutils_allocator_t allocator)
 {
-  if (!error_string_ptr) {
+  if (NULL == error_string_ptr) {
     return;
   }
 
@@ -293,7 +293,7 @@ __rcutils_reset_error(rcutils_error_state_t ** error_state_ptr_ptr)
     rcutils_error_state_t * error_state_ptr = *error_state_ptr_ptr;
     if (error_state_ptr) {
       rcutils_allocator_t allocator = error_state_ptr->allocator;
-      if (!allocator.deallocate) {
+      if (NULL == allocator.deallocate) {
 #if RCUTILS_REPORT_ERROR_HANDLING_ERRORS
         RCUTILS_SAFE_FWRITE_TO_STDERR(
           "[rcutils|error_handling.c:" RCUTILS_STRINGIFY(__LINE__) "]: "

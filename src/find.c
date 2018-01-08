@@ -28,7 +28,7 @@ extern "C"
 size_t
 rcutils_find(const char * str, char delimiter)
 {
-  if (!str || 0 == strlen(str)) {
+  if (NULL == str || 0 == strlen(str)) {
     return SIZE_MAX;
   }
   return rcutils_findn(str, delimiter, strlen(str));
@@ -37,7 +37,7 @@ rcutils_find(const char * str, char delimiter)
 size_t
 rcutils_findn(const char * str, char delimiter, size_t string_length)
 {
-  if (!str || 0 == string_length) {
+  if (NULL == str || 0 == string_length) {
     return SIZE_MAX;
   }
 
@@ -52,7 +52,7 @@ rcutils_findn(const char * str, char delimiter, size_t string_length)
 size_t
 rcutils_find_last(const char * str, char delimiter)
 {
-  if (!str || 0 == strlen(str)) {
+  if (NULL == str || 0 == strlen(str)) {
     return SIZE_MAX;
   }
   return rcutils_find_lastn(str, delimiter, strlen(str));
@@ -61,7 +61,7 @@ rcutils_find_last(const char * str, char delimiter)
 size_t
 rcutils_find_lastn(const char * str, char delimiter, size_t string_length)
 {
-  if (!str || 0 == string_length) {
+  if (NULL == str || 0 == string_length) {
     return SIZE_MAX;
   }
 

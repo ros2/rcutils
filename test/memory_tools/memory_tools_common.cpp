@@ -38,13 +38,13 @@ void set_on_unexpected_malloc_callback(UnexpectedCallbackType callback)
     free(unexpected_malloc_callback);
     unexpected_malloc_callback = nullptr;
   }
-  if (!callback) {
+  if (nullptr == callback) {
     return;
   }
-  if (!unexpected_malloc_callback) {
+  if (nullptr == unexpected_malloc_callback) {
     unexpected_malloc_callback =
       reinterpret_cast<UnexpectedCallbackType *>(malloc(sizeof(UnexpectedCallbackType)));
-    if (!unexpected_malloc_callback) {
+    if (NULL == unexpected_malloc_callback) {
       throw std::bad_alloc();
     }
     new (unexpected_malloc_callback) UnexpectedCallbackType();
@@ -82,13 +82,13 @@ void set_on_unexpected_realloc_callback(UnexpectedCallbackType callback)
     free(unexpected_realloc_callback);
     unexpected_realloc_callback = nullptr;
   }
-  if (!callback) {
+  if (nullptr == callback) {
     return;
   }
-  if (!unexpected_realloc_callback) {
+  if (nullptr == unexpected_realloc_callback) {
     unexpected_realloc_callback =
       reinterpret_cast<UnexpectedCallbackType *>(malloc(sizeof(UnexpectedCallbackType)));
-    if (!unexpected_realloc_callback) {
+    if (nullptr == unexpected_realloc_callback) {
       throw std::bad_alloc();
     }
     new (unexpected_realloc_callback) UnexpectedCallbackType();
@@ -126,7 +126,7 @@ void set_on_unexpected_free_callback(UnexpectedCallbackType callback)
     free(unexpected_free_callback);
     unexpected_free_callback = nullptr;
   }
-  if (!callback) {
+  if (nullptr == callback) {
     return;
   }
   if (!unexpected_free_callback) {

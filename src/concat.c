@@ -26,10 +26,10 @@ extern "C"
 char *
 rcutils_concat(const char * lhs, const char * rhs, const char * delimiter)
 {
-  if (!lhs) {
+  if (NULL == lhs) {
     return NULL;
   }
-  if (!rhs) {
+  if (NULL == rhs) {
     return NULL;
   }
 
@@ -38,7 +38,7 @@ rcutils_concat(const char * lhs, const char * rhs, const char * delimiter)
   size_t del_len = (delimiter) ? strlen(delimiter) : 0;
 
   char * concat = (char *) malloc((lhs_len + rhs_len + del_len + 1) * sizeof(char));
-  if (!concat) {
+  if (NULL == concat) {
     return NULL;
   }
 
