@@ -99,7 +99,7 @@ rcutils_error_state_fini(rcutils_error_state_t * error_state);
 RCUTILS_PUBLIC
 void
 rcutils_set_error_state(
-  const char * error_msg, const char * file, size_t line_number, rcutils_allocator_t allocator);
+  const char * error_string, const char * file, size_t line_number, rcutils_allocator_t allocator);
 
 /// Check an argument for a null value.
 /**
