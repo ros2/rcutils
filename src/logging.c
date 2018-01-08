@@ -56,7 +56,7 @@ bool g_rcutils_logging_severities_map_valid = false;
 
 int g_rcutils_logging_default_logger_level = 0;
 
-rcutils_ret_t rcutils_logging_initialize()
+rcutils_ret_t rcutils_logging_initialize(void)
 {
   return rcutils_logging_initialize_with_allocator(rcutils_get_default_allocator());
 }
@@ -117,7 +117,7 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
   return ret;
 }
 
-rcutils_ret_t rcutils_logging_shutdown()
+rcutils_ret_t rcutils_logging_shutdown(void)
 {
   if (!g_rcutils_logging_initialized) {
     return RCUTILS_RET_OK;
@@ -138,7 +138,7 @@ rcutils_ret_t rcutils_logging_shutdown()
   return ret;
 }
 
-rcutils_logging_output_handler_t rcutils_logging_get_output_handler()
+rcutils_logging_output_handler_t rcutils_logging_get_output_handler(void)
 {
   RCUTILS_LOGGING_AUTOINIT
   return g_rcutils_logging_output_handler;
@@ -152,7 +152,7 @@ void rcutils_logging_set_output_handler(rcutils_logging_output_handler_t functio
   // *INDENT-ON*
 }
 
-int rcutils_logging_get_default_logger_level()
+int rcutils_logging_get_default_logger_level(void)
 {
   RCUTILS_LOGGING_AUTOINIT
   return g_rcutils_logging_default_logger_level;

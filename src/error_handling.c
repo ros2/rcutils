@@ -175,7 +175,7 @@ rcutils_set_error_state(
 }
 
 const rcutils_error_state_t *
-rcutils_get_error_state()
+rcutils_get_error_state(void)
 {
 #ifdef RCUTILS_THREAD_LOCAL_PTHREAD
   return (rcutils_error_state_t *)pthread_getspecific(__rcutils_error_state_key);
@@ -185,7 +185,7 @@ rcutils_get_error_state()
 }
 
 static void
-format_error_string()
+format_error_string(void)
 {
 #ifdef RCUTILS_THREAD_LOCAL_PTHREAD
   rcutils_error_state_t * __rcutils_error_state =
@@ -227,7 +227,7 @@ format_error_string()
 }
 
 const char *
-rcutils_get_error_string()
+rcutils_get_error_string(void)
 {
 #ifdef RCUTILS_THREAD_LOCAL_PTHREAD
   char * __rcutils_error_string = (char *)pthread_getspecific(__rcutils_error_string_key);
@@ -245,7 +245,7 @@ __rcutils_error_is_set(rcutils_error_state_t * error_state)
 }
 
 bool
-rcutils_error_is_set()
+rcutils_error_is_set(void)
 {
 #ifdef RCUTILS_THREAD_LOCAL_PTHREAD
   rcutils_error_state_t * __rcutils_error_state =
@@ -255,7 +255,7 @@ rcutils_error_is_set()
 }
 
 const char *
-rcutils_get_error_string_safe()
+rcutils_get_error_string_safe(void)
 {
   if (!rcutils_error_is_set()) {
     return "error not set";
@@ -312,7 +312,7 @@ __rcutils_reset_error(rcutils_error_state_t ** error_state_ptr_ptr)
 }
 
 void
-rcutils_reset_error()
+rcutils_reset_error(void)
 {
 #ifdef RCUTILS_THREAD_LOCAL_PTHREAD
   rcutils_error_state_t * __rcutils_error_state =

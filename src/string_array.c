@@ -25,7 +25,7 @@ extern "C"
 #include "rcutils/types/rcutils_ret.h"
 
 rcutils_string_array_t
-rcutils_get_zero_initialized_string_array()
+rcutils_get_zero_initialized_string_array(void)
 {
   static rcutils_string_array_t array = {
     .size = 0,

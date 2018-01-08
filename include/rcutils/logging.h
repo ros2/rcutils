@@ -107,7 +107,7 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
  */
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
-rcutils_ret_t rcutils_logging_initialize();
+rcutils_ret_t rcutils_logging_initialize(void);
 
 /// Shutdown the logging system.
 /**
@@ -128,7 +128,7 @@ rcutils_ret_t rcutils_logging_initialize();
  */
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
-rcutils_ret_t rcutils_logging_shutdown();
+rcutils_ret_t rcutils_logging_shutdown(void);
 
 /// The structure identifying the caller location in the source code.
 typedef struct rcutils_log_location_t
