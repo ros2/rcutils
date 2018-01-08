@@ -52,7 +52,7 @@ rcutils_string_map_init(
   rcutils_allocator_t allocator)
 {
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(string_map, RCUTILS_RET_INVALID_ARGUMENT, allocator)
-  if (string_map->impl) {
+  if (string_map->impl != NULL) {
     RCUTILS_SET_ERROR_MSG("string_map already initialized", allocator)
     return RCUTILS_RET_STRING_MAP_ALREADY_INIT;
   }
@@ -219,7 +219,7 @@ rcutils_string_map_clear(rcutils_string_map_t * string_map)
     return RCUTILS_RET_STRING_MAP_INVALID, rcutils_get_default_allocator())
   size_t i = 0;
   for (; i < string_map->impl->capacity; ++i) {
-    if (string_map->impl->keys[i]) {
+    if (string_map->impl->keys[i] != NULL) {
       __remove_key_and_value_at_index(string_map->impl, i);
     }
   }
@@ -329,7 +329,7 @@ rcutils_string_map_set_no_resize(
     return RCUTILS_RET_BAD_ALLOC;
   }
   string_map->impl->values[key_index] = new_value;
-  if (original_value) {
+  if (original_value != NULL) {
     // clean up the old value if not NULL
     allocator.deallocate(original_value, allocator.state);
   }
@@ -420,7 +420,7 @@ rcutils_string_map_get_next_key(
     return NULL;
   }
   size_t start_index = 0;
-  if (key) {
+  if (key != NULL) {
     // if given a key, try to find it
     bool given_key_found = false;
     size_t i = 0;
@@ -439,7 +439,7 @@ rcutils_string_map_get_next_key(
   // iterate through the storage and look for another non-NULL key to return
   size_t i = start_index;
   for (; i < string_map->impl->capacity; ++i) {
-    if (string_map->impl->keys[i]) {
+    if (string_map->impl->keys[i] != NULL) {
       // next key found, return it
       return string_map->impl->keys[i];
     }
@@ -464,7 +464,7 @@ rcutils_string_map_copy(
     dst_string_map->impl, "destination string map is invalid",
     return RCUTILS_RET_STRING_MAP_INVALID, rcutils_get_default_allocator())
   const char * key = rcutils_string_map_get_next_key(src_string_map, NULL);
-  while (key) {
+  while (key != NULL) {
     const char * value = rcutils_string_map_get(src_string_map, key);
     if (NULL == value) {
       RCUTILS_SET_ERROR_MSG(

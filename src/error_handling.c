@@ -280,7 +280,7 @@ __rcutils_reset_error_string(char ** error_string_ptr, rcutils_allocator_t alloc
     local_allocator = rcutils_get_default_allocator();
   }
   char * error_string = *error_string_ptr;
-  if (error_string) {
+  if (error_string != NULL) {
     local_allocator.deallocate(error_string, local_allocator.state);
   }
   *error_string_ptr = NULL;
@@ -289,9 +289,9 @@ __rcutils_reset_error_string(char ** error_string_ptr, rcutils_allocator_t alloc
 void
 __rcutils_reset_error(rcutils_error_state_t ** error_state_ptr_ptr)
 {
-  if (error_state_ptr_ptr) {
+  if (error_state_ptr_ptr != NULL) {
     rcutils_error_state_t * error_state_ptr = *error_state_ptr_ptr;
-    if (error_state_ptr) {
+    if (error_state_ptr != NULL) {
       rcutils_allocator_t allocator = error_state_ptr->allocator;
       if (NULL == allocator.deallocate) {
 #if RCUTILS_REPORT_ERROR_HANDLING_ERRORS
@@ -301,7 +301,7 @@ __rcutils_reset_error(rcutils_error_state_t ** error_state_ptr_ptr)
 #endif
         allocator = rcutils_get_default_allocator();
       }
-      if (error_state_ptr->message) {
+      if (error_state_ptr->message != NULL) {
         // Cast const away to delete previously allocated memory.
         allocator.deallocate((char *)error_state_ptr->message, allocator.state);
       }
@@ -319,7 +319,7 @@ rcutils_reset_error(void)
     (rcutils_error_state_t *)pthread_getspecific(__rcutils_error_state_key);
   char * __rcutils_error_string = (char *)pthread_getspecific(__rcutils_error_string_key);
 #endif
-  if (__rcutils_error_state) {
+  if (__rcutils_error_state != NULL) {
     __rcutils_reset_error_string(&__rcutils_error_string, __rcutils_error_state->allocator);
   }
   __rcutils_reset_error(&__rcutils_error_state);

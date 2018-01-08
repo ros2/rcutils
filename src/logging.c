@@ -323,7 +323,7 @@ void rcutils_log(
     return;
   }
   rcutils_logging_output_handler_t output_handler = g_rcutils_logging_output_handler;
-  if (output_handler) {
+  if (output_handler != NULL) {
     va_list args;
     va_start(args, format);
     (*output_handler)(location, severity, name ? name : "", format, &args);
