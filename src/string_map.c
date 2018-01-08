@@ -244,7 +244,7 @@ rcutils_string_map_set(rcutils_string_map_t * string_map, const char * key, cons
     rcutils_reset_error();
     // default to doubling the size of the map's capacity
     size_t new_capacity = (string_map->impl->capacity) ? 2 * string_map->impl->capacity : 1;
-    rcutils_ret_t ret = rcutils_string_map_reserve(string_map, new_capacity);
+    ret = rcutils_string_map_reserve(string_map, new_capacity);
     if (ret != RCUTILS_RET_OK) {
       // error message is already set
       return ret;
