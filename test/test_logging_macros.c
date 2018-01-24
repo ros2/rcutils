@@ -15,6 +15,7 @@
 #include <string.h>
 
 #include "rcutils/logging_macros.h"
+#include "rcutils/time.h"
 #include "rcutils/types/rcutils_ret.h"
 
 size_t g_log_calls = 0;
@@ -24,18 +25,21 @@ struct LogEvent
   const rcutils_log_location_t * location;
   int severity;
   const char * name;
+  rcutils_time_point_value_t timestamp;
   char * message;
 };
 struct LogEvent g_last_log_event;
 
 void custom_handler(
   const rcutils_log_location_t * location,
-  int severity, const char * name, const char * format, va_list * args)
+  int severity, const char * name, rcutils_time_point_value_t timestamp,
+  const char * format, va_list * args)
 {
   g_log_calls += 1;
   g_last_log_event.location = location;
   g_last_log_event.severity = severity;
   g_last_log_event.name = name ? name : "";
+  g_last_log_event.timestamp = timestamp;
   if (g_last_log_event.message) {
     free(g_last_log_event.message);
   }

@@ -587,8 +587,8 @@ void rcutils_logging_console_output_handler(
       token_expansion = message_buffer;
     } else if (strcmp("seconds", token) == 0) {
       if (snprintf(
-        numeric_storage, sizeof(numeric_storage),
-        "%f", timestamp / 1e9) == 0)
+          numeric_storage, sizeof(numeric_storage),
+          "%f", timestamp / 1e9) == 0)
       {
         RCUTILS_SAFE_FWRITE_TO_STDERR("Failed to convert float to string.\n");
         goto cleanup;
@@ -596,8 +596,8 @@ void rcutils_logging_console_output_handler(
       token_expansion = numeric_storage;
     } else if (strcmp("nanoseconds", token) == 0) {
       if (snprintf(
-        numeric_storage, sizeof(numeric_storage),
-        "%" PRId64, timestamp) == 0)
+          numeric_storage, sizeof(numeric_storage),
+          "%" PRId64, timestamp) == 0)
       {
         RCUTILS_SAFE_FWRITE_TO_STDERR("Failed to convert float to string.\n");
         goto cleanup;
