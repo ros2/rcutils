@@ -43,6 +43,7 @@ struct LogEvent
   const rcutils_log_location_t * location;
   int level;
   std::string name;
+  rcutils_time_point_value_t timestamp;
   std::string message;
 };
 LogEvent g_last_log_event;
@@ -56,12 +57,14 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logging) {
 
   auto rcutils_logging_console_output_handler = [](
     const rcutils_log_location_t * location,
-    int level, const char * name, const char * format, va_list * args) -> void
+    int level, const char * name, rcutils_time_point_value_t timestamp,
+    const char * format, va_list * args) -> void
     {
       g_log_calls += 1;
       g_last_log_event.location = location;
       g_last_log_event.level = level;
       g_last_log_event.name = name ? name : "";
+      g_last_log_event.timestamp = timestamp;
       char buffer[1024];
       vsnprintf(buffer, sizeof(buffer), format, *args);
       g_last_log_event.message = buffer;

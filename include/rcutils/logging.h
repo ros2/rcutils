@@ -21,6 +21,7 @@
 
 #include "rcutils/allocator.h"
 #include "rcutils/error_handling.h"
+#include "rcutils/time.h"
 #include "rcutils/types/rcutils_ret.h"
 #include "rcutils/visibility_control.h"
 
@@ -64,6 +65,8 @@ extern bool g_rcutils_logging_initialized;
  *   - `message`, the message string after it has been formatted
  *   - `name`, the full logger name
  *   - `severity`, the name of the severity level, e.g. `INFO`
+ *   - `seconds`, the timestamp of log message in floating point seconds
+ *   - `nanoseconds`, the timestamp of log message in integer nanoseconds
  *
  * The format string can use these tokens by referencing them in curly brackets,
  * e.g. `"[{severity}] [{name}]: {message} ({function_name}() at {file_name}:{line_number})"`.
@@ -192,6 +195,7 @@ rcutils_logging_severity_level_from_string(
  * \param location The pointer to the location struct
  * \param severity The severity level
  * \param name The name of the logger
+ * \param timestamp The timestamp
  * \param format The format string
  * \param args The variable argument list
  */
@@ -199,6 +203,7 @@ typedef void (* rcutils_logging_output_handler_t)(
   const rcutils_log_location_t *,  // location
   int,  // severity
   const char *,  // name
+  rcutils_time_point_value_t,  // timestamp
   const char *,  // format
   va_list *  // args
 );
@@ -453,13 +458,15 @@ void rcutils_log(
  * \param location The pointer to the location struct or NULL
  * \param severity The severity level
  * \param name The name of the logger, must be null terminated c string
+ * \param timestamp The timestamp for when the log message was made
  * \param format The format string for the message contents
  * \param args The variable argument list for the message format string
  */
 RCUTILS_PUBLIC
 void rcutils_logging_console_output_handler(
   const rcutils_log_location_t * location,
-  int severity, const char * name, const char * format, va_list * args);
+  int severity, const char * name, rcutils_time_point_value_t timestamp,
+  const char * format, va_list * args);
 
 // Provide the compiler with branch prediction information
 #ifndef _WIN32
