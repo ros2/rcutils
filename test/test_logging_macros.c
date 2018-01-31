@@ -68,47 +68,62 @@ int main(int argc, char ** argv)
 
   size_t line_number = __LINE__; RCUTILS_LOG_INFO("empty message");
   if (g_log_calls != 1u) {
+    fprintf(stderr, "unexpected number of log calls\n");
     return 3;
   }
   if (NULL == g_last_log_event.location) {
+  if (!g_last_log_event.location) {
+    fprintf(stderr, "location unexpectedly nullptr\n");
     return 4;
   }
   if (strcmp(g_last_log_event.location->function_name, "main")) {
+    fprintf(stderr, "function unexpectedly not 'main'\n");
     return 5;
   }
   if (g_last_log_event.location->line_number != line_number) {
+    fprintf(stderr, "unexpected line number %zu\n", g_last_log_event.location->line_number);
     return 6;
   }
   if (g_last_log_event.severity != RCUTILS_LOG_SEVERITY_INFO) {
+    fprintf(stderr, "severity unexpectedly not RCUTILS_LOG_SEVERITY_INFO\n");
     return 7;
   }
   if (strcmp(g_last_log_event.name, "")) {
+    fprintf(stderr, "name unexpectedly not empty string\n");
     return 8;
   }
   if (strcmp(g_last_log_event.message, "empty message")) {
+    fprintf(stderr, "message unexpectedly not 'empty message'\n");
     return 9;
   }
 
   line_number = __LINE__; RCUTILS_LOG_INFO("message %s", "foo");
   if (g_log_calls != 2u) {
+    fprintf(stderr, "unexpected number of log calls\n");
     return 10;
   }
   if (NULL == g_last_log_event.location) {
+    fprintf(stderr, "location unexpectedly nullptr\n");
     return 11;
   }
   if (strcmp(g_last_log_event.location->function_name, "main")) {
+    fprintf(stderr, "function unexpectedly not 'main'\n");
     return 12;
   }
   if (g_last_log_event.location->line_number != line_number) {
+    fprintf(stderr, "unexpected line number %zu\n", g_last_log_event.location->line_number);
     return 13;
   }
   if (g_last_log_event.severity != RCUTILS_LOG_SEVERITY_INFO) {
+    fprintf(stderr, "severity unexpectedly not RCUTILS_LOG_SEVERITY_INFO\n");
     return 14;
   }
   if (strcmp(g_last_log_event.name, "")) {
+    fprintf(stderr, "name unexpectedly not empty string\n");
     return 15;
   }
   if (strcmp(g_last_log_event.message, "message foo")) {
+    fprintf(stderr, "message unexpectedly not 'empty message'\n");
     return 16;
   }
 
@@ -119,6 +134,7 @@ int main(int argc, char ** argv)
 
   ret = rcutils_logging_shutdown();
   if (ret != RCUTILS_RET_OK || g_rcutils_logging_initialized) {
+    fprintf(stderr, "rcutils_logging_shutdown() unexpectedly failed\n");
     return 17;
   }
 }
