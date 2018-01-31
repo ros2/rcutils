@@ -85,7 +85,7 @@ TEST_F(TestLoggingMacros, test_logging_named) {
   if (g_last_log_event.location) {
     EXPECT_STREQ("TestBody", g_last_log_event.location->function_name);
     EXPECT_THAT(g_last_log_event.location->file_name, EndsWith("test_logging_macros.cpp"));
-    EXPECT_EQ(78u, g_last_log_event.location->line_number);
+    EXPECT_EQ(81u, g_last_log_event.location->line_number);
   }
   EXPECT_EQ(RCUTILS_LOG_SEVERITY_DEBUG, g_last_log_event.level);
   EXPECT_EQ("name", g_last_log_event.name);
