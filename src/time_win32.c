@@ -36,14 +36,14 @@ rcutils_system_time_now(rcutils_time_point_value_t * now)
     now, RCUTILS_RET_INVALID_ARGUMENT, rcutils_get_default_allocator());
   FILETIME ft;
   GetSystemTimePreciseAsFileTime(&ft);
-  ULARGE_INTEGER uli;
-  uli.LowPart = ft.dwLowDateTime;
-  uli.HighPart = ft.dwHighDateTime;
+  LARGE_INTEGER li;
+  li.LowPart = ft.dwLowDateTime;
+  li.HighPart = ft.dwHighDateTime;
   // Adjust for January 1st, 1970, see:
   //   https://support.microsoft.com/en-us/kb/167296
-  uli.QuadPart -= 116444736000000000;
+  li.QuadPart -= 116444736000000000;
   // Convert to nanoseconds from 100's of nanoseconds.
-  *now = uli.QuadPart * 100;
+  *now = li.QuadPart * 100;
   return RCUTILS_RET_OK;
 }
 
@@ -61,8 +61,10 @@ rcutils_steady_time_now(rcutils_time_point_value_t * now)
   QueryPerformanceFrequency(&cpu_frequency);
   QueryPerformanceCounter(&performance_count);
   // Convert to nanoseconds before converting from ticks to avoid precision loss.
-  rcutils_time_point_value_t intermediate = RCUTILS_S_TO_NS(performance_count.QuadPart);
-  *now = intermediate / cpu_frequency.QuadPart;
+  uint64_t intermediate = RCUTILS_S_TO_NS(performance_count.QuadPart);
+  intermediate /= cpu_frequency.QuadPart;
+  // This conversion will overflow if the PC runs >292 years non-stop
+  *now = (rcutils_time_point_value_t)intermediate;
   return RCUTILS_RET_OK;
 }
 

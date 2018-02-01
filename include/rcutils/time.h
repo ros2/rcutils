@@ -41,7 +41,7 @@ extern "C"
 #define RCUTILS_NS_TO_US(nanoseconds) (nanoseconds / 1000)
 
 /// A single point in time, measured in nanoseconds since the Unix epoch.
-typedef uint64_t rcutils_time_point_value_t;
+typedef int64_t rcutils_time_point_value_t;
 /// A duration of time, measured in nanoseconds.
 typedef int64_t rcutils_duration_value_t;
 
