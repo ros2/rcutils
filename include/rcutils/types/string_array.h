@@ -90,7 +90,7 @@ rcutils_ret_t
 rcutils_string_array_init(
   rcutils_string_array_t * string_array,
   size_t size,
-  rcutils_allocator_t * allocator);
+  const rcutils_allocator_t * allocator);
 
 /// Finalize a string array, reclaiming all resources.
 /**

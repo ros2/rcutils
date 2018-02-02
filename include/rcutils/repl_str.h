@@ -129,7 +129,7 @@ rcutils_repl_str(
   const char * str,
   const char * from,
   const char * to,
-  rcutils_allocator_t * allocator);
+  const rcutils_allocator_t * allocator);
 
 // Implementation copied from above mentioned source continues in repl_str.c.
 
