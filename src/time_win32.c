@@ -60,11 +60,18 @@ rcutils_steady_time_now(rcutils_time_point_value_t * now)
   //  thus never return zero."
   QueryPerformanceFrequency(&cpu_frequency);
   QueryPerformanceCounter(&performance_count);
-  // Convert to nanoseconds before converting from ticks to avoid precision loss.
-  uint64_t intermediate = RCUTILS_S_TO_NS(performance_count.QuadPart);
-  intermediate /= cpu_frequency.QuadPart;
+  // Calculate nanoseconds and seconds separately because
+  // otherwise overflow can happen in intermediate calculations
   // This conversion will overflow if the PC runs >292 years non-stop
-  *now = (rcutils_time_point_value_t)intermediate;
+  const rcutils_time_point_value_t whole_seconds =
+    performance_count.QuadPart / cpu_frequency.QuadPart;
+  const rcutils_time_point_value_t remainder_count =
+    performance_count.QuadPart % cpu_frequency.QuadPart;
+  const rcutils_time_point_value_t remainder_ns =
+    RCUTILS_S_TO_NS(remainder_count) / cpu_frequency.QuadPart;
+  const rcutils_time_point_value_t total_ns =
+    RCUTILS_S_TO_NS(whole_seconds) + remainder_ns;
+  *now = total_ns;
   return RCUTILS_RET_OK;
 }
 
