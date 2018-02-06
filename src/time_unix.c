@@ -68,9 +68,29 @@ rcutils_system_time_now(rcutils_time_point_value_t * now)
     RCUTILS_SET_ERROR_MSG("unexpected negative time", rcutils_get_default_allocator());
     return RCUTILS_RET_ERROR;
   }
-  *now = RCUTILS_S_TO_NS((uint64_t)timespec_now.tv_sec) + timespec_now.tv_nsec;
-  return RCUTILS_RET_OK;
+
+  rcutils_time_point_value_t total_seconds_in_ns =
+    RCUTILS_S_TO_NS(timespec_now.tv_sec);
+  bool overflow_happened = timespec_now.tv_sec > (INT64_MAX / 1000000000LL);
+
+  rcutils_time_point_value_t total_ns =
+    total_seconds_in_ns + timespec_now.tv_nsec;
+  overflow_happened = overflow_happened ||
+    ((timespec_now.tv_nsec > 0LL) &&
+    (total_seconds_in_ns > (INT64_MAX - timespec_now.tv_nsec)));
+
+  rcutils_ret_t retval;
+  if (overflow_happened) {
+    RCUTILS_SET_ERROR_MSG("system time overflow", rcutils_get_default_allocator());
+    retval = RCUTILS_RET_ERROR;
+  } else {
+    *now = total_ns;
+    retval = RCUTILS_RET_OK;
+  }
+  return retval;
 }
+
+static _Thread_local rcutils_time_point_value_t last_steady_sample = INT64_MIN;
 
 rcutils_ret_t
 rcutils_steady_time_now(rcutils_time_point_value_t * now)
@@ -100,8 +120,32 @@ rcutils_steady_time_now(rcutils_time_point_value_t * now)
     RCUTILS_SET_ERROR_MSG("unexpected negative time", rcutils_get_default_allocator());
     return RCUTILS_RET_ERROR;
   }
-  *now = RCUTILS_S_TO_NS((uint64_t)timespec_now.tv_sec) + timespec_now.tv_nsec;
-  return RCUTILS_RET_OK;
+
+  rcutils_time_point_value_t total_seconds_in_ns =
+    RCUTILS_S_TO_NS(timespec_now.tv_sec);
+  bool overflow_happened = timespec_now.tv_sec > (INT64_MAX / 1000000000LL);
+
+  rcutils_time_point_value_t total_ns =
+    total_seconds_in_ns + timespec_now.tv_nsec;
+  overflow_happened = overflow_happened ||
+    ((timespec_now.tv_nsec > 0LL) &&
+    (total_seconds_in_ns > (INT64_MAX - timespec_now.tv_nsec)));
+
+  bool non_monotonic = last_steady_sample > total_ns;
+  last_steady_sample = total_ns;
+
+  rcutils_ret_t retval;
+  if (overflow_happened) {
+    RCUTILS_SET_ERROR_MSG("steady time overflow", rcutils_get_default_allocator());
+    retval = RCUTILS_RET_ERROR;
+  } else if (non_monotonic) {
+    RCUTILS_SET_ERROR_MSG("non-monotonic steady time", rcutils_get_default_allocator());
+    retval = RCUTILS_RET_ERROR;
+  } else {
+    *now = total_ns;
+    retval = RCUTILS_RET_OK;
+  }
+  return retval;
 }
 
 #if __cplusplus

@@ -41,11 +41,21 @@ rcutils_system_time_now(rcutils_time_point_value_t * now)
   li.HighPart = ft.dwHighDateTime;
   // Adjust for January 1st, 1970, see:
   //   https://support.microsoft.com/en-us/kb/167296
-  li.QuadPart -= 116444736000000000;
+  li.QuadPart -= 116444736000000000LL;
   // Convert to nanoseconds from 100's of nanoseconds.
-  *now = li.QuadPart * 100;
-  return RCUTILS_RET_OK;
+  // Might overflow!
+  rcutils_ret_t retval;
+  if (li.QuadPart > INT64_MAX / 100LL) {
+    RCUTILS_SET_ERROR_MSG("system time overflow", rcutils_get_default_allocator());
+    retval = RCUTILS_RET_ERROR;
+  } else {
+    *now = li.QuadPart * 100LL;
+    retval = RCUTILS_RET_OK;
+  }
+  return retval;
 }
+
+static __declspec(thread) rcutils_time_point_value_t last_steady_sample = INT64_MIN;
 
 rcutils_ret_t
 rcutils_steady_time_now(rcutils_time_point_value_t * now)
@@ -67,12 +77,37 @@ rcutils_steady_time_now(rcutils_time_point_value_t * now)
     performance_count.QuadPart / cpu_frequency.QuadPart;
   const rcutils_time_point_value_t remainder_count =
     performance_count.QuadPart % cpu_frequency.QuadPart;
+
+  // Might overflow!
   const rcutils_time_point_value_t remainder_ns =
     RCUTILS_S_TO_NS(remainder_count) / cpu_frequency.QuadPart;
-  const rcutils_time_point_value_t total_ns =
-    RCUTILS_S_TO_NS(whole_seconds) + remainder_ns;
-  *now = total_ns;
-  return RCUTILS_RET_OK;
+  bool overflow_happened = remainder_count > (INT64_MAX / 1000000000LL);
+
+  // Might overflow!
+  const rcutils_time_point_value_t total_seconds_in_ns =
+    RCUTILS_S_TO_NS(whole_seconds);
+  overflow_happened = overflow_happened || (whole_seconds > (INT64_MAX / 1000000000LL));
+
+  // Might overflow!
+  const rcutils_time_point_value_t total_ns = total_seconds_in_ns + remainder_ns;
+  overflow_happened = overflow_happened || ((remainder_ns > 0LL) &&
+    (total_seconds_in_ns > (INT64_MAX - remainder_ns)));
+
+  bool non_monotonic = last_steady_sample > total_ns;
+  last_steady_sample = total_ns;
+
+  rcutils_ret_t retval;
+  if (overflow_happened) {
+    RCUTILS_SET_ERROR_MSG("steady time overflow", rcutils_get_default_allocator());
+    retval = RCUTILS_RET_ERROR;
+  } else if (non_monotonic) {
+    RCUTILS_SET_ERROR_MSG("non-monotonic steady time", rcutils_get_default_allocator());
+    retval = RCUTILS_RET_ERROR;
+  } else {
+    *now = total_ns;
+    retval = RCUTILS_RET_OK;
+  }
+  return retval;
 }
 
 #if __cplusplus
