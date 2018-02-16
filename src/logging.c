@@ -56,7 +56,7 @@ bool g_rcutils_logging_severities_map_valid = false;
 
 int g_rcutils_logging_default_logger_level = 0;
 
-rcutils_ret_t rcutils_logging_initialize()
+rcutils_ret_t rcutils_logging_initialize(void)
 {
   return rcutils_logging_initialize_with_allocator(rcutils_get_default_allocator());
 }
@@ -117,7 +117,7 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
   return ret;
 }
 
-rcutils_ret_t rcutils_logging_shutdown()
+rcutils_ret_t rcutils_logging_shutdown(void)
 {
   if (!g_rcutils_logging_initialized) {
     return RCUTILS_RET_OK;
@@ -138,7 +138,7 @@ rcutils_ret_t rcutils_logging_shutdown()
   return ret;
 }
 
-rcutils_logging_output_handler_t rcutils_logging_get_output_handler()
+rcutils_logging_output_handler_t rcutils_logging_get_output_handler(void)
 {
   RCUTILS_LOGGING_AUTOINIT
   return g_rcutils_logging_output_handler;
@@ -152,7 +152,7 @@ void rcutils_logging_set_output_handler(rcutils_logging_output_handler_t functio
   // *INDENT-ON*
 }
 
-int rcutils_logging_get_default_logger_level()
+int rcutils_logging_get_default_logger_level(void)
 {
   RCUTILS_LOGGING_AUTOINIT
   return g_rcutils_logging_default_logger_level;
@@ -175,7 +175,7 @@ int rcutils_logging_get_logger_level(const char * name)
 int rcutils_logging_get_logger_leveln(const char * name, size_t name_length)
 {
   RCUTILS_LOGGING_AUTOINIT
-  if (!name) {
+  if (NULL == name) {
     return -1;
   }
 
@@ -191,7 +191,7 @@ int rcutils_logging_get_logger_leveln(const char * name, size_t name_length)
   // TODO(dhood): replace string map with int map.
   const char * severity_string = rcutils_string_map_getn(
     &g_rcutils_logging_severities_map, name, name_length);
-  if (!severity_string) {
+  if (NULL == severity_string) {
     if (rcutils_string_map_key_existsn(&g_rcutils_logging_severities_map, name, name_length)) {
       // The level has been specified but couldn't be retrieved.
       return -1;
@@ -224,7 +224,7 @@ int rcutils_logging_get_logger_leveln(const char * name, size_t name_length)
 int rcutils_logging_get_logger_effective_level(const char * name)
 {
   RCUTILS_LOGGING_AUTOINIT
-  if (!name) {
+  if (NULL == name) {
     return -1;
   }
   size_t substring_length = strlen(name);
@@ -256,7 +256,7 @@ int rcutils_logging_get_logger_effective_level(const char * name)
 rcutils_ret_t rcutils_logging_set_logger_level(const char * name, int level)
 {
   RCUTILS_LOGGING_AUTOINIT
-  if (!name) {
+  if (NULL == name) {
     RCUTILS_SET_ERROR_MSG(
       "Invalid logger name", g_rcutils_logging_allocator);
     return RCUTILS_RET_INVALID_ARGUMENT;
@@ -282,7 +282,7 @@ rcutils_ret_t rcutils_logging_set_logger_level(const char * name, int level)
     return RCUTILS_RET_INVALID_ARGUMENT;
   }
   const char * severity_string = g_rcutils_log_severity_names[level];
-  if (!severity_string) {
+  if (NULL == severity_string) {
     RCUTILS_SET_ERROR_MSG(
       "Unable to determine severity_string for severity", g_rcutils_logging_allocator);
     return RCUTILS_RET_INVALID_ARGUMENT;
@@ -323,7 +323,7 @@ void rcutils_log(
     return;
   }
   rcutils_logging_output_handler_t output_handler = g_rcutils_logging_output_handler;
-  if (output_handler) {
+  if (output_handler != NULL) {
     va_list args;
     va_start(args, format);
     (*output_handler)(location, severity, name ? name : "", format, &args);
@@ -359,7 +359,7 @@ void rcutils_log(
     if (output_buffer == static_output_buffer) { \
       void * dynamic_output_buffer = g_rcutils_logging_allocator.allocate( \
         output_buffer_size, g_rcutils_logging_allocator.state); \
-      if (!dynamic_output_buffer) { \
+      if (NULL == dynamic_output_buffer) { \
         fprintf(stderr, "failed to allocate buffer for logging output\n"); \
         goto cleanup; \
       } \
@@ -368,7 +368,7 @@ void rcutils_log(
     } else { \
       void * new_dynamic_output_buffer = g_rcutils_logging_allocator.reallocate( \
         output_buffer, output_buffer_size, g_rcutils_logging_allocator.state); \
-      if (!new_dynamic_output_buffer) { \
+      if (NULL == new_dynamic_output_buffer) { \
         fprintf(stderr, "failed to reallocate buffer for logging output\n"); \
         goto cleanup; \
       } \
@@ -411,7 +411,7 @@ void rcutils_logging_console_output_handler(
       return;
   }
   severity_string = g_rcutils_log_severity_names[severity];
-  if (!severity_string) {
+  if (NULL == severity_string) {
     fprintf(stderr, "couldn't determine name for severity level: %d\n", severity);
     return;
   }
@@ -442,7 +442,7 @@ void rcutils_logging_console_output_handler(
     size_t message_buffer_size = written + 1;
     void * dynamic_message_buffer = g_rcutils_logging_allocator.allocate(
       message_buffer_size, g_rcutils_logging_allocator.state);
-    if (!dynamic_message_buffer) {
+    if (NULL == dynamic_message_buffer) {
       fprintf(stderr, "failed to allocate buffer for message\n");
       return;
     }

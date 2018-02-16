@@ -32,15 +32,15 @@ extern "C"
 bool
 rcutils_get_cwd(char * buffer, size_t max_length)
 {
-  if (!buffer) {
+  if (NULL == buffer) {
     return false;
   }
 #ifdef _WIN32
-  if (!_getcwd(buffer, (int)max_length)) {
+  if (NULL == _getcwd(buffer, (int)max_length)) {
     return false;
   }
 #else
-  if (!getcwd(buffer, max_length)) {
+  if (NULL == getcwd(buffer, max_length)) {
     return false;
   }
 #endif  // _WIN32
@@ -144,10 +144,10 @@ rcutils_is_readable_and_writable(const char * abs_path)
 char *
 rcutils_join_path(const char * left_hand_path, const char * right_hand_path)
 {
-  if (!left_hand_path) {
+  if (NULL == left_hand_path) {
     return NULL;
   }
-  if (!right_hand_path) {
+  if (NULL == right_hand_path) {
     return NULL;
   }
 

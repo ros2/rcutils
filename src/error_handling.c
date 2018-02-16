@@ -56,11 +56,11 @@ rcutils_error_state_copy(const rcutils_error_state_t * src, rcutils_error_state_
 {
   dst->allocator = src->allocator;
   dst->message = rcutils_strdup(src->message, dst->allocator);
-  if (!dst->message) {
+  if (NULL == dst->message) {
     return RCUTILS_RET_BAD_ALLOC;
   }
   dst->file = rcutils_strdup(src->file, dst->allocator);
-  if (!dst->file) {
+  if (NULL == dst->file) {
     return RCUTILS_RET_BAD_ALLOC;
   }
   dst->line_number = src->line_number;
@@ -101,7 +101,7 @@ rcutils_set_error_state(
 #endif
   __rcutils_error_state = (rcutils_error_state_t *)allocator.allocate(
     sizeof(rcutils_error_state_t), allocator.state);
-  if (!__rcutils_error_state) {
+  if (NULL == __rcutils_error_state) {
 #if RCUTILS_REPORT_ERROR_HANDLING_ERRORS
     // rcutils_allocate failed, but fwrite might work?
     RCUTILS_SAFE_FWRITE_TO_STDERR(
@@ -119,7 +119,7 @@ rcutils_set_error_state(
   // the memory must be one byte bigger to store the NULL character
   __rcutils_error_state->message =
     (char *)allocator.allocate(error_string_length + 1, allocator.state);
-  if (!__rcutils_error_state->message) {
+  if (NULL == __rcutils_error_state->message) {
 #if RCUTILS_REPORT_ERROR_HANDLING_ERRORS
     // malloc failed, but fwrite might work?
     RCUTILS_SAFE_FWRITE_TO_STDERR(
@@ -175,7 +175,7 @@ rcutils_set_error_state(
 }
 
 const rcutils_error_state_t *
-rcutils_get_error_state()
+rcutils_get_error_state(void)
 {
 #ifdef RCUTILS_THREAD_LOCAL_PTHREAD
   return (rcutils_error_state_t *)pthread_getspecific(__rcutils_error_state_key);
@@ -185,7 +185,7 @@ rcutils_get_error_state()
 }
 
 static void
-format_error_string()
+format_error_string(void)
 {
 #ifdef RCUTILS_THREAD_LOCAL_PTHREAD
   rcutils_error_state_t * __rcutils_error_state =
@@ -207,7 +207,7 @@ format_error_string()
 #ifdef RCUTILS_THREAD_LOCAL_PTHREAD
   pthread_setspecific(__rcutils_error_string_key, __rcutils_error_string);
 #endif
-  if (!__rcutils_error_string) {
+  if (NULL == __rcutils_error_string) {
 #if RCUTILS_REPORT_ERROR_HANDLING_ERRORS
     // rcutils_allocate failed, but fwrite might work?
     RCUTILS_SAFE_FWRITE_TO_STDERR(
@@ -227,12 +227,12 @@ format_error_string()
 }
 
 const char *
-rcutils_get_error_string()
+rcutils_get_error_string(void)
 {
 #ifdef RCUTILS_THREAD_LOCAL_PTHREAD
   char * __rcutils_error_string = (char *)pthread_getspecific(__rcutils_error_string_key);
 #endif
-  if (!__rcutils_error_string) {
+  if (NULL == __rcutils_error_string) {
     format_error_string();
   }
   return __rcutils_error_string;
@@ -245,7 +245,7 @@ __rcutils_error_is_set(rcutils_error_state_t * error_state)
 }
 
 bool
-rcutils_error_is_set()
+rcutils_error_is_set(void)
 {
 #ifdef RCUTILS_THREAD_LOCAL_PTHREAD
   rcutils_error_state_t * __rcutils_error_state =
@@ -255,7 +255,7 @@ rcutils_error_is_set()
 }
 
 const char *
-rcutils_get_error_string_safe()
+rcutils_get_error_string_safe(void)
 {
   if (!rcutils_error_is_set()) {
     return "error not set";
@@ -266,7 +266,7 @@ rcutils_get_error_string_safe()
 void
 __rcutils_reset_error_string(char ** error_string_ptr, rcutils_allocator_t allocator)
 {
-  if (!error_string_ptr) {
+  if (NULL == error_string_ptr) {
     return;
   }
 
@@ -280,7 +280,7 @@ __rcutils_reset_error_string(char ** error_string_ptr, rcutils_allocator_t alloc
     local_allocator = rcutils_get_default_allocator();
   }
   char * error_string = *error_string_ptr;
-  if (error_string) {
+  if (error_string != NULL) {
     local_allocator.deallocate(error_string, local_allocator.state);
   }
   *error_string_ptr = NULL;
@@ -289,11 +289,11 @@ __rcutils_reset_error_string(char ** error_string_ptr, rcutils_allocator_t alloc
 void
 __rcutils_reset_error(rcutils_error_state_t ** error_state_ptr_ptr)
 {
-  if (error_state_ptr_ptr) {
+  if (error_state_ptr_ptr != NULL) {
     rcutils_error_state_t * error_state_ptr = *error_state_ptr_ptr;
-    if (error_state_ptr) {
+    if (error_state_ptr != NULL) {
       rcutils_allocator_t allocator = error_state_ptr->allocator;
-      if (!allocator.deallocate) {
+      if (NULL == allocator.deallocate) {
 #if RCUTILS_REPORT_ERROR_HANDLING_ERRORS
         RCUTILS_SAFE_FWRITE_TO_STDERR(
           "[rcutils|error_handling.c:" RCUTILS_STRINGIFY(__LINE__) "]: "
@@ -301,7 +301,7 @@ __rcutils_reset_error(rcutils_error_state_t ** error_state_ptr_ptr)
 #endif
         allocator = rcutils_get_default_allocator();
       }
-      if (error_state_ptr->message) {
+      if (error_state_ptr->message != NULL) {
         // Cast const away to delete previously allocated memory.
         allocator.deallocate((char *)error_state_ptr->message, allocator.state);
       }
@@ -312,14 +312,14 @@ __rcutils_reset_error(rcutils_error_state_t ** error_state_ptr_ptr)
 }
 
 void
-rcutils_reset_error()
+rcutils_reset_error(void)
 {
 #ifdef RCUTILS_THREAD_LOCAL_PTHREAD
   rcutils_error_state_t * __rcutils_error_state =
     (rcutils_error_state_t *)pthread_getspecific(__rcutils_error_state_key);
   char * __rcutils_error_string = (char *)pthread_getspecific(__rcutils_error_string_key);
 #endif
-  if (__rcutils_error_state) {
+  if (__rcutils_error_state != NULL) {
     __rcutils_reset_error_string(&__rcutils_error_string, __rcutils_error_state->allocator);
   }
   __rcutils_reset_error(&__rcutils_error_state);

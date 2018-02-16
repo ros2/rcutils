@@ -27,7 +27,7 @@ extern "C"
 char *
 rcutils_strdup(const char * str, rcutils_allocator_t allocator)
 {
-  if (!str) {
+  if (NULL == str) {
     return NULL;
   }
   return rcutils_strndup(str, strlen(str), allocator);
@@ -36,11 +36,11 @@ rcutils_strdup(const char * str, rcutils_allocator_t allocator)
 char *
 rcutils_strndup(const char * str, size_t string_length, rcutils_allocator_t allocator)
 {
-  if (!str) {
+  if (NULL == str) {
     return NULL;
   }
   char * new_string = allocator.allocate(string_length + 1, allocator.state);
-  if (!new_string) {
+  if (NULL == new_string) {
     return NULL;
   }
   memcpy(new_string, str, string_length + 1);

@@ -66,7 +66,7 @@ int main(int argc, char ** argv)
   if (g_log_calls != 1u) {
     return 3;
   }
-  if (!g_last_log_event.location) {
+  if (NULL == g_last_log_event.location) {
     return 4;
   }
   if (strcmp(g_last_log_event.location->function_name, "main")) {
@@ -89,7 +89,7 @@ int main(int argc, char ** argv)
   if (g_log_calls != 2u) {
     return 10;
   }
-  if (!g_last_log_event.location) {
+  if (NULL == g_last_log_event.location) {
     return 11;
   }
   if (strcmp(g_last_log_event.location->function_name, "main")) {

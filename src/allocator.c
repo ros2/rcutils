@@ -86,11 +86,11 @@ bool
 rcutils_allocator_is_valid(const rcutils_allocator_t * allocator)
 {
   if (
-    !allocator ||
-    !allocator->allocate ||
-    !allocator->deallocate ||
-    !allocator->zero_allocate ||
-    !allocator->reallocate)
+    NULL == allocator ||
+    NULL == allocator->allocate ||
+    NULL == allocator->deallocate ||
+    NULL == allocator->zero_allocate ||
+    NULL == allocator->reallocate)
   {
     return false;
   }
@@ -110,7 +110,7 @@ rcutils_reallocf(void * pointer, size_t size, rcutils_allocator_t * allocator)
     return NULL;
   }
   void * new_pointer = allocator->reallocate(pointer, size, allocator->state);
-  if (!new_pointer) {
+  if (NULL == new_pointer) {
     allocator->deallocate(pointer, allocator->state);
   }
   return new_pointer;
