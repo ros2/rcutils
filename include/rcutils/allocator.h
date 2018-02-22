@@ -39,6 +39,8 @@ extern "C"
  * until all uses of the allocator have been made.
  * Particular care should be taken when giving an allocator to functions like
  * rcutils_*_init() where it is stored within another object and used later.
+ * Developers should note that, while the fields of a const-qualified allocator
+ * struct cannot be modified, the state of the allocator can be modified.
  */
 typedef struct rcutils_allocator_t
 {
@@ -64,7 +66,11 @@ typedef struct rcutils_allocator_t
   /** An error should be indicated by returning `NULL`. */
   void * (*zero_allocate)(size_t number_of_elements, size_t size_of_element, void * state);
   /// Implementation defined state storage.
-  /** This is passed as the final parameter to other allocator functions. */
+  /**
+   * This is passed as the final parameter to other allocator functions.
+   * Note that the contents of the state can be modified even in const-qualified
+   * allocator objects.
+   */
   void * state;
 } rcutils_allocator_t;
 
