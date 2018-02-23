@@ -29,6 +29,9 @@ extern "C"
 {
 #endif
 
+#define RCUTILS_LOGGING_SEPARATOR_CHAR '.'
+#define RCUTILS_LOGGING_SEPARATOR_STRING "."
+
 /// The flag if the logging system has been initialized.
 RCUTILS_PUBLIC
 extern bool g_rcutils_logging_initialized;
