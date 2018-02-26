@@ -47,7 +47,7 @@ rcutils_repl_str(
   const char * str,
   const char * from,
   const char * to,
-  rcutils_allocator_t * allocator)
+  const rcutils_allocator_t * allocator)
 {
   /* Adjust each of the below values to suit your needs. */
 

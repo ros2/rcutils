@@ -39,7 +39,7 @@ rcutils_ret_t
 rcutils_string_array_init(
   rcutils_string_array_t * string_array,
   size_t size,
-  rcutils_allocator_t * allocator)
+  const rcutils_allocator_t * allocator)
 {
   if (NULL == allocator) {
     RCUTILS_SET_ERROR_MSG("allocator is null", rcutils_get_default_allocator())
