@@ -1,5 +1,5 @@
 # Create the memory_tools library which is used by the tests.
-add_library(${PROJECT_NAME}_memory_tools SHARED memory_tools.cpp)
+add_library(${PROJECT_NAME}_memory_tools memory_tools.cpp)
 if(NOT WIN32)
   # otherwise the compiler will error since the allocator functions have
   # different exception specifiers
@@ -9,7 +9,7 @@ endif()
 if(APPLE)
   # Create an OS X specific version of the memory tools that does interposing.
   # See: http://toves.freeshell.org/interpose/
-  add_library(${PROJECT_NAME}_memory_tools_interpose SHARED memory_tools_osx_interpose.cpp)
+  add_library(${PROJECT_NAME}_memory_tools_interpose memory_tools_osx_interpose.cpp)
   list(APPEND extra_test_libraries ${PROJECT_NAME}_memory_tools_interpose)
   list(APPEND extra_test_env
     DYLD_INSERT_LIBRARIES=$<TARGET_FILE:${PROJECT_NAME}_memory_tools_interpose>)
