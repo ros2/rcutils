@@ -24,6 +24,8 @@ from launch_testing import create_handler
 def test_logging_output_format():
     launch_descriptor = LaunchDescriptor()
 
+    handlers = []
+
     # Re-use the test_logging_long_messages test binary and modify the output format from an
     # environment variable.
     executable = os.path.join(os.getcwd(), 'test_logging_long_messages')
@@ -45,6 +47,7 @@ def test_logging_output_format():
         exit_handler=ignore_exit_handler,
         output_handlers=[ConsoleOutput(), handler],
     )
+    handlers.append(handler)
 
     env_edge_cases = dict(os.environ)
     # This custom output is to check different edge cases of the output format string parsing.
@@ -60,6 +63,7 @@ def test_logging_output_format():
         exit_handler=ignore_exit_handler,
         output_handlers=[ConsoleOutput(), handler],
     )
+    handlers.append(handler)
 
     env_no_tokens = dict(os.environ)
     # This custom output is to check that there are no issues when no tokens are used.
@@ -75,6 +79,23 @@ def test_logging_output_format():
         exit_handler=ignore_exit_handler,
         output_handlers=[ConsoleOutput(), handler],
     )
+    handlers.append(handler)
+
+    env_no_tokens = dict(os.environ)
+    # This custom output is to check that time stamps work correctly
+    env_no_tokens['RCUTILS_CONSOLE_OUTPUT_FORMAT'] = '{time} {time_as_nanoseconds}'
+    name = 'test_logging_output_timestamps'
+    output_file = os.path.join(os.path.dirname(__file__), name)
+    handler = create_handler(name, launch_descriptor, output_file)
+    assert handler, 'Cannot find appropriate handler for %s' % output_file
+    launch_descriptor.add_process(
+        cmd=[executable],
+        env=env_no_tokens,
+        name=name,
+        exit_handler=ignore_exit_handler,
+        output_handlers=[ConsoleOutput(), handler],
+    )
+    handlers.append(handler)
 
     launcher = DefaultLauncher()
     launcher.add_launch_descriptor(launch_descriptor)
@@ -83,7 +104,8 @@ def test_logging_output_format():
     assert rc == 0, \
         "The launch file failed with exit code '" + str(rc) + "'"
 
-    handler.check()
+    for handler in handlers:
+        handler.check()
 
 
 if __name__ == '__main__':

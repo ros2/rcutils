@@ -576,7 +576,11 @@ void rcutils_logging_console_output_handler(
     // The resulting token_expansion string must always be null-terminated.
     const char * token_expansion = NULL;
     // Temporary, local storage for integer/float conversion to string
-    char numeric_storage[256];
+    // Note:
+    //   32 characters enough, because the most it can be is 20 characters
+    //   for the 19 possible digits in a signed 64-bit number plus the optional
+    //   decimal point in the floating point seconds version
+    char numeric_storage[32];
     // Allow 9 digits for the expansion of the line number (otherwise, truncate).
     char line_number_expansion[10];
     if (strcmp("severity", token) == 0) {
@@ -585,21 +589,25 @@ void rcutils_logging_console_output_handler(
       token_expansion = name;
     } else if (strcmp("message", token) == 0) {
       token_expansion = message_buffer;
-    } else if (strcmp("seconds", token) == 0) {
-      if (snprintf(
-          numeric_storage, sizeof(numeric_storage),
-          "%f", timestamp / 1e9) <= 0)
-      {
-        RCUTILS_SAFE_FWRITE_TO_STDERR("Failed to convert float to string.\n");
+    } else if (strcmp("time", token) == 0) {
+      rcutils_ret_t ret = rcutils_time_point_value_as_seconds_string(
+        &timestamp,
+        numeric_storage, sizeof(numeric_storage));
+      if (ret != RCUTILS_RET_OK) {
+        RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string_safe());
+        rcutils_reset_error();
+        RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
         goto cleanup;
       }
       token_expansion = numeric_storage;
-    } else if (strcmp("nanoseconds", token) == 0) {
-      if (snprintf(
-          numeric_storage, sizeof(numeric_storage),
-          "%" PRId64, timestamp) <= 0)
-      {
-        RCUTILS_SAFE_FWRITE_TO_STDERR("Failed to convert float to string.\n");
+    } else if (strcmp("time_as_nanoseconds", token) == 0) {
+      rcutils_ret_t ret = rcutils_time_point_value_as_nanoseconds_string(
+        &timestamp,
+        numeric_storage, sizeof(numeric_storage));
+      if (ret != RCUTILS_RET_OK) {
+        RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string_safe());
+        rcutils_reset_error();
+        RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
         goto cleanup;
       }
       token_expansion = numeric_storage;

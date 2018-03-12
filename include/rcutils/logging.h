@@ -65,8 +65,8 @@ extern bool g_rcutils_logging_initialized;
  *   - `message`, the message string after it has been formatted
  *   - `name`, the full logger name
  *   - `severity`, the name of the severity level, e.g. `INFO`
- *   - `seconds`, the timestamp of log message in floating point seconds
- *   - `nanoseconds`, the timestamp of log message in integer nanoseconds
+ *   - `time`, the timestamp of log message in floating point seconds
+ *   - `time_as_nanoseconds`, the timestamp of log message in integer nanoseconds
  *
  * The format string can use these tokens by referencing them in curly brackets,
  * e.g. `"[{severity}] [{name}]: {message} ({function_name}() at {file_name}:{line_number})"`.
