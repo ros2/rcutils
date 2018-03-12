@@ -83,7 +83,7 @@ def test_logging_output_format():
 
     env_no_tokens = dict(os.environ)
     # This custom output is to check that time stamps work correctly
-    env_no_tokens['RCUTILS_CONSOLE_OUTPUT_FORMAT'] = '{time} {time_as_nanoseconds}'
+    env_no_tokens['RCUTILS_CONSOLE_OUTPUT_FORMAT'] = "'{time}' '{time_as_nanoseconds}'"
     name = 'test_logging_output_timestamps'
     output_file = os.path.join(os.path.dirname(__file__), name)
     handler = create_handler(name, launch_descriptor, output_file)

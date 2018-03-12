@@ -105,9 +105,12 @@ rcutils_steady_time_now(rcutils_time_point_value_t * now);
  * The number is always fixed width, with left padding zeros up to the maximum
  * number of digits the timepoint can represent.
  * Right now that is 19 digits (so 19 characters) for a signed 64-bit integer.
+ * Positive timepoint values will have a leading space, whereas negative values
+ * will have a leading `-`, so they will be aligned regardless of sign.
  *
  * The recommended minimum size of the input string is 32 characters, but
- * 21 should be sufficient for now.
+ * 21 (` ` or `-` for sign, 19 digits, null terminator) should be sufficient
+ * for now.
  * If the given string is not large enough, the result will be truncated.
  * If you need a string with variable width, using `snprintf()` directly is
  * recommended.
@@ -143,10 +146,12 @@ rcutils_time_point_value_as_nanoseconds_string(
  * characteristic (fractional-part) with a fixed width of 9 digits.
  * Right now that means the mantissa is always 10 digits to add up to 19 total
  * for the signed 64-bit timepoint type.
+ * Positive timepoint values will have a leading space, whereas negative values
+ * will have a leading `-`, so they will be aligned regardless of sign.
  *
  * The recommended minimum size of the input string is 32 characters, but
- * 22 (optional `-`, 19 digits, decimal point, null terminator) should be
- * sufficient for now.
+ * 22 (` ` or `-` for sign, 19 digits, decimal point, null terminator) should
+ * be sufficient for now.
  * If the given string is not large enough, the result will be truncated.
  *
  * <hr>
