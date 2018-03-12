@@ -100,6 +100,79 @@ RCUTILS_WARN_UNUSED
 rcutils_ret_t
 rcutils_steady_time_now(rcutils_time_point_value_t * now);
 
+/// Return a timepoint as nanoseconds in a string.
+/**
+ * The number is always fixed width, with left padding zeros up to the maximum
+ * number of digits the timepoint can represent.
+ * Right now that is 19 digits (so 19 characters) for a signed 64-bit integer.
+ *
+ * The recommended minimum size of the input string is 32 characters, but
+ * 21 should be sufficient for now.
+ * If the given string is not large enough, the result will be truncated.
+ * If you need a string with variable width, using `snprintf()` directly is
+ * recommended.
+ *
+ * <hr>
+ * Attribute          | Adherence
+ * ------------------ | -------------
+ * Allocates Memory   | No [1]
+ * Thread-Safe        | Yes
+ * Uses Atomics       | No
+ * Lock-Free          | Yes
+ * <i>[1] if `snprintf()` does not allocate additional memory internally</i>
+ *
+ * \param[in] timepoint the time to be made into a string
+ * \param[out] str the output string in which it is stored
+ * \param[in] str_size the output string in which it is stored
+ * \return `RCUTILS_RET_OK` if successful (even if truncated), or
+ * \return `RCUTILS_RET_INVALID_ARGUMENT` if any arguments are invalid, or
+ * \return `RCUTILS_RET_ERROR` an unspecified error occur.
+ */
+RCUTILS_PUBLIC
+RCUTILS_WARN_UNUSED
+rcutils_ret_t
+rcutils_time_point_value_as_nanoseconds_string(
+  const rcutils_time_point_value_t * timepoint,
+  char * str,
+  size_t str_size);
+
+/// Return a timepoint as floating point seconds in a string.
+/**
+ * The number is always fixed width, with left padding zeros up to the maximum
+ * number of digits for the mantissa that the timepoint can represent and a
+ * characteristic (fractional-part) with a fixed width of 9 digits.
+ * Right now that means the mantissa is always 10 digits to add up to 19 total
+ * for the signed 64-bit timepoint type.
+ *
+ * The recommended minimum size of the input string is 32 characters, but
+ * 22 (optional `-`, 19 digits, decimal point, null terminator) should be
+ * sufficient for now.
+ * If the given string is not large enough, the result will be truncated.
+ *
+ * <hr>
+ * Attribute          | Adherence
+ * ------------------ | -------------
+ * Allocates Memory   | No [1]
+ * Thread-Safe        | Yes
+ * Uses Atomics       | No
+ * Lock-Free          | Yes
+ * <i>[1] if `snprintf()` does not allocate additional memory internally</i>
+ *
+ * \param[in] timepoint the time to be made into a string
+ * \param[out] str the output string in which it is stored
+ * \param[in] str_size the output string in which it is stored
+ * \return `RCUTILS_RET_OK` if successful (even if truncated), or
+ * \return `RCUTILS_RET_INVALID_ARGUMENT` if any arguments are invalid, or
+ * \return `RCUTILS_RET_ERROR` an unspecified error occur.
+ */
+RCUTILS_PUBLIC
+RCUTILS_WARN_UNUSED
+rcutils_ret_t
+rcutils_time_point_value_as_seconds_string(
+  const rcutils_time_point_value_t * timepoint,
+  char * str,
+  size_t str_size);
+
 #ifdef __cplusplus
 }
 #endif

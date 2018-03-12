@@ -44,6 +44,7 @@ set(rcutils_sources
   src/strdup.c
   src/string_array.c
   src/string_map.c
+  src/time.c
   ${time_impl_c}
 )
 set_source_files_properties(

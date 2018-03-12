@@ -114,3 +114,97 @@ TEST_F(TestTimeFixture, test_rcutils_steady_time_now) {
   EXPECT_LE(
     llabs(steady_diff - sc_diff), RCUTILS_MS_TO_NS(k_tolerance_ms)) << "steady_clock differs";
 }
+
+// Tests the rcutils_time_point_value_as_nanoseconds_string() function.
+TEST_F(TestTimeFixture, test_rcutils_time_point_value_as_nanoseconds_string) {
+  rcutils_ret_t ret;
+  rcutils_time_point_value_t timepoint;
+  char buffer[256] = "";
+
+  // Typical use case.
+  timepoint = 100;
+  ret = rcutils_time_point_value_as_nanoseconds_string(&timepoint, buffer, sizeof(buffer));
+  EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+  EXPECT_STREQ("0000000000000000100", buffer);
+
+  // nullptr for timepoint
+  ret = rcutils_time_point_value_as_nanoseconds_string(nullptr, buffer, sizeof(buffer));
+  EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret);
+  rcutils_reset_error();
+
+  // nullptr for string
+  timepoint = 100;
+  ret = rcutils_time_point_value_as_nanoseconds_string(&timepoint, nullptr, 0);
+  EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret);
+  rcutils_reset_error();
+
+  // test truncations
+  timepoint = 100;
+  ret = rcutils_time_point_value_as_nanoseconds_string(&timepoint, buffer, 18);
+  EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+  EXPECT_STREQ("00000000000000001", buffer);
+
+  const char * test_str = "should not be touched";
+  timepoint = 100;
+  strncpy(buffer, test_str, sizeof(buffer));
+  ret = rcutils_time_point_value_as_nanoseconds_string(&timepoint, buffer, 0);
+  EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+  EXPECT_STREQ(test_str, buffer);
+
+  timepoint = 100;
+  ret = rcutils_time_point_value_as_nanoseconds_string(&timepoint, buffer, 1);
+  EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+  EXPECT_STREQ("", buffer);
+
+  timepoint = 100;
+  ret = rcutils_time_point_value_as_nanoseconds_string(&timepoint, buffer, 2);
+  EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+  EXPECT_STREQ("0", buffer);
+}
+
+// Tests the rcutils_time_point_value_as_seconds_string() function.
+TEST_F(TestTimeFixture, test_rcutils_time_point_value_as_seconds_string) {
+  rcutils_ret_t ret;
+  rcutils_time_point_value_t timepoint;
+  char buffer[256] = "";
+
+  // Typical use case.
+  timepoint = 100;
+  ret = rcutils_time_point_value_as_seconds_string(&timepoint, buffer, sizeof(buffer));
+  EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+  EXPECT_STREQ("0000000000.000000100", buffer);
+
+  // nullptr for timepoint
+  ret = rcutils_time_point_value_as_seconds_string(nullptr, buffer, sizeof(buffer));
+  EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret);
+  rcutils_reset_error();
+
+  // nullptr for string
+  timepoint = 100;
+  ret = rcutils_time_point_value_as_seconds_string(&timepoint, nullptr, 0);
+  EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret);
+  rcutils_reset_error();
+
+  // test truncations
+  timepoint = 100;
+  ret = rcutils_time_point_value_as_seconds_string(&timepoint, buffer, 19);
+  EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+  EXPECT_STREQ("0000000000.0000001", buffer);
+
+  const char * test_str = "should not be touched";
+  timepoint = 100;
+  strncpy(buffer, test_str, sizeof(buffer));
+  ret = rcutils_time_point_value_as_seconds_string(&timepoint, buffer, 0);
+  EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+  EXPECT_STREQ(test_str, buffer);
+
+  timepoint = 100;
+  ret = rcutils_time_point_value_as_seconds_string(&timepoint, buffer, 1);
+  EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+  EXPECT_STREQ("", buffer);
+
+  timepoint = 100;
+  ret = rcutils_time_point_value_as_seconds_string(&timepoint, buffer, 2);
+  EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+  EXPECT_STREQ("0", buffer);
+}
