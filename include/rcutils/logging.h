@@ -167,7 +167,7 @@ extern const char * g_rcutils_log_severity_names[RCUTILS_LOG_SEVERITY_FATAL + 1]
  * \param args The variable argument list
  */
 typedef void (* rcutils_logging_output_handler_t)(
-  rcutils_log_location_t *,  // location
+  const rcutils_log_location_t *,  // location
   int,  // severity
   const char *,  // name
   const char *,  // format
@@ -393,7 +393,7 @@ int rcutils_logging_get_logger_effective_level(const char * name);
  */
 RCUTILS_PUBLIC
 void rcutils_log(
-  rcutils_log_location_t * location,
+  const rcutils_log_location_t * location,
   int severity,
   const char * name,
   const char * format,
@@ -425,7 +425,7 @@ void rcutils_log(
  */
 RCUTILS_PUBLIC
 void rcutils_logging_console_output_handler(
-  rcutils_log_location_t * location,
+  const rcutils_log_location_t * location,
   int severity, const char * name, const char * format, va_list * args);
 
 // Provide the compiler with branch prediction information
