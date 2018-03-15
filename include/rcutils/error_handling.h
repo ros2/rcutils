@@ -29,6 +29,7 @@ extern "C"
 #include <string.h>
 
 #include "rcutils/allocator.h"
+#include "rcutils/format_string.h"
 #include "rcutils/macros.h"
 #include "rcutils/types/rcutils_ret.h"
 #include "rcutils/visibility_control.h"
