@@ -571,11 +571,9 @@ void rcutils_logging_console_output_handler(
   }
   fprintf(stream, "%s\n", output_buffer);
 
-   if (g_force_stdout_line_buffered && f == stdout)
-  {
-    int flush_result = fflush(f);
-    if (flush_result != 0 && !g_stdout_flush_failure_reported)
-    {
+  if (g_force_stdout_line_buffered && stream == stdout){
+    int flush_result = fflush(stream);
+    if (flush_result != 0 && !g_stdout_flush_failure_reported){
       g_stdout_flush_failure_reported = true;
       fprintf(stderr, "Error: failed to perform fflush on stdout, fflush return code is %d\n", flush_result);
     }
