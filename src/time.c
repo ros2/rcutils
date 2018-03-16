@@ -32,57 +32,44 @@ RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
 rcutils_ret_t
 rcutils_time_point_value_as_nanoseconds_string(
-  const rcutils_time_point_value_t * timepoint,
+  const rcutils_time_point_value_t * time_point,
   char * str,
   size_t str_size)
 {
   rcutils_allocator_t allocator = rcutils_get_default_allocator();
-  RCUTILS_CHECK_ARGUMENT_FOR_NULL(timepoint, RCUTILS_RET_INVALID_ARGUMENT, allocator)
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(time_point, RCUTILS_RET_INVALID_ARGUMENT, allocator)
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(str, RCUTILS_RET_INVALID_ARGUMENT, allocator)
-  if (*timepoint >= 0) {
-    // have an explicit leading space to align with negative values which start with `-`
-    if (rcutils_snprintf(str, str_size, " %.19" PRId64, *timepoint) <= 0) {
-      RCUTILS_SET_ERROR_MSG("failed to format timepoint into string as nanoseconds", allocator)
-      return RCUTILS_RET_ERROR;
-    }
-  } else {
-    // this code is not deduplicated to preserve compiler warnings about the format string
-    if (rcutils_snprintf(str, str_size, "%.19" PRId64, *timepoint) <= 0) {
-      RCUTILS_SET_ERROR_MSG("failed to format timepoint into string as nanoseconds", allocator)
-      return RCUTILS_RET_ERROR;
-    }
+  if (rcutils_snprintf(str, str_size, "%.19" PRId64, *time_point) <= 0) {
+    RCUTILS_SET_ERROR_MSG("failed to format time point into string as nanoseconds", allocator)
+    return RCUTILS_RET_ERROR;
   }
   return RCUTILS_RET_OK;
 }
 
 rcutils_ret_t
 rcutils_time_point_value_as_seconds_string(
-  const rcutils_time_point_value_t * timepoint,
+  const rcutils_time_point_value_t * time_point,
   char * str,
   size_t str_size)
 {
   rcutils_allocator_t allocator = rcutils_get_default_allocator();
-  RCUTILS_CHECK_ARGUMENT_FOR_NULL(timepoint, RCUTILS_RET_INVALID_ARGUMENT, allocator)
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(time_point, RCUTILS_RET_INVALID_ARGUMENT, allocator)
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(str, RCUTILS_RET_INVALID_ARGUMENT, allocator)
   // best to abs it to avoid issues with negative values in C89, see:
   //   https://stackoverflow.com/a/3604984/671658
-  uint64_t abs_timepoint = llabs(*timepoint);
+  uint64_t abs_time_point = llabs(*time_point);
   // break into two parts to avoid floating point error
-  uint64_t seconds = abs_timepoint / (1000 * 1000 * 1000);
-  uint64_t nanoseconds = abs_timepoint % (1000 * 1000 * 1000);
-  if (*timepoint >= 0) {
-    // have an explicit leading space to align with negative values which start with `-`
-    if (rcutils_snprintf(str, str_size, " %.10" PRId64 ".%.9" PRId64, seconds, nanoseconds) <= 0) {
-      RCUTILS_SET_ERROR_MSG("failed to format timepoint into string as float seconds", allocator)
-      return RCUTILS_RET_ERROR;
-    }
-  } else {
-    // this code is not deduplicated to preserve compiler warnings about the format string
-    if (rcutils_snprintf(str, str_size, "-%.10" PRId64 ".%.9" PRId64, seconds, nanoseconds) <= 0) {
-      RCUTILS_SET_ERROR_MSG("failed to format timepoint into string as float seconds", allocator)
-      return RCUTILS_RET_ERROR;
-    }
+  uint64_t seconds = abs_time_point / (1000 * 1000 * 1000);
+  uint64_t nanoseconds = abs_time_point % (1000 * 1000 * 1000);
+  if (
+    rcutils_snprintf(
+      str, str_size, "%s%.10" PRId64 ".%.9" PRId64,
+      (*time_point >= 0) ? "" : "-", seconds, nanoseconds) <= 0)
+  {
+    RCUTILS_SET_ERROR_MSG("failed to format time point into string as float seconds", allocator)
+    return RCUTILS_RET_ERROR;
   }
+  // if (*time_point >= 0) {
   return RCUTILS_RET_OK;
 }
 

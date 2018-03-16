@@ -100,17 +100,17 @@ RCUTILS_WARN_UNUSED
 rcutils_ret_t
 rcutils_steady_time_now(rcutils_time_point_value_t * now);
 
-/// Return a timepoint as nanoseconds in a string.
+/// Return a time point as nanoseconds in a string.
 /**
  * The number is always fixed width, with left padding zeros up to the maximum
- * number of digits the timepoint can represent.
+ * number of digits the time point can represent.
  * Right now that is 19 digits (so 19 characters) for a signed 64-bit integer.
- * Positive timepoint values will have a leading space, whereas negative values
- * will have a leading `-`, so they will be aligned regardless of sign.
+ * Negative values will have a leading `-`, so they will be one character
+ * longer than the positive values.
  *
  * The recommended minimum size of the input string is 32 characters, but
- * 21 (` ` or `-` for sign, 19 digits, null terminator) should be sufficient
- * for now.
+ * 21 (` ` or `-` for sign, 19 digits, null terminator) should be sufficiently
+ * large for both positive and negative values.
  * If the given string is not large enough, the result will be truncated.
  * If you need a string with variable width, using `snprintf()` directly is
  * recommended.
@@ -124,7 +124,7 @@ rcutils_steady_time_now(rcutils_time_point_value_t * now);
  * Lock-Free          | Yes
  * <i>[1] if `snprintf()` does not allocate additional memory internally</i>
  *
- * \param[in] timepoint the time to be made into a string
+ * \param[in] time_point the time to be made into a string
  * \param[out] str the output string in which it is stored
  * \param[in] str_size the output string in which it is stored
  * \return `RCUTILS_RET_OK` if successful (even if truncated), or
@@ -135,19 +135,19 @@ RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
 rcutils_ret_t
 rcutils_time_point_value_as_nanoseconds_string(
-  const rcutils_time_point_value_t * timepoint,
+  const rcutils_time_point_value_t * time_point,
   char * str,
   size_t str_size);
 
-/// Return a timepoint as floating point seconds in a string.
+/// Return a time point as floating point seconds in a string.
 /**
  * The number is always fixed width, with left padding zeros up to the maximum
- * number of digits for the mantissa that the timepoint can represent and a
+ * number of digits for the mantissa that the time point can represent and a
  * characteristic (fractional-part) with a fixed width of 9 digits.
  * Right now that means the mantissa is always 10 digits to add up to 19 total
- * for the signed 64-bit timepoint type.
- * Positive timepoint values will have a leading space, whereas negative values
- * will have a leading `-`, so they will be aligned regardless of sign.
+ * for the signed 64-bit time point type.
+ * Negative values will have a leading `-`, so they will be one character
+ * longer then positive values.
  *
  * The recommended minimum size of the input string is 32 characters, but
  * 22 (` ` or `-` for sign, 19 digits, decimal point, null terminator) should
@@ -163,7 +163,7 @@ rcutils_time_point_value_as_nanoseconds_string(
  * Lock-Free          | Yes
  * <i>[1] if `snprintf()` does not allocate additional memory internally</i>
  *
- * \param[in] timepoint the time to be made into a string
+ * \param[in] time_point the time to be made into a string
  * \param[out] str the output string in which it is stored
  * \param[in] str_size the output string in which it is stored
  * \return `RCUTILS_RET_OK` if successful (even if truncated), or
@@ -174,7 +174,7 @@ RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
 rcutils_ret_t
 rcutils_time_point_value_as_seconds_string(
-  const rcutils_time_point_value_t * timepoint,
+  const rcutils_time_point_value_t * time_point,
   char * str,
   size_t str_size);
 
