@@ -81,16 +81,16 @@ def test_logging_output_format():
     )
     handlers.append(handler)
 
-    env_no_tokens = dict(os.environ)
+    env_time_tokens = dict(os.environ)
     # This custom output is to check that time stamps work correctly
-    env_no_tokens['RCUTILS_CONSOLE_OUTPUT_FORMAT'] = "'{time}' '{time_as_nanoseconds}'"
+    env_time_tokens['RCUTILS_CONSOLE_OUTPUT_FORMAT'] = "'{time}' '{time_as_nanoseconds}'"
     name = 'test_logging_output_timestamps'
     output_file = os.path.join(os.path.dirname(__file__), name)
     handler = create_handler(name, launch_descriptor, output_file)
     assert handler, 'Cannot find appropriate handler for %s' % output_file
     launch_descriptor.add_process(
         cmd=[executable],
-        env=env_no_tokens,
+        env=env_time_tokens,
         name=name,
         exit_handler=ignore_exit_handler,
         output_handlers=[ConsoleOutput(), handler],
