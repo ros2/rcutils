@@ -69,7 +69,6 @@ rcutils_time_point_value_as_seconds_string(
     RCUTILS_SET_ERROR_MSG("failed to format time point into string as float seconds", allocator)
     return RCUTILS_RET_ERROR;
   }
-  // if (*time_point >= 0) {
   return RCUTILS_RET_OK;
 }
 
