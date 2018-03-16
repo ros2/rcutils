@@ -72,7 +72,6 @@ int main(int argc, char ** argv)
     return 3;
   }
   if (NULL == g_last_log_event.location) {
-  if (!g_last_log_event.location) {
     fprintf(stderr, "location unexpectedly nullptr\n");
     return 4;
   }
