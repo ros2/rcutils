@@ -126,7 +126,7 @@ rcutils_steady_time_now(rcutils_time_point_value_t * now);
  *
  * \param[in] time_point the time to be made into a string
  * \param[out] str the output string in which it is stored
- * \param[in] str_size the output string in which it is stored
+ * \param[in] str_size the size of the output string
  * \return `RCUTILS_RET_OK` if successful (even if truncated), or
  * \return `RCUTILS_RET_INVALID_ARGUMENT` if any arguments are invalid, or
  * \return `RCUTILS_RET_ERROR` an unspecified error occur.
@@ -165,7 +165,7 @@ rcutils_time_point_value_as_nanoseconds_string(
  *
  * \param[in] time_point the time to be made into a string
  * \param[out] str the output string in which it is stored
- * \param[in] str_size the output string in which it is stored
+ * \param[in] str_size the size of the output string
  * \return `RCUTILS_RET_OK` if successful (even if truncated), or
  * \return `RCUTILS_RET_INVALID_ARGUMENT` if any arguments are invalid, or
  * \return `RCUTILS_RET_ERROR` an unspecified error occur.
