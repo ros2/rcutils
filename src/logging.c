@@ -317,7 +317,7 @@ bool rcutils_logging_logger_is_enabled_for(const char * name, int severity)
 }
 
 void rcutils_log(
-  rcutils_log_location_t * location,
+  const rcutils_log_location_t * location,
   int severity, const char * name, const char * format, ...)
 {
   if (!rcutils_logging_logger_is_enabled_for(name, severity)) {
@@ -379,7 +379,7 @@ void rcutils_log(
   }
 
 void rcutils_logging_console_output_handler(
-  rcutils_log_location_t * location,
+  const rcutils_log_location_t * location,
   int severity, const char * name, const char * format, va_list * args)
 {
   if (!g_rcutils_logging_initialized) {

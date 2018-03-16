@@ -21,7 +21,7 @@ size_t g_log_calls = 0;
 
 struct LogEvent
 {
-  rcutils_log_location_t * location;
+  const rcutils_log_location_t * location;
   int severity;
   const char * name;
   char * message;
@@ -29,7 +29,7 @@ struct LogEvent
 struct LogEvent g_last_log_event;
 
 void custom_handler(
-  rcutils_log_location_t * location,
+  const rcutils_log_location_t * location,
   int severity, const char * name, const char * format, va_list * args)
 {
   g_log_calls += 1;

@@ -28,7 +28,7 @@ size_t g_log_calls = 0;
 
 struct LogEvent
 {
-  rcutils_log_location_t * location;
+  const rcutils_log_location_t * location;
   int level;
   std::string name;
   std::string message;
@@ -49,7 +49,7 @@ public:
     EXPECT_EQ(RCUTILS_LOG_SEVERITY_DEBUG, g_rcutils_logging_default_logger_level);
 
     auto rcutils_logging_console_output_handler = [](
-      rcutils_log_location_t * location,
+      const rcutils_log_location_t * location,
       int level, const char * name, const char * format, va_list * args) -> void
       {
         g_log_calls += 1;
