@@ -65,12 +65,21 @@ rcutils_ret_t rcutils_logging_initialize(void)
   const char * line_buffered;
   const char * ret_str = rcutils_get_env("RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED", &line_buffered);
 
-  if (strcmp(line_buffered,"1")) {
-    g_force_stdout_line_buffered = true;
-  }
-  else if (NULL == ret_str || strcmp(output_format, "0") != 0) {
-    fprintf(stderr, "Warning: unexpected value %s specified for RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED. Default value 0 "
-    "will be used. Valid values are 1 or 0.\n", line_buffered.c_str());
+  if (NULL == ret_str) {
+    if (strcmp(line_buffered, "1")) {
+      g_force_stdout_line_buffered = true;
+    } else {
+      if (!strcmp(line_buffered, "0")) {
+        fprintf(stderr,
+          "Warning: unexpected value %s specified for RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED."
+          "Default value 0 will be used. Valid values are 1 or 0.\n",
+          line_buffered);
+      }
+    }
+  } else {
+    if (NULL != ret_str) {
+      fprintf(stderr, "Error getting env var: %s\n", ret_str);
+    }
   }
   return rcutils_logging_initialize_with_allocator(rcutils_get_default_allocator());
 }
@@ -571,11 +580,12 @@ void rcutils_logging_console_output_handler(
   }
   fprintf(stream, "%s\n", output_buffer);
 
-  if (g_force_stdout_line_buffered && stream == stdout){
+  if (g_force_stdout_line_buffered && stream == stdout) {
     int flush_result = fflush(stream);
-    if (flush_result != 0 && !g_stdout_flush_failure_reported){
+    if (flush_result != 0 && !g_stdout_flush_failure_reported) {
       g_stdout_flush_failure_reported = true;
-      fprintf(stderr, "Error: failed to perform fflush on stdout, fflush return code is %d\n", flush_result);
+      fprintf(stderr, "Error: failed to perform fflush on stdout, fflush return code is %d\n",
+        flush_result);
     }
   }
 
