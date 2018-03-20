@@ -74,7 +74,7 @@ extern bool g_rcutils_logging_initialized;
  *
  * \param allocator rcutils_allocator_t to be used.
  * \return `RCUTILS_RET_OK` if successful.
- * \retrun `RCUTILS_RET_INVALID_ARGUMENT` if the allocator is invalid, in which
+ * \return `RCUTILS_RET_INVALID_ARGUMENT` if the allocator is invalid, in which
  *   case initialization will fail.
  * \return `RCUTILS_RET_INVALID_ARGUMENT` if an error occurs reading the output
  *   format from the `RCUTILS_CONSOLE_OUTPUT_FORMAT` environment variable, in
