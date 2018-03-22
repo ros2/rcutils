@@ -11,8 +11,8 @@ if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 14)
 endif()
 
-find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_python REQUIRED)
+find_package(ament_cmake_ros REQUIRED)
 
 ament_python_install_package(${PROJECT_NAME})
 
@@ -78,7 +78,6 @@ include_directories("${CMAKE_CURRENT_BINARY_DIR}/include")
 
 add_library(
   ${PROJECT_NAME}
-  SHARED
   ${rcutils_sources})
 
 # Causes the visibility macros to use dllexport rather than dllimport,
