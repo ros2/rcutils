@@ -77,9 +77,8 @@ rcutils_ret_t rcutils_logging_initialize(void)
       }
     }
   } else {
-    if (NULL != ret_str) {
-      fprintf(stderr, "Error getting env var: %s\n", ret_str);
-    }
+    fprintf(stderr, "Error getting env. variable"
+      "RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED %s\n", ret_str);
   }
   return rcutils_logging_initialize_with_allocator(rcutils_get_default_allocator());
 }
