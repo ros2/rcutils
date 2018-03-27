@@ -71,7 +71,7 @@ rcutils_ret_t rcutils_logging_initialize(void)
     } else {
       if (!strcmp(line_buffered, "0")) {
         fprintf(stderr,
-          "Warning: unexpected value [%s] specified for RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED."
+          "Warning: unexpected value [%s] specified for RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED. "
           "Default value 0 will be used. Valid values are 1 or 0.\n",
           line_buffered);
       }
