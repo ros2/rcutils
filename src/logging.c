@@ -78,7 +78,7 @@ rcutils_ret_t rcutils_logging_initialize(void)
     }
   } else {
     fprintf(stderr, "Error getting env. variable"
-      "RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED: '%s'\n", ret_str);
+      "RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED: %s\n", ret_str);
   }
   return rcutils_logging_initialize_with_allocator(rcutils_get_default_allocator());
 }
@@ -583,7 +583,7 @@ void rcutils_logging_console_output_handler(
     int flush_result = fflush(stream);
     if (flush_result != 0 && !g_stdout_flush_failure_reported) {
       g_stdout_flush_failure_reported = true;
-      fprintf(stderr, "Error: failed to perform fflush on stdout, fflush return code is: '%d'\n",
+      fprintf(stderr, "Error: failed to perform fflush on stdout, fflush return code is: %d\n",
         flush_result);
     }
   }
