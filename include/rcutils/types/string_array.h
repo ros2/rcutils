@@ -15,7 +15,7 @@
 #ifndef RCUTILS__TYPES__STRING_ARRAY_H_
 #define RCUTILS__TYPES__STRING_ARRAY_H_
 
-#if __cplusplus
+#ifdef __cplusplus
 extern "C"
 {
 #endif
@@ -110,7 +110,7 @@ RCUTILS_WARN_UNUSED
 rcutils_ret_t
 rcutils_string_array_fini(rcutils_string_array_t * string_array);
 
-#if __cplusplus
+#ifdef __cplusplus
 }
 #endif
 

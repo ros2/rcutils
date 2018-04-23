@@ -24,7 +24,7 @@
 #include "rcutils/types/rcutils_ret.h"
 #include "rcutils/visibility_control.h"
 
-#if __cplusplus
+#ifdef __cplusplus
 extern "C"
 {
 #endif
@@ -472,7 +472,7 @@ void rcutils_logging_console_output_handler(
     } \
   }
 
-#if __cplusplus
+#ifdef __cplusplus
 }
 #endif
 

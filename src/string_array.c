@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if __cplusplus
+#ifdef __cplusplus
 extern "C"
 {
 #endif
@@ -87,6 +87,6 @@ rcutils_string_array_fini(rcutils_string_array_t * string_array)
   return RCUTILS_RET_OK;
 }
 
-#if __cplusplus
+#ifdef __cplusplus
 }
 #endif

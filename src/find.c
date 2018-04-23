@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if __cplusplus
+#ifdef __cplusplus
 extern "C"
 {
 #endif
@@ -73,6 +73,6 @@ rcutils_find_lastn(const char * str, char delimiter, size_t string_length)
   return str[0] == delimiter ? 0 : SIZE_MAX;
 }
 
-#if __cplusplus
+#ifdef __cplusplus
 }
 #endif

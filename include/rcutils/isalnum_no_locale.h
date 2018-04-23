@@ -15,7 +15,7 @@
 #ifndef RCUTILS__ISALNUM_NO_LOCALE_H_
 #define RCUTILS__ISALNUM_NO_LOCALE_H_
 
-#if __cplusplus
+#ifdef __cplusplus
 extern "C"
 {
 #endif
@@ -40,7 +40,7 @@ rcutils_isalnum_no_locale(char c)
   return false;
 }
 
-#if __cplusplus
+#ifdef __cplusplus
 }
 #endif
 

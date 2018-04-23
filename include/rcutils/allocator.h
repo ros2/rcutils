@@ -15,7 +15,7 @@
 #ifndef RCUTILS__ALLOCATOR_H_
 #define RCUTILS__ALLOCATOR_H_
 
-#if __cplusplus
+#ifdef __cplusplus
 extern "C"
 {
 #endif
@@ -135,7 +135,7 @@ RCUTILS_WARN_UNUSED
 void *
 rcutils_reallocf(void * pointer, size_t size, rcutils_allocator_t * allocator);
 
-#if __cplusplus
+#ifdef __cplusplus
 }
 #endif
 

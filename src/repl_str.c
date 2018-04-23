@@ -25,7 +25,7 @@
 
 // Note: the "tuning" values at the beginning of the function have been left as-is.
 
-#if __cplusplus
+#ifdef __cplusplus
 extern "C"
 {
 #endif
@@ -144,6 +144,6 @@ end_repl_str:
 
 // *INDENT-ON*
 
-#if __cplusplus
+#ifdef __cplusplus
 }
 #endif

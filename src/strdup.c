@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if __cplusplus
+#ifdef __cplusplus
 extern "C"
 {
 #endif
@@ -48,6 +48,6 @@ rcutils_strndup(const char * str, size_t string_length, rcutils_allocator_t allo
   return new_string;
 }
 
-#if __cplusplus
+#ifdef __cplusplus
 }
 #endif

@@ -26,7 +26,7 @@
 #ifndef RCUTILS__REPL_STR_H_
 #define RCUTILS__REPL_STR_H_
 
-#if __cplusplus
+#ifdef __cplusplus
 extern "C"
 {
 #endif
@@ -133,7 +133,7 @@ rcutils_repl_str(
 
 // Implementation copied from above mentioned source continues in repl_str.c.
 
-#if __cplusplus
+#ifdef __cplusplus
 }
 #endif
 

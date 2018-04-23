@@ -15,7 +15,7 @@
 #ifndef RCUTILS__CONCAT_H_
 #define RCUTILS__CONCAT_H_
 
-#if __cplusplus
+#ifdef __cplusplus
 extern "C"
 {
 #endif
@@ -35,7 +35,7 @@ RCUTILS_PUBLIC
 char *
 rcutils_concat(const char * lhs, const char * rhs, const char * delimiter);
 
-#if __cplusplus
+#ifdef __cplusplus
 }
 #endif
 

@@ -16,7 +16,7 @@
 # error time_win32.c is only intended to be used with win32 based systems
 #endif  // _WIN32
 
-#if __cplusplus
+#ifdef __cplusplus
 extern "C"
 {
 #endif
@@ -75,6 +75,6 @@ rcutils_steady_time_now(rcutils_time_point_value_t * now)
   return RCUTILS_RET_OK;
 }
 
-#if __cplusplus
+#ifdef __cplusplus
 }
 #endif

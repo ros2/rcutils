@@ -15,14 +15,14 @@
 #ifndef COMMON_H_
 #define COMMON_H_
 
-#if __cplusplus
+#ifdef __cplusplus
 extern "C"
 {
 #endif
 
 #include "rcutils/error_handling.h"
 
-#if __cplusplus
+#ifdef __cplusplus
 }
 #endif
 

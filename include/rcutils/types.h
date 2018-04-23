@@ -15,7 +15,7 @@
 #ifndef RCUTILS__TYPES_H_
 #define RCUTILS__TYPES_H_
 
-#if __cplusplus
+#ifdef __cplusplus
 extern "C"
 {
 #endif
@@ -24,7 +24,7 @@ extern "C"
 #include "rcutils/types/string_map.h"
 #include "rcutils/types/rcutils_ret.h"
 
-#if __cplusplus
+#ifdef __cplusplus
 }
 #endif
 

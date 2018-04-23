@@ -15,7 +15,7 @@
 #ifndef RCUTILS__SPLIT_H_
 #define RCUTILS__SPLIT_H_
 
-#if __cplusplus
+#ifdef __cplusplus
 extern "C"
 {
 #endif
@@ -59,7 +59,7 @@ rcutils_split_last(
   rcutils_allocator_t allocator,
   rcutils_string_array_t * string_array);
 
-#if __cplusplus
+#ifdef __cplusplus
 }
 #endif
 

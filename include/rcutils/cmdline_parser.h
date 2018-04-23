@@ -15,7 +15,7 @@
 #ifndef RCUTILS__CMDLINE_PARSER_H_
 #define RCUTILS__CMDLINE_PARSER_H_
 
-#if __cplusplus
+#ifdef __cplusplus
 extern "C"
 {
 #endif
@@ -32,7 +32,7 @@ RCUTILS_PUBLIC
 char *
 rcutils_cli_get_option(char ** begin, char ** end, const char * option);
 
-#if __cplusplus
+#ifdef __cplusplus
 }
 #endif
 

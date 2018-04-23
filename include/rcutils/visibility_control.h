@@ -15,7 +15,7 @@
 #ifndef RCUTILS__VISIBILITY_CONTROL_H_
 #define RCUTILS__VISIBILITY_CONTROL_H_
 
-#if __cplusplus
+#ifdef __cplusplus
 extern "C"
 {
 #endif
@@ -51,7 +51,7 @@ extern "C"
   #define RCUTILS_PUBLIC_TYPE
 #endif
 
-#if __cplusplus
+#ifdef __cplusplus
 }
 #endif
 

@@ -15,7 +15,7 @@
 #ifndef RCUTILS__FILESYSTEM_H_
 #define RCUTILS__FILESYSTEM_H_
 
-#if __cplusplus
+#ifdef __cplusplus
 extern "C"
 {
 #endif
@@ -120,7 +120,7 @@ RCUTILS_PUBLIC
 char *
 rcutils_join_path(const char * left_hand_path, const char * right_hand_path);
 
-#if __cplusplus
+#ifdef __cplusplus
 }
 #endif
 

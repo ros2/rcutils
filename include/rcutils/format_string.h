@@ -15,7 +15,7 @@
 #ifndef RCUTILS__FORMAT_STRING_H_
 #define RCUTILS__FORMAT_STRING_H_
 
-#if __cplusplus
+#ifdef __cplusplus
 extern "C"
 {
 #endif
@@ -71,7 +71,7 @@ rcutils_format_string_limit(
   const char * format_string,
   ...);
 
-#if __cplusplus
+#ifdef __cplusplus
 }
 #endif
 

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if __cplusplus
+#ifdef __cplusplus
 extern "C"
 {
 #endif
@@ -55,6 +55,6 @@ rcutils_get_env(const char * env_name, const char ** env_value)
   return NULL;
 }
 
-#if __cplusplus
+#ifdef __cplusplus
 }
 #endif
