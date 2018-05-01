@@ -15,7 +15,7 @@
 #ifndef RCUTILS__GET_ENV_H_
 #define RCUTILS__GET_ENV_H_
 
-#if __cplusplus
+#ifdef __cplusplus
 extern "C"
 {
 #endif
@@ -61,7 +61,7 @@ RCUTILS_WARN_UNUSED
 const char *
 rcutils_get_env(const char * env_name, const char ** env_value);
 
-#if __cplusplus
+#ifdef __cplusplus
 }
 #endif
 

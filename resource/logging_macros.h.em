@@ -24,7 +24,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#if __cplusplus
+#ifdef __cplusplus
 extern "C"
 {
 #endif
@@ -248,7 +248,7 @@ from rcutils.logging import severities
 ///@@}
 
 @[end for]@
-#if __cplusplus
+#ifdef __cplusplus
 }
 #endif
 

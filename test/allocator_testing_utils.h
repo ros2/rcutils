@@ -15,7 +15,7 @@
 #ifndef ALLOCATOR_TESTING_UTILS_H_
 #define ALLOCATOR_TESTING_UTILS_H_
 
-#if __cplusplus
+#ifdef __cplusplus
 extern "C"
 {
 #endif
@@ -76,7 +76,7 @@ set_failing_allocator_is_failing(rcutils_allocator_t & failing_allocator, bool s
   ((__failing_allocator_state *)failing_allocator.state)->is_failing = state;
 }
 
-#if __cplusplus
+#ifdef __cplusplus
 }
 #endif
 

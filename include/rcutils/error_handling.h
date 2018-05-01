@@ -17,7 +17,7 @@
 #ifndef RCUTILS__ERROR_HANDLING_H_
 #define RCUTILS__ERROR_HANDLING_H_
 
-#if __cplusplus
+#ifdef __cplusplus
 extern "C"
 {
 #endif
@@ -213,7 +213,7 @@ RCUTILS_PUBLIC
 void
 rcutils_reset_error(void);
 
-#if __cplusplus
+#ifdef __cplusplus
 }
 #endif
 

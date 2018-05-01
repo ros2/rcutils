@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if __cplusplus
+#ifdef __cplusplus
 extern "C"
 {
 #endif
@@ -160,6 +160,6 @@ rcutils_join_path(const char * left_hand_path, const char * right_hand_path)
   return rcutils_concat(left_hand_path, right_hand_path, delimiter);
 }
 
-#if __cplusplus
+#ifdef __cplusplus
 }
 #endif

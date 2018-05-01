@@ -15,7 +15,7 @@
 #ifndef RCUTILS__STRDUP_H_
 #define RCUTILS__STRDUP_H_
 
-#if __cplusplus
+#ifdef __cplusplus
 extern "C"
 {
 #endif
@@ -67,7 +67,7 @@ RCUTILS_WARN_UNUSED
 char *
 rcutils_strndup(const char * str, size_t string_length, rcutils_allocator_t allocator);
 
-#if __cplusplus
+#ifdef __cplusplus
 }
 #endif
 

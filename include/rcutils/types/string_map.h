@@ -15,7 +15,7 @@
 #ifndef RCUTILS__TYPES__STRING_MAP_H_
 #define RCUTILS__TYPES__STRING_MAP_H_
 
-#if __cplusplus
+#ifdef __cplusplus
 extern "C"
 {
 #endif
@@ -432,7 +432,7 @@ rcutils_string_map_copy(
   const rcutils_string_map_t * src_string_map,
   rcutils_string_map_t * dst_string_map);
 
-#if __cplusplus
+#ifdef __cplusplus
 }
 #endif
 

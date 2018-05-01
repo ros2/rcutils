@@ -15,7 +15,7 @@
 #ifndef RCUTILS__FIND_H_
 #define RCUTILS__FIND_H_
 
-#if __cplusplus
+#ifdef __cplusplus
 extern "C"
 {
 #endif
@@ -79,7 +79,7 @@ RCUTILS_PUBLIC
 size_t
 rcutils_find_lastn(const char * str, char delimiter, size_t string_length);
 
-#if __cplusplus
+#ifdef __cplusplus
 }
 #endif
 

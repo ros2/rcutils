@@ -15,7 +15,7 @@
 #ifndef RCUTILS__TIME_H_
 #define RCUTILS__TIME_H_
 
-#if __cplusplus
+#ifdef __cplusplus
 extern "C"
 {
 #endif
@@ -100,7 +100,7 @@ RCUTILS_WARN_UNUSED
 rcutils_ret_t
 rcutils_steady_time_now(rcutils_time_point_value_t * now);
 
-#if __cplusplus
+#ifdef __cplusplus
 }
 #endif
 

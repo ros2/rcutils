@@ -15,7 +15,7 @@
 #ifndef RCUTILS__SNPRINTF_H_
 #define RCUTILS__SNPRINTF_H_
 
-#if __cplusplus
+#ifdef __cplusplus
 extern "C"
 {
 #endif
@@ -45,7 +45,7 @@ extern "C"
   _vsnprintf_s(buffer, buffer_size, _TRUNCATE, format, __VA_ARGS__)
 #endif
 
-#if __cplusplus
+#ifdef __cplusplus
 }
 #endif
 
