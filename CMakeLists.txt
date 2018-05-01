@@ -63,12 +63,21 @@ configure_file(
 set(rcutils_module_path ${CMAKE_CURRENT_SOURCE_DIR})
 set(python_code
   "import em"
-  "em.invoke(['-o', 'include/rcutils/logging_macros.h', '-D', 'rcutils_module_path=\"${rcutils_module_path}\"', '${CMAKE_CURRENT_SOURCE_DIR}/resource/logging_macros.h.em'])")
+  "\
+em.invoke( \
+  [ \
+    '-o', 'include/rcutils/logging_macros.h', \
+    '-D', 'rcutils_module_path=\"${rcutils_module_path}\"', \
+    '${CMAKE_CURRENT_SOURCE_DIR}/resource/logging_macros.h.em' \
+  ] \
+)")
 string(REPLACE ";" "$<SEMICOLON>" python_code "${python_code}")
 add_custom_command(OUTPUT include/rcutils/logging_macros.h
   COMMAND ${CMAKE_COMMAND} -E make_directory "include/rcutils"
   COMMAND ${PYTHON_EXECUTABLE} ARGS -c "${python_code}"
-  DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/logging_macros.h.em.watch" "${CMAKE_CURRENT_BINARY_DIR}/logging.py.watch"
+  DEPENDS
+    "${CMAKE_CURRENT_BINARY_DIR}/logging_macros.h.em.watch"
+    "${CMAKE_CURRENT_BINARY_DIR}/logging.py.watch"
   COMMENT "Expanding logging_macros.h.em"
   VERBATIM
 )
