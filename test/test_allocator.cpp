@@ -16,7 +16,7 @@
 
 #include "rcutils/allocator.h"
 
-#include "./memory_tools/memory_tools.hpp"
+#include "osrf_testing_tools_cpp/memory_tools/memory_tools.hpp"
 
 #ifdef RMW_IMPLEMENTATION
 # define CLASSNAME_(NAME, SUFFIX) NAME ## __ ## SUFFIX
@@ -25,65 +25,73 @@
 # define CLASSNAME(NAME, SUFFIX) NAME
 #endif
 
+using osrf_testing_tools_cpp::memory_tools::disable_monitoring_in_all_threads;
+using osrf_testing_tools_cpp::memory_tools::enable_monitoring_in_all_threads;
+using osrf_testing_tools_cpp::memory_tools::expect_no_calloc_begin;
+using osrf_testing_tools_cpp::memory_tools::expect_no_free_begin;
+using osrf_testing_tools_cpp::memory_tools::expect_no_malloc_begin;
+using osrf_testing_tools_cpp::memory_tools::expect_no_realloc_begin;
+using osrf_testing_tools_cpp::memory_tools::on_unexpected_calloc;
+using osrf_testing_tools_cpp::memory_tools::on_unexpected_free;
+using osrf_testing_tools_cpp::memory_tools::on_unexpected_malloc;
+using osrf_testing_tools_cpp::memory_tools::on_unexpected_realloc;
+
 class CLASSNAME (TestAllocatorFixture, RMW_IMPLEMENTATION) : public ::testing::Test
 {
 public:
-  CLASSNAME(TestAllocatorFixture, RMW_IMPLEMENTATION)() {
-    start_memory_checking();
-    stop_memory_checking();
-  }
+  CLASSNAME(TestAllocatorFixture, RMW_IMPLEMENTATION)() {}
+
   void SetUp()
   {
-    set_on_unexpected_malloc_callback([]() {EXPECT_FALSE(true) << "UNEXPECTED MALLOC";});
-    set_on_unexpected_realloc_callback([]() {EXPECT_FALSE(true) << "UNEXPECTED REALLOC";});
-    set_on_unexpected_free_callback([]() {EXPECT_FALSE(true) << "UNEXPECTED FREE";});
-    start_memory_checking();
+    osrf_testing_tools_cpp::memory_tools::initialize();
+    enable_monitoring_in_all_threads();
   }
 
   void TearDown()
   {
-    assert_no_malloc_end();
-    assert_no_realloc_end();
-    assert_no_free_end();
-    stop_memory_checking();
-    set_on_unexpected_malloc_callback(nullptr);
-    set_on_unexpected_realloc_callback(nullptr);
-    set_on_unexpected_free_callback(nullptr);
+    disable_monitoring_in_all_threads();
+    osrf_testing_tools_cpp::memory_tools::uninitialize();
   }
 };
 
 /* Tests the default allocator.
  */
 TEST_F(CLASSNAME(TestAllocatorFixture, RMW_IMPLEMENTATION), test_default_allocator_normal) {
-  ASSERT_NO_MALLOC(
+  EXPECT_NO_MALLOC(
     rcutils_allocator_t allocator = rcutils_get_default_allocator();
-  )
+  );
+
   size_t mallocs = 0;
   size_t reallocs = 0;
+  size_t callocs = 0;
   size_t frees = 0;
-  set_on_unexpected_malloc_callback(
-    [&mallocs]() {
-      mallocs++;
-    });
-  set_on_unexpected_realloc_callback(
-    [&reallocs]() {
-      reallocs++;
-    });
-  set_on_unexpected_free_callback(
-    [&frees]() {
-      frees++;
-    });
-  assert_no_malloc_begin();
-  assert_no_realloc_begin();
-  assert_no_free_begin();
-  void * allocated_memory = allocator.allocate(1024, allocator.state);
+  on_unexpected_malloc([&mallocs]() {mallocs++;});
+  on_unexpected_realloc([&reallocs]() {reallocs++;});
+  on_unexpected_calloc([&callocs]() {callocs++;});
+  on_unexpected_free([&frees]() {frees++;});
+
+  void * allocated_memory = nullptr;
+  EXPECT_NO_MEMORY_OPERATIONS({
+    allocated_memory = allocator.allocate(1024, allocator.state);
+  });
   EXPECT_EQ(1u, mallocs);
   EXPECT_NE(nullptr, allocated_memory);
-  allocated_memory = allocator.reallocate(allocated_memory, 2048, allocator.state);
+  EXPECT_NO_MEMORY_OPERATIONS({
+    allocated_memory = allocator.reallocate(allocated_memory, 2048, allocator.state);
+  });
   EXPECT_EQ(1u, reallocs);
   EXPECT_NE(nullptr, allocated_memory);
-  allocator.deallocate(allocated_memory, allocator.state);
+  EXPECT_NO_MEMORY_OPERATIONS({
+    allocator.deallocate(allocated_memory, allocator.state);
+    allocated_memory = allocator.zero_allocate(1024, sizeof(void *), allocator.state);
+  });
+  EXPECT_EQ(1u, callocs);
+  EXPECT_NE(nullptr, allocated_memory);
+  EXPECT_NO_MEMORY_OPERATIONS({
+    allocator.deallocate(allocated_memory, allocator.state);
+  });
   EXPECT_EQ(1u, mallocs);
   EXPECT_EQ(1u, reallocs);
-  EXPECT_EQ(1u, frees);
+  EXPECT_EQ(1u, callocs);
+  EXPECT_EQ(2u, frees);
 }
