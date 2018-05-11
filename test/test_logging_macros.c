@@ -14,6 +14,7 @@
 
 #include <string.h>
 
+#include "rcutils/allocator.h"
 #include "rcutils/logging_macros.h"
 #include "rcutils/types/rcutils_ret.h"
 
@@ -32,15 +33,16 @@ void custom_handler(
   const rcutils_log_location_t * location,
   int severity, const char * name, const char * format, va_list * args)
 {
+  rcutils_allocator_t allocator = rcutils_get_default_allocator();
   g_log_calls += 1;
   g_last_log_event.location = location;
   g_last_log_event.severity = severity;
   g_last_log_event.name = name ? name : "";
   if (g_last_log_event.message) {
-    free(g_last_log_event.message);
+    allocator.deallocate(g_last_log_event.message, allocator.state);
   }
   const size_t size = 1024;
-  g_last_log_event.message = malloc(size);
+  g_last_log_event.message = allocator.allocate(size, allocator.state);
   vsnprintf(g_last_log_event.message, size, format, *args);
 }
 

@@ -16,6 +16,7 @@
 extern "C"
 {
 #endif
+#include "rcutils/filesystem.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,8 +27,8 @@ extern "C"
 #else
 #include <direct.h>
 #endif  // _WIN32
-#include "rcutils/concat.h"
-#include "rcutils/filesystem.h"
+
+#include "rcutils/format_string.h"
 
 bool
 rcutils_get_cwd(char * buffer, size_t max_length)
@@ -142,7 +143,10 @@ rcutils_is_readable_and_writable(const char * abs_path)
 }
 
 char *
-rcutils_join_path(const char * left_hand_path, const char * right_hand_path)
+rcutils_join_path(
+  const char * left_hand_path,
+  const char * right_hand_path,
+  rcutils_allocator_t allocator)
 {
   if (NULL == left_hand_path) {
     return NULL;
@@ -157,7 +161,7 @@ rcutils_join_path(const char * left_hand_path, const char * right_hand_path)
   const char * delimiter = "/";
 #endif  // _WIN32
 
-  return rcutils_concat(left_hand_path, right_hand_path, delimiter);
+  return rcutils_format_string(allocator, "%s%s%s", left_hand_path, delimiter, right_hand_path);
 }
 
 #ifdef __cplusplus

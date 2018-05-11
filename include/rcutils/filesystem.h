@@ -23,6 +23,7 @@ extern "C"
 #include <stdbool.h>
 #include <stddef.h>
 
+#include "rcutils/allocator.h"
 #include "rcutils/macros.h"
 #include "rcutils/visibility_control.h"
 
@@ -108,17 +109,22 @@ rcutils_is_readable_and_writable(const char * abs_path);
 /// Return newly allocated string with arguments separated by correct delimiter for the platform.
 /**
  * This function allocates memory and returns it to the caller.
- * It is up to the caller to release the memory once it is done with it by calling `free`.
+ * It is up to the caller to release the memory once it is done with it by
+ * calling `deallocate` on the same allocator passed here.
  *
  * \param[in] left_hand_path
  * \param[in] right_hand_path
+ * \param[in] allocator
  * \return char * concatenated path on success
  *         NULL on invalid arguments
  *         NULL on failure
  */
 RCUTILS_PUBLIC
 char *
-rcutils_join_path(const char * left_hand_path, const char * right_hand_path);
+rcutils_join_path(
+  const char * left_hand_path,
+  const char * right_hand_path,
+  rcutils_allocator_t allocator);
 
 #ifdef __cplusplus
 }
