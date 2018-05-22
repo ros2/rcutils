@@ -41,9 +41,15 @@ extern "C"
  * > returns the total number of characters (not including the terminating
  * > null-byte) which would have been written, if the limit was not imposed.
  *
+ * If `NULL` and `0` are given for buffer and buffer_size respectively, the
+ * size of the string that would be generated is returned.
+ * Either snprintf() or _vscprintf() is used to calculate this value.
+ *
  * \see snprintf()
  * \see _snprintf_s()
- * \returns -1 if there is an error, but not if there is truncation
+ * \returns the number of bytes that would have been written given enough space,
+ *   or a negative number (usually -1) if there is an error,
+ *   but unlike _snprintf_s(), -1 is not returned if there is truncation.
  */
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED

@@ -21,7 +21,6 @@ extern "C"
 
 #ifdef _WIN32
 #include <errno.h>
-#include <limits.h>
 #include <string.h>
 #endif
 #include <stdarg.h>
@@ -40,20 +39,29 @@ rcutils_snprintf(char * buffer, size_t buffer_size, const char * format, ...)
 int
 rcutils_vsnprintf(char * buffer, size_t buffer_size, const char * format, va_list args)
 {
-  if (
-    !(NULL == buffer && 0 == buffer_size) &&
-    (NULL == buffer || 0 == buffer_size || NULL == format))
-  {
+  if (NULL == format) {
     return -1;
   }
+  if (NULL == buffer && 0 == buffer_size) {
 #ifndef _WIN32
-  int ret = vsnprintf(buffer, buffer_size, format, args);
+    return vsnprintf(NULL, 0, format, args);
 #else
-  int ret = _vsnprintf_s(buffer, buffer_size, _TRUNCATE, format, args);
+    return _vscprintf(format, args);
+#endif
+  }
+  if (NULL == buffer || 0 == buffer_size) {
+    return -1;
+  }
+  int ret;
+#ifndef _WIN32
+  ret = vsnprintf(buffer, buffer_size, format, args);
+#else
+  errno_t errno_ret = _vsnprintf_s(buffer, buffer_size, _TRUNCATE, format, args);
   if (-1 == ret && 0 == errno) {
     // This is the case where truncation has occurred, return how long it would have been.
     return _vscprintf(format, args);
   }
+  ret = errno_ret;
 #endif
   return ret;
 }
