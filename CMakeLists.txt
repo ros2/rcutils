@@ -32,7 +32,6 @@ endif()
 set(rcutils_sources
   src/allocator.c
   src/cmdline_parser.c
-  src/concat.c
   src/error_handling.c
   src/filesystem.c
   src/find.c
@@ -211,13 +210,6 @@ if(BUILD_TESTING)
   )
   if(TARGET test_find)
     target_link_libraries(test_find ${PROJECT_NAME})
-  endif()
-
-  rcutils_custom_add_gtest(test_concat
-    test/test_concat.cpp
-  )
-  if(TARGET test_concat)
-    target_link_libraries(test_concat ${PROJECT_NAME})
   endif()
 
   rcutils_custom_add_gtest(test_string_array
