@@ -33,7 +33,7 @@ extern "C"
  * On Windows this defaults to the _TRUNCATE behavior of _snprintf_s(), but
  * only returns -1 if errno is not 0.
  * Unlike _snprintf_s() which returns -1 when truncation occurs, this function
- * behaves like snprintf() (http://en.cppreference.com/w/cpp/io/c/vfprintf):
+ * behaves like snprintf() (http://en.cppreference.com/w/cpp/io/c/fprintf):
  *
  * > Number of characters written if successful or negative value if an error
  * > occurred.
