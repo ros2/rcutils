@@ -146,7 +146,11 @@ TEST_F(TestTimeFixture, test_rcutils_time_point_value_as_nanoseconds_string) {
 
   const char * test_str = "should not be touched";
   timepoint = 100;
+#ifndef _WIN32
   strncpy(buffer, test_str, sizeof(buffer));
+#else
+  EXPECT_EQ(0, strncpy_s(buffer, sizeof(buffer), test_str, strlen(test_str)));
+#endif
   ret = rcutils_time_point_value_as_nanoseconds_string(&timepoint, buffer, 0);
   EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
   EXPECT_STREQ(test_str, buffer);
@@ -199,7 +203,11 @@ TEST_F(TestTimeFixture, test_rcutils_time_point_value_as_seconds_string) {
 
   const char * test_str = "should not be touched";
   timepoint = 100;
+#ifndef _WIN32
   strncpy(buffer, test_str, sizeof(buffer));
+#else
+  EXPECT_EQ(0, strncpy_s(buffer, sizeof(buffer), test_str, strlen(test_str)));
+#endif
   ret = rcutils_time_point_value_as_seconds_string(&timepoint, buffer, 0);
   EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
   EXPECT_STREQ(test_str, buffer);
