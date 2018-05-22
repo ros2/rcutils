@@ -40,6 +40,7 @@ set(rcutils_sources
   src/get_env.c
   src/logging.c
   src/repl_str.c
+  src/snprintf.c
   src/split.c
   src/strdup.c
   src/string_array.c
@@ -281,6 +282,13 @@ if(BUILD_TESTING)
     ENV ${memory_tools_test_env_vars})
   if(TARGET test_time)
     target_link_libraries(test_time ${PROJECT_NAME} osrf_testing_tools_cpp::memory_tools)
+  endif()
+
+  rcutils_custom_add_gtest(test_snprintf
+    test/test_snprintf.cpp
+  )
+  if(TARGET test_snprintf)
+    target_link_libraries(test_snprintf ${PROJECT_NAME})
   endif()
 endif()
 
