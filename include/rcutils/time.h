@@ -65,7 +65,7 @@ typedef int64_t rcutils_duration_value_t;
  * \param[out] now a datafield in which the current time is stored
  * \return `RCUTILS_RET_OK` if the current time was successfully obtained, or
  * \return `RCUTILS_RET_INVALID_ARGUMENT` if any arguments are invalid, or
- * \return `RCUTILS_RET_ERROR` an unspecified error occur.
+ * \return `RCUTILS_RET_ERROR` if an unspecified error occur.
  */
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
@@ -93,7 +93,7 @@ rcutils_system_time_now(rcutils_time_point_value_t * now);
  * \param[out] now a struct in which the current time is stored
  * \return `RCUTILS_RET_OK` if the current time was successfully obtained, or
  * \return `RCUTILS_RET_INVALID_ARGUMENT` if any arguments are invalid, or
- * \return `RCUTILS_RET_ERROR` an unspecified error occur.
+ * \return `RCUTILS_RET_ERROR` if an unspecified error occur.
  */
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
@@ -129,7 +129,7 @@ rcutils_steady_time_now(rcutils_time_point_value_t * now);
  * \param[in] str_size the size of the output string
  * \return `RCUTILS_RET_OK` if successful (even if truncated), or
  * \return `RCUTILS_RET_INVALID_ARGUMENT` if any arguments are invalid, or
- * \return `RCUTILS_RET_ERROR` an unspecified error occur.
+ * \return `RCUTILS_RET_ERROR` if an unspecified error occur.
  */
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
@@ -168,7 +168,7 @@ rcutils_time_point_value_as_nanoseconds_string(
  * \param[in] str_size the size of the output string
  * \return `RCUTILS_RET_OK` if successful (even if truncated), or
  * \return `RCUTILS_RET_INVALID_ARGUMENT` if any arguments are invalid, or
- * \return `RCUTILS_RET_ERROR` an unspecified error occur.
+ * \return `RCUTILS_RET_ERROR` if an unspecified error occur.
  */
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
