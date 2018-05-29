@@ -48,8 +48,8 @@ extern "C"
  * \see snprintf()
  * \see _snprintf_s()
  * \returns the number of bytes that would have been written given enough space,
- *   or a negative number (usually -1) if there is an error,
- *   but unlike _snprintf_s(), -1 is not returned if there is truncation.
+ *   or a negative number if there is an error, but unlike _snprintf_s(),
+ *   -1 is not returned if there is truncation.
  */
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
