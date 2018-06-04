@@ -164,7 +164,7 @@ rcutils_split_last(
     }
     string_array->data[0] =
       allocator.allocate((found_last - lhs_offset + 2) * sizeof(char), allocator.state);
-    if (NULL == string_array->data) {
+    if (NULL == string_array->data[0]) {
       result_error = RCUTILS_RET_BAD_ALLOC;
       goto fail;
     }
