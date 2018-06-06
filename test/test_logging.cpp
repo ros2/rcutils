@@ -121,22 +121,29 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logging) {
 }
 
 TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_log_severity) {
+  rcutils_allocator_t allocator = rcutils_get_default_allocator();
   int severity;
-  ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_severity_level_from_string("UNSET", &severity));
+  ASSERT_EQ(
+    RCUTILS_RET_OK, rcutils_logging_severity_level_from_string("UNSET", allocator, &severity));
   ASSERT_EQ(RCUTILS_LOG_SEVERITY_UNSET, severity);
-  ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_severity_level_from_string("DEBUG", &severity));
+  ASSERT_EQ(
+    RCUTILS_RET_OK, rcutils_logging_severity_level_from_string("DEBUG", allocator, &severity));
   ASSERT_EQ(RCUTILS_LOG_SEVERITY_DEBUG, severity);
-  ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_severity_level_from_string("INFO", &severity));
+  ASSERT_EQ(
+    RCUTILS_RET_OK, rcutils_logging_severity_level_from_string("INFO", allocator, &severity));
   ASSERT_EQ(RCUTILS_LOG_SEVERITY_INFO, severity);
-  ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_severity_level_from_string("WARN", &severity));
+  ASSERT_EQ(
+    RCUTILS_RET_OK, rcutils_logging_severity_level_from_string("WARN", allocator, &severity));
   ASSERT_EQ(RCUTILS_LOG_SEVERITY_WARN, severity);
-  ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_severity_level_from_string("ERROR", &severity));
+  ASSERT_EQ(
+    RCUTILS_RET_OK, rcutils_logging_severity_level_from_string("ERROR", allocator, &severity));
   ASSERT_EQ(RCUTILS_LOG_SEVERITY_ERROR, severity);
-  ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_severity_level_from_string("FATAL", &severity));
+  ASSERT_EQ(
+    RCUTILS_RET_OK, rcutils_logging_severity_level_from_string("FATAL", allocator, &severity));
   ASSERT_EQ(RCUTILS_LOG_SEVERITY_FATAL, severity);
   ASSERT_EQ(
     RCUTILS_RET_LOGGING_SEVERITY_STRING_INVALID,
-    rcutils_logging_severity_level_from_string("unknown", &severity));
+    rcutils_logging_severity_level_from_string("unknown", allocator, &severity));
 }
 
 TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logger_severities) {

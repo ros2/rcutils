@@ -165,6 +165,7 @@ extern const char * g_rcutils_log_severity_names[RCUTILS_LOG_SEVERITY_FATAL + 1]
  *
  * \param[in] severity_string String representation of the severity, must be a
  *   null terminated c string
+ * \param[in] allocator rcutils_allocator_t to be used
  * \param[in,out] severity The severity level as a represented by the
  *   `RCUTILS_LOG_SEVERITY` enum
  * \return `RCUTILS_RET_OK` if successful, or
@@ -174,7 +175,8 @@ extern const char * g_rcutils_log_severity_names[RCUTILS_LOG_SEVERITY_FATAL + 1]
  * \return `RCUTILS_RET_ERROR` if an unspecified error occured
  */
 rcutils_ret_t
-rcutils_logging_severity_level_from_string(const char * severity_string, int * severity);
+rcutils_logging_severity_level_from_string(
+  const char * severity_string, rcutils_allocator_t allocator, int * severity);
 
 /// The function signature to log messages.
 /**

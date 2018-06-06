@@ -161,8 +161,14 @@ rcutils_ret_t rcutils_logging_shutdown(void)
 }
 
 rcutils_ret_t
-rcutils_logging_severity_level_from_string(const char * severity_string, int * severity)
+rcutils_logging_severity_level_from_string(
+  const char * severity_string, rcutils_allocator_t allocator, int * severity)
 {
+  RCUTILS_CHECK_ALLOCATOR_WITH_MSG(
+    &allocator, "invalid allocator", return RCUTILS_RET_INVALID_ARGUMENT);
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(severity_string, RCUTILS_RET_INVALID_ARGUMENT, allocator);
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(severity, RCUTILS_RET_INVALID_ARGUMENT, allocator);
+
   rcutils_ret_t ret = RCUTILS_RET_LOGGING_SEVERITY_STRING_INVALID;
   // Determine the severity value matching the severity name.
   for (size_t i = 0;
@@ -241,7 +247,9 @@ int rcutils_logging_get_logger_leveln(const char * name, size_t name_length)
   }
 
   int severity;
-  if (RCUTILS_RET_OK != rcutils_logging_severity_level_from_string(severity_string, &severity)) {
+  rcutils_ret_t ret = rcutils_logging_severity_level_from_string(
+    severity_string, g_rcutils_logging_allocator, &severity);
+  if (RCUTILS_RET_OK != ret) {
     fprintf(
       stderr,
       "Logger has an invalid severity level: %s\n", severity_string);
