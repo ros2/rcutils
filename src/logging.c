@@ -160,6 +160,25 @@ rcutils_ret_t rcutils_logging_shutdown(void)
   return ret;
 }
 
+rcutils_ret_t
+rcutils_logging_severity_level_from_string(const char * severity_string, int * severity)
+{
+  rcutils_ret_t ret = RCUTILS_RET_LOGGING_SEVERITY_STRING_INVALID;
+  // Determine the severity value matching the severity name.
+  for (size_t i = 0;
+    i < sizeof(g_rcutils_log_severity_names) / sizeof(g_rcutils_log_severity_names[0]);
+    ++i)
+  {
+    const char * severity_string_i = g_rcutils_log_severity_names[i];
+    if (severity_string_i && strcmp(severity_string_i, severity_string) == 0) {
+      *severity = (enum RCUTILS_LOG_SEVERITY)i;
+      ret = RCUTILS_RET_OK;
+      break;
+    }
+  }
+  return ret;
+}
+
 rcutils_logging_output_handler_t rcutils_logging_get_output_handler(void)
 {
   RCUTILS_LOGGING_AUTOINIT
@@ -221,20 +240,8 @@ int rcutils_logging_get_logger_leveln(const char * name, size_t name_length)
     return RCUTILS_LOG_SEVERITY_UNSET;
   }
 
-  // Determine the severity value matching the severity name.
-  int severity = -1;
-  for (size_t i = 0;
-    i < sizeof(g_rcutils_log_severity_names) / sizeof(g_rcutils_log_severity_names[0]);
-    ++i)
-  {
-    const char * severity_string_i = g_rcutils_log_severity_names[i];
-    if (severity_string_i && strcmp(severity_string_i, severity_string) == 0) {
-      severity = (enum RCUTILS_LOG_SEVERITY)i;
-      break;
-    }
-  }
-
-  if (severity < 0) {
+  int severity;
+  if (RCUTILS_RET_OK != rcutils_logging_severity_level_from_string(severity_string, &severity)) {
     fprintf(
       stderr,
       "Logger has an invalid severity level: %s\n", severity_string);

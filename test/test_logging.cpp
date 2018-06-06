@@ -120,6 +120,25 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logging) {
   EXPECT_FALSE(g_rcutils_logging_initialized);
 }
 
+TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_log_severity) {
+  int severity;
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_severity_level_from_string("UNSET", &severity));
+  ASSERT_EQ(RCUTILS_LOG_SEVERITY_UNSET, severity);
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_severity_level_from_string("DEBUG", &severity));
+  ASSERT_EQ(RCUTILS_LOG_SEVERITY_DEBUG, severity);
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_severity_level_from_string("INFO", &severity));
+  ASSERT_EQ(RCUTILS_LOG_SEVERITY_INFO, severity);
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_severity_level_from_string("WARN", &severity));
+  ASSERT_EQ(RCUTILS_LOG_SEVERITY_WARN, severity);
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_severity_level_from_string("ERROR", &severity));
+  ASSERT_EQ(RCUTILS_LOG_SEVERITY_ERROR, severity);
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_severity_level_from_string("FATAL", &severity));
+  ASSERT_EQ(RCUTILS_LOG_SEVERITY_FATAL, severity);
+  ASSERT_EQ(
+    RCUTILS_RET_LOGGING_SEVERITY_STRING_INVALID,
+    rcutils_logging_severity_level_from_string("unknown", &severity));
+}
+
 TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logger_severities) {
   ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_initialize());
   rcutils_logging_set_default_logger_level(RCUTILS_LOG_SEVERITY_INFO);
