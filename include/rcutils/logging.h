@@ -160,8 +160,9 @@ extern const char * g_rcutils_log_severity_names[RCUTILS_LOG_SEVERITY_FATAL + 1]
 
 /// Get a severity value from its string representation (e.g. DEBUG).
 /**
- * String representation is capitalized, e.g. UNSET, DEBUG, INFO, WARN, ERROR,
- * FATAL.
+ * String representation must match one of the values in
+ * `g_rcutils_log_severity_names`, but is not case-sensitive.
+ * Examples: UNSET, DEBUG, INFO, WARN, Error, fatal.
  *
  * \param[in] severity_string String representation of the severity, must be a
  *   null terminated c string
