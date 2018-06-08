@@ -89,10 +89,14 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logging) {
 
   // check default level
   int original_level = rcutils_logging_get_default_logger_level();
-  rcutils_logging_set_default_logger_level(RCUTILS_LOG_SEVERITY_INFO);
-  EXPECT_EQ(RCUTILS_LOG_SEVERITY_INFO, rcutils_logging_get_default_logger_level());
-  rcutils_log(NULL, RCUTILS_LOG_SEVERITY_DEBUG, "name2", "message %d", 22);
+  rcutils_logging_set_default_logger_level(RCUTILS_LOG_SEVERITY_ERROR);
+  EXPECT_EQ(RCUTILS_LOG_SEVERITY_ERROR, rcutils_logging_get_default_logger_level());
+  rcutils_log(NULL, RCUTILS_LOG_SEVERITY_INFO, "name2", "message %d", 22);
   EXPECT_EQ(1u, g_log_calls);
+  // It shouldn't be possible to set the default logger's level to UNSET.
+  // Setting unset to the default logger should result in the default being restored.
+  rcutils_logging_set_default_logger_level(RCUTILS_LOG_SEVERITY_UNSET);
+  EXPECT_EQ(RCUTILS_DEFAULT_LOGGER_DEFAULT_LEVEL, rcutils_logging_get_default_logger_level());
 
   // check other severity levels
   rcutils_log(NULL, RCUTILS_LOG_SEVERITY_INFO, "name3", "message %d", 33);

@@ -32,6 +32,12 @@ extern "C"
 #define RCUTILS_LOGGING_SEPARATOR_CHAR '.'
 #define RCUTILS_LOGGING_SEPARATOR_STRING "."
 
+/**
+ * \def RCUTILS_DEFAULT_LOGGER_DEFAULT_LEVEL
+ * \brief The default severity level of the default logger.
+ */
+#define RCUTILS_DEFAULT_LOGGER_DEFAULT_LEVEL RCUTILS_LOG_SEVERITY_INFO
+
 /// The flag if the logging system has been initialized.
 RCUTILS_PUBLIC
 extern bool g_rcutils_logging_initialized;
@@ -237,6 +243,10 @@ int rcutils_logging_get_default_logger_level();
 
 /// Set the default severity level for loggers.
 /**
+ * If the severity level requested is `RCUTILS_LOG_SEVERITY_UNSET`, the default
+ * value for the default logger (`RCUTILS_DEFAULT_LOGGER_DEFAULT_LEVEL`)
+ * will be restored instead.
+ *
  * <hr>
  * Attribute          | Adherence
  * ------------------ | -------------

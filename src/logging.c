@@ -95,7 +95,7 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
     g_rcutils_logging_allocator = allocator;
 
     g_rcutils_logging_output_handler = &rcutils_logging_console_output_handler;
-    g_rcutils_logging_default_logger_level = RCUTILS_LOG_SEVERITY_INFO;
+    g_rcutils_logging_default_logger_level = RCUTILS_DEFAULT_LOGGER_DEFAULT_LEVEL;
 
     // Check for the environment variable for custom output formatting
     const char * output_format;
@@ -184,6 +184,10 @@ void rcutils_logging_set_default_logger_level(int level)
 {
   // *INDENT-OFF* (prevent uncrustify from making unnecessary indents here)
   RCUTILS_LOGGING_AUTOINIT
+  if (RCUTILS_LOG_SEVERITY_UNSET == level) {
+    // Restore the default
+    level = RCUTILS_DEFAULT_LOGGER_DEFAULT_LEVEL;
+  }
   g_rcutils_logging_default_logger_level = level;
   // *INDENT-ON*
 }
