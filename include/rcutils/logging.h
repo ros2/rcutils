@@ -175,6 +175,8 @@ extern const char * g_rcutils_log_severity_names[RCUTILS_LOG_SEVERITY_FATAL + 1]
  *   string, or
  * \return `RCUTILS_RET_ERROR` if an unspecified error occured
  */
+RCUTILS_PUBLIC
+RCUTILS_WARN_UNUSED
 rcutils_ret_t
 rcutils_logging_severity_level_from_string(
   const char * severity_string, rcutils_allocator_t allocator, int * severity);
