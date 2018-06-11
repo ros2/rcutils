@@ -167,11 +167,11 @@ if(BUILD_TESTING)
   if(WIN32)
     # (memory tools doesn't do anything on Windows)
     set(SKIP_TEST_IF_WIN32_OR_AARCH64 "SKIP_TEST")
-    # TODO(wjwwood): reenable for ARM (aarch64) when fixed in osrf_testing_tools_cpp
-    # see: https://github.com/osrf/osrf_testing_tools_cpp/issues/3
-    if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
-      set(SKIP_TEST_IF_WIN32_OR_AARCH64 "SKIP_TEST")
-    endif()
+  endif()
+  # TODO(wjwwood): reenable for ARM (aarch64) when fixed in osrf_testing_tools_cpp
+  # see: https://github.com/osrf/osrf_testing_tools_cpp/issues/3
+  if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
+    set(SKIP_TEST_IF_WIN32_OR_AARCH64 "SKIP_TEST")
   endif()
 
   macro(rcutils_custom_add_gtest target)
