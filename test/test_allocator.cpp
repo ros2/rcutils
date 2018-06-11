@@ -27,10 +27,6 @@
 
 using osrf_testing_tools_cpp::memory_tools::disable_monitoring_in_all_threads;
 using osrf_testing_tools_cpp::memory_tools::enable_monitoring_in_all_threads;
-using osrf_testing_tools_cpp::memory_tools::expect_no_calloc_begin;
-using osrf_testing_tools_cpp::memory_tools::expect_no_free_begin;
-using osrf_testing_tools_cpp::memory_tools::expect_no_malloc_begin;
-using osrf_testing_tools_cpp::memory_tools::expect_no_realloc_begin;
 using osrf_testing_tools_cpp::memory_tools::on_unexpected_calloc;
 using osrf_testing_tools_cpp::memory_tools::on_unexpected_free;
 using osrf_testing_tools_cpp::memory_tools::on_unexpected_malloc;
@@ -57,10 +53,6 @@ public:
 /* Tests the default allocator.
  */
 TEST_F(CLASSNAME(TestAllocatorFixture, RMW_IMPLEMENTATION), test_default_allocator_normal) {
-  EXPECT_NO_MALLOC(
-    rcutils_allocator_t allocator = rcutils_get_default_allocator();
-  );
-
   size_t mallocs = 0;
   size_t reallocs = 0;
   size_t callocs = 0;
@@ -69,6 +61,15 @@ TEST_F(CLASSNAME(TestAllocatorFixture, RMW_IMPLEMENTATION), test_default_allocat
   on_unexpected_realloc([&reallocs]() {reallocs++;});
   on_unexpected_calloc([&callocs]() {callocs++;});
   on_unexpected_free([&frees]() {frees++;});
+
+  rcutils_allocator_t allocator;
+  EXPECT_NO_MEMORY_OPERATIONS({
+    allocator = rcutils_get_default_allocator();
+  });
+  EXPECT_EQ(0u, mallocs);
+  EXPECT_EQ(0u, reallocs);
+  EXPECT_EQ(0u, callocs);
+  EXPECT_EQ(0u, frees);
 
   void * allocated_memory = nullptr;
   EXPECT_NO_MEMORY_OPERATIONS({

@@ -25,15 +25,6 @@
 
 using osrf_testing_tools_cpp::memory_tools::disable_monitoring_in_all_threads;
 using osrf_testing_tools_cpp::memory_tools::enable_monitoring_in_all_threads;
-using osrf_testing_tools_cpp::memory_tools::expect_no_calloc_begin;
-using osrf_testing_tools_cpp::memory_tools::expect_no_calloc_end;
-using osrf_testing_tools_cpp::memory_tools::expect_no_free_begin;
-using osrf_testing_tools_cpp::memory_tools::expect_no_free_end;
-using osrf_testing_tools_cpp::memory_tools::expect_no_malloc_begin;
-using osrf_testing_tools_cpp::memory_tools::expect_no_malloc_end;
-using osrf_testing_tools_cpp::memory_tools::expect_no_realloc_begin;
-using osrf_testing_tools_cpp::memory_tools::expect_no_realloc_end;
-using osrf_testing_tools_cpp::memory_tools::MemoryToolsService;
 using osrf_testing_tools_cpp::memory_tools::on_unexpected_calloc;
 using osrf_testing_tools_cpp::memory_tools::on_unexpected_free;
 using osrf_testing_tools_cpp::memory_tools::on_unexpected_malloc;
@@ -50,7 +41,6 @@ public:
     on_unexpected_calloc([]() {FAIL() << "UNEXPECTED CALLOC";});
     on_unexpected_free([]() {FAIL() << "UNEXPECTED FREE";});
     enable_monitoring_in_all_threads();
-    EXPECT_NO_MEMORY_OPERATIONS(;);
   }
 
   void TearDown()
