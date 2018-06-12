@@ -17,6 +17,7 @@ extern "C"
 {
 #endif
 
+#include <ctype.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -27,6 +28,7 @@ extern "C"
 #include "rcutils/get_env.h"
 #include "rcutils/logging.h"
 #include "rcutils/snprintf.h"
+#include "rcutils/strdup.h"
 #include "rcutils/types/string_map.h"
 
 #define RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN 2048
@@ -160,6 +162,44 @@ rcutils_ret_t rcutils_logging_shutdown(void)
   return ret;
 }
 
+rcutils_ret_t
+rcutils_logging_severity_level_from_string(
+  const char * severity_string, rcutils_allocator_t allocator, int * severity)
+{
+  RCUTILS_CHECK_ALLOCATOR_WITH_MSG(
+    &allocator, "invalid allocator", return RCUTILS_RET_INVALID_ARGUMENT);
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(severity_string, RCUTILS_RET_INVALID_ARGUMENT, allocator);
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(severity, RCUTILS_RET_INVALID_ARGUMENT, allocator);
+
+  rcutils_ret_t ret = RCUTILS_RET_LOGGING_SEVERITY_STRING_INVALID;
+
+  // Convert the input string to upper case (for case insensitivity).
+  char * severity_string_upper = rcutils_strdup(severity_string, allocator);
+  if (NULL == severity_string_upper) {
+    RCUTILS_SET_ERROR_MSG(
+      "failed to allocate memory for uppercase string", rcutils_get_default_allocator());
+    return RCUTILS_RET_BAD_ALLOC;
+  }
+  for (int i = 0; severity_string_upper[i]; ++i) {
+    severity_string_upper[i] = toupper(severity_string_upper[i]);
+  }
+
+  // Determine the severity value matching the severity name.
+  for (size_t i = 0;
+    i < sizeof(g_rcutils_log_severity_names) / sizeof(g_rcutils_log_severity_names[0]);
+    ++i)
+  {
+    const char * severity_string_i = g_rcutils_log_severity_names[i];
+    if (severity_string_i && strcmp(severity_string_i, severity_string_upper) == 0) {
+      *severity = (enum RCUTILS_LOG_SEVERITY)i;
+      ret = RCUTILS_RET_OK;
+      break;
+    }
+  }
+  allocator.deallocate(severity_string_upper, allocator.state);
+  return ret;
+}
+
 rcutils_logging_output_handler_t rcutils_logging_get_output_handler(void)
 {
   RCUTILS_LOGGING_AUTOINIT
@@ -225,20 +265,10 @@ int rcutils_logging_get_logger_leveln(const char * name, size_t name_length)
     return RCUTILS_LOG_SEVERITY_UNSET;
   }
 
-  // Determine the severity value matching the severity name.
-  int severity = -1;
-  for (size_t i = 0;
-    i < sizeof(g_rcutils_log_severity_names) / sizeof(g_rcutils_log_severity_names[0]);
-    ++i)
-  {
-    const char * severity_string_i = g_rcutils_log_severity_names[i];
-    if (severity_string_i && strcmp(severity_string_i, severity_string) == 0) {
-      severity = (enum RCUTILS_LOG_SEVERITY)i;
-      break;
-    }
-  }
-
-  if (severity < 0) {
+  int severity;
+  rcutils_ret_t ret = rcutils_logging_severity_level_from_string(
+    severity_string, g_rcutils_logging_allocator, &severity);
+  if (RCUTILS_RET_OK != ret) {
     fprintf(
       stderr,
       "Logger has an invalid severity level: %s\n", severity_string);

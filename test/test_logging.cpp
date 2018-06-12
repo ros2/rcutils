@@ -124,6 +124,41 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logging) {
   EXPECT_FALSE(g_rcutils_logging_initialized);
 }
 
+TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_log_severity) {
+  rcutils_allocator_t allocator = rcutils_get_default_allocator();
+  int severity;
+  // check supported severities
+  ASSERT_EQ(
+    RCUTILS_RET_OK, rcutils_logging_severity_level_from_string("UNSET", allocator, &severity));
+  ASSERT_EQ(RCUTILS_LOG_SEVERITY_UNSET, severity);
+  ASSERT_EQ(
+    RCUTILS_RET_OK, rcutils_logging_severity_level_from_string("DEBUG", allocator, &severity));
+  ASSERT_EQ(RCUTILS_LOG_SEVERITY_DEBUG, severity);
+  ASSERT_EQ(
+    RCUTILS_RET_OK, rcutils_logging_severity_level_from_string("INFO", allocator, &severity));
+  ASSERT_EQ(RCUTILS_LOG_SEVERITY_INFO, severity);
+  ASSERT_EQ(
+    RCUTILS_RET_OK, rcutils_logging_severity_level_from_string("WARN", allocator, &severity));
+  ASSERT_EQ(RCUTILS_LOG_SEVERITY_WARN, severity);
+  ASSERT_EQ(
+    RCUTILS_RET_OK, rcutils_logging_severity_level_from_string("ERROR", allocator, &severity));
+  ASSERT_EQ(RCUTILS_LOG_SEVERITY_ERROR, severity);
+  ASSERT_EQ(
+    RCUTILS_RET_OK, rcutils_logging_severity_level_from_string("FATAL", allocator, &severity));
+  ASSERT_EQ(RCUTILS_LOG_SEVERITY_FATAL, severity);
+  // check case-insensitive severities
+  ASSERT_EQ(
+    RCUTILS_RET_OK, rcutils_logging_severity_level_from_string("info", allocator, &severity));
+  ASSERT_EQ(RCUTILS_LOG_SEVERITY_INFO, severity);
+  ASSERT_EQ(
+    RCUTILS_RET_OK, rcutils_logging_severity_level_from_string("Info", allocator, &severity));
+  ASSERT_EQ(RCUTILS_LOG_SEVERITY_INFO, severity);
+  // check unknown severity
+  ASSERT_EQ(
+    RCUTILS_RET_LOGGING_SEVERITY_STRING_INVALID,
+    rcutils_logging_severity_level_from_string("unknown", allocator, &severity));
+}
+
 TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logger_severities) {
   ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_initialize());
   rcutils_logging_set_default_logger_level(RCUTILS_LOG_SEVERITY_INFO);

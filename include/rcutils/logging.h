@@ -164,6 +164,29 @@ enum RCUTILS_LOG_SEVERITY
 /// The names of severity levels.
 extern const char * g_rcutils_log_severity_names[RCUTILS_LOG_SEVERITY_FATAL + 1];
 
+/// Get a severity value from its string representation (e.g. DEBUG).
+/**
+ * String representation must match one of the values in
+ * `g_rcutils_log_severity_names`, but is not case-sensitive.
+ * Examples: UNSET, DEBUG, INFO, WARN, Error, fatal.
+ *
+ * \param[in] severity_string String representation of the severity, must be a
+ *   null terminated c string
+ * \param[in] allocator rcutils_allocator_t to be used
+ * \param[in,out] severity The severity level as a represented by the
+ *   `RCUTILS_LOG_SEVERITY` enum
+ * \return `RCUTILS_RET_OK` if successful, or
+ * \return `RCUTILS_RET_INVALID_ARGUMENT` on invalid arguments, or
+ * \return `RCUTILS_RET_LOGGING_SEVERITY_STRING_INVALID` if unable to match
+ *   string, or
+ * \return `RCUTILS_RET_ERROR` if an unspecified error occured
+ */
+RCUTILS_PUBLIC
+RCUTILS_WARN_UNUSED
+rcutils_ret_t
+rcutils_logging_severity_level_from_string(
+  const char * severity_string, rcutils_allocator_t allocator, int * severity);
+
 /// The function signature to log messages.
 /**
  * \param location The pointer to the location struct
