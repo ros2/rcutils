@@ -14,56 +14,54 @@
 
 #include <gtest/gtest.h>
 
-#include <inttypes.h>
-
 #include <chrono>
+#include <cinttypes>
 #include <thread>
+
+#include "osrf_testing_tools_cpp/memory_tools/memory_tools.hpp"
 
 #include "rcutils/error_handling.h"
 #include "rcutils/time.h"
 
-#include "./memory_tools/memory_tools.hpp"
+using osrf_testing_tools_cpp::memory_tools::disable_monitoring_in_all_threads;
+using osrf_testing_tools_cpp::memory_tools::enable_monitoring_in_all_threads;
+using osrf_testing_tools_cpp::memory_tools::on_unexpected_calloc;
+using osrf_testing_tools_cpp::memory_tools::on_unexpected_free;
+using osrf_testing_tools_cpp::memory_tools::on_unexpected_malloc;
+using osrf_testing_tools_cpp::memory_tools::on_unexpected_realloc;
 
 class TestTimeFixture : public ::testing::Test
 {
 public:
   void SetUp()
   {
-    set_on_unexpected_malloc_callback([]() {ASSERT_FALSE(true) << "UNEXPECTED MALLOC";});
-    set_on_unexpected_realloc_callback([]() {ASSERT_FALSE(true) << "UNEXPECTED REALLOC";});
-    set_on_unexpected_free_callback([]() {ASSERT_FALSE(true) << "UNEXPECTED FREE";});
-    start_memory_checking();
+    osrf_testing_tools_cpp::memory_tools::initialize();
+    on_unexpected_malloc([]() {FAIL() << "UNEXPECTED MALLOC";});
+    on_unexpected_realloc([]() {FAIL() << "UNEXPECTED REALLOC";});
+    on_unexpected_calloc([]() {FAIL() << "UNEXPECTED CALLOC";});
+    on_unexpected_free([]() {FAIL() << "UNEXPECTED FREE";});
+    enable_monitoring_in_all_threads();
   }
 
   void TearDown()
   {
-    assert_no_malloc_end();
-    assert_no_realloc_end();
-    assert_no_free_end();
-    stop_memory_checking();
-    set_on_unexpected_malloc_callback(nullptr);
-    set_on_unexpected_realloc_callback(nullptr);
-    set_on_unexpected_free_callback(nullptr);
+    disable_monitoring_in_all_threads();
+    osrf_testing_tools_cpp::memory_tools::uninitialize();
   }
 };
 
 // Tests the rcutils_system_time_now() function.
 TEST_F(TestTimeFixture, test_rcutils_system_time_now) {
-  assert_no_realloc_begin();
   rcutils_ret_t ret;
   // Check for invalid argument error condition (allowed to alloc).
   ret = rcutils_system_time_now(nullptr);
   EXPECT_EQ(ret, RCUTILS_RET_INVALID_ARGUMENT) << rcutils_get_error_string_safe();
   rcutils_reset_error();
-  assert_no_malloc_begin();
-  assert_no_free_begin();
   // Check for normal operation (not allowed to alloc).
   rcutils_time_point_value_t now = 0;
-  ret = rcutils_system_time_now(&now);
-  assert_no_malloc_end();
-  assert_no_realloc_end();
-  assert_no_free_end();
-  stop_memory_checking();
+  EXPECT_NO_MEMORY_OPERATIONS({
+    ret = rcutils_system_time_now(&now);
+  });
   EXPECT_EQ(ret, RCUTILS_RET_OK) << rcutils_get_error_string_safe();
   EXPECT_NE(0u, now);
   // Compare to std::chrono::system_clock time (within a second).
@@ -81,33 +79,32 @@ TEST_F(TestTimeFixture, test_rcutils_system_time_now) {
 
 // Tests the rcutils_steady_time_now() function.
 TEST_F(TestTimeFixture, test_rcutils_steady_time_now) {
-  assert_no_realloc_begin();
   rcutils_ret_t ret;
   // Check for invalid argument error condition (allowed to alloc).
   ret = rcutils_steady_time_now(nullptr);
   EXPECT_EQ(ret, RCUTILS_RET_INVALID_ARGUMENT) << rcutils_get_error_string_safe();
   rcutils_reset_error();
-  assert_no_malloc_begin();
-  assert_no_free_begin();
   // Check for normal operation (not allowed to alloc).
   rcutils_time_point_value_t now = 0;
-  ret = rcutils_steady_time_now(&now);
-  assert_no_malloc_end();
-  assert_no_realloc_end();
-  assert_no_free_end();
-  stop_memory_checking();
+  EXPECT_NO_MEMORY_OPERATIONS({
+    ret = rcutils_steady_time_now(&now);
+  });
   EXPECT_EQ(ret, RCUTILS_RET_OK) << rcutils_get_error_string_safe();
   EXPECT_NE(0u, now);
   // Compare to std::chrono::steady_clock difference of two times (within a second).
   now = 0;
-  ret = rcutils_steady_time_now(&now);
+  EXPECT_NO_MEMORY_OPERATIONS({
+    ret = rcutils_steady_time_now(&now);
+  });
   std::chrono::steady_clock::time_point now_sc = std::chrono::steady_clock::now();
   EXPECT_EQ(ret, RCUTILS_RET_OK) << rcutils_get_error_string_safe();
   // Wait for a little while.
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
   // Then take a new timestamp with each and compare.
   rcutils_time_point_value_t later;
-  ret = rcutils_steady_time_now(&later);
+  EXPECT_NO_MEMORY_OPERATIONS({
+    ret = rcutils_steady_time_now(&later);
+  });
   std::chrono::steady_clock::time_point later_sc = std::chrono::steady_clock::now();
   EXPECT_EQ(ret, RCUTILS_RET_OK) << rcutils_get_error_string_safe();
   int64_t steady_diff = later - now;

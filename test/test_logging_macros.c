@@ -62,7 +62,7 @@ int main(int argc, char ** argv)
     rcutils_logging_get_output_handler();
   rcutils_logging_set_output_handler(custom_handler);
 
-  RCUTILS_LOG_INFO("empty message");
+  size_t line_number = __LINE__; RCUTILS_LOG_INFO("empty message");
   if (g_log_calls != 1u) {
     return 3;
   }
@@ -72,7 +72,7 @@ int main(int argc, char ** argv)
   if (strcmp(g_last_log_event.location->function_name, "main")) {
     return 5;
   }
-  if (g_last_log_event.location->line_number != 65u) {
+  if (g_last_log_event.location->line_number != line_number) {
     return 6;
   }
   if (g_last_log_event.severity != RCUTILS_LOG_SEVERITY_INFO) {
@@ -85,7 +85,7 @@ int main(int argc, char ** argv)
     return 9;
   }
 
-  RCUTILS_LOG_INFO("message %s", "foo");
+  line_number = __LINE__; RCUTILS_LOG_INFO("message %s", "foo");
   if (g_log_calls != 2u) {
     return 10;
   }
@@ -95,7 +95,7 @@ int main(int argc, char ** argv)
   if (strcmp(g_last_log_event.location->function_name, "main")) {
     return 12;
   }
-  if (g_last_log_event.location->line_number != 88u) {
+  if (g_last_log_event.location->line_number != line_number) {
     return 13;
   }
   if (g_last_log_event.severity != RCUTILS_LOG_SEVERITY_INFO) {
