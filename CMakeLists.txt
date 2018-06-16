@@ -40,10 +40,12 @@ set(rcutils_sources
   src/get_env.c
   src/logging.c
   src/repl_str.c
+  src/snprintf.c
   src/split.c
   src/strdup.c
   src/string_array.c
   src/string_map.c
+  src/time.c
   ${time_impl_c}
 )
 set_source_files_properties(
@@ -62,7 +64,7 @@ configure_file(
 # generate header with logging macros
 set(rcutils_module_path ${CMAKE_CURRENT_SOURCE_DIR})
 set(python_code
-  "import em"
+  "import em"  # implicitly added ; between python statements due to CMake list
   "\
 em.invoke( \
   [ \
@@ -284,6 +286,13 @@ if(BUILD_TESTING)
     ENV ${memory_tools_test_env_vars})
   if(TARGET test_time)
     target_link_libraries(test_time ${PROJECT_NAME} osrf_testing_tools_cpp::memory_tools)
+  endif()
+
+  rcutils_custom_add_gtest(test_snprintf
+    test/test_snprintf.cpp
+  )
+  if(TARGET test_snprintf)
+    target_link_libraries(test_snprintf ${PROJECT_NAME})
   endif()
 endif()
 

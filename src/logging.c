@@ -18,6 +18,7 @@ extern "C"
 #endif
 
 #include <ctype.h>
+#include <inttypes.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -29,6 +30,7 @@ extern "C"
 #include "rcutils/logging.h"
 #include "rcutils/snprintf.h"
 #include "rcutils/strdup.h"
+#include "rcutils/time.h"
 #include "rcutils/types/string_map.h"
 
 #define RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN 2048
@@ -379,11 +381,17 @@ void rcutils_log(
   if (!rcutils_logging_logger_is_enabled_for(name, severity)) {
     return;
   }
+  rcutils_time_point_value_t now;
+  rcutils_ret_t ret = rcutils_system_time_now(&now);
+  if (ret != RCUTILS_RET_OK) {
+    RCUTILS_SAFE_FWRITE_TO_STDERR("Failed to get timestamp while doing a console logging.\n");
+    return;
+  }
   rcutils_logging_output_handler_t output_handler = g_rcutils_logging_output_handler;
   if (output_handler != NULL) {
     va_list args;
     va_start(args, format);
-    (*output_handler)(location, severity, name ? name : "", format, &args);
+    (*output_handler)(location, severity, name ? name : "", now, format, &args);
     va_end(args);
   }
 }
@@ -436,7 +444,8 @@ void rcutils_log(
 
 void rcutils_logging_console_output_handler(
   const rcutils_log_location_t * location,
-  int severity, const char * name, const char * format, va_list * args)
+  int severity, const char * name, rcutils_time_point_value_t timestamp,
+  const char * format, va_list * args)
 {
   if (!g_rcutils_logging_initialized) {
     fprintf(
@@ -566,6 +575,12 @@ void rcutils_logging_console_output_handler(
     // Expand known tokens into their content strings.
     // The resulting token_expansion string must always be null-terminated.
     const char * token_expansion = NULL;
+    // Temporary, local storage for integer/float conversion to string
+    // Note:
+    //   32 characters enough, because the most it can be is 20 characters
+    //   for the 19 possible digits in a signed 64-bit number plus the optional
+    //   decimal point in the floating point seconds version
+    char numeric_storage[32];
     // Allow 9 digits for the expansion of the line number (otherwise, truncate).
     char line_number_expansion[10];
     if (strcmp("severity", token) == 0) {
@@ -574,6 +589,28 @@ void rcutils_logging_console_output_handler(
       token_expansion = name;
     } else if (strcmp("message", token) == 0) {
       token_expansion = message_buffer;
+    } else if (strcmp("time", token) == 0) {
+      rcutils_ret_t ret = rcutils_time_point_value_as_seconds_string(
+        &timestamp,
+        numeric_storage, sizeof(numeric_storage));
+      if (ret != RCUTILS_RET_OK) {
+        RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string_safe());
+        rcutils_reset_error();
+        RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
+        goto cleanup;
+      }
+      token_expansion = numeric_storage;
+    } else if (strcmp("time_as_nanoseconds", token) == 0) {
+      rcutils_ret_t ret = rcutils_time_point_value_as_nanoseconds_string(
+        &timestamp,
+        numeric_storage, sizeof(numeric_storage));
+      if (ret != RCUTILS_RET_OK) {
+        RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string_safe());
+        rcutils_reset_error();
+        RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
+        goto cleanup;
+      }
+      token_expansion = numeric_storage;
     } else if (strcmp("function_name", token) == 0) {
       token_expansion = location ? location->function_name : "\"\"";
     } else if (strcmp("file_name", token) == 0) {
