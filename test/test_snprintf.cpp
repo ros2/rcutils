@@ -26,6 +26,9 @@ TEST(TestSnprintf, test_snprintf) {
   EXPECT_EQ(static_cast<int>(strlen(test_str)), ret);
   EXPECT_STREQ(test_str, buffer);
 
+  ret = rcutils_snprintf(nullptr, 0, "%s", test_str);
+  EXPECT_EQ(static_cast<int>(strlen(test_str)), ret);
+
   ret = rcutils_snprintf(buffer, 4, "%s", test_str);  // NOLINT(runtime/printf)
   EXPECT_EQ(static_cast<int>(strlen(test_str)), ret);
   EXPECT_STREQ("012", buffer);
