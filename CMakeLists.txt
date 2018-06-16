@@ -65,10 +65,14 @@ configure_file(
 set(rcutils_module_path ${CMAKE_CURRENT_SOURCE_DIR})
 set(python_code
   "import em"  # implicitly added ; between python statements due to CMake list
-  "em.invoke([ \
-  '-o', 'include/rcutils/logging_macros.h', \
-  '-D', 'rcutils_module_path=\"${rcutils_module_path}\"', \
-  '${CMAKE_CURRENT_SOURCE_DIR}/resource/logging_macros.h.em'])")
+  "\
+em.invoke( \
+  [ \
+    '-o', 'include/rcutils/logging_macros.h', \
+    '-D', 'rcutils_module_path=\"${rcutils_module_path}\"', \
+    '${CMAKE_CURRENT_SOURCE_DIR}/resource/logging_macros.h.em' \
+  ] \
+)")
 string(REPLACE ";" "$<SEMICOLON>" python_code "${python_code}")
 add_custom_command(OUTPUT include/rcutils/logging_macros.h
   COMMAND ${CMAKE_COMMAND} -E make_directory "include/rcutils"

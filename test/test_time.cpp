@@ -14,8 +14,6 @@
 
 #include <gtest/gtest.h>
 
-#include <inttypes.h>
-
 #include <algorithm>
 #include <chrono>
 #include <cinttypes>
