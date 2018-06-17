@@ -29,7 +29,7 @@ extern "C"
 
 /// Encapsulation of an allocator.
 /**
- * The default allocator uses std::malloc(), std::free(), std::calloc(), and std::realloc().
+ * The default allocator uses malloc(), free(), calloc(), and realloc().
  * It can be obtained using rcutils_get_default_allocator().
  *
  * The allocator should be trivially copyable.
@@ -47,7 +47,7 @@ typedef struct rcutils_allocator_t
   /// Allocate memory, given a size and the `state` pointer.
   /** An error should be indicated by returning `NULL`. */
   void * (*allocate)(size_t size, void * state);
-  /// Deallocate previously allocated memory, mimicking std::free().
+  /// Deallocate previously allocated memory, mimicking free().
   /** Also takes the `state` pointer. */
   void (* deallocate)(void * pointer, void * state);
   /// Reallocate if possible, otherwise it deallocates and allocates.
@@ -55,9 +55,9 @@ typedef struct rcutils_allocator_t
    * Also takes the `state` pointer.
    *
    * If unsupported then do deallocate and then allocate.
-   * This should behave as std::realloc() does, as opposed to posix's
+   * This should behave as realloc() does, as opposed to posix's
    * [reallocf](https://linux.die.net/man/3/reallocf), i.e. the memory given
-   * by pointer will not be free'd automatically if std::realloc() fails.
+   * by pointer will not be free'd automatically if realloc() fails.
    * For reallocf-like behavior use rcutils_reallocf().
    * This function must be able to take an input pointer of `NULL` and succeed.
    */
@@ -87,9 +87,10 @@ rcutils_get_zero_initialized_allocator(void);
 /**
  * This defaults to:
  *
- * - allocate = wraps std::malloc()
- * - deallocate = wraps std::free()
- * - reallocate = wrapps std::realloc()
+ * - allocate = wraps malloc()
+ * - deallocate = wraps free()
+ * - reallocate = wraps realloc()
+ * - zero_allocate = wraps calloc()
  * - state = `NULL`
  *
  * <hr>

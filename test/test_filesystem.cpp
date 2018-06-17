@@ -17,93 +17,193 @@
 
 #include "rcutils/filesystem.h"
 
-static char cwd[1024];
+#include "osrf_testing_tools_cpp/scope_exit.hpp"
 
-TEST(test_filesystem, join_path) {
-  char * path = rcutils_join_path("foo", "bar");
+static rcutils_allocator_t g_allocator = rcutils_get_default_allocator();
+
+class TestFilesystemFixture : public ::testing::Test
+{
+public:
+  void SetUp()
+  {
+    EXPECT_TRUE(rcutils_get_cwd(this->cwd, sizeof(this->cwd)));
+
+    test_path = rcutils_join_path(this->cwd, "test", g_allocator);
+    ASSERT_FALSE(nullptr == test_path);
+  }
+
+  void TearDown()
+  {
+    g_allocator.deallocate(test_path, g_allocator.state);
+  }
+
+  char cwd[1024];
+  char * test_path = nullptr;
+};
+
+TEST_F(TestFilesystemFixture, get_cwd_nullptr) {
+  EXPECT_FALSE(rcutils_get_cwd(NULL, sizeof(this->cwd)));
+}
+
+TEST_F(TestFilesystemFixture, join_path) {
+  char * path = rcutils_join_path("foo", "bar", g_allocator);
+  OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+    g_allocator.deallocate(path, g_allocator.state);
+  });
 #ifdef _WIN32
   const char * ref_str = "foo\\bar";
 #else
   const char * ref_str = "foo/bar";
 #endif  // _WIN32
-  EXPECT_FALSE(NULL == path);
+  ASSERT_FALSE(nullptr == path);
   EXPECT_STREQ(ref_str, path);
 }
 
-TEST(test_filesystem, exists) {
-  EXPECT_FALSE(rcutils_get_cwd(NULL, 1024));
-  EXPECT_TRUE(rcutils_get_cwd(cwd, 1024));
-  char * path = rcutils_join_path(cwd, "test");
-  path = rcutils_join_path(path, "dummy_readable_file.txt");
-  EXPECT_TRUE(rcutils_exists(path));
-  path = rcutils_join_path(cwd, "test");
-  path = rcutils_join_path(path, "dummy_folder");
-  EXPECT_TRUE(rcutils_exists(path));
+TEST_F(TestFilesystemFixture, exists) {
+  {
+    char * path = rcutils_join_path(this->test_path, "dummy_readable_file.txt", g_allocator);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      g_allocator.deallocate(path, g_allocator.state);
+    });
+    ASSERT_FALSE(nullptr == path);
+    EXPECT_TRUE(rcutils_exists(path));
+  }
+  {
+    char * path = rcutils_join_path(this->test_path, "dummy_folder", g_allocator);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      g_allocator.deallocate(path, g_allocator.state);
+    });
+    ASSERT_FALSE(nullptr == path);
+    EXPECT_TRUE(rcutils_exists(path));
+  }
 }
 
-TEST(test_filesystem, is_directory) {
-  EXPECT_TRUE(rcutils_get_cwd(cwd, 1024));
-  char * path = rcutils_join_path(cwd, "test");
-  path = rcutils_join_path(path, "dummy_readable_file.txt");
-  EXPECT_FALSE(rcutils_is_directory(path));
-  path = rcutils_join_path(cwd, "test");
-  path = rcutils_join_path(path, "dummy_folder");
-  EXPECT_TRUE(rcutils_is_directory(path));
+TEST_F(TestFilesystemFixture, is_directory) {
+  {
+    char * path = rcutils_join_path(this->test_path, "dummy_readable_file.txt", g_allocator);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      g_allocator.deallocate(path, g_allocator.state);
+    });
+    ASSERT_FALSE(nullptr == path);
+    EXPECT_FALSE(rcutils_is_directory(path));
+  }
+  {
+    char * path = rcutils_join_path(this->test_path, "dummy_folder", g_allocator);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      g_allocator.deallocate(path, g_allocator.state);
+    });
+    ASSERT_FALSE(nullptr == path);
+    EXPECT_TRUE(rcutils_is_directory(path));
+  }
 }
 
-TEST(test_filesystem, is_file) {
-  EXPECT_TRUE(rcutils_get_cwd(cwd, 1024));
-  char * path = rcutils_join_path(cwd, "test");
-  path = rcutils_join_path(path, "dummy_readable_file.txt");
-  EXPECT_TRUE(rcutils_is_file(path));
-  path = rcutils_join_path(cwd, "test");
-  path = rcutils_join_path(path, "dummy_folder");
-  EXPECT_FALSE(rcutils_is_file(path));
+TEST_F(TestFilesystemFixture, is_file) {
+  {
+    char * path = rcutils_join_path(this->test_path, "dummy_readable_file.txt", g_allocator);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      g_allocator.deallocate(path, g_allocator.state);
+    });
+    ASSERT_FALSE(nullptr == path);
+    EXPECT_TRUE(rcutils_is_file(path));
+  }
+  {
+    char * path = rcutils_join_path(this->test_path, "dummy_folder", g_allocator);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      g_allocator.deallocate(path, g_allocator.state);
+    });
+    ASSERT_FALSE(nullptr == path);
+    EXPECT_FALSE(rcutils_is_file(path));
+  }
 }
 
-TEST(test_filesystem, is_readable) {
-  EXPECT_TRUE(rcutils_get_cwd(cwd, 1024));
-  char * path = rcutils_join_path(cwd, "test");
-  path = rcutils_join_path(path, "dummy_readable_file.txt");
-  EXPECT_TRUE(rcutils_is_readable(path));
-  path = rcutils_join_path(cwd, "test");
-  path = rcutils_join_path(path, "dummy_folder");
-  EXPECT_TRUE(rcutils_is_readable(path));
-  path = rcutils_join_path(cwd, "test");
-  path = rcutils_join_path(path, "dummy_readable_writable_file.txt");
-  EXPECT_TRUE(rcutils_is_readable(path));
-  path = rcutils_join_path(cwd, "test");
-  path = rcutils_join_path(path, "dummy_nonexisting_file.txt");
-  EXPECT_FALSE(rcutils_is_readable(path));
+TEST_F(TestFilesystemFixture, is_readable) {
+  {
+    char * path = rcutils_join_path(this->test_path, "dummy_readable_file.txt", g_allocator);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      g_allocator.deallocate(path, g_allocator.state);
+    });
+    ASSERT_FALSE(nullptr == path);
+    EXPECT_TRUE(rcutils_is_readable(path));
+  }
+  {
+    char * path = rcutils_join_path(this->test_path, "dummy_folder", g_allocator);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      g_allocator.deallocate(path, g_allocator.state);
+    });
+    ASSERT_FALSE(nullptr == path);
+    EXPECT_TRUE(rcutils_is_readable(path));
+  }
+  {
+    char * path =
+      rcutils_join_path(this->test_path, "dummy_readable_writable_file.txt", g_allocator);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      g_allocator.deallocate(path, g_allocator.state);
+    });
+    ASSERT_FALSE(nullptr == path);
+    EXPECT_TRUE(rcutils_is_readable(path));
+  }
+  {
+    char * path = rcutils_join_path(this->test_path, "dummy_nonexisting_file.txt", g_allocator);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      g_allocator.deallocate(path, g_allocator.state);
+    });
+    ASSERT_FALSE(nullptr == path);
+    EXPECT_FALSE(rcutils_is_readable(path));
+  }
 }
 
-TEST(test_filesystem, is_writable) {
-  EXPECT_TRUE(rcutils_get_cwd(cwd, 1024));
-  // path = std::string(cwd) + delimiter + std::string("test") + delimiter + std::string(
-  //   "dummy_readable_file.txt");
-  // EXPECT_FALSE(rcutils_is_writable(path.c_str()));
-  char * path = rcutils_join_path(cwd, "test");
-  path = rcutils_join_path(path, "dummy_folder");
-  EXPECT_TRUE(rcutils_is_writable(path));
-  path = rcutils_join_path(cwd, "test");
-  path = rcutils_join_path(path, "dummy_readable_writable_file.txt");
-  EXPECT_TRUE(rcutils_is_writable(path));
-  path = rcutils_join_path(cwd, "test");
-  path = rcutils_join_path(path, "dummy_nonexisting_file.txt");
-  EXPECT_FALSE(rcutils_is_writable(path));
+TEST_F(TestFilesystemFixture, is_writable) {
+  {
+    char * path = rcutils_join_path(this->test_path, "dummy_folder", g_allocator);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      g_allocator.deallocate(path, g_allocator.state);
+    });
+    ASSERT_FALSE(nullptr == path);
+    EXPECT_TRUE(rcutils_is_writable(path));
+  }
+  {
+    char * path =
+      rcutils_join_path(this->test_path, "dummy_readable_writable_file.txt", g_allocator);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      g_allocator.deallocate(path, g_allocator.state);
+    });
+    ASSERT_FALSE(nullptr == path);
+    EXPECT_TRUE(rcutils_is_writable(path));
+  }
+  {
+    char * path = rcutils_join_path(this->test_path, "dummy_nonexisting_file.txt", g_allocator);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      g_allocator.deallocate(path, g_allocator.state);
+    });
+    ASSERT_FALSE(nullptr == path);
+    EXPECT_FALSE(rcutils_is_writable(path));
+  }
 }
 
-TEST(test_filesystem, is_readable_and_writable) {
-  EXPECT_TRUE(rcutils_get_cwd(cwd, 1024));
-  // path = std::string(cwd) + std::string("/test/dummy_readable_file.txt");
-  // EXPECT_FALSE(rcutils_is_readable_and_writable(path.c_str()));
-  char * path = rcutils_join_path(cwd, "test");
-  path = rcutils_join_path(path, "dummy_folder");
-  EXPECT_TRUE(rcutils_is_readable_and_writable(path));
-  path = rcutils_join_path(cwd, "test");
-  path = rcutils_join_path(path, "dummy_readable_writable_file.txt");
-  EXPECT_TRUE(rcutils_is_readable_and_writable(path));
-  path = rcutils_join_path(cwd, "test");
-  path = rcutils_join_path(path, "dummy_nonexisting_file.txt");
-  EXPECT_FALSE(rcutils_is_readable_and_writable(path));
+TEST_F(TestFilesystemFixture, is_readable_and_writable) {
+  {
+    char * path = rcutils_join_path(this->test_path, "dummy_folder", g_allocator);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      g_allocator.deallocate(path, g_allocator.state);
+    });
+    ASSERT_FALSE(nullptr == path);
+    EXPECT_TRUE(rcutils_is_readable_and_writable(path));
+  }
+  {
+    char * path =
+      rcutils_join_path(this->test_path, "dummy_readable_writable_file.txt", g_allocator);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      g_allocator.deallocate(path, g_allocator.state);
+    });
+    ASSERT_FALSE(nullptr == path);
+    EXPECT_TRUE(rcutils_is_readable_and_writable(path));
+  }
+  {
+    char * path = rcutils_join_path(this->test_path, "dummy_nonexisting_file.txt", g_allocator);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      g_allocator.deallocate(path, g_allocator.state);
+    });
+    ASSERT_FALSE(nullptr == path);
+    EXPECT_FALSE(rcutils_is_readable_and_writable(path));
+  }
 }

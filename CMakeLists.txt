@@ -32,7 +32,6 @@ endif()
 set(rcutils_sources
   src/allocator.c
   src/cmdline_parser.c
-  src/concat.c
   src/error_handling.c
   src/filesystem.c
   src/find.c
@@ -215,13 +214,6 @@ if(BUILD_TESTING)
     target_link_libraries(test_find ${PROJECT_NAME})
   endif()
 
-  rcutils_custom_add_gtest(test_concat
-    test/test_concat.cpp
-  )
-  if(TARGET test_concat)
-    target_link_libraries(test_concat ${PROJECT_NAME})
-  endif()
-
   rcutils_custom_add_gtest(test_string_array
     test/test_string_array.cpp
   )
@@ -243,6 +235,7 @@ if(BUILD_TESTING)
     test/test_filesystem.cpp
   )
   if(TARGET test_filesystem)
+    target_include_directories(test_filesystem PUBLIC ${osrf_testing_tools_cpp_INCLUDE_DIRS})
     target_link_libraries(test_filesystem ${PROJECT_NAME})
   endif()
 
