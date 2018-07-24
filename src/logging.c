@@ -417,6 +417,7 @@ void rcutils_log(
 ) \
   size_t old_output_buffer_len = strlen(output_buffer); \
   size_t required_output_buffer_size = old_output_buffer_len + n + 1; \
+  /* ensure that required size calculation did not overflow */ \
   if (required_output_buffer_size <= old_output_buffer_len) { \
     fprintf(stderr, "required buffer for logging output too large\n"); \
     goto cleanup; \
