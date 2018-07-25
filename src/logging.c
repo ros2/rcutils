@@ -417,9 +417,18 @@ void rcutils_log(
 ) \
   size_t old_output_buffer_len = strlen(output_buffer); \
   size_t required_output_buffer_size = old_output_buffer_len + n + 1; \
+  /* ensure that required size calculation did not overflow */ \
+  if (required_output_buffer_size <= old_output_buffer_len) { \
+    fprintf(stderr, "required buffer for logging output too large\n"); \
+    goto cleanup; \
+  } \
   if (required_output_buffer_size > output_buffer_size) { \
     do { \
-      output_buffer_size *= 2; \
+      if (output_buffer_size <= (SIZE_MAX / 2)) { \
+        output_buffer_size *= 2; \
+      } else { \
+        output_buffer_size = SIZE_MAX; \
+      } \
     } while (required_output_buffer_size > output_buffer_size); \
     if (output_buffer == static_output_buffer) { \
       void * dynamic_output_buffer = g_rcutils_logging_allocator.allocate( \

@@ -21,6 +21,7 @@ extern "C"
 
 #include <assert.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <string.h>
 
 #include "./common.h"
@@ -165,6 +166,12 @@ rcutils_string_map_reserve(rcutils_string_map_t * string_map, size_t capacity)
     // if the capacity non-zero and different, use realloc to increase/shrink the size
     // note that realloc when the pointer is NULL is the same as malloc
     // note also that realloc will shrink the space if needed
+
+    // ensure that reallocate won't overflow capacity
+    if (capacity > (SIZE_MAX / sizeof(char *))) {
+      RCUTILS_SET_ERROR_MSG("requested capacity for string_map too large", allocator)
+      return RCUTILS_RET_BAD_ALLOC;
+    }
 
     // resize the keys, assigning the result only if it succeeds
     char ** new_keys =
