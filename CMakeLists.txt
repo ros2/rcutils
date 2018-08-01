@@ -31,6 +31,7 @@ endif()
 
 set(rcutils_sources
   src/allocator.c
+  src/char_array.c
   src/cmdline_parser.c
   src/error_handling.c
   src/filesystem.c
@@ -39,7 +40,6 @@ set(rcutils_sources
   src/get_env.c
   src/logging.c
   src/repl_str.c
-  src/serialized_message.c
   src/snprintf.c
   src/split.c
   src/strdup.c
@@ -193,6 +193,13 @@ if(BUILD_TESTING)
     target_link_libraries(test_allocator ${PROJECT_NAME} osrf_testing_tools_cpp::memory_tools)
   endif()
 
+  rcutils_custom_add_gtest(test_char_array
+    test/test_char_array.cpp
+  )
+  if(TARGET test_char_array)
+    target_link_libraries(test_char_array ${PROJECT_NAME})
+  endif()
+
   rcutils_custom_add_gmock(test_error_handling test/test_error_handling.cpp
     # Append the directory of librcutils so it is found at test time.
     APPEND_LIBRARY_DIRS "$<TARGET_FILE_DIR:${PROJECT_NAME}>"
@@ -273,13 +280,6 @@ if(BUILD_TESTING)
   )
   if(TARGET test_repl_str)
     target_link_libraries(test_repl_str ${PROJECT_NAME})
-  endif()
-
-  rcutils_custom_add_gtest(test_serialized_message
-    test/test_serialized_message.cpp
-  )
-  if(TARGET test_serialized_message)
-    target_link_libraries(test_serialized_message ${PROJECT_NAME})
   endif()
 
   rcutils_custom_add_gtest(test_time
