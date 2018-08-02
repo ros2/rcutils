@@ -39,6 +39,7 @@ set(rcutils_sources
   src/get_env.c
   src/logging.c
   src/repl_str.c
+  src/serialized_message.c
   src/snprintf.c
   src/split.c
   src/strdup.c
@@ -272,6 +273,13 @@ if(BUILD_TESTING)
   )
   if(TARGET test_repl_str)
     target_link_libraries(test_repl_str ${PROJECT_NAME})
+  endif()
+
+  rcutils_custom_add_gtest(test_serialized_message
+    test/test_serialized_message.cpp
+  )
+  if(TARGET test_serialized_message)
+    target_link_libraries(test_serialized_message ${PROJECT_NAME})
   endif()
 
   rcutils_custom_add_gtest(test_time
