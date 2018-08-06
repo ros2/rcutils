@@ -29,58 +29,57 @@
 
 // Author: Josh Faust
 
-#ifndef ROSCONSOLE_ROSASSERT_H
-#define ROSCONSOLE_ROSASSERT_H
+#ifndef RCUTILS__ASSERT_H_
+#define RCUTILS__ASSERT_H_
 
-#include "ros/console.h"
-#include "ros/static_assert.h"
+#include "rcutils/logging_macros.h"
 
 /** \file */
 
-/** \def ROS_ASSERT(cond)
+/** \def RCUTILS_ASSERT(cond)
  * \brief Asserts that the provided condition evaluates to true.
  *
  * If it is false, program execution will abort, with an informative
- * statement about which assertion failed, in what file.  Use ROS_ASSERT
+ * statement about which assertion failed, in what file.  Use RCUTILS_ASSERT
  * instead of assert() itself.
  *
- * If running inside a debugger, ROS_ASSERT will allow you to step past the assertion.
+ * If running inside a debugger, RCUTILS_ASSERT will allow you to step past the assertion.
  */
 
-/** \def ROS_ASSERT_MSG(cond, ...)
+/** \def RCUTILS_ASSERT_MSG(cond, ...)
  * \brief Asserts that the provided condition evaluates to true.
  *
  * If it is false, program execution will abort, with an informative
  * statement about which assertion failed, in what file, and it will print out
  * a printf-style message you define.  Example usage:
  @verbatim
-   ROS_ASSERT_MSG(x > 0, "Uh oh, x went negative.  Value = %d", x);
+   RCUTILS_ASSERT_MSG(x > 0, "Uh oh, x went negative.  Value = %d", x);
  @endverbatim
  *
- * If running inside a debugger, ROS_ASSERT will allow you to step past the assertion.
+ * If running inside a debugger, RCUTILS_ASSERT will allow you to step past the assertion.
  */
 
 /**
- * \def ROS_ASSERT_CMD()
+ * \def RCUTILS_ASSERT_CMD()
  * \brief Runs a command if the provided condition is false
  *
  * For example:
 \verbatim
-  ROS_ASSERT_CMD(x > 0, handleError(...));
+  RCUTILS_ASSERT_CMD(x > 0, handleError(...));
 \endverbatim
  */
 
-/** \def ROS_BREAK()
+/** \def RCUTILS_BREAK()
  * \brief Aborts program execution.
  *
  * Aborts program execution with an informative message stating what file and
- * line it was called from. Use ROS_BREAK instead of calling assert(0) or
- * ROS_ASSERT(0).
+ * line it was called from. Use RCUTILS_BREAK instead of calling assert(0) or
+ * RCUTILS_ASSERT(0).
  *
- * If running inside a debugger, ROS_BREAK will allow you to step past the breakpoint.
+ * If running inside a debugger, RCUTILS_BREAK will allow you to step past the breakpoint.
  */
 
-/** \def ROS_ISSUE_BREAK()
+/** \def RCUTILS_ISSUE_BREAK()
  * \brief Always issues a breakpoint instruction.
  *
  * This define is mostly for internal use, but is useful if you want to simply issue a break
@@ -89,67 +88,59 @@
  * Currently implemented for Windows (any platform), powerpc64, and x86
  */
 
-#include <ros/platform.h>
 
 #ifdef WIN32
 # if defined (__MINGW32__)
-#  define ROS_ISSUE_BREAK() DebugBreak();
-# else // MSVC
-#  define ROS_ISSUE_BREAK() __debugbreak();
+#  define RCUTILS_ISSUE_BREAK() DebugBreak();
+# else  // MSVC
+#  define RCUTILS_ISSUE_BREAK() __debugbreak();
 # endif
 #elif defined(__powerpc64__)
-# define ROS_ISSUE_BREAK() asm volatile ("tw 31,1,1");
+# define RCUTILS_ISSUE_BREAK() asm volatile ("tw 31,1,1");
 #elif defined(__i386__) || defined(__ia64__) || defined(__x86_64__)
-# define ROS_ISSUE_BREAK() asm("int $3");
+# define RCUTILS_ISSUE_BREAK() asm ("int $3");
 #else
 # include <stdlib.h>
-# define ROS_ISSUE_BREAK() abort();
+# define RCUTILS_ISSUE_BREAK() abort();
 #endif
 
 #ifndef NDEBUG
-#ifndef ROS_ASSERT_ENABLED
-#define ROS_ASSERT_ENABLED
+#ifndef RCUTILS_ASSERT_ENABLED
+#define RCUTILS_ASSERT_ENABLED
 #endif
 #endif
 
-#ifdef ROS_ASSERT_ENABLED
-#define ROS_BREAK() \
+#ifdef RCUTILS_ASSERT_ENABLED
+#define RCUTILS_BREAK() \
   do { \
-    ROS_FATAL("BREAKPOINT HIT\n\tfile = %s\n\tline=%d\n", __FILE__, __LINE__); \
-    ROS_ISSUE_BREAK() \
+    RCUTILS_LOG_FATAL("BREAKPOINT HIT\n\tfile = %s\n\tline=%d\n", __FILE__, __LINE__); \
+    RCUTILS_ISSUE_BREAK() \
   } while (false)
 
-#define ROS_ASSERT(cond) \
+#define RCUTILS_ASSERT(cond) \
   do { \
     if (!(cond)) { \
-      ROS_FATAL("ASSERTION FAILED\n\tfile = %s\n\tline = %d\n\tcond = %s\n", __FILE__, __LINE__, #cond); \
-      ROS_ISSUE_BREAK() \
+      RCUTILS_LOG_FATAL("ASSERTION FAILED\n\tfile = %s\n\tline = %d\n\tcond = %s\n", \
+        __FILE__, __LINE__, #cond); \
+      RCUTILS_ISSUE_BREAK() \
     } \
   } while (false)
 
-#define ROS_ASSERT_MSG(cond, ...) \
+#define RCUTILS_ASSERT_MSG(cond, ...) \
   do { \
     if (!(cond)) { \
-      ROS_FATAL("ASSERTION FAILED\n\tfile = %s\n\tline = %d\n\tcond = %s\n\tmessage = ", __FILE__, __LINE__, #cond); \
-      ROS_FATAL(__VA_ARGS__); \
-      ROS_FATAL("\n"); \
-      ROS_ISSUE_BREAK(); \
+      RCUTILS_LOG_FATAL("ASSERTION FAILED\n\tfile = %s\n\tline = %d\n\tcond = %s\n\tmessage = ", \
+        __FILE__, __LINE__, #cond); \
+      RCUTILS_LOG_FATAL(__VA_ARGS__); \
+      RCUTILS_LOG_FATAL("\n"); \
+      RCUTILS_ISSUE_BREAK(); \
     } \
   } while (false)
-
-#define ROS_ASSERT_CMD(cond, cmd) \
-  do { \
-    if (!(cond)) { \
-      cmd; \
-    } \
-  } while (false)
-
 
 #else
-#define ROS_BREAK()
-#define ROS_ASSERT(cond)
-#define ROS_ASSERT_MSG(cond, ...)
-#define ROS_ASSERT_CMD(cond, cmd)
+#define RCUTILS_BREAK()
+#define RCUTILS_ASSERT(cond)
+#define RCUTILS_ASSERT_MSG(cond, ...)
 #endif
 
-#endif // ROSCONSOLE_ROSASSERT_H
+#endif  // RCUTILS__ASSERT_H_
