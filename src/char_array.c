@@ -36,12 +36,12 @@ rcutils_char_array_init(
   rcutils_allocator_t error_msg_allocator = rcutils_get_default_allocator();
   RCUTILS_CHECK_FOR_NULL_WITH_MSG(
     char_array,
-    "serialized message pointer is null",
+    "char array pointer is null",
     return RCUTILS_RET_ERROR,
     error_msg_allocator);
 
   if (!rcutils_allocator_is_valid(allocator)) {
-    RCUTILS_SET_ERROR_MSG("serialized message has no valid allocator", error_msg_allocator);
+    RCUTILS_SET_ERROR_MSG("char array has no valid allocator", error_msg_allocator);
     return RCUTILS_RET_ERROR;
   }
 
@@ -54,7 +54,7 @@ rcutils_char_array_init(
       (char *)allocator->allocate(buffer_capacity * sizeof(char), allocator->state);
     RCUTILS_CHECK_FOR_NULL_WITH_MSG(
       char_array->buffer,
-      "failed to allocate memory for serialized message",
+      "failed to allocate memory for char array",
       return RCUTILS_RET_BAD_ALLOC,
       *allocator);
   }
@@ -68,13 +68,13 @@ rcutils_char_array_fini(rcutils_char_array_t * char_array)
   rcutils_allocator_t error_msg_allocator = rcutils_get_default_allocator();
   RCUTILS_CHECK_FOR_NULL_WITH_MSG(
     char_array,
-    "serialized message pointer is null",
+    "char array pointer is null",
     return RCUTILS_RET_ERROR,
     error_msg_allocator);
 
   rcutils_allocator_t * allocator = &char_array->allocator;
   if (!rcutils_allocator_is_valid(allocator)) {
-    RCUTILS_SET_ERROR_MSG("serialized message has no valid allocator", error_msg_allocator);
+    RCUTILS_SET_ERROR_MSG("char array has no valid allocator", error_msg_allocator);
     return RCUTILS_RET_ERROR;
   }
 
@@ -92,13 +92,13 @@ rcutils_char_array_resize(rcutils_char_array_t * char_array, size_t new_size)
   rcutils_allocator_t error_msg_allocator = rcutils_get_default_allocator();
   RCUTILS_CHECK_FOR_NULL_WITH_MSG(
     char_array,
-    "serialized message pointer is null",
+    "char array pointer is null",
     return RCUTILS_RET_ERROR,
     error_msg_allocator);
 
   rcutils_allocator_t * allocator = &char_array->allocator;
   if (!rcutils_allocator_is_valid(allocator)) {
-    RCUTILS_SET_ERROR_MSG("serialized message has no valid allocator", error_msg_allocator);
+    RCUTILS_SET_ERROR_MSG("char array has no valid allocator", error_msg_allocator);
     return RCUTILS_RET_ERROR;
   }
 
@@ -110,7 +110,7 @@ rcutils_char_array_resize(rcutils_char_array_t * char_array, size_t new_size)
   char_array->buffer = rcutils_reallocf(char_array->buffer, new_size * sizeof(char), allocator);
   RCUTILS_CHECK_FOR_NULL_WITH_MSG(
     char_array->buffer,
-    "failed to reallocate memory for serialized message",
+    "failed to reallocate memory for char array",
     return RCUTILS_RET_BAD_ALLOC,
     *allocator);
 
