@@ -63,7 +63,7 @@ rcutils_time_point_value_as_seconds_string(
   }
   // best to abs it to avoid issues with negative values in C89, see:
   //   https://stackoverflow.com/a/3604984/671658
-  uint64_t abs_time_point = llabs(*time_point);
+  uint64_t abs_time_point = (uint64_t)llabs(*time_point);
   // break into two parts to avoid floating point error
   uint64_t seconds = abs_time_point / (1000 * 1000 * 1000);
   uint64_t nanoseconds = abs_time_point % (1000 * 1000 * 1000);

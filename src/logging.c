@@ -183,7 +183,7 @@ rcutils_logging_severity_level_from_string(
     return RCUTILS_RET_BAD_ALLOC;
   }
   for (int i = 0; severity_string_upper[i]; ++i) {
-    severity_string_upper[i] = toupper(severity_string_upper[i]);
+    severity_string_upper[i] = (char)toupper(severity_string_upper[i]);
   }
 
   // Determine the severity value matching the severity name.
@@ -514,7 +514,7 @@ void rcutils_logging_console_output_handler(
   }
   if ((size_t)written >= sizeof(static_message_buffer)) {
     // write was incomplete, allocate necessary memory dynamically
-    size_t message_buffer_size = written + 1;
+    size_t message_buffer_size = (size_t)written + 1U;
     void * dynamic_message_buffer = g_rcutils_logging_allocator.allocate(
       message_buffer_size, g_rcutils_logging_allocator.state);
     if (NULL == dynamic_message_buffer) {

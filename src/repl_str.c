@@ -90,11 +90,11 @@ rcutils_repl_str(
       }
     }
 
-    pos_cache[count-1] = pstr2 - str;
+    pos_cache[count-1] = (uintptr_t)(pstr2 - str);
     pstr = pstr2 + fromlen;
   }
 
-  orglen = pstr - str + strlen(pstr);
+  orglen = (size_t)(pstr - str) + strlen(pstr);
 
   /* Allocate memory for the post-replacement string. */
   if (count > 0) {

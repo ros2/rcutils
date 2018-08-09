@@ -195,7 +195,7 @@ format_error_string(void)
   if (!__rcutils_error_is_set(__rcutils_error_state)) {
     return;
   }
-  size_t bytes_it_would_have_written = snprintf(
+  size_t bytes_it_would_have_written = (size_t)snprintf(
     NULL, 0,
     __error_format_string,
     __rcutils_error_state->message,
