@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef RCUTILS__TYPES__SERIALIZED_MESSAGE_H_
-#define RCUTILS__TYPES__SERIALIZED_MESSAGE_H_
+#ifndef RCUTILS__TYPES__CHAR_ARRAY_H_
+#define RCUTILS__TYPES__CHAR_ARRAY_H_
 
 #if __cplusplus
 extern "C"
@@ -24,32 +24,31 @@ extern "C"
 #include "rcutils/types/rcutils_ret.h"
 #include "rcutils/visibility_control.h"
 
-typedef struct RCUTILS_PUBLIC_TYPE rcutils_serialized_message_t
+typedef struct RCUTILS_PUBLIC_TYPE rcutils_char_array_t
 {
-  // serialized message data
   char * buffer;
   size_t buffer_length;
   size_t buffer_capacity;
   rcutils_allocator_t allocator;
-} rcutils_serialized_message_t;
+} rcutils_char_array_t;
 
-/// Return a zero initialized serialized message struct.
+/// Return a zero initialized char array struct.
 /**
- * \return rcutils_serialized_message_t a zero initialized serialized message struct
+ * \return rcutils_char_array_t a zero initialized char array struct
  */
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
-rcutils_serialized_message_t
-rcutils_get_zero_initialized_serialized_message(void);
+rcutils_char_array_t
+rcutils_get_zero_initialized_char_array(void);
 
-/// Initialize a zero initialized serialized message struct.
+/// Initialize a zero initialized char array struct.
 /**
- * This function may leak if the serialized message struct is already
+ * This function may leak if the char array struct is already
  * pre-initialized.
  * If the capacity is set to 0, no memory is allocated and the internal buffer
  * is still NULL.
  *
- * \param msg a pointer to the to be initialized serialized message struct
+ * \param char_array a pointer to the to be initialized char array struct
  * \param buffer_capacity the size of the memory to allocate for the byte stream
  * \param allocator the allocator to use for the memory allocation
  * \return `RCUTILS_RET_OK` if successful, or
@@ -58,19 +57,19 @@ rcutils_get_zero_initialized_serialized_message(void);
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
 rcutils_ret_t
-rcutils_serialized_message_init(
-  rcutils_serialized_message_t * msg,
+rcutils_char_array_init(
+  rcutils_char_array_t * char_array,
   size_t buffer_capacity,
   const rcutils_allocator_t * allocator);
 
-/// Finalize a serialized message struct.
+/// Finalize a char array struct.
 /**
- * Cleans up and deallocates any resources used in a rcutils_message_serialized_t.
- * Passing a rcutils_serialized_message_t which has not been zero initialized using
- * rcutils_get_zero_initialized_serialized_message() to this function is undefined
+ * Cleans up and deallocates any resources used in a rcutils_char_array_t.
+ * Passing a rcutils_char_array_t which has not been zero initialized using
+ * rcutils_get_zero_initialized_char_array() to this function is undefined
  * behavior.
  *
- * \param msg pointer to the serialized message to be cleaned up
+ * \param char_array pointer to the rcutils_char_array_t to be cleaned up
  * \return `RCUTILS_RET_OK` if successful, or
  * \return `RCUTILS_RET_BAD_ALLOC` if memory allocation failed, or
  * \return `RCUTILS_RET_ERROR` if an unexpected error occurs
@@ -78,11 +77,11 @@ rcutils_serialized_message_init(
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
 rcutils_ret_t
-rcutils_serialized_message_fini(rcutils_serialized_message_t * msg);
+rcutils_char_array_fini(rcutils_char_array_t * char_array);
 
-/// Resize the internal buffer for the message byte stream.
+/// Resize the internal buffer of the char array.
 /**
- * The internal buffer of the serialized message can be resized dynamically if needed.
+ * The internal buffer of the char array can be resized dynamically if needed.
  * If the new size is smaller than the current capacity, then the memory is
  * truncated.
  * Be aware, that this will deallocate the memory and therefore invalidates any
@@ -90,7 +89,7 @@ rcutils_serialized_message_fini(rcutils_serialized_message_t * msg);
  * If the new size is larger, new memory is getting allocated and the existing
  * content is copied over.
  *
- * \param msg pointer to the instance of rcutils_serialized_message_t which is being resized
+ * \param char_array pointer to the instance of rcutils_char_array_t which is being resized
  * \param new_size the new size of the internal buffer
  * \return `RCUTILS_RET_OK` if successful, or
  * \return `RCUTILS_RET_BAD_ALLOC` if memory allocation failed, or
@@ -99,10 +98,10 @@ rcutils_serialized_message_fini(rcutils_serialized_message_t * msg);
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
 rcutils_ret_t
-rcutils_serialized_message_resize(rcutils_serialized_message_t * msg, size_t new_size);
+rcutils_char_array_resize(rcutils_char_array_t * char_array, size_t new_size);
 
 #if __cplusplus
 }
 #endif
 
-#endif  // RCUTILS__TYPES__SERIALIZED_MESSAGE_H_
+#endif  // RCUTILS__TYPES__CHAR_ARRAY_H_
