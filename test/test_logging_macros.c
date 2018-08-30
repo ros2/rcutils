@@ -130,7 +130,8 @@ int main(int argc, char ** argv)
 
   rcutils_logging_set_output_handler(previous_output_handler);
   if (g_last_log_event.message) {
-    free(g_last_log_event.message);
+    rcutils_allocator_t allocator = rcutils_get_default_allocator();
+    allocator.deallocate(g_last_log_event.message, allocator.state);
   }
 
   ret = rcutils_logging_shutdown();
