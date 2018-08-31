@@ -92,7 +92,7 @@ rcutils_error_state_fini(rcutils_error_state_t * error_state);
  * Therefore the allocator state needs to exist until after the last time
  * rcutils_reset_error() is called.
  *
- * \param[in] error_msg The error message to set.
+ * \param[in] error_string The error message to set.
  * \param[in] file The path to the file in which the error occurred.
  * \param[in] line_number The line number on which the error occurred.
  * \param[in] allocator The allocator to be used when allocating space for the error state.
