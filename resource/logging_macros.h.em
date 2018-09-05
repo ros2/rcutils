@@ -61,7 +61,7 @@ extern "C"
  * \param ... The format string, followed by the variable arguments for the format string
  */
 #define RCUTILS_LOG_COND_NAMED(severity, condition_before, condition_after, name, ...) \
-  { \
+  do { \
     RCUTILS_LOGGING_AUTOINIT \
     static rcutils_log_location_t __rcutils_logging_location = {__func__, __FILE__, __LINE__}; \
     if (rcutils_logging_logger_is_enabled_for(name, severity)) { \
@@ -69,7 +69,7 @@ extern "C"
       rcutils_log(&__rcutils_logging_location, severity, name, __VA_ARGS__); \
       condition_after \
     } \
-  }
+  } while(0)
 
 ///@@{
 /**
