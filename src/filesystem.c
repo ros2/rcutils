@@ -31,7 +31,7 @@ extern "C"
 #include "rcutils/format_string.h"
 #include "rcutils/repl_str.h"
 
-#ifdef  _WIN32
+#ifdef _WIN32
 # define RCUTILS_PATH_DELIMITER "\\"
 #else
 # define RCUTILS_PATH_DELIMITER "/"
