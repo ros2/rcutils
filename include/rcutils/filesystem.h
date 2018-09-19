@@ -126,6 +126,24 @@ rcutils_join_path(
   const char * right_hand_path,
   rcutils_allocator_t allocator);
 
+/// Return newly allocated string with argument normlized by correct delimiter for the platform.
+/**
+ * This function allocates memory and returns it to the caller.
+ * It is up to the caller to release the memory once it is done with it by
+ * calling `deallocate` on the same allocator passed here.
+ *
+ * \param[in] path
+ * \param[in] allocator
+ * \return char * concatenated path on success
+ *         NULL on invalid arguments
+ *         NULL on failure
+ */
+RCUTILS_PUBLIC
+char *
+rcutils_norm_path(
+  const char * path,
+  rcutils_allocator_t allocator);
+
 #ifdef __cplusplus
 }
 #endif
