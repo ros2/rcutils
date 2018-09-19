@@ -140,7 +140,7 @@ rcutils_join_path(
  */
 RCUTILS_PUBLIC
 char *
-rcutils_norm_path(
+rcutils_to_native_path(
   const char * path,
   rcutils_allocator_t allocator);
 
