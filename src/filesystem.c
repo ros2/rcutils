@@ -159,7 +159,10 @@ rcutils_join_path(
     return NULL;
   }
 
-  return rcutils_format_string(allocator, "%s%s%s", left_hand_path, RCUTILS_PATH_DELIMITER, right_hand_path);
+  return rcutils_format_string(
+    allocator,
+    "%s%s%s",
+    left_hand_path, RCUTILS_PATH_DELIMITER, right_hand_path);
 }
 
 char *
