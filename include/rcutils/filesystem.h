@@ -134,7 +134,7 @@ rcutils_join_path(
  *
  * \param[in] path
  * \param[in] allocator
- * \return char * concatenated path on success
+ * \return char * path using platform specific delimiters on success
  *         NULL on invalid arguments
  *         NULL on failure
  */
