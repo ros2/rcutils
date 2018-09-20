@@ -126,7 +126,7 @@ rcutils_join_path(
   const char * right_hand_path,
   rcutils_allocator_t allocator);
 
-/// Return newly allocated string with argument normlized by correct delimiter for the platform.
+/// Return newly allocated string with all argument's "/" replaced by platform specific separator.
 /**
  * This function allocates memory and returns it to the caller.
  * It is up to the caller to release the memory once it is done with it by
