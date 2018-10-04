@@ -69,7 +69,7 @@ extern "C"
       rcutils_log(&__rcutils_logging_location, severity, name, __VA_ARGS__); \
       condition_after \
     } \
-  } while(0)
+  } while (0)
 
 ///@@{
 /**
