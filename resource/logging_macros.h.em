@@ -48,6 +48,9 @@ extern "C"
 #endif
 
 // TODO(dhood): optimise severity check via notifyLoggerLevelsChanged concept or similar.
+// The RCUTILS_LOG_COND_NAMED macro is surrounded by do { .. } while (0) to implement
+// the standard C macro idiom to make the macro safe in all contexts; see
+// http://c-faq.com/cpp/multistmt.html for more information.
 /**
  * \def RCUTILS_LOG_COND_NAMED
  * The logging macro all other logging macros call directly or indirectly.
