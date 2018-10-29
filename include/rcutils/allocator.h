@@ -122,7 +122,7 @@ rcutils_allocator_is_valid(const rcutils_allocator_t * allocator);
 
 #define RCUTILS_CHECK_ALLOCATOR_WITH_MSG(allocator, msg, fail_statement) \
   if (!rcutils_allocator_is_valid(allocator)) { \
-    RCUTILS_SET_ERROR_MSG(msg, rcutils_get_default_allocator()) \
+    RCUTILS_SET_ERROR_MSG(msg) \
     fail_statement; \
   }
 

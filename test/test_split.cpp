@@ -69,7 +69,7 @@ TEST(test_split, split) {
   rcutils_string_array_t tokens1 = test_split("hello_world", '/', 1);
   EXPECT_STREQ("hello_world", tokens1.data[0]);
   ret = rcutils_string_array_fini(&tokens1);
-  ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+  ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
   rcutils_string_array_t tokens2 = test_split("hello/world", '/', 2);
   EXPECT_STREQ("hello", tokens2.data[0]);

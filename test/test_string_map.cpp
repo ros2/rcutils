@@ -30,27 +30,27 @@ TEST(test_string_map, lifecycle) {
   {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_fini(&string_map);
-    EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
   }
 
   // init and then fini and then fini again
   {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&string_map, 10, allocator);
-    EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
     ret = rcutils_string_map_fini(&string_map);
-    EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
     ret = rcutils_string_map_fini(&string_map);
-    EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
   }
 
   // init and then fini with 0 capacity
   {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&string_map, 0, allocator);
-    EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
     ret = rcutils_string_map_fini(&string_map);
-    EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
   }
 
   // init on non-zero initialized
@@ -59,7 +59,7 @@ TEST(test_string_map, lifecycle) {
     // dirty the memory, otherwise this is flaky (sometimes the junk memory is null)
     memset(&string_map, 0x7, sizeof(rcutils_string_map_t));
     ret = rcutils_string_map_init(&string_map, 10, allocator);
-    EXPECT_EQ(RCUTILS_RET_STRING_MAP_ALREADY_INIT, ret) << rcutils_get_error_string_safe();
+    EXPECT_EQ(RCUTILS_RET_STRING_MAP_ALREADY_INIT, ret) << rcutils_get_error_string().str;
     rcutils_reset_error();
   }
 
@@ -67,18 +67,18 @@ TEST(test_string_map, lifecycle) {
   {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&string_map, 10, allocator);
-    EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
     ret = rcutils_string_map_init(&string_map, 10, allocator);
-    EXPECT_EQ(RCUTILS_RET_STRING_MAP_ALREADY_INIT, ret) << rcutils_get_error_string_safe();
+    EXPECT_EQ(RCUTILS_RET_STRING_MAP_ALREADY_INIT, ret) << rcutils_get_error_string().str;
     rcutils_reset_error();
     ret = rcutils_string_map_fini(&string_map);
-    EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
   }
 
   // null for string map pointer to init
   {
     ret = rcutils_string_map_init(NULL, 10, allocator);
-    EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string_safe();
+    EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string().str;
     rcutils_reset_error();
   }
 
@@ -86,14 +86,14 @@ TEST(test_string_map, lifecycle) {
   {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&string_map, 10, failing_allocator);
-    EXPECT_EQ(RCUTILS_RET_BAD_ALLOC, ret) << rcutils_get_error_string_safe();
+    EXPECT_EQ(RCUTILS_RET_BAD_ALLOC, ret) << rcutils_get_error_string().str;
     rcutils_reset_error();
   }
 
   // null for string map to fini
   {
     ret = rcutils_string_map_fini(NULL);
-    EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string_safe();
+    EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string().str;
     rcutils_reset_error();
   }
 }
@@ -106,10 +106,10 @@ TEST(test_string_map, getters) {
   {
     size_t capacity, size;
     ret = rcutils_string_map_get_capacity(NULL, &capacity);
-    EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string_safe();
+    EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string().str;
     rcutils_reset_error();
     ret = rcutils_string_map_get_size(NULL, &size);
-    EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string_safe();
+    EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string().str;
     rcutils_reset_error();
   }
 
@@ -120,10 +120,10 @@ TEST(test_string_map, getters) {
     ASSERT_EQ(RCUTILS_RET_OK, ret);
 
     ret = rcutils_string_map_get_capacity(&string_map, NULL);
-    EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string_safe();
+    EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string().str;
     rcutils_reset_error();
     ret = rcutils_string_map_get_size(&string_map, NULL);
-    EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string_safe();
+    EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string().str;
     rcutils_reset_error();
   }
 
@@ -410,14 +410,14 @@ TEST(test_string_map, reserve_and_clear) {
   // null for string_map to reserve
   {
     ret = rcutils_string_map_reserve(NULL, 42);
-    EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string_safe();
+    EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string().str;
     rcutils_reset_error();
   }
 
   // null for string_map to clear
   {
     ret = rcutils_string_map_clear(NULL);
-    EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string_safe();
+    EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string().str;
     rcutils_reset_error();
   }
 }
@@ -448,7 +448,7 @@ TEST(test_string_map, set_no_resize) {
     }
 
     ret = rcutils_string_map_set_no_resize(&string_map, "key1", "value1");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
     {
       size_t expected = 1;
@@ -467,7 +467,7 @@ TEST(test_string_map, set_no_resize) {
     }
 
     ret = rcutils_string_map_set_no_resize(&string_map, "key2", "value2");
-    ASSERT_EQ(RCUTILS_RET_NOT_ENOUGH_SPACE, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_NOT_ENOUGH_SPACE, ret) << rcutils_get_error_string().str;
     rcutils_reset_error();
 
     ret = rcutils_string_map_fini(&string_map);
@@ -495,7 +495,7 @@ TEST(test_string_map, set_no_resize) {
     }
 
     ret = rcutils_string_map_set_no_resize(&string_map, "key1", "value1");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
     {
       size_t expected = 2;
@@ -514,7 +514,7 @@ TEST(test_string_map, set_no_resize) {
     }
 
     ret = rcutils_string_map_set_no_resize(&string_map, "key1", "val1");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
     {
       size_t expected = 2;
@@ -533,7 +533,7 @@ TEST(test_string_map, set_no_resize) {
     }
 
     ret = rcutils_string_map_set_no_resize(&string_map, "key2", "value2");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
     {
       size_t expected = 2;
@@ -564,7 +564,7 @@ TEST(test_string_map, set_no_resize) {
 
     set_failing_allocator_is_failing(failing_allocator, true);
     ret = rcutils_string_map_set_no_resize(&string_map, "key1", "value1");
-    EXPECT_EQ(RCUTILS_RET_BAD_ALLOC, ret) << rcutils_get_error_string_safe();
+    EXPECT_EQ(RCUTILS_RET_BAD_ALLOC, ret) << rcutils_get_error_string().str;
     rcutils_reset_error();
 
     ret = rcutils_string_map_fini(&string_map);
@@ -574,7 +574,7 @@ TEST(test_string_map, set_no_resize) {
   // pass NULL for string_map
   {
     ret = rcutils_string_map_set_no_resize(NULL, "key1", "value1");
-    EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string_safe();
+    EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string().str;
     rcutils_reset_error();
   }
 
@@ -585,7 +585,7 @@ TEST(test_string_map, set_no_resize) {
     ASSERT_EQ(RCUTILS_RET_OK, ret);
 
     ret = rcutils_string_map_set_no_resize(&string_map, NULL, "value1");
-    EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string_safe();
+    EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string().str;
     rcutils_reset_error();
 
     ret = rcutils_string_map_fini(&string_map);
@@ -599,7 +599,7 @@ TEST(test_string_map, set_no_resize) {
     ASSERT_EQ(RCUTILS_RET_OK, ret);
 
     ret = rcutils_string_map_set_no_resize(&string_map, "key1", NULL);
-    EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string_safe();
+    EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string().str;
     rcutils_reset_error();
 
     ret = rcutils_string_map_fini(&string_map);
@@ -633,7 +633,7 @@ TEST(test_string_map, set) {
     }
 
     ret = rcutils_string_map_set(&string_map, "key1", "value1");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
     {
       size_t expected = 1;
@@ -676,7 +676,7 @@ TEST(test_string_map, set) {
     }
 
     ret = rcutils_string_map_set(&string_map, "key1", "value1");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
     {
       size_t expected = 1;
@@ -695,7 +695,7 @@ TEST(test_string_map, set) {
     }
 
     ret = rcutils_string_map_set(&string_map, "key2", "value2");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
     {
       size_t expected = 2;
@@ -714,7 +714,7 @@ TEST(test_string_map, set) {
     }
 
     ret = rcutils_string_map_set(&string_map, "key3", "value3");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
     {
       size_t expected = 4;
@@ -757,7 +757,7 @@ TEST(test_string_map, set) {
     }
 
     ret = rcutils_string_map_set(&string_map, "key1", "value1");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
     {
       size_t expected = 2;
@@ -776,7 +776,7 @@ TEST(test_string_map, set) {
     }
 
     ret = rcutils_string_map_set(&string_map, "key1", "val1");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
     {
       size_t expected = 2;
@@ -795,7 +795,7 @@ TEST(test_string_map, set) {
     }
 
     ret = rcutils_string_map_set(&string_map, "key2", "value2");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
     {
       size_t expected = 2;
@@ -826,7 +826,7 @@ TEST(test_string_map, set) {
 
     set_failing_allocator_is_failing(failing_allocator, true);
     ret = rcutils_string_map_set(&string_map, "key1", "value1");
-    EXPECT_EQ(RCUTILS_RET_BAD_ALLOC, ret) << rcutils_get_error_string_safe();
+    EXPECT_EQ(RCUTILS_RET_BAD_ALLOC, ret) << rcutils_get_error_string().str;
     rcutils_reset_error();
 
     ret = rcutils_string_map_fini(&string_map);
@@ -836,7 +836,7 @@ TEST(test_string_map, set) {
   // pass NULL for string_map
   {
     ret = rcutils_string_map_set(NULL, "key1", "value1");
-    EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string_safe();
+    EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string().str;
     rcutils_reset_error();
   }
 
@@ -847,7 +847,7 @@ TEST(test_string_map, set) {
     ASSERT_EQ(RCUTILS_RET_OK, ret);
 
     ret = rcutils_string_map_set(&string_map, NULL, "value1");
-    EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string_safe();
+    EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string().str;
     rcutils_reset_error();
 
     ret = rcutils_string_map_fini(&string_map);
@@ -861,7 +861,7 @@ TEST(test_string_map, set) {
     ASSERT_EQ(RCUTILS_RET_OK, ret);
 
     ret = rcutils_string_map_set(&string_map, "key1", NULL);
-    EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string_safe();
+    EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string().str;
     rcutils_reset_error();
 
     ret = rcutils_string_map_fini(&string_map);
@@ -884,14 +884,14 @@ TEST(test_string_map, key_exists) {
     EXPECT_FALSE(key_exists);
 
     ret = rcutils_string_map_set(&string_map, "key1", "value1");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
     key_exists = rcutils_string_map_key_exists(&string_map, "key1");
     EXPECT_TRUE(key_exists);
     key_exists = rcutils_string_map_key_exists(&string_map, "key2");
     EXPECT_FALSE(key_exists);
 
     ret = rcutils_string_map_unset(&string_map, "key1");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
     key_exists = rcutils_string_map_key_exists(&string_map, "key1");
     EXPECT_FALSE(key_exists);
     key_exists = rcutils_string_map_key_exists(&string_map, "key2");
@@ -945,9 +945,9 @@ TEST(test_string_map, key_existsn) {
     ASSERT_EQ(RCUTILS_RET_OK, ret);
 
     ret = rcutils_string_map_set(&string_map, "key1", "value1");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
     ret = rcutils_string_map_set(&string_map, "key2", "value2");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
     EXPECT_TRUE(rcutils_string_map_key_existsn(&string_map, "key1andsome", 4));
     EXPECT_TRUE(rcutils_string_map_key_existsn(&string_map, "key2andsome", 4));
@@ -983,11 +983,11 @@ TEST(test_string_map, unset) {
     }
 
     ret = rcutils_string_map_set_no_resize(&string_map, "key1", "value1");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
     ret = rcutils_string_map_set_no_resize(&string_map, "key2", "value2");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
     ret = rcutils_string_map_set_no_resize(&string_map, "key3", "value3");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
     {
       size_t expected = 3;
@@ -1008,7 +1008,7 @@ TEST(test_string_map, unset) {
     }
 
     ret = rcutils_string_map_unset(&string_map, "key2");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
     {
       size_t expected = 3;
@@ -1028,7 +1028,7 @@ TEST(test_string_map, unset) {
     }
 
     ret = rcutils_string_map_set(&string_map, "key3", "value3.1");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
     {
       size_t expected = 3;
@@ -1048,7 +1048,7 @@ TEST(test_string_map, unset) {
     }
 
     ret = rcutils_string_map_set(&string_map, "key2", "value2");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
     {
       size_t expected = 3;
@@ -1075,7 +1075,7 @@ TEST(test_string_map, unset) {
   // unset with string_map as null
   {
     ret = rcutils_string_map_unset(NULL, "key");
-    EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string_safe();
+    EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string().str;
     rcutils_reset_error();
   }
 
@@ -1086,7 +1086,7 @@ TEST(test_string_map, unset) {
     ASSERT_EQ(RCUTILS_RET_OK, ret);
 
     ret = rcutils_string_map_unset(&string_map, NULL);
-    EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string_safe();
+    EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string().str;
     rcutils_reset_error();
 
     ret = rcutils_string_map_fini(&string_map);
@@ -1100,7 +1100,7 @@ TEST(test_string_map, unset) {
     ASSERT_EQ(RCUTILS_RET_OK, ret);
 
     ret = rcutils_string_map_unset(&string_map, "missing");
-    EXPECT_EQ(RCUTILS_RET_STRING_KEY_NOT_FOUND, ret) << rcutils_get_error_string_safe();
+    EXPECT_EQ(RCUTILS_RET_STRING_KEY_NOT_FOUND, ret) << rcutils_get_error_string().str;
     rcutils_reset_error();
 
     ret = rcutils_string_map_fini(&string_map);
@@ -1114,12 +1114,12 @@ TEST(test_string_map, unset) {
     ASSERT_EQ(RCUTILS_RET_OK, ret);
 
     ret = rcutils_string_map_set(&string_map, "key1", "value1");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
     ret = rcutils_string_map_set(&string_map, "key2", "value2");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
     ret = rcutils_string_map_unset(&string_map, "missing");
-    EXPECT_EQ(RCUTILS_RET_STRING_KEY_NOT_FOUND, ret) << rcutils_get_error_string_safe();
+    EXPECT_EQ(RCUTILS_RET_STRING_KEY_NOT_FOUND, ret) << rcutils_get_error_string().str;
     rcutils_reset_error();
 
     ret = rcutils_string_map_fini(&string_map);
@@ -1138,9 +1138,9 @@ TEST(test_string_map, get) {
     ASSERT_EQ(RCUTILS_RET_OK, ret);
 
     ret = rcutils_string_map_set(&string_map, "key1", "value1");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
     ret = rcutils_string_map_set(&string_map, "key2", "value2");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
     EXPECT_STREQ("value1", rcutils_string_map_get(&string_map, "key1"));
     EXPECT_STREQ("value2", rcutils_string_map_get(&string_map, "key2"));
@@ -1156,7 +1156,7 @@ TEST(test_string_map, get) {
     ASSERT_EQ(RCUTILS_RET_OK, ret);
 
     ret = rcutils_string_map_set(&string_map, "key1", "value1");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
     EXPECT_EQ(NULL, rcutils_string_map_get(&string_map, "some_key"));
 
@@ -1200,7 +1200,7 @@ TEST(test_string_map, get) {
     ASSERT_EQ(RCUTILS_RET_OK, ret);
 
     ret = rcutils_string_map_set(&string_map, "key1", "value1");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
     EXPECT_EQ(NULL, rcutils_string_map_get(&string_map, NULL));
 
@@ -1220,9 +1220,9 @@ TEST(test_string_map, getn) {
     ASSERT_EQ(RCUTILS_RET_OK, ret);
 
     ret = rcutils_string_map_set(&string_map, "key1", "value1");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
     ret = rcutils_string_map_set(&string_map, "key2", "value2");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
     EXPECT_STREQ("value1", rcutils_string_map_getn(&string_map, "key1andsome", 4));
     EXPECT_STREQ("value2", rcutils_string_map_getn(&string_map, "key2andsome", 4));
@@ -1238,7 +1238,7 @@ TEST(test_string_map, getn) {
     ASSERT_EQ(RCUTILS_RET_OK, ret);
 
     ret = rcutils_string_map_set(&string_map, "key1", "value1");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
     EXPECT_EQ(NULL, rcutils_string_map_get(&string_map, "some_key"));
 
@@ -1282,7 +1282,7 @@ TEST(test_string_map, getn) {
     ASSERT_EQ(RCUTILS_RET_OK, ret);
 
     ret = rcutils_string_map_set(&string_map, "key1", "value1");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
     EXPECT_EQ(NULL, rcutils_string_map_get(&string_map, NULL));
 
@@ -1302,9 +1302,9 @@ TEST(test_string_map, get_next_key) {
     ASSERT_EQ(RCUTILS_RET_OK, ret);
 
     ret = rcutils_string_map_set(&string_map, "key1", "value1");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
     ret = rcutils_string_map_set(&string_map, "key2", "value2");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
     const char * first_key = rcutils_string_map_get_next_key(&string_map, NULL);
     EXPECT_STREQ("key1", first_key);
@@ -1324,9 +1324,9 @@ TEST(test_string_map, get_next_key) {
     ASSERT_EQ(RCUTILS_RET_OK, ret);
 
     ret = rcutils_string_map_set(&string_map, "key1", "value1");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
     ret = rcutils_string_map_set(&string_map, "key2", "value2");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
     const char * first_key = rcutils_string_map_get_next_key(&string_map, NULL);
     EXPECT_STREQ("key1", first_key);
@@ -1359,15 +1359,15 @@ TEST(test_string_map, get_next_key) {
     ASSERT_EQ(RCUTILS_RET_OK, ret);
 
     ret = rcutils_string_map_set(&string_map, "key1", "value1");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
     ret = rcutils_string_map_set(&string_map, "key2", "value2");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
     ret = rcutils_string_map_set(&string_map, "key3", "value3");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
     // removing key2 will create a gap in the map between key1 and key3
     ret = rcutils_string_map_unset(&string_map, "key2");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
     const char * first_key = rcutils_string_map_get_next_key(&string_map, NULL);
     EXPECT_STREQ("key1", first_key);
@@ -1392,9 +1392,9 @@ TEST(test_string_map, copy) {
     ASSERT_EQ(RCUTILS_RET_OK, ret);
 
     ret = rcutils_string_map_set(&src_string_map, "key1", "value1");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
     ret = rcutils_string_map_set(&src_string_map, "key2", "value2");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
     rcutils_string_map_t dst_string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&dst_string_map, 0, allocator);
@@ -1442,9 +1442,9 @@ TEST(test_string_map, copy) {
     ASSERT_EQ(RCUTILS_RET_OK, ret);
 
     ret = rcutils_string_map_set(&dst_string_map, "key1", "value1");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
     ret = rcutils_string_map_set(&dst_string_map, "key2", "value2");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
     ret = rcutils_string_map_copy(&src_string_map, &dst_string_map);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
@@ -1465,18 +1465,18 @@ TEST(test_string_map, copy) {
     ASSERT_EQ(RCUTILS_RET_OK, ret);
 
     ret = rcutils_string_map_set(&src_string_map, "key1", "value1");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
     ret = rcutils_string_map_set(&src_string_map, "key2", "value2");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
     rcutils_string_map_t dst_string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&dst_string_map, 4, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
 
     ret = rcutils_string_map_set(&dst_string_map, "key2", "value2.1");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
     ret = rcutils_string_map_set(&dst_string_map, "key3", "value3");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
     ret = rcutils_string_map_copy(&src_string_map, &dst_string_map);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
@@ -1503,7 +1503,7 @@ TEST(test_string_map, strange_keys) {
     ASSERT_EQ(RCUTILS_RET_OK, ret);
 
     ret = rcutils_string_map_set(&string_map, "", "value1");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
     EXPECT_STREQ("value1", rcutils_string_map_get(&string_map, ""));
 
@@ -1518,7 +1518,7 @@ TEST(test_string_map, strange_keys) {
     ASSERT_EQ(RCUTILS_RET_OK, ret);
 
     ret = rcutils_string_map_set(&string_map, "key with spaces", "value1");
-    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string_safe();
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
     EXPECT_STREQ("value1", rcutils_string_map_get(&string_map, "key with spaces"));
 

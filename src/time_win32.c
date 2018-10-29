@@ -32,8 +32,7 @@ extern "C"
 rcutils_ret_t
 rcutils_system_time_now(rcutils_time_point_value_t * now)
 {
-  RCUTILS_CHECK_ARGUMENT_FOR_NULL(
-    now, RCUTILS_RET_INVALID_ARGUMENT, rcutils_get_default_allocator());
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(now, RCUTILS_RET_INVALID_ARGUMENT);
   FILETIME ft;
   GetSystemTimePreciseAsFileTime(&ft);
   LARGE_INTEGER li;
@@ -50,8 +49,7 @@ rcutils_system_time_now(rcutils_time_point_value_t * now)
 rcutils_ret_t
 rcutils_steady_time_now(rcutils_time_point_value_t * now)
 {
-  RCUTILS_CHECK_ARGUMENT_FOR_NULL(
-    now, RCUTILS_RET_INVALID_ARGUMENT, rcutils_get_default_allocator());
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(now, RCUTILS_RET_INVALID_ARGUMENT);
   LARGE_INTEGER cpu_frequency, performance_count;
   // These should not ever fail since XP is already end of life:
   // From https://msdn.microsoft.com/en-us/library/windows/desktop/ms644905(v=vs.85).aspx and
