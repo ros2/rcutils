@@ -56,12 +56,12 @@ extern "C"
 // e.g. "some error, at /path/to/a.c:42, at /path/to/b.c:42"
 #define RCUTILS_ERROR_STATE_MESSAGE_MAX_LENGTH 768
 // with RCUTILS_ERROR_STATE_MESSAGE_MAX_LENGTH = 768, RCUTILS_ERROR_STATE_FILE_MAX_LENGTH == 228
-#define RCUTILS_ERROR_STATE_FILE_MAX_LENGTH ( \
-    RCUTILS_ERROR_MESSAGE_MAX_LENGTH - \
-    RCUTILS_ERROR_STATE_MESSAGE_MAX_LENGTH - \
-    RCUTILS_ERROR_STATE_LINE_NUMBER_STR_MAX_LENGTH - \
-    RCUTILS_ERROR_FORMATTING_CHARACTERS - \
-    1)
+#define RCUTILS_ERROR_STATE_FILE_MAX_LENGTH \
+  RCUTILS_ERROR_MESSAGE_MAX_LENGTH - \
+  RCUTILS_ERROR_STATE_MESSAGE_MAX_LENGTH - \
+  RCUTILS_ERROR_STATE_LINE_NUMBER_STR_MAX_LENGTH - \
+  RCUTILS_ERROR_FORMATTING_CHARACTERS - \
+  1
 
 /// Struct wrapping a fixed-size c string used for returning the formatted error string.
 typedef struct rcutils_error_string_t
@@ -82,14 +82,16 @@ typedef struct rcutils_error_state_t
 } rcutils_error_state_t;
 
 // make sure our math is right...
+#if __STDC_VERSION__ >= 201112L
 static_assert(
-  RCUTILS_ERROR_MESSAGE_MAX_LENGTH == (
+  sizeof(rcutils_error_string_t) == (
     RCUTILS_ERROR_STATE_MESSAGE_MAX_LENGTH +
     RCUTILS_ERROR_STATE_FILE_MAX_LENGTH +
     RCUTILS_ERROR_STATE_LINE_NUMBER_STR_MAX_LENGTH +
     RCUTILS_ERROR_FORMATTING_CHARACTERS +
     1 /* null terminating character */),
   "Maximum length calculations incorrect");
+#endif
 
 /// Forces initialization of thread-local storage if called in a newly created thread.
 /**
