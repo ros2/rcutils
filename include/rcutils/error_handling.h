@@ -102,15 +102,14 @@ static_assert(
  * allocator will be used to allocate thread-local storage.
  *
  * This function may or may not allocate memory.
- * The system's thread-local storage implementation may need to
- * allocate memory (usually no way of knowing how much storage is needed if you
- * cannot know how many threads will be created).
- * Most implementations (e.g. C11, C++11, and pthread) do not allow you to
+ * The system's thread-local storage implementation may need to allocate
+ * memory, since it usually has no way of knowing how much storage is needed
+ * without knowing how many threads will be created.
+ * Most implementations (e.g. C11, C++11, and pthread) do not have ways to
  * specify how this memory is allocated, but if the implementation allows, the
- * given allocator to this function will be used, otherwise it is unused.
- * This isn't typically an issue since the memory is only free'd on thread
- * destruction, and people trying to avoid memory allocation will also be
- * avoiding thread creation and destruction.
+ * given allocator to this function will be used, but is otherwise unused.
+ * This only occurs when creating and destroying threads, which can be avoided
+ * in the "steady" state by reusing pools of threads.
  *
  * It is worth considering that repeated thread creation and destruction will
  * result in repeated memory allocations and could result in memory
@@ -121,7 +120,7 @@ static_assert(
  * been set.
  *
  * If called more than once in a thread, or after implicitly initialized by
- * setting the error state, it will still return `RCUTILS_RET_OK`, and even
+ * setting the error state, it will still return `RCUTILS_RET_OK`, even
  * if the given allocator is invalid.
  * Essentially this function does nothing if thread-local storage has already
  * been called.
@@ -239,9 +238,9 @@ rcutils_get_error_state(void);
 /**
  * This function is "safe" because it returns a copy of the current error
  * string or one containing the string "error not set" if no error was set.
- * This ensures your copy is owned by you and is never invalidated by error
- * handling calls, and that the c string inside is always valid and null
- * terminated.
+ * This ensures that the copy is owned by the calling thread and is therefore
+ * never invalidated by other error handling calls, and that the C string
+ * inside is always valid and null terminated.
  *
  * \return The current error string, with file and line number, or "error not set" if not set.
  */
