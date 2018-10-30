@@ -66,17 +66,17 @@ extern "C"
 /// Struct wrapping a fixed-size c string used for returning the formatted error string.
 typedef struct rcutils_error_string_t
 {
-  const char str[RCUTILS_ERROR_MESSAGE_MAX_LENGTH];
+  char str[RCUTILS_ERROR_MESSAGE_MAX_LENGTH];
 } rcutils_error_string_t;
 
 /// Struct which encapsulates the error state set by RCUTILS_SET_ERROR_MSG().
 typedef struct rcutils_error_state_t
 {
   /// User message storage, limited to RCUTILS_ERROR_STATE_MESSAGE_MAX_LENGTH characters.
-  const char message[RCUTILS_ERROR_STATE_MESSAGE_MAX_LENGTH];
+  char message[RCUTILS_ERROR_STATE_MESSAGE_MAX_LENGTH];
   /// File name, limited to what's left from RCUTILS_ERROR_STATE_MAX_SIZE characters
   /// after subtracting storage for others.
-  const char file[RCUTILS_ERROR_STATE_FILE_MAX_LENGTH];
+  char file[RCUTILS_ERROR_STATE_FILE_MAX_LENGTH];
   /// Line number of error.
   uint64_t line_number;
 } rcutils_error_state_t;
