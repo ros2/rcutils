@@ -35,7 +35,7 @@ rcutils_split(
   rcutils_string_array_t * string_array)
 {
   if (NULL == string_array) {
-    RCUTILS_SET_ERROR_MSG("string_array is null")
+    RCUTILS_SET_ERROR_MSG("string_array is null");
     return RCUTILS_RET_INVALID_ARGUMENT;
   }
   if (NULL == str || strlen(str) == 0) {

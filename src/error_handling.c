@@ -60,7 +60,7 @@ rcutils_initialize_error_handling_thread_local_storage(rcutils_allocator_t alloc
   // to initialize and do any required memory allocation
   gtls_rcutils_thread_local_initialized = true;
   rcutils_reset_error();
-  RCUTILS_SET_ERROR_MSG("no error - initializing thread-local storage")
+  RCUTILS_SET_ERROR_MSG("no error - initializing thread-local storage");
   {  // this scope is to prevent uncrustify from moving the (void) to the previous line
     (void)rcutils_get_error_string();
   }
