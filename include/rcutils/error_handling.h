@@ -22,7 +22,9 @@ extern "C"
 {
 #endif
 
+#ifndef __STDC_WANT_LIB_EXT1__
 #define __STDC_WANT_LIB_EXT1__ 1  // indicate we would like strnlen_s if available
+#endif
 #include <assert.h>
 #include <stdbool.h>
 #include <stddef.h>
