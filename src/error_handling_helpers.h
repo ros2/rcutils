@@ -133,7 +133,7 @@ __rcutils_format_error_string(
       sizeof(line_number_buffer) - 1 /* minus the null-term */ +
       1  // null terminator
     ), "math error in static string formatting");
-  char * offset = (char *)error_string->str;
+  char * offset = error_string->str;
   size_t bytes_left = sizeof(error_string->str);
   size_t written = __rcutils_copy_string(offset, bytes_left, error_state->message);
   offset += written;
