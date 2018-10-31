@@ -102,7 +102,7 @@ TEST(test_error_handling, convert_uint64_t_into_c_str) {
     uint64_t number = UINT64_MAX;
     char buffer[21];
     EXPECT_NO_MEMORY_OPERATIONS({
-      __rcutils_convert_uint64_t_into_c_str(number, buffer);
+      __rcutils_convert_uint64_t_into_c_str(number, buffer, sizeof(buffer));
     });
     EXPECT_STREQ(buffer, "18446744073709551615");
   }
@@ -110,7 +110,7 @@ TEST(test_error_handling, convert_uint64_t_into_c_str) {
     uint64_t number = 0;
     char buffer[21];
     EXPECT_NO_MEMORY_OPERATIONS({
-      __rcutils_convert_uint64_t_into_c_str(number, buffer);
+      __rcutils_convert_uint64_t_into_c_str(number, buffer, sizeof(buffer));
     });
     EXPECT_STREQ(buffer, "0");
   }
@@ -118,7 +118,7 @@ TEST(test_error_handling, convert_uint64_t_into_c_str) {
     uint64_t number = 42;
     char buffer[21];
     EXPECT_NO_MEMORY_OPERATIONS({
-      __rcutils_convert_uint64_t_into_c_str(number, buffer);
+      __rcutils_convert_uint64_t_into_c_str(number, buffer, sizeof(buffer));
     });
     EXPECT_STREQ(buffer, "42");
   }
@@ -126,7 +126,7 @@ TEST(test_error_handling, convert_uint64_t_into_c_str) {
     uint64_t number = INT64_MAX;
     char buffer[21];
     EXPECT_NO_MEMORY_OPERATIONS({
-      __rcutils_convert_uint64_t_into_c_str(number, buffer);
+      __rcutils_convert_uint64_t_into_c_str(number, buffer, sizeof(buffer));
     });
     EXPECT_STREQ(buffer, "9223372036854775807");
   }

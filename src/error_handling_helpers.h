@@ -45,9 +45,14 @@ extern "C"
 {
 #endif
 
+// do not use externally, internal function which is only to be used by error_handling.c
+static
 size_t
 __rcutils_copy_string(char * dst, size_t dst_size, const char * src)
 {
+  assert(dst != NULL);
+  assert(dst_size > 0);
+  assert(src != NULL);
   // doesn't matter how long src actually is if it is longer than dst, so limit to dst + 1
   size_t src_length = strnlen(src, dst_size + 1);
   size_t size_to_copy = src_length;
@@ -80,9 +85,12 @@ __rcutils_copy_string(char * dst, size_t dst_size, const char * src)
   return size_to_copy;
 }
 
+// do not use externally, internal function which is only to be used by error_handling.c
+static
 void
 __rcutils_reverse_str(char * string_in, size_t string_len)
 {
+  assert(string_in != NULL);
   size_t i = 0;
   size_t j = string_len - 1;
   for (; i < j; i++, j--) {
@@ -92,10 +100,13 @@ __rcutils_reverse_str(char * string_in, size_t string_len)
   }
 }
 
-// sizeof(buffer) must be greater than or equal to 21.
+// do not use externally, internal function which is only to be used by error_handling.c
+static
 void
-__rcutils_convert_uint64_t_into_c_str(uint64_t number, char * buffer)
+__rcutils_convert_uint64_t_into_c_str(uint64_t number, char * buffer, size_t buffer_size)
 {
+  assert(buffer != NULL);
+  assert(buffer_size >= 21);
   size_t i = 0;
 
   // if number is 0, short circuit
@@ -118,14 +129,18 @@ __rcutils_convert_uint64_t_into_c_str(uint64_t number, char * buffer)
   __rcutils_reverse_str(buffer, strnlen(buffer, 21));
 }
 
+// do not use externally, internal function which is only to be used by error_handling.c
+static
 void
 __rcutils_format_error_string(
   rcutils_error_string_t * error_string,
   const rcutils_error_state_t * error_state)
 {
+  assert(error_string != NULL);
+  assert(error_state != NULL);
   static const char format_1[] = ", at ";
   static const char format_2[] = ":";
-  static char line_number_buffer[21];
+  char line_number_buffer[21];
   static_assert(
     sizeof(error_string->str) == (
       sizeof(error_state->message) +
@@ -149,7 +164,8 @@ __rcutils_format_error_string(
   written = __rcutils_copy_string(offset, bytes_left, format_2);
   offset += written;
   bytes_left -= written;
-  __rcutils_convert_uint64_t_into_c_str(error_state->line_number, line_number_buffer);
+  __rcutils_convert_uint64_t_into_c_str(
+    error_state->line_number, line_number_buffer, sizeof(line_number_buffer));
   written = __rcutils_copy_string(offset, bytes_left, line_number_buffer);
   offset += written;
   offset[0] = '\0';
