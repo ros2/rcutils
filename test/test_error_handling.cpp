@@ -131,7 +131,7 @@ TEST(test_error_handling, reset) {
     EXPECT_NO_MEMORY_OPERATIONS_BEGIN();
     rcutils_error_string_t error_string = rcutils_get_error_string();
     EXPECT_NO_MEMORY_OPERATIONS_END();
-    ASSERT_NE(nullptr, error_string.str);
+    ASSERT_STRNE("", error_string.str);
   }
   {
     EXPECT_NO_MEMORY_OPERATIONS_BEGIN();
@@ -156,7 +156,7 @@ TEST(test_error_handling, empty) {
     EXPECT_NO_MEMORY_OPERATIONS_BEGIN();
     rcutils_error_string_t error_string = rcutils_get_error_string();
     EXPECT_NO_MEMORY_OPERATIONS_END();
-    ASSERT_NE(nullptr, error_string.str);
+    ASSERT_STRNE("", error_string.str);
   }
   {
     EXPECT_NO_MEMORY_OPERATIONS_BEGIN();
