@@ -85,7 +85,6 @@ rcutils_set_error_state(
 {
   rcutils_error_state_t error_state;
 
-  // The const is casted away to set the 'message' field of the error state (const for users only).
   __rcutils_copy_string(error_state.message, sizeof(error_state.message), error_string);
   __rcutils_copy_string(error_state.file, sizeof(error_state.file), file);
   error_state.line_number = line_number;
