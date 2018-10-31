@@ -43,10 +43,10 @@ extern "C"
 // Limit the buffer size in the `fwrite` call to give an upper bound to buffer overrun in the case
 // of non-null terminated `msg`.
 #define RCUTILS_SAFE_FWRITE_TO_STDERR(msg) \
-  do { fwrite(msg, sizeof(char), strnlen_s(msg, 4096), stderr); } while(0)
+  do {fwrite(msg, sizeof(char), strnlen_s(msg, 4096), stderr);} while (0)
 #else
 #define RCUTILS_SAFE_FWRITE_TO_STDERR(msg) \
-  do { fwrite(msg, sizeof(char), strlen(msg), stderr); } while(0)
+  do {fwrite(msg, sizeof(char), strlen(msg), stderr);} while (0)
 #endif
 
 // fixed constraints
@@ -185,7 +185,7 @@ rcutils_set_error_state(const char * error_string, const char * file, size_t lin
       RCUTILS_SET_ERROR_MSG(msg); \
       error_statement; \
     } \
-  } while(0)
+  } while (0)
 
 /// Set the error message, as well as append the current file and line number.
 /**
@@ -198,7 +198,7 @@ rcutils_set_error_state(const char * error_string, const char * file, size_t lin
  * \param[in] msg The error message to be set.
  */
 #define RCUTILS_SET_ERROR_MSG(msg) \
-  do { rcutils_set_error_state(msg, __FILE__, __LINE__); } while(0)
+  do {rcutils_set_error_state(msg, __FILE__, __LINE__);} while (0)
 
 /// Set the error message using a format string and format arguments.
 /**
