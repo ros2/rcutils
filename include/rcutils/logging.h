@@ -142,6 +142,31 @@ RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
 rcutils_ret_t rcutils_logging_shutdown(void);
 
+/// Configures the logging system.
+/**
+ * This function should be called during the ROS initialization process. It will
+ * add the enabled log output appenders to the root logger.
+ *
+ * <hr>
+ * Attribute          | Adherence
+ * ------------------ | -------------
+ * Allocates Memory   | No
+ * Thread-Safe        | No
+ * Uses Atomics       | No
+ * Lock-Free          | Yes
+ *
+ * \param default_level The default severity level to log at
+ * \param config_file The configuration file for the external logging library to use. Should be a null terminated string.
+ *      If NULL or an empty string the default configuration will be used
+ * \param enable_stdout Should the stdout output appender be enabled
+ * \param enable_rosout Should the rosout output appender be enabled
+ * \param enable_ext_lib Should the external logger library output appender be enabled
+ * \return `RCUTILS_RET_OK` if successful.
+ * \return `RCUTILS_RET_ERR` if a general error occurs
+ */
+RCUTILS_PUBLIC
+rcutils_ret_t rcutils_logging_configure(int default_level, const char * config_file, bool enable_stdout, bool enable_rosout, bool enable_ext_lib);
+
 /// The structure identifying the caller location in the source code.
 typedef struct rcutils_log_location_t
 {
@@ -196,16 +221,14 @@ rcutils_logging_severity_level_from_string(
  * \param severity The severity level
  * \param name The name of the logger
  * \param timestamp The timestamp
- * \param format The format string
- * \param args The variable argument list
+ * \param log_str The string to be logged
  */
 typedef void (* rcutils_logging_output_handler_t)(
   const rcutils_log_location_t *,  // location
   int,  // severity
   const char *,  // name
   rcutils_time_point_value_t,  // timestamp
-  const char *,  // format
-  va_list *  // args
+  const char *  // log_str
 );
 
 /// The function pointer of the current output handler.
@@ -418,7 +441,8 @@ int rcutils_logging_get_logger_effective_level(const char * name);
  * <hr>
  * Attribute          | Adherence
  * ------------------ | -------------
- * Allocates Memory   | No
+ * Allocates Memory   | No, for formatted outputs <= 1023 characters
+ *                    | Yes, for formatted outputs >= 1024 characters
  * Thread-Safe        | No
  * Uses Atomics       | No
  * Lock-Free          | Yes
@@ -449,8 +473,7 @@ void rcutils_log(
  * <hr>
  * Attribute          | Adherence
  * ------------------ | -------------
- * Allocates Memory   | No, for formatted outputs <= 1023 characters
- *                    | Yes, for formatted outputs >= 1024 characters
+ * Allocates Memory   | No
  * Thread-Safe        | Yes, if the underlying *printf functions are
  * Uses Atomics       | No
  * Lock-Free          | Yes
@@ -459,14 +482,13 @@ void rcutils_log(
  * \param severity The severity level
  * \param name The name of the logger, must be null terminated c string
  * \param timestamp The timestamp for when the log message was made
- * \param format The format string for the message contents
- * \param args The variable argument list for the message format string
+ * \param log_str The string to be logged
  */
 RCUTILS_PUBLIC
 void rcutils_logging_console_output_handler(
   const rcutils_log_location_t * location,
   int severity, const char * name, rcutils_time_point_value_t timestamp,
-  const char * format, va_list * args);
+  const char * log_str);
 
 // Provide the compiler with branch prediction information
 #ifndef _WIN32

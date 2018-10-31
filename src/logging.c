@@ -32,8 +32,10 @@ extern "C"
 #include "rcutils/strdup.h"
 #include "rcutils/time.h"
 #include "rcutils/types/string_map.h"
+#include "rcutils/logging_external_interface.h"
 
-#define RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN 2048
+#define RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN   (2048)
+#define RCUTILS_LOGGING_MAX_OUTPUT_FUNCS        (3)
 
 const char * g_rcutils_log_severity_names[] = {
   [RCUTILS_LOG_SEVERITY_UNSET] = "UNSET",
@@ -53,6 +55,8 @@ static rcutils_allocator_t g_rcutils_logging_allocator;
 
 rcutils_logging_output_handler_t g_rcutils_logging_output_handler = NULL;
 static rcutils_string_map_t g_rcutils_logging_severities_map;
+static rcutils_logging_output_handler_t g_rcutils_logging_out_handlers[RCUTILS_LOGGING_MAX_OUTPUT_FUNCS] = {0};
+static uint8_t g_rcutils_logging_num_out_handlers = 0;
 
 // If this is false, attempts to use the severities map will be skipped.
 // This can happen if allocation of the map fails at initialization.
@@ -63,6 +67,36 @@ int g_rcutils_logging_default_logger_level = 0;
 bool g_force_stdout_line_buffered = false;
 bool g_stdout_flush_failure_reported = false;
 
+/**
+ *  An output function that sends to multiple output appenders
+ */
+static void rcutils_logging_multiple_output_handler(
+  const rcutils_log_location_t * location,
+  int severity, const char * name, rcutils_time_point_value_t timestamp,
+  const char * log_str);
+
+/**
+ *  An output function that sends to the external logger library
+ */
+static void rcutils_logging_ext_lib_output_handler(
+  const rcutils_log_location_t * location,
+  int severity, const char * name, rcutils_time_point_value_t timestamp,
+  const char * log_str);
+
+/**
+ *  An output function that sends to the rosout topic
+ */
+static void rcutils_logging_rosout_output_handler(
+  const rcutils_log_location_t * location,
+  int severity, const char * name, rcutils_time_point_value_t timestamp,
+  const char * log_str);
+
+/**
+ *  Handles formatting the log data into a common string format for every logger
+ */
+static void format_log(const rcutils_log_location_t * location,
+  int severity, const char * name, rcutils_time_point_value_t timestamp,
+  const char * format, va_list * args, rcutils_char_array_t * logging_output);
 
 rcutils_ret_t rcutils_logging_initialize(void)
 {
@@ -158,6 +192,29 @@ rcutils_ret_t rcutils_logging_shutdown(void)
   }
   g_rcutils_logging_initialized = false;
   return ret;
+}
+
+rcutils_ret_t rcutils_logging_configure(int default_level, const char * config_file, bool enable_stdout, bool enable_rosout, bool enable_ext_lib)
+{
+  RCUTILS_LOGGING_AUTOINIT
+  rcutils_ret_t status = RCUTILS_RET_OK;
+  if (default_level >= 0) {
+    rcutils_logging_set_default_logger_level(default_level);
+  }
+  if (enable_stdout) {
+      g_rcutils_logging_out_handlers[g_rcutils_logging_num_out_handlers++] = rcutils_logging_console_output_handler;
+  }
+  if (enable_rosout) {
+      g_rcutils_logging_out_handlers[g_rcutils_logging_num_out_handlers++] = rcutils_logging_rosout_output_handler;
+  }
+  if (enable_ext_lib) {
+      status = rcutils_logging_external_initialize(config_file);
+      if (RCUTILS_RET_OK == status) {
+          g_rcutils_logging_out_handlers[g_rcutils_logging_num_out_handlers++] = rcutils_logging_ext_lib_output_handler;
+      }
+  }
+  rcutils_logging_set_output_handler(rcutils_logging_multiple_output_handler);
+  return status;
 }
 
 rcutils_ret_t
@@ -363,6 +420,26 @@ bool rcutils_logging_logger_is_enabled_for(const char * name, int severity)
   }
   return severity >= logger_level;
 }
+#define SAFE_FWRITE_TO_STDERR_AND(action) \
+    RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string().str); \
+    rcutils_reset_error(); \
+    RCUTILS_SAFE_FWRITE_TO_STDERR("\n"); \
+    action;
+
+#define OK_OR_RETURN_NULL(op) \
+  if (op != RCUTILS_RET_OK) { \
+    SAFE_FWRITE_TO_STDERR_AND(return NULL); \
+  }
+
+#define OK_OR_RETURN_EARLY(op) \
+  if (op != RCUTILS_RET_OK) { \
+    SAFE_FWRITE_TO_STDERR_AND(return); \
+  }
+
+#define APPEND_AND_RETURN_LOG_OUTPUT(s) \
+  OK_OR_RETURN_NULL(rcutils_char_array_strcat(logging_output, s)); \
+  return logging_output->buffer;
+
 
 void rcutils_log(
   const rcutils_log_location_t * location,
@@ -379,27 +456,69 @@ void rcutils_log(
   }
   rcutils_logging_output_handler_t output_handler = g_rcutils_logging_output_handler;
   if (output_handler != NULL) {
+    char buf[1024] = "";
+    rcutils_char_array_t logging_output = {
+      .buffer = buf,
+      .owns_buffer = false,
+      .buffer_length = 0u,
+      .buffer_capacity = sizeof(buf),
+      .allocator = g_rcutils_logging_allocator
+    };
+
     va_list args;
     va_start(args, format);
-    (*output_handler)(location, severity, name ? name : "", now, format, &args);
+    format_log(location, severity, name, now, format, &args, &logging_output);
     va_end(args);
+
+    (*output_handler)(location, severity, name ? name : "", now, logging_output.buffer);
+
+    if (rcutils_char_array_fini(&logging_output) != RCUTILS_RET_OK) {
+      SAFE_FWRITE_TO_STDERR_AND(fprintf(stderr, "Error: failed to clean up rcutils char array.\n"));
+    }
+
   }
 }
 
-#define SAFE_FWRITE_TO_STDERR_AND(action) \
-    RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string().str); \
-    rcutils_reset_error(); \
-    RCUTILS_SAFE_FWRITE_TO_STDERR("\n"); \
-    action;
-
-#define OK_OR_RETURN_NULL(op) \
-  if (op != RCUTILS_RET_OK) { \
-    SAFE_FWRITE_TO_STDERR_AND(return NULL); \
+static void rcutils_logging_multiple_output_handler(
+  const rcutils_log_location_t * location,
+  int severity, const char * name, rcutils_time_point_value_t timestamp,
+  const char * log_str)
+{
+  for (uint8_t i = 0; i < g_rcutils_logging_num_out_handlers && NULL != g_rcutils_logging_out_handlers[i]; ++i) {
+    g_rcutils_logging_out_handlers[i](location, severity, name, timestamp, log_str);
   }
+}
 
-#define APPEND_AND_RETURN_LOG_OUTPUT(s) \
-  OK_OR_RETURN_NULL(rcutils_char_array_strcat(logging_output, s)); \
-  return logging_output->buffer;
+/**
+ *  An output function that sends to the external logger library
+ */
+static void rcutils_logging_ext_lib_output_handler(
+  const rcutils_log_location_t * location,
+  int severity, const char * name, rcutils_time_point_value_t timestamp,
+  const char * log_str)
+{
+  RCUTILS_UNUSED(location);
+  RCUTILS_UNUSED(severity);
+  RCUTILS_UNUSED(name);
+  RCUTILS_UNUSED(timestamp);
+  rcutils_logging_external_log(severity, name, log_str);
+}
+
+/**
+ *  An output function that sends to the rosout topic
+ */
+static void rcutils_logging_rosout_output_handler(
+  const rcutils_log_location_t * location,
+  int severity, const char * name, rcutils_time_point_value_t timestamp,
+  const char * log_str)
+{
+  //TODO:
+  RCUTILS_UNUSED(location);
+  RCUTILS_UNUSED(severity);
+  RCUTILS_UNUSED(name);
+  RCUTILS_UNUSED(timestamp);
+  RCUTILS_UNUSED(log_str);
+}
 
 typedef struct logging_input
 {
@@ -537,7 +656,9 @@ token_handler find_token_handler(const char * token)
   return NULL;
 }
 
-char * expand_tokens(const logging_input * logging_input, rcutils_char_array_t * logging_output)
+static void format_log(const rcutils_log_location_t * location,
+  int severity, const char * name, rcutils_time_point_value_t timestamp,
+  const char * format, va_list * args, rcutils_char_array_t * logging_output)
 {
   // Process the format string looking for known tokens.
   const char token_start_delimiter = '{';
@@ -545,6 +666,15 @@ char * expand_tokens(const logging_input * logging_input, rcutils_char_array_t *
 
   const char * str = g_rcutils_logging_output_format_string;
   size_t size = strlen(g_rcutils_logging_output_format_string);
+
+  const logging_input logging_input = {
+      .location = location,
+      .severity = severity,
+      .name = name,
+      .timestamp = timestamp,
+      .format = format,
+      .args = args
+  };
 
   // Walk through the format string and expand tokens when they're encountered.
   size_t i = 0;
@@ -555,7 +685,7 @@ char * expand_tokens(const logging_input * logging_input, rcutils_char_array_t *
 
     if (chars_to_start_delim > 0) { // there are stuff before a token start delimiter
       size_t chars_to_copy = chars_to_start_delim > remaining_chars ? remaining_chars : chars_to_start_delim;
-      OK_OR_RETURN_NULL(rcutils_char_array_strncat(logging_output, str + i, chars_to_copy));
+      OK_OR_RETURN_EARLY(rcutils_char_array_strncat(logging_output, str + i, chars_to_copy));
       i += chars_to_copy;
       if (i >= size) { // perhaps no start delimiter was found
         break;
@@ -573,7 +703,7 @@ char * expand_tokens(const logging_input * logging_input, rcutils_char_array_t *
     if (chars_to_end_delim > remaining_chars) {
       // No end delimiters found in the remainder of the format string;
       // there won't be any more tokens so shortcut the rest of the checking.
-      OK_OR_RETURN_NULL(rcutils_char_array_strncat(logging_output, str + i, remaining_chars));
+      OK_OR_RETURN_EARLY(rcutils_char_array_strncat(logging_output, str + i, remaining_chars));
       break;
     }
 
@@ -587,26 +717,28 @@ char * expand_tokens(const logging_input * logging_input, rcutils_char_array_t *
     if (!expand_token) {
       // This wasn't a token; print the start delimiter and continue the search as usual
       // (the substring might contain more start delimiters).
-      OK_OR_RETURN_NULL(rcutils_char_array_strncat(logging_output, str + i, 1));
+      OK_OR_RETURN_EARLY(rcutils_char_array_strncat(logging_output, str + i, 1));
       i++;
       continue;
     }
 
-    if (!expand_token(logging_input, logging_output)) {
-      return NULL;
+    if (!expand_token(&logging_input, logging_output)) {
+      return;
     }
     // Skip ahead to avoid re-processing the token characters (including the 2 delimiters).
     i += token_len + 2;
   }
 
-  return logging_output->buffer;
 }
 
 void rcutils_logging_console_output_handler(
   const rcutils_log_location_t * location,
   int severity, const char * name, rcutils_time_point_value_t timestamp,
-  const char * format, va_list * args)
+  const char * log_str)
 {
+  RCUTILS_UNUSED(location);
+  RCUTILS_UNUSED(name);
+  RCUTILS_UNUSED(timestamp);
   if (!g_rcutils_logging_initialized) {
     fprintf(
       stderr,
@@ -629,31 +761,8 @@ void rcutils_logging_console_output_handler(
       fprintf(stderr, "unknown severity level: %d\n", severity);
       return;
   }
-  const logging_input logging_input = {
-      .location = location,
-      .severity = severity,
-      .name = name,
-      .timestamp = timestamp,
-      .format = format,
-      .args = args
-  };
 
-  char buf[1024] = "";
-  rcutils_char_array_t logging_output = {
-      .buffer = buf,
-      .owns_buffer = false,
-      .buffer_length = 0u,
-      .buffer_capacity = sizeof(buf),
-      .allocator = g_rcutils_logging_allocator
-  };
-
-  expand_tokens(&logging_input, &logging_output);
-
-  fprintf(stream, "%s\n", logging_output.buffer);
-
-  if (rcutils_char_array_fini(&logging_output) != RCUTILS_RET_OK) {
-    SAFE_FWRITE_TO_STDERR_AND(fprintf(stderr, "Error: failed to clean up rcutils char array.\n"));
-  }
+  fprintf(stream, "%s\n", log_str);
 
   if (g_force_stdout_line_buffered && stream == stdout) {
     int flush_result = fflush(stream);

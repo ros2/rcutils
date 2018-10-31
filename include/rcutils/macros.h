@@ -62,6 +62,7 @@ extern "C"
 
 #define RCUTILS_STRINGIFY_IMPL(x) #x
 #define RCUTILS_STRINGIFY(x) RCUTILS_STRINGIFY_IMPL(x)
+#define RCUTILS_UNUSED(x) (void)(x)
 
 #ifdef __cplusplus
 }

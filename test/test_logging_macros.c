@@ -34,7 +34,7 @@ struct LogEvent g_last_log_event;
 void custom_handler(
   const rcutils_log_location_t * location,
   int severity, const char * name, rcutils_time_point_value_t timestamp,
-  const char * format, va_list * args)
+  const char * log_str)
 {
   rcutils_allocator_t allocator = rcutils_get_default_allocator();
   g_log_calls += 1;
@@ -47,7 +47,7 @@ void custom_handler(
   }
   const size_t size = 1024;
   g_last_log_event.message = allocator.allocate(size, allocator.state);
-  vsnprintf(g_last_log_event.message, size, format, *args);
+  strncpy(g_last_log_event.message, log_str, size);
 }
 
 int main(int argc, char ** argv)
