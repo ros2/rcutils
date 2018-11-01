@@ -280,3 +280,33 @@ TEST(test_error_handling, copy) {
     rcutils_reset_error();
   });
 }
+
+TEST(test_error_handling, overwrite) {
+  osrf_testing_tools_cpp::memory_tools::ScopedQuickstartGtest scoped_quickstart_gtest;
+  rcutils_ret_t ret =
+    rcutils_initialize_error_handling_thread_local_storage(rcutils_get_default_allocator());
+  ASSERT_EQ(ret, RCUTILS_RET_OK);
+  EXPECT_NO_MEMORY_OPERATIONS({
+    rcutils_reset_error();
+  });
+  const char * test_message = "this is expected to cause a warning from error_handling.c";
+  EXPECT_NO_MEMORY_OPERATIONS({
+    RCUTILS_SET_ERROR_MSG(test_message);
+  });
+  using ::testing::HasSubstr;
+  EXPECT_NO_MEMORY_OPERATIONS_BEGIN();
+  rcutils_error_string_t error_string = rcutils_get_error_string();
+  EXPECT_NO_MEMORY_OPERATIONS_END();
+  ASSERT_THAT(error_string.str, HasSubstr(", at"));
+
+  // force an overwrite error
+  const char * test_message2 = "and this too";
+  printf("The following warning from error_handling.c is expected...\n");
+  EXPECT_NO_MEMORY_OPERATIONS({
+    RCUTILS_SET_ERROR_MSG(test_message2);
+  });
+
+  EXPECT_NO_MEMORY_OPERATIONS({
+    rcutils_reset_error();
+  });
+}

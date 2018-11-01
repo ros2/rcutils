@@ -83,6 +83,87 @@ __same_string(const char * str1, const char * str2, size_t count)
   return str1 == str2 || 0 == strncmp(str1, str2, count);
 }
 
+static
+void
+__format_overwriting_error_state_message(
+  char * buffer,
+  size_t buffer_size,
+  const rcutils_error_state_t * new_error_state)
+{
+  assert(NULL != buffer);
+  assert(0 != buffer_size);
+  assert(INT64_MAX > buffer_size);
+  assert(NULL != new_error_state);
+
+  int64_t bytes_left = buffer_size;
+  do {
+    char * offset = buffer;
+    size_t written = 0;
+
+    // write the first static part of the error message
+    written = __rcutils_copy_string(offset, bytes_left,
+        "\n"
+        ">>> [rcutils|error_handling.c:" RCUTILS_STRINGIFY(__LINE__) "] rcutils_set_error_state()\n"
+        "This error state is being overwritten:\n"
+        "\n"
+        "  '");
+    offset += written;
+    bytes_left -= written;
+    if (0 >= bytes_left) {break;}
+
+    // write the old error string
+    rcutils_error_string_t old_error_string = rcutils_get_error_string();
+    written = __rcutils_copy_string(offset, sizeof(old_error_string.str), old_error_string.str);
+    offset += written;
+    bytes_left -= written;
+    if (0 >= bytes_left) {break;}
+
+    // write the middle part of the state error message
+    written = __rcutils_copy_string(offset, bytes_left,
+        "'\n"
+        "\n"
+        "with this new error message:\n"
+        "\n"
+        "  '");
+    offset += written;
+    bytes_left -= written;
+    if (0 >= bytes_left) {break;}
+
+    // format error string for new error state and write it in
+    rcutils_error_string_t new_error_string = {
+      .str = "\0"
+    };
+    __rcutils_format_error_string(&new_error_string, new_error_state);
+    written = __rcutils_copy_string(offset, sizeof(new_error_string.str), new_error_string.str);
+    offset += written;
+    bytes_left -= written;
+    if (0 >= bytes_left) {break;}
+
+    // write the last part of the state error message
+    written = __rcutils_copy_string(offset, bytes_left,
+        "'\n"
+        "\n"
+        "rcutils_reset_error() should be called after error handling to avoid this.\n"
+        "<<<\n");
+    bytes_left -= written;
+    if (bytes_left <= 0) {break;}
+  } while (0);
+
+#if RCUTILS_REPORT_ERROR_HANDLING_ERRORS
+  // note that due to the way truncating is done above, and the size of the
+  // output buffer used with this function in rcutils_set_error_state() below,
+  // this should never evaluate to true, but it's here to be defensive and try
+  // to catch programming mistakes in this file earlier.
+  if (0 >= bytes_left) {
+    RCUTILS_SAFE_FWRITE_TO_STDERR(
+      "[rcutils|error_handling.c:" RCUTILS_STRINGIFY(__LINE__)
+      "] rcutils_set_error_state() following error message was too long and will be truncated\n");
+  }
+#else
+  (void)bytes_left;  // avoid scope could be reduced warning if in this case
+#endif
+}
+
 void
 rcutils_set_error_state(
   const char * error_string,
@@ -121,27 +202,12 @@ rcutils_set_error_state(
     "expected error state's max message length to be less than or equal to error string max");
   if (
     gtls_rcutils_error_is_set &&
-    __same_string(error_string, gtls_rcutils_error_string.str, characters_to_compare) &&
-    __same_string(error_string, gtls_rcutils_error_state.message, characters_to_compare))
+    !__same_string(error_string, gtls_rcutils_error_string.str, characters_to_compare) &&
+    !__same_string(error_string, gtls_rcutils_error_state.message, characters_to_compare))
   {
-    fprintf(
-      stderr,
-      "\n"
-      ">>> [rcutils|error_handling.c:" RCUTILS_STRINGIFY(__LINE__) "] rcutils_set_error_state()\n"
-      "This error state is being overwritten:\n"
-      "\n"
-      "  '%s'\n"
-      "\n"
-      "with this new error message:\n"
-      "\n"
-      "  '%s, at %s:%zu'\n"
-      "\n"
-      "rcutils_reset_error() should be called after error handling to avoid this.\n"
-      "<<<\n",
-      gtls_rcutils_error_string.str,
-      error_string,
-      file,
-      line_number);
+    char output_buffer[4096];
+    __format_overwriting_error_state_message(output_buffer, sizeof(output_buffer), &error_state);
+    RCUTILS_SAFE_FWRITE_TO_STDERR(output_buffer);
   }
 #endif
   gtls_rcutils_error_state = error_state;
