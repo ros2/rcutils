@@ -126,7 +126,9 @@ rcutils_set_error_state(
 #endif
   gtls_rcutils_error_state = error_state;
   gtls_rcutils_error_string_is_formatted = false;
-  gtls_rcutils_error_string = (const rcutils_error_string_t) {0};
+  gtls_rcutils_error_string = (const rcutils_error_string_t) {
+    .str = "\0"
+  };
   gtls_rcutils_error_is_set = true;
 }
 
@@ -161,7 +163,9 @@ rcutils_reset_error(void)
     .message = {0}, .file = {0}, .line_number = 0
   };  // NOLINT(readability/braces)
   gtls_rcutils_error_string_is_formatted = false;
-  gtls_rcutils_error_string = (const rcutils_error_string_t) {0};
+  gtls_rcutils_error_string = (const rcutils_error_string_t) {
+    .str = "\0"
+  };
   gtls_rcutils_error_is_set = false;
 }
 
