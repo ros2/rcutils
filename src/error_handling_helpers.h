@@ -91,6 +91,9 @@ void
 __rcutils_reverse_str(char * string_in, size_t string_len)
 {
   assert(string_in != NULL);
+  if (string_len == 0) {
+    return;
+  }
   size_t i = 0;
   size_t j = string_len - 1;
   for (; i < j; i++, j--) {

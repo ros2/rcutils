@@ -94,6 +94,13 @@ TEST(test_error_handling, reverse_str) {
     });
     EXPECT_STREQ(buffer, "vererseme");
   }
+  {
+    char buffer[] = "doesntmatter";
+    EXPECT_NO_MEMORY_OPERATIONS({
+      __rcutils_reverse_str(buffer, 0);
+    });
+    EXPECT_STREQ(buffer, "doesntmatter");
+  }
 }
 
 TEST(test_error_handling, convert_uint64_t_into_c_str) {
