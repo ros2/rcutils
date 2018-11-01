@@ -60,13 +60,13 @@ extern "C"
 // remember "chained" errors will include previously specified file paths
 // e.g. "some error, at /path/to/a.c:42, at /path/to/b.c:42"
 #define RCUTILS_ERROR_STATE_MESSAGE_MAX_LENGTH 768
-// with RCUTILS_ERROR_STATE_MESSAGE_MAX_LENGTH = 768, RCUTILS_ERROR_STATE_FILE_MAX_LENGTH == 228
-#define RCUTILS_ERROR_STATE_FILE_MAX_LENGTH \
+// with RCUTILS_ERROR_STATE_MESSAGE_MAX_LENGTH = 768, RCUTILS_ERROR_STATE_FILE_MAX_LENGTH == 229
+#define RCUTILS_ERROR_STATE_FILE_MAX_LENGTH (\
   RCUTILS_ERROR_MESSAGE_MAX_LENGTH - \
   RCUTILS_ERROR_STATE_MESSAGE_MAX_LENGTH - \
   RCUTILS_ERROR_STATE_LINE_NUMBER_STR_MAX_LENGTH - \
   RCUTILS_ERROR_FORMATTING_CHARACTERS - \
-  1
+  1)
 
 /// Struct wrapping a fixed-size c string used for returning the formatted error string.
 typedef struct rcutils_error_string_t

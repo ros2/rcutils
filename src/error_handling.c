@@ -78,6 +78,8 @@ static
 bool
 __same_string(const char * str1, const char * str2, size_t count)
 {
+  assert(NULL != str1);
+  assert(NULL != str2);
   return str1 == str2 || 0 == strncmp(str1, str2, count);
 }
 
@@ -88,6 +90,24 @@ rcutils_set_error_state(
   size_t line_number)
 {
   rcutils_error_state_t error_state;
+
+  if (NULL == error_string) {
+#if RCUTILS_REPORT_ERROR_HANDLING_ERRORS
+    RCUTILS_SAFE_FWRITE_TO_STDERR(
+      "[rcutils|error_handling.c:" RCUTILS_STRINGIFY(__LINE__)
+      "] rcutils_set_error_state() given null pointer for error_string, error was not set\n");
+#endif
+    return;
+  }
+
+  if (NULL == file) {
+#if RCUTILS_REPORT_ERROR_HANDLING_ERRORS
+    RCUTILS_SAFE_FWRITE_TO_STDERR(
+      "[rcutils|error_handling.c:" RCUTILS_STRINGIFY(__LINE__)
+      "] rcutils_set_error_state() given null pointer for file string, error was not set\n");
+#endif
+    return;
+  }
 
   __rcutils_copy_string(error_state.message, sizeof(error_state.message), error_string);
   __rcutils_copy_string(error_state.file, sizeof(error_state.file), file);
@@ -152,6 +172,7 @@ rcutils_get_error_string(void)
   }
   if (!gtls_rcutils_error_string_is_formatted) {
     __rcutils_format_error_string(&gtls_rcutils_error_string, &gtls_rcutils_error_state);
+    gtls_rcutils_error_string_is_formatted = true;
   }
   return gtls_rcutils_error_string;
 }

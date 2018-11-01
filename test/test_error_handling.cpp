@@ -86,7 +86,9 @@ Stack trace (most recent call last):
     rcutils_reset_error();
   });
   const char * test_message = "test message";
-  RCUTILS_SET_ERROR_MSG(test_message);
+  EXPECT_NO_MEMORY_OPERATIONS({
+    RCUTILS_SET_ERROR_MSG(test_message);
+  });
   using ::testing::StartsWith;
   EXPECT_NO_MEMORY_OPERATIONS_BEGIN();
   rcutils_error_string_t error_string = rcutils_get_error_string();
@@ -107,7 +109,9 @@ TEST(test_error_handling, reset) {
   });
   {
     const char * test_message = "test message";
-    RCUTILS_SET_ERROR_MSG(test_message);
+    EXPECT_NO_MEMORY_OPERATIONS({
+      RCUTILS_SET_ERROR_MSG(test_message);
+    });
     using ::testing::StartsWith;
     EXPECT_NO_MEMORY_OPERATIONS_BEGIN();
     rcutils_error_string_t error_string = rcutils_get_error_string();
@@ -117,7 +121,9 @@ TEST(test_error_handling, reset) {
   rcutils_reset_error();
   {
     const char * test_message = "different message";
-    RCUTILS_SET_ERROR_MSG(test_message);
+    EXPECT_NO_MEMORY_OPERATIONS({
+      RCUTILS_SET_ERROR_MSG(test_message);
+    });
     using ::testing::StartsWith;
     EXPECT_NO_MEMORY_OPERATIONS_BEGIN();
     rcutils_error_string_t error_string = rcutils_get_error_string();
@@ -139,6 +145,43 @@ TEST(test_error_handling, reset) {
     EXPECT_NO_MEMORY_OPERATIONS_END();
     ASSERT_STREQ("error not set", error_string.str);
   }
+  EXPECT_NO_MEMORY_OPERATIONS({
+    rcutils_reset_error();
+  });
+}
+
+TEST(test_error_handling, invalid_arguments) {
+  osrf_testing_tools_cpp::memory_tools::ScopedQuickstartGtest scoped_quickstart_gtest;
+  rcutils_ret_t ret =
+    rcutils_initialize_error_handling_thread_local_storage(rcutils_get_default_allocator());
+  ASSERT_EQ(ret, RCUTILS_RET_OK);
+  EXPECT_NO_MEMORY_OPERATIONS({
+    rcutils_reset_error();
+  });
+  printf("The following error from within error_handling.c is expected.\n");
+  EXPECT_NO_MEMORY_OPERATIONS({
+    RCUTILS_SET_ERROR_MSG(NULL);
+  });
+  EXPECT_FALSE(rcutils_error_is_set());
+  {
+    EXPECT_NO_MEMORY_OPERATIONS_BEGIN();
+    rcutils_error_string_t error_string = rcutils_get_error_string();
+    EXPECT_NO_MEMORY_OPERATIONS_END();
+    ASSERT_STREQ("error not set", error_string.str);
+  }
+
+  printf("The following error from within error_handling.c is expected.\n");
+  EXPECT_NO_MEMORY_OPERATIONS({
+    rcutils_set_error_state("valid error message", NULL, 42);
+  });
+  EXPECT_FALSE(rcutils_error_is_set());
+  {
+    EXPECT_NO_MEMORY_OPERATIONS_BEGIN();
+    rcutils_error_string_t error_string = rcutils_get_error_string();
+    EXPECT_NO_MEMORY_OPERATIONS_END();
+    ASSERT_STREQ("error not set", error_string.str);
+  }
+
   EXPECT_NO_MEMORY_OPERATIONS({
     rcutils_reset_error();
   });
@@ -178,7 +221,9 @@ TEST(test_error_handling, recursive) {
     rcutils_reset_error();
   });
   const char * test_message = "test message";
-  RCUTILS_SET_ERROR_MSG(test_message);
+  EXPECT_NO_MEMORY_OPERATIONS({
+    RCUTILS_SET_ERROR_MSG(test_message);
+  });
   using ::testing::HasSubstr;
   {
     EXPECT_NO_MEMORY_OPERATIONS_BEGIN();
@@ -211,7 +256,9 @@ TEST(test_error_handling, copy) {
     rcutils_reset_error();
   });
   const char * test_message = "test message";
-  RCUTILS_SET_ERROR_MSG(test_message);
+  EXPECT_NO_MEMORY_OPERATIONS({
+    RCUTILS_SET_ERROR_MSG(test_message);
+  });
   using ::testing::HasSubstr;
   EXPECT_NO_MEMORY_OPERATIONS_BEGIN();
   rcutils_error_string_t error_string = rcutils_get_error_string();

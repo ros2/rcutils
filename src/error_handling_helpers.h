@@ -1,4 +1,4 @@
-// Copyright 2014 Open Source Robotics Foundation, Inc.
+// Copyright 2018 Open Source Robotics Foundation, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ __rcutils_copy_string(char * dst, size_t dst_size, const char * src)
   assert(dst_size > 0);
   assert(src != NULL);
   // doesn't matter how long src actually is if it is longer than dst, so limit to dst + 1
-  size_t src_length = strnlen(src, dst_size + 1);
+  size_t src_length = strnlen(src, dst_size);
   size_t size_to_copy = src_length;
   // the destination must be one byte bigger to store the NULL terminating character
   if (src_length >= dst_size) {
@@ -91,7 +91,7 @@ void
 __rcutils_reverse_str(char * string_in, size_t string_len)
 {
   assert(string_in != NULL);
-  if (string_len == 0) {
+  if (0 == string_len) {
     return;
   }
   size_t i = 0;
