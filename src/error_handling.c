@@ -14,6 +14,11 @@
 
 // Note: migrated from rmw/error_handling.c in 2017-04
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include <rcutils/error_handling.h>
 
 #include <stdbool.h>
@@ -159,3 +164,7 @@ rcutils_reset_error(void)
   gtls_rcutils_error_string = (const rcutils_error_string_t) {0};
   gtls_rcutils_error_is_set = false;
 }
+
+#ifdef __cplusplus
+}
+#endif
