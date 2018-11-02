@@ -42,17 +42,17 @@ rcutils_string_array_init(
   const rcutils_allocator_t * allocator)
 {
   if (NULL == allocator) {
-    RCUTILS_SET_ERROR_MSG("allocator is null", rcutils_get_default_allocator())
+    RCUTILS_SET_ERROR_MSG("allocator is null");
     return RCUTILS_RET_INVALID_ARGUMENT;
   }
   if (NULL == string_array) {
-    RCUTILS_SET_ERROR_MSG("string_array is null", *allocator)
+    RCUTILS_SET_ERROR_MSG("string_array is null");
     return RCUTILS_RET_INVALID_ARGUMENT;
   }
   string_array->size = size;
   string_array->data = allocator->zero_allocate(size, sizeof(char *), allocator->state);
   if (NULL == string_array->data) {
-    RCUTILS_SET_ERROR_MSG("failed to allocator string array", *allocator)
+    RCUTILS_SET_ERROR_MSG("failed to allocator string array");
     return RCUTILS_RET_BAD_ALLOC;
   }
   string_array->allocator = *allocator;
@@ -63,7 +63,7 @@ rcutils_ret_t
 rcutils_string_array_fini(rcutils_string_array_t * string_array)
 {
   if (NULL == string_array) {
-    RCUTILS_SET_ERROR_MSG("string_array is null", rcutils_get_default_allocator())
+    RCUTILS_SET_ERROR_MSG("string_array is null");
     return RCUTILS_RET_INVALID_ARGUMENT;
   }
 
@@ -73,7 +73,7 @@ rcutils_string_array_fini(rcutils_string_array_t * string_array)
 
   rcutils_allocator_t * allocator = &string_array->allocator;
   if (!rcutils_allocator_is_valid(allocator)) {
-    RCUTILS_SET_ERROR_MSG("allocator is invalid", rcutils_get_default_allocator())
+    RCUTILS_SET_ERROR_MSG("allocator is invalid");
     return RCUTILS_RET_INVALID_ARGUMENT;
   }
   size_t i;

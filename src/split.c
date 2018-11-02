@@ -35,7 +35,7 @@ rcutils_split(
   rcutils_string_array_t * string_array)
 {
   if (NULL == string_array) {
-    RCUTILS_SET_ERROR_MSG("string_array is null", allocator)
+    RCUTILS_SET_ERROR_MSG("string_array is null");
     return RCUTILS_RET_INVALID_ARGUMENT;
   }
   if (NULL == str || strlen(str) == 0) {
@@ -113,12 +113,12 @@ rcutils_split(
 fail:
   if (rcutils_string_array_fini(string_array) != RCUTILS_RET_OK) {
     RCUTILS_SAFE_FWRITE_TO_STDERR("failed to finalize string array during error handling: ");
-    RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string_safe());
+    RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string().str);
     RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
     rcutils_reset_error();
   }
 
-  RCUTILS_SET_ERROR_MSG("unable to allocate memory for string array data", allocator);
+  RCUTILS_SET_ERROR_MSG("unable to allocate memory for string array data");
   return RCUTILS_RET_ERROR;
 }
 
@@ -208,7 +208,7 @@ rcutils_split_last(
 fail:
   if (rcutils_string_array_fini(string_array) != RCUTILS_RET_OK) {
     RCUTILS_LOG_ERROR(
-      "failed to clean up on error (leaking memory): '%s'", rcutils_get_error_string_safe());
+      "failed to clean up on error (leaking memory): '%s'", rcutils_get_error_string().str);
   }
   return result_error;
 }

@@ -22,7 +22,7 @@ int main(int, char **)
 {
   rcutils_ret_t ret = rcutils_logging_initialize();
   if (ret != RCUTILS_RET_OK) {
-    fprintf(stderr, "error initializing logging: %s\n", rcutils_get_error_string_safe());
+    fprintf(stderr, "error initializing logging: %s\n", rcutils_get_error_string().str);
     return -1;
   }
 

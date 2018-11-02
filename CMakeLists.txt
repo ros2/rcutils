@@ -202,9 +202,19 @@ if(BUILD_TESTING)
   rcutils_custom_add_gmock(test_error_handling test/test_error_handling.cpp
     # Append the directory of librcutils so it is found at test time.
     APPEND_LIBRARY_DIRS "$<TARGET_FILE_DIR:${PROJECT_NAME}>"
+    ENV ${memory_tools_test_env_vars}
   )
   if(TARGET test_error_handling)
-    target_link_libraries(test_error_handling ${PROJECT_NAME})
+    target_link_libraries(test_error_handling ${PROJECT_NAME} osrf_testing_tools_cpp::memory_tools)
+  endif()
+
+  rcutils_custom_add_gmock(test_error_handling_helpers test/test_error_handling_helpers.cpp
+    # Append the directory of librcutils so it is found at test time.
+    APPEND_LIBRARY_DIRS "$<TARGET_FILE_DIR:${PROJECT_NAME}>"
+    ENV ${memory_tools_test_env_vars}
+  )
+  if(TARGET test_error_handling_helpers)
+    target_link_libraries(test_error_handling_helpers osrf_testing_tools_cpp::memory_tools)
   endif()
 
   rcutils_custom_add_gtest(test_split

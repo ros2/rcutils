@@ -506,7 +506,7 @@ void rcutils_logging_console_output_handler(
       RCUTILS_SAFE_FWRITE_TO_STDERR( \
         "[rcutils|" __FILE__ ":" RCUTILS_STRINGIFY(__LINE__) \
         "] error initializing logging: "); \
-      RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string_safe()); \
+      RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string().str); \
       RCUTILS_SAFE_FWRITE_TO_STDERR("\n"); \
       rcutils_reset_error(); \
     } \

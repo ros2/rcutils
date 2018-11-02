@@ -36,14 +36,13 @@ rcutils_time_point_value_as_nanoseconds_string(
   char * str,
   size_t str_size)
 {
-  rcutils_allocator_t allocator = rcutils_get_default_allocator();
-  RCUTILS_CHECK_ARGUMENT_FOR_NULL(time_point, RCUTILS_RET_INVALID_ARGUMENT, allocator)
-  RCUTILS_CHECK_ARGUMENT_FOR_NULL(str, RCUTILS_RET_INVALID_ARGUMENT, allocator)
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(time_point, RCUTILS_RET_INVALID_ARGUMENT);
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(str, RCUTILS_RET_INVALID_ARGUMENT);
   if (0 == str_size) {
     return RCUTILS_RET_OK;
   }
   if (rcutils_snprintf(str, str_size, "%.19" PRId64, *time_point) < 0) {
-    RCUTILS_SET_ERROR_MSG("failed to format time point into string as nanoseconds", allocator)
+    RCUTILS_SET_ERROR_MSG("failed to format time point into string as nanoseconds");
     return RCUTILS_RET_ERROR;
   }
   return RCUTILS_RET_OK;
@@ -55,9 +54,8 @@ rcutils_time_point_value_as_seconds_string(
   char * str,
   size_t str_size)
 {
-  rcutils_allocator_t allocator = rcutils_get_default_allocator();
-  RCUTILS_CHECK_ARGUMENT_FOR_NULL(time_point, RCUTILS_RET_INVALID_ARGUMENT, allocator)
-  RCUTILS_CHECK_ARGUMENT_FOR_NULL(str, RCUTILS_RET_INVALID_ARGUMENT, allocator)
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(time_point, RCUTILS_RET_INVALID_ARGUMENT);
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(str, RCUTILS_RET_INVALID_ARGUMENT);
   if (0 == str_size) {
     return RCUTILS_RET_OK;
   }
@@ -72,7 +70,7 @@ rcutils_time_point_value_as_seconds_string(
       str, str_size, "%s%.10" PRId64 ".%.9" PRId64,
       (*time_point >= 0) ? "" : "-", seconds, nanoseconds) < 0)
   {
-    RCUTILS_SET_ERROR_MSG("failed to format time point into string as float seconds", allocator)
+    RCUTILS_SET_ERROR_MSG("failed to format time point into string as float seconds");
     return RCUTILS_RET_ERROR;
   }
   return RCUTILS_RET_OK;

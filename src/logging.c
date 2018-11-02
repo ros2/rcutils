@@ -92,8 +92,7 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
   rcutils_ret_t ret = RCUTILS_RET_OK;
   if (!g_rcutils_logging_initialized) {
     if (!rcutils_allocator_is_valid(&allocator)) {
-      RCUTILS_SET_ERROR_MSG(
-        "Provided allocator is invalid.", rcutils_get_default_allocator());
+      RCUTILS_SET_ERROR_MSG("Provided allocator is invalid.");
       return RCUTILS_RET_INVALID_ARGUMENT;
     }
     g_rcutils_logging_allocator = allocator;
@@ -114,7 +113,6 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
     } else {
       if (NULL != ret_str) {
         RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
-          g_rcutils_logging_allocator,
           "Failed to get output format from env. variable [%s]. Using default output format.",
           ret_str);
         ret = RCUTILS_RET_INVALID_ARGUMENT;
@@ -129,9 +127,8 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
     if (string_map_ret != RCUTILS_RET_OK) {
       // If an error message was set it will have been overwritten by rcutils_string_map_init.
       RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
-        g_rcutils_logging_allocator,
         "Failed to initialize map for logger severities [%s]. Severities will not be configurable.",
-        rcutils_get_error_string_safe());
+        rcutils_get_error_string().str);
       g_rcutils_logging_severities_map_valid = false;
       ret = RCUTILS_RET_STRING_MAP_INVALID;
     } else {
@@ -153,9 +150,8 @@ rcutils_ret_t rcutils_logging_shutdown(void)
     rcutils_ret_t string_map_ret = rcutils_string_map_fini(&g_rcutils_logging_severities_map);
     if (string_map_ret != RCUTILS_RET_OK) {
       RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
-        g_rcutils_logging_allocator,
         "Failed to finalize map for logger severities: %s",
-        rcutils_get_error_string_safe());
+        rcutils_get_error_string().str);
       ret = RCUTILS_RET_LOGGING_SEVERITY_MAP_INVALID;
     }
     g_rcutils_logging_severities_map_valid = false;
@@ -170,16 +166,15 @@ rcutils_logging_severity_level_from_string(
 {
   RCUTILS_CHECK_ALLOCATOR_WITH_MSG(
     &allocator, "invalid allocator", return RCUTILS_RET_INVALID_ARGUMENT);
-  RCUTILS_CHECK_ARGUMENT_FOR_NULL(severity_string, RCUTILS_RET_INVALID_ARGUMENT, allocator);
-  RCUTILS_CHECK_ARGUMENT_FOR_NULL(severity, RCUTILS_RET_INVALID_ARGUMENT, allocator);
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(severity_string, RCUTILS_RET_INVALID_ARGUMENT);
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(severity, RCUTILS_RET_INVALID_ARGUMENT);
 
   rcutils_ret_t ret = RCUTILS_RET_LOGGING_SEVERITY_STRING_INVALID;
 
   // Convert the input string to upper case (for case insensitivity).
   char * severity_string_upper = rcutils_strdup(severity_string, allocator);
   if (NULL == severity_string_upper) {
-    RCUTILS_SET_ERROR_MSG(
-      "failed to allocate memory for uppercase string", rcutils_get_default_allocator());
+    RCUTILS_SET_ERROR_MSG("failed to allocate memory for uppercase string");
     return RCUTILS_RET_BAD_ALLOC;
   }
   for (int i = 0; severity_string_upper[i]; ++i) {
@@ -316,8 +311,7 @@ rcutils_ret_t rcutils_logging_set_logger_level(const char * name, int level)
 {
   RCUTILS_LOGGING_AUTOINIT
   if (NULL == name) {
-    RCUTILS_SET_ERROR_MSG(
-      "Invalid logger name", g_rcutils_logging_allocator);
+    RCUTILS_SET_ERROR_MSG("Invalid logger name");
     return RCUTILS_RET_INVALID_ARGUMENT;
   }
   if (strlen(name) == 0) {
@@ -325,8 +319,7 @@ rcutils_ret_t rcutils_logging_set_logger_level(const char * name, int level)
     return RCUTILS_RET_OK;
   }
   if (!g_rcutils_logging_severities_map_valid) {
-    RCUTILS_SET_ERROR_MSG(
-      "Logger severity level map is invalid", g_rcutils_logging_allocator);
+    RCUTILS_SET_ERROR_MSG("Logger severity level map is invalid");
     return RCUTILS_RET_LOGGING_SEVERITY_MAP_INVALID;
   }
 
@@ -336,23 +329,20 @@ rcutils_ret_t rcutils_logging_set_logger_level(const char * name, int level)
     level >=
     (int)(sizeof(g_rcutils_log_severity_names) / sizeof(g_rcutils_log_severity_names[0])))
   {
-    RCUTILS_SET_ERROR_MSG(
-      "Invalid severity level specified for logger", g_rcutils_logging_allocator);
+    RCUTILS_SET_ERROR_MSG("Invalid severity level specified for logger");
     return RCUTILS_RET_INVALID_ARGUMENT;
   }
   const char * severity_string = g_rcutils_log_severity_names[level];
   if (NULL == severity_string) {
-    RCUTILS_SET_ERROR_MSG(
-      "Unable to determine severity_string for severity", g_rcutils_logging_allocator);
+    RCUTILS_SET_ERROR_MSG("Unable to determine severity_string for severity");
     return RCUTILS_RET_INVALID_ARGUMENT;
   }
   rcutils_ret_t string_map_ret = rcutils_string_map_set(
     &g_rcutils_logging_severities_map, name, severity_string);
   if (string_map_ret != RCUTILS_RET_OK) {
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
-      g_rcutils_logging_allocator,
       "Error setting severity level for logger named '%s': %s",
-      name, rcutils_get_error_string_safe());
+      name, rcutils_get_error_string().str);
     return RCUTILS_RET_ERROR;
   }
   return RCUTILS_RET_OK;
@@ -603,7 +593,7 @@ void rcutils_logging_console_output_handler(
         &timestamp,
         numeric_storage, sizeof(numeric_storage));
       if (ret != RCUTILS_RET_OK) {
-        RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string_safe());
+        RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string().str);
         rcutils_reset_error();
         RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
         goto cleanup;
@@ -614,7 +604,7 @@ void rcutils_logging_console_output_handler(
         &timestamp,
         numeric_storage, sizeof(numeric_storage));
       if (ret != RCUTILS_RET_OK) {
-        RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string_safe());
+        RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string().str);
         rcutils_reset_error();
         RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
         goto cleanup;
