@@ -146,7 +146,6 @@ __format_overwriting_error_state_message(
         "rcutils_reset_error() should be called after error handling to avoid this.\n"
         "<<<\n");
     bytes_left -= written;
-    if (bytes_left <= 0) {break;}
   } while (0);
 
 #if RCUTILS_REPORT_ERROR_HANDLING_ERRORS
