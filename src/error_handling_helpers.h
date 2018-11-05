@@ -110,6 +110,7 @@ __rcutils_convert_uint64_t_into_c_str(uint64_t number, char * buffer, size_t buf
 {
   assert(buffer != NULL);
   assert(buffer_size >= 21);
+  (void)buffer_size;  // prevent warning in release builds where there is no assert(...)
   size_t i = 0;
 
   // if number is 0, short circuit
