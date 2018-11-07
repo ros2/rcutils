@@ -46,7 +46,7 @@ set(rcutils_sources
   src/string_map.c
   src/time.c
   ${time_impl_c}
-  src/unsigned_char_array.c
+  src/uint8_array.c
 )
 set_source_files_properties(
   ${rcutils_sources}
@@ -306,11 +306,11 @@ if(BUILD_TESTING)
     target_link_libraries(test_snprintf ${PROJECT_NAME})
   endif()
 
-  rcutils_custom_add_gtest(test_unsigned_char_array
-    test/test_unsigned_char_array.cpp
+  rcutils_custom_add_gtest(test_uint8_array
+    test/test_uint8_array.cpp
   )
-  if(TARGET test_unsigned_char_array)
-    target_link_libraries(test_unsigned_char_array ${PROJECT_NAME})
+  if(TARGET test_uint8_array)
+    target_link_libraries(test_uint8_array ${PROJECT_NAME})
   endif()
 endif()
 
