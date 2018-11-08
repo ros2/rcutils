@@ -47,7 +47,8 @@
 #define rcutils_atomic_compare_exchange_strong(object, out, expected, desired) \
   rcutils_win32_atomic_compare_exchange_strong(object, out, expected, desired)
 
-#define rcutils_atomic_exchange(object, out, desired) rcutils_win32_atomic_exchange(object, out, desired)
+#define rcutils_atomic_exchange(object, out, desired) \
+  rcutils_win32_atomic_exchange(object, out, desired)
 
 #define rcutils_atomic_store(object, desired) rcutils_win32_atomic_store(object, desired)
 
