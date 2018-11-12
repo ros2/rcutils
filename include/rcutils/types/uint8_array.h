@@ -68,7 +68,7 @@ rcutils_uint8_array_init(
 /**
  * Cleans up and deallocates any resources used in a rcutils_uint8_array_t.
  * The array passed to this function needs to have been initialized by
- * rcutils_uint8_array_init() or similar.
+ * rcutils_uint8_array_init().
  * Passing an uninitialized instance to this function leads to undefined
  * behavior.
  *
