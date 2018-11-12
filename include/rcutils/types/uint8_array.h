@@ -74,7 +74,7 @@ rcutils_uint8_array_init(
  *
  * \param uint8_array pointer to the rcutils_uint8_array_t to be cleaned up
  * \return `RCUTILS_RET_OK` if successful, or
- * \return `RCUTILS_RET_INVALID_ARGUMENTS` if the uint8_array or any of its members is wrong
+ * \return `RCUTILS_RET_INVALID_ARGUMENTS` if the uint8_array argument is invalid
  */
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
