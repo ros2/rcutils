@@ -23,9 +23,9 @@ TEST(test_uint8_array, default_initialization) {
 
   auto allocator = rcutils_get_default_allocator();
   EXPECT_EQ(RCUTILS_RET_OK, rcutils_uint8_array_init(&uint8_array, 0, &allocator));
-  EXPECT_EQ(0u, uint8_array.buffer_capacity);
+  EXPECT_EQ(0lu, uint8_array.buffer_capacity);
   EXPECT_EQ(RCUTILS_RET_OK, rcutils_uint8_array_fini(&uint8_array));
-  EXPECT_EQ(0u, uint8_array.buffer_capacity);
+  EXPECT_EQ(0lu, uint8_array.buffer_capacity);
   EXPECT_FALSE(uint8_array.buffer);
 }
 
@@ -44,6 +44,11 @@ TEST(test_uint8_array, resize) {
     EXPECT_EQ(0xFF, uint8_array.buffer[i]);
   }
 
+  ret = rcutils_uint8_array_resize(&uint8_array, 0);
+  ASSERT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret);
+  EXPECT_EQ(5lu, uint8_array.buffer_capacity);
+  EXPECT_EQ(5lu, uint8_array.buffer_length);
+
   ret = rcutils_uint8_array_resize(&uint8_array, 10);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
   EXPECT_EQ(10u, uint8_array.buffer_capacity);
@@ -53,7 +58,7 @@ TEST(test_uint8_array, resize) {
     uint8_t u = 0xFF - i;
     memcpy(uint8_array.buffer + i, &u, 1);
   }
-  uint8_array.buffer_length = 10;
+  uint8_array.buffer_length = 10lu;
   for (size_t i = 0; i < uint8_array.buffer_length; ++i) {
     uint8_t u = 0xFF - static_cast<uint8_t>(i);
     EXPECT_EQ(u, uint8_array.buffer[i]);
@@ -61,8 +66,8 @@ TEST(test_uint8_array, resize) {
 
   ret = rcutils_uint8_array_resize(&uint8_array, 3);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
-  EXPECT_EQ(3u, uint8_array.buffer_capacity);
-  EXPECT_EQ(3u, uint8_array.buffer_length);
+  EXPECT_EQ(3lu, uint8_array.buffer_capacity);
+  EXPECT_EQ(3lu, uint8_array.buffer_length);
   EXPECT_EQ(0xFF, uint8_array.buffer[0]);
   EXPECT_EQ(0xFF - 1, uint8_array.buffer[1]);
   EXPECT_EQ(0xFF - 2, uint8_array.buffer[2]);

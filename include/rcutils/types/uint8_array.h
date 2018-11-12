@@ -45,8 +45,7 @@ rcutils_get_zero_initialized_uint8_array(void);
 
 /// Initialize a zero initialized uint8 array struct.
 /**
- * This function may leak if the uint8 array struct is already
- * pre-initialized.
+ * This function may leak if the uint8 array struct is already initialized.
  * If the capacity is set to 0, no memory is allocated and the internal buffer
  * is still NULL.
  *
@@ -54,7 +53,8 @@ rcutils_get_zero_initialized_uint8_array(void);
  * \param buffer_capacity the size of the memory to allocate for the byte stream
  * \param allocator the allocator to use for the memory allocation
  * \return `RCUTILS_RET_OK` if successful, or
- * \return `RCUTILS_RET_ERROR` if an unexpected error occurs
+ * \return `RCUTILS_RET_INVALID_ARGUMENTS` if any of the arguments are incorrect, or
+ * \return 'RCUTILS_RET_BAD_ALLOC` if no memory could be allocated correctly
  */
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
@@ -67,14 +67,14 @@ rcutils_uint8_array_init(
 /// Finalize a uint8 array struct.
 /**
  * Cleans up and deallocates any resources used in a rcutils_uint8_array_t.
- * Passing a rcutils_uint8_array_t which has not been zero initialized using
- * rcutils_get_zero_initialized_uint8_array() to this function is undefined
+ * The array passed to this function needs to have been initialized by
+ * rcutils_uint8_array_init() or similar.
+ * Passing an uninitialized instance to this function leads to undefined
  * behavior.
  *
  * \param uint8_array pointer to the rcutils_uint8_array_t to be cleaned up
  * \return `RCUTILS_RET_OK` if successful, or
- * \return `RCUTILS_RET_BAD_ALLOC` if memory allocation failed, or
- * \return `RCUTILS_RET_ERROR` if an unexpected error occurs
+ * \return `RCUTILS_RET_INVALID_ARGUMENTS` if the uint8_array or any of its members is wrong
  */
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
@@ -88,14 +88,14 @@ rcutils_uint8_array_fini(rcutils_uint8_array_t * uint8_array);
  * truncated.
  * Be aware, that this will deallocate the memory and therefore invalidates any
  * pointers to this storage.
- * If the new size is larger, new memory is getting allocated and the existing
+ * If the new size is larger, new memory is allocated and the existing
  * content is copied over.
  *
  * \param uint8_array pointer to the instance of rcutils_uint8_array_t which is being resized
  * \param new_size the new size of the internal buffer
  * \return `RCUTILS_RET_OK` if successful, or
+ * \return `RCUTILS_RET_INVALID_ARGUMENT` if new_size is set to zero
  * \return `RCUTILS_RET_BAD_ALLOC` if memory allocation failed, or
- * \return `RCUTILS_RET_ERROR` if an unexpected error occurs
  */
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
