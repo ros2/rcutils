@@ -53,7 +53,7 @@ rcutils_get_zero_initialized_uint8_array(void);
  * \param buffer_capacity the size of the memory to allocate for the byte stream
  * \param allocator the allocator to use for the memory allocation
  * \return `RCUTILS_RET_OK` if successful, or
- * \return `RCUTILS_RET_INVALID_ARGUMENTS` if any of the arguments are incorrect, or
+ * \return `RCUTILS_RET_INVALID_ARGUMENTS` if any arguments are invalid, or
  * \return 'RCUTILS_RET_BAD_ALLOC` if no memory could be allocated correctly
  */
 RCUTILS_PUBLIC
