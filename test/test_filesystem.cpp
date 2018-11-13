@@ -59,6 +59,35 @@ TEST_F(TestFilesystemFixture, join_path) {
   EXPECT_STREQ(ref_str, path);
 }
 
+TEST_F(TestFilesystemFixture, to_native_path) {
+  {
+    char * path = rcutils_to_native_path("/foo/bar/baz", g_allocator);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      g_allocator.deallocate(path, g_allocator.state);
+    });
+#ifdef _WIN32
+    const char * ref_str = "\\foo\\bar\\baz";
+#else
+    const char * ref_str = "/foo/bar/baz";
+#endif  // _WIN32
+    ASSERT_FALSE(nullptr == path);
+    EXPECT_STREQ(ref_str, path);
+  }
+  {
+    char * path = rcutils_to_native_path("/foo//bar/baz", g_allocator);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      g_allocator.deallocate(path, g_allocator.state);
+    });
+#ifdef _WIN32
+    const char * ref_str = "\\foo\\\\bar\\baz";
+#else
+    const char * ref_str = "/foo//bar/baz";
+#endif  // _WIN32
+    ASSERT_FALSE(nullptr == path);
+    EXPECT_STREQ(ref_str, path);
+  }
+}
+
 TEST_F(TestFilesystemFixture, exists) {
   {
     char * path = rcutils_join_path(this->test_path, "dummy_readable_file.txt", g_allocator);

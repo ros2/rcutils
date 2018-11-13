@@ -29,6 +29,13 @@ extern "C"
 #endif  // _WIN32
 
 #include "rcutils/format_string.h"
+#include "rcutils/repl_str.h"
+
+#ifdef _WIN32
+# define RCUTILS_PATH_DELIMITER "\\"
+#else
+# define RCUTILS_PATH_DELIMITER "/"
+#endif  // _WIN32
 
 bool
 rcutils_get_cwd(char * buffer, size_t max_length)
@@ -152,13 +159,22 @@ rcutils_join_path(
     return NULL;
   }
 
-#ifdef  _WIN32
-  const char * delimiter = "\\";
-#else
-  const char * delimiter = "/";
-#endif  // _WIN32
+  return rcutils_format_string(
+    allocator,
+    "%s%s%s",
+    left_hand_path, RCUTILS_PATH_DELIMITER, right_hand_path);
+}
 
-  return rcutils_format_string(allocator, "%s%s%s", left_hand_path, delimiter, right_hand_path);
+char *
+rcutils_to_native_path(
+  const char * path,
+  rcutils_allocator_t allocator)
+{
+  if (NULL == path) {
+    return NULL;
+  }
+
+  return rcutils_repl_str(path, "/", RCUTILS_PATH_DELIMITER, &allocator);
 }
 
 #ifdef __cplusplus
