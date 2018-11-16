@@ -2,6 +2,25 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.6.0 (2018-11-16)
+------------------
+* Added rcutils_to_native_path function (`#119 <https://github.com/ros2/rcutils/issues/119>`_)
+* Moved stdatomic helper to rcutils (`#126 <https://github.com/ros2/rcutils/issues/126>`_)
+* Fixed warning in release build due to assert (`#124 <https://github.com/ros2/rcutils/issues/124>`_)
+* Updated to avoid dynamic memory allocation during error handling (`#121 <https://github.com/ros2/rcutils/issues/121>`_)
+* Added macro semicolons (`#120 <https://github.com/ros2/rcutils/issues/120>`_)
+* Added LL suffix to avoid c4307 (`#118 <https://github.com/ros2/rcutils/issues/118>`_)
+* Updated to use the same allocator to free allocated message (`#115 <https://github.com/ros2/rcutils/issues/115>`_)
+* Renamed rcutils_serialized_message -> rcutils_char_array (`#111 <https://github.com/ros2/rcutils/issues/111>`_)
+* Moved serialized_message from rmw (`#110 <https://github.com/ros2/rcutils/issues/110>`_)
+* Updated to verify that the requested allocation size does not overflow. (`#109 <https://github.com/ros2/rcutils/issues/109>`_)
+* Contributors: Chris Lalancette, Jacob Perron, Karsten Knese, Mikael Arguedas, Ruffin, Shane Loretz, Todd Malsbary, William Woodall
+
+0.5.1 (2018-06-28)
+------------------
+
+* Removed redundant stat() call (`#108 <https://github.com/ros2/rcutils/pull/108>`_)
+
 0.5.0 (2018-06-20)
 ------------------
 * Audited use of malloc/realloc/calloc/free to make sure it always goes through an ``rcutils_allocator_t`` (`#102 <https://github.com/ros2/rcutils/issues/102>`_)
