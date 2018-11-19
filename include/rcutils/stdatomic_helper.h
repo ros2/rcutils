@@ -40,7 +40,7 @@ extern "C++" {
 }  // extern "C++"
 #     pragma clang diagnostic push
 #     pragma clang diagnostic ignored "-Wmacro-redefined"
-#       include <stdatomic.h>
+#       include <stdatomic.h>  // NOLINT(build/include_order)
 #     pragma clang diagnostic pop
 #   endif
 # else
@@ -66,7 +66,7 @@ extern "C++" {
 
 #define rcutils_atomic_store(object, desired) atomic_store(object, desired)
 
-#define rcutils_atomic_fetch_add(object, arg) atomic_fetch_add(object, arg)
+#define rcutils_atomic_fetch_add(object, out, arg) (out) = atomic_fetch_add(object, arg)
 
 #else  // !defined(_WIN32)
 
@@ -82,7 +82,7 @@ extern "C++" {
 
 #define rcutils_atomic_store(object, desired) rcutils_win32_atomic_store(object, desired)
 
-#define rcutils_atomic_fetch_add(object, arg) rcutils_win32_atomic_fetch_add(object, arg)
+#define rcutils_atomic_fetch_add(object, out, arg) rcutils_win32_atomic_fetch_add(object, out, arg)
 
 #endif  // !defined(_WIN32)
 
@@ -171,7 +171,7 @@ static inline uint64_t
 rcutils_atomic_fetch_add_uint64_t(atomic_uint_least64_t * a_uint64_t, uint64_t arg)
 {
   uint64_t result;
-  result = rcutils_atomic_fetch_add(a_uint64_t, arg);
+  rcutils_atomic_fetch_add(a_uint64_t, result, arg);
   return result;
 }
 
