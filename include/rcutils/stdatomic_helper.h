@@ -16,6 +16,7 @@
 #define RCUTILS__STDATOMIC_HELPER_H_
 
 #include <stdbool.h>
+#include <stdint.h>
 
 // disable unused function warnings within this file, due to inline in a header
 #if !defined(_WIN32)
@@ -27,35 +28,30 @@
 
 #if !defined(_WIN32)
 
-#if defined(__clang__)
+// The my__has_feature avoids a preprocessor error when you check for it and
+// use it on the same line below.
+#if defined(__has_feature)
+#define my__has_feature(...) __has_feature(__VAR_ARGS__)
+#else
+#define my__has_feature(...) 0
+#endif
 
+#if !defined(__clang__) && defined(__GNUC__) && __GNUC__ <= 4 && __GNUC_MINOR__ <= 9
+// If GCC and below GCC-4.9, use the compatability header.
+# include "stdatomic_helper/gcc/stdatomic.h"
+#else  // !defined(__clang__) && defined(__GNUC__) && __GNUC__ <= 4 && __GNUC_MINOR__ <= 9
 # if __cplusplus
-#   if defined(__has_feature) && !__has_feature(cxx_atomic)
-// If Clang and no cxx_atomics (true for some older versions), use the compatability header.
-#     include "stdatomic_helper/gcc/stdatomic.h"
-#   else
-// Include C++ verison, then C explicitly suppressing redefined macros warning.
-extern "C++" {
-#     include <atomic>
-}  // extern "C++"
-#     pragma clang diagnostic push
-#     pragma clang diagnostic ignored "-Wmacro-redefined"
-#       include <stdatomic.h>  // NOLINT(build/include_order)
-#     pragma clang diagnostic pop
-#   endif
+#   error "this file cannot be used with C++ due to a conflict with the C++ <atomic> header, see:\
+ http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0943r1.html"
 # else
-#   if defined(__has_feature) && !__has_feature(c_atomic)
+#   if defined(__has_feature) && !my__has_feature(c_atomic)
 // If Clang and no c_atomics (true for some older versions), use the compatability header.
 #     include "stdatomic_helper/gcc/stdatomic.h"
 #   else
 #     include <stdatomic.h>
 #   endif
 # endif
-
-#elif defined(__GNUC__) && __GNUC__ <= 4 && __GNUC_MINOR__ <= 9
-// If GCC and below GCC-4.9, use the compatability header.
-# include "stdatomic_helper/gcc/stdatomic.h"
-#endif  // defined(__clang__) && defined(__has_feature)
+#endif  // !defined(__clang__) && defined(__GNUC__) && __GNUC__ <= 4 && __GNUC_MINOR__ <= 9
 
 #define rcutils_atomic_load(object, out) (out) = atomic_load(object)
 
