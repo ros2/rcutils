@@ -41,8 +41,9 @@
 # include "stdatomic_helper/gcc/stdatomic.h"
 #else  // !defined(__clang__) && defined(__GNUC__) && __GNUC__ <= 4 && __GNUC_MINOR__ <= 9
 # if __cplusplus
-#   error "this file cannot be used with C++ due to a conflict with the C++ <atomic> header, see:\
- http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0943r1.html"
+// NOLINTNEXTLINE
+#   error "cannot be used with C++ due to a conflict with the C++ <atomic> header, see: p0943r1"
+// See: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0943r1.html"
 # else
 #   if defined(__has_feature) && !my__has_feature(c_atomic)
 // If Clang and no c_atomics (true for some older versions), use the compatability header.
