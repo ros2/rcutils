@@ -23,9 +23,9 @@ TEST(test_char_array, default_initialization) {
 
   auto allocator = rcutils_get_default_allocator();
   EXPECT_EQ(RCUTILS_RET_OK, rcutils_char_array_init(&char_array, 0, &allocator));
-  EXPECT_EQ(0u, char_array.buffer_capacity);
+  EXPECT_EQ(0lu, char_array.buffer_capacity);
   EXPECT_EQ(RCUTILS_RET_OK, rcutils_char_array_fini(&char_array));
-  EXPECT_EQ(0u, char_array.buffer_capacity);
+  EXPECT_EQ(0lu, char_array.buffer_capacity);
   EXPECT_FALSE(char_array.buffer);
 }
 
@@ -39,10 +39,15 @@ TEST(test_char_array, resize) {
   char_array.buffer_length = 5;
   EXPECT_STREQ("1234\0", char_array.buffer);
 
+  ret = rcutils_char_array_resize(&char_array, 0);
+  ASSERT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret);
+  EXPECT_EQ(5lu, char_array.buffer_capacity);
+  EXPECT_EQ(5lu, char_array.buffer_length);
+
   ret = rcutils_char_array_resize(&char_array, 11);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
-  EXPECT_EQ(11u, char_array.buffer_capacity);
-  EXPECT_EQ(5u, char_array.buffer_length);
+  EXPECT_EQ(11lu, char_array.buffer_capacity);
+  EXPECT_EQ(5lu, char_array.buffer_length);
 
   memcpy(char_array.buffer, "0987654321\0", 11);
   char_array.buffer_length = 11;
@@ -50,8 +55,8 @@ TEST(test_char_array, resize) {
 
   ret = rcutils_char_array_resize(&char_array, 3);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
-  EXPECT_EQ(3u, char_array.buffer_capacity);
-  EXPECT_EQ(3u, char_array.buffer_length);
+  EXPECT_EQ(3lu, char_array.buffer_capacity);
+  EXPECT_EQ(3lu, char_array.buffer_length);
   EXPECT_EQ('0', char_array.buffer[0]);
   EXPECT_EQ('9', char_array.buffer[1]);
   EXPECT_EQ('8', char_array.buffer[2]);

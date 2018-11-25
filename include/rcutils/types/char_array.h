@@ -52,6 +52,8 @@ rcutils_get_zero_initialized_char_array(void);
  * \param buffer_capacity the size of the memory to allocate for the byte stream
  * \param allocator the allocator to use for the memory allocation
  * \return `RCUTILS_RET_OK` if successful, or
+ * \return `RCUTILS_RET_INVALID_ARGUMENTS` if any arguments are invalid, or
+ * \return 'RCUTILS_RET_BAD_ALLOC` if no memory could be allocated correctly
  * \return `RCUTILS_RET_ERROR` if an unexpected error occurs
  */
 RCUTILS_PUBLIC
@@ -65,13 +67,14 @@ rcutils_char_array_init(
 /// Finalize a char array struct.
 /**
  * Cleans up and deallocates any resources used in a rcutils_char_array_t.
- * Passing a rcutils_char_array_t which has not been zero initialized using
- * rcutils_get_zero_initialized_char_array() to this function is undefined
+ * The array passed to this function needs to have been initialized by
+ * rcutils_char_array_init().
+ * Passing an uninitialized instance to this function leads to undefined
  * behavior.
  *
  * \param char_array pointer to the rcutils_char_array_t to be cleaned up
  * \return `RCUTILS_RET_OK` if successful, or
- * \return `RCUTILS_RET_BAD_ALLOC` if memory allocation failed, or
+ * \return `RCUTILS_RET_INVALID_ARGUMENTS` if the char_array argument is invalid
  * \return `RCUTILS_RET_ERROR` if an unexpected error occurs
  */
 RCUTILS_PUBLIC
@@ -86,12 +89,11 @@ rcutils_char_array_fini(rcutils_char_array_t * char_array);
  * truncated.
  * Be aware, that this will deallocate the memory and therefore invalidates any
  * pointers to this storage.
- * If the new size is larger, new memory is getting allocated and the existing
- * content is copied over.
  *
  * \param char_array pointer to the instance of rcutils_char_array_t which is being resized
  * \param new_size the new size of the internal buffer
  * \return `RCUTILS_RET_OK` if successful, or
+ * \return `RCUTILS_RET_INVALID_ARGUMENT` if new_size is set to zero
  * \return `RCUTILS_RET_BAD_ALLOC` if memory allocation failed, or
  * \return `RCUTILS_RET_ERROR` if an unexpected error occurs
  */
