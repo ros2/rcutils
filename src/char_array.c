@@ -75,7 +75,7 @@ rcutils_char_array_resize(rcutils_char_array_t * char_array, size_t new_size)
 {
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(char_array, RCUTILS_RET_INVALID_ARGUMENT);
 
-  if (new_size == 0lu) {
+  if (0lu == new_size) {
     RCUTILS_SET_ERROR_MSG("new size of char_array has to be greater than zero");
     return RCUTILS_RET_INVALID_ARGUMENT;
   }
