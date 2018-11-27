@@ -33,26 +33,21 @@ rcutils_char_array_init(
   size_t buffer_capacity,
   const rcutils_allocator_t * allocator)
 {
-  RCUTILS_CHECK_FOR_NULL_WITH_MSG(
-    char_array,
-    "char array pointer is null",
-    return RCUTILS_RET_ERROR);
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(char_array, RCUTILS_RET_INVALID_ARGUMENT);
+  RCUTILS_CHECK_ALLOCATOR(allocator, return RCUTILS_RET_INVALID_ARGUMENT);
 
-  if (!rcutils_allocator_is_valid(allocator)) {
-    RCUTILS_SET_ERROR_MSG("char array has no valid allocator");
-    return RCUTILS_RET_ERROR;
-  }
-
-  char_array->buffer_length = 0;
+  char_array->buffer_length = 0lu;
   char_array->buffer_capacity = buffer_capacity;
   char_array->allocator = *allocator;
 
-  if (buffer_capacity > 0u) {
+  if (buffer_capacity > 0lu) {
     char_array->buffer =
       (char *)allocator->allocate(buffer_capacity * sizeof(char), allocator->state);
     RCUTILS_CHECK_FOR_NULL_WITH_MSG(
       char_array->buffer,
       "failed to allocate memory for char array",
+      char_array->buffer_capacity = 0lu;
+      char_array->buffer_length = 0lu;
       return RCUTILS_RET_BAD_ALLOC);
   }
 
@@ -62,21 +57,15 @@ rcutils_char_array_init(
 rcutils_ret_t
 rcutils_char_array_fini(rcutils_char_array_t * char_array)
 {
-  RCUTILS_CHECK_FOR_NULL_WITH_MSG(
-    char_array,
-    "char array pointer is null",
-    return RCUTILS_RET_ERROR);
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(char_array, RCUTILS_RET_INVALID_ARGUMENT);
 
   rcutils_allocator_t * allocator = &char_array->allocator;
-  if (!rcutils_allocator_is_valid(allocator)) {
-    RCUTILS_SET_ERROR_MSG("char array has no valid allocator");
-    return RCUTILS_RET_ERROR;
-  }
+  RCUTILS_CHECK_ALLOCATOR(allocator, return RCUTILS_RET_INVALID_ARGUMENT);
 
   allocator->deallocate(char_array->buffer, allocator->state);
   char_array->buffer = NULL;
-  char_array->buffer_length = 0u;
-  char_array->buffer_capacity = 0u;
+  char_array->buffer_length = 0lu;
+  char_array->buffer_capacity = 0lu;
 
   return RCUTILS_RET_OK;
 }
@@ -84,16 +73,15 @@ rcutils_char_array_fini(rcutils_char_array_t * char_array)
 rcutils_ret_t
 rcutils_char_array_resize(rcutils_char_array_t * char_array, size_t new_size)
 {
-  RCUTILS_CHECK_FOR_NULL_WITH_MSG(
-    char_array,
-    "char array pointer is null",
-    return RCUTILS_RET_ERROR);
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(char_array, RCUTILS_RET_INVALID_ARGUMENT);
+
+  if (0lu == new_size) {
+    RCUTILS_SET_ERROR_MSG("new size of char_array has to be greater than zero");
+    return RCUTILS_RET_INVALID_ARGUMENT;
+  }
 
   rcutils_allocator_t * allocator = &char_array->allocator;
-  if (!rcutils_allocator_is_valid(allocator)) {
-    RCUTILS_SET_ERROR_MSG("char array has no valid allocator");
-    return RCUTILS_RET_ERROR;
-  }
+  RCUTILS_CHECK_ALLOCATOR(allocator, return RCUTILS_RET_INVALID_ARGUMENT);
 
   if (new_size == char_array->buffer_capacity) {
     // nothing to do here
@@ -104,6 +92,8 @@ rcutils_char_array_resize(rcutils_char_array_t * char_array, size_t new_size)
   RCUTILS_CHECK_FOR_NULL_WITH_MSG(
     char_array->buffer,
     "failed to reallocate memory for char array",
+    char_array->buffer_capacity = 0lu;
+    char_array->buffer_length = 0lu;
     return RCUTILS_RET_BAD_ALLOC);
 
   char_array->buffer_capacity = new_size;

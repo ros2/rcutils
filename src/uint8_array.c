@@ -75,7 +75,7 @@ rcutils_uint8_array_resize(rcutils_uint8_array_t * uint8_array, size_t new_size)
 {
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(uint8_array, RCUTILS_RET_INVALID_ARGUMENT);
 
-  if (new_size == 0lu) {
+  if (0lu == new_size) {
     RCUTILS_SET_ERROR_MSG("new size of uint8_array has to be greater than zero");
     return RCUTILS_RET_INVALID_ARGUMENT;
   }
