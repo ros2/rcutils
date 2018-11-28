@@ -21,6 +21,7 @@ extern "C"
 #endif
 
 #include <stdarg.h>
+
 #include "rcutils/allocator.h"
 #include "rcutils/types/rcutils_ret.h"
 #include "rcutils/visibility_control.h"
@@ -134,7 +135,7 @@ rcutils_char_array_resize(rcutils_char_array_t * char_array, size_t new_size);
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
 rcutils_ret_t
-rcutils_char_array_expand_as_needed(rcutils_char_array_t *char_array, size_t new_size);
+rcutils_char_array_expand_as_needed(rcutils_char_array_t * char_array, size_t new_size);
 
 /// Produce output according to format and args.
 /**
@@ -154,7 +155,7 @@ rcutils_char_array_expand_as_needed(rcutils_char_array_t *char_array, size_t new
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
 rcutils_ret_t
-rcutils_char_array_vsprintf(rcutils_char_array_t * char_array, const char *format, va_list args);
+rcutils_char_array_vsprintf(rcutils_char_array_t * char_array, const char * format, va_list args);
 
 /// Append a string (or part of it) to the string in buffer.
 /**

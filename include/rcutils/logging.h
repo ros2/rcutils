@@ -142,31 +142,6 @@ RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
 rcutils_ret_t rcutils_logging_shutdown(void);
 
-/// Configures the logging system.
-/**
- * This function should be called during the ROS initialization process. It will
- * add the enabled log output appenders to the root logger.
- *
- * <hr>
- * Attribute          | Adherence
- * ------------------ | -------------
- * Allocates Memory   | No
- * Thread-Safe        | No
- * Uses Atomics       | No
- * Lock-Free          | Yes
- *
- * \param default_level The default severity level to log at
- * \param config_file The configuration file for the external logging library to use. Should be a null terminated string.
- *      If NULL or an empty string the default configuration will be used
- * \param enable_stdout Should the stdout output appender be enabled
- * \param enable_rosout Should the rosout output appender be enabled
- * \param enable_ext_lib Should the external logger library output appender be enabled
- * \return `RCUTILS_RET_OK` if successful.
- * \return `RCUTILS_RET_ERR` if a general error occurs
- */
-RCUTILS_PUBLIC
-rcutils_ret_t rcutils_logging_configure(int default_level, const char * config_file, bool enable_stdout, bool enable_rosout, bool enable_ext_lib);
-
 /// The structure identifying the caller location in the source code.
 typedef struct rcutils_log_location_t
 {

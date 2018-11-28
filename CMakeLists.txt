@@ -11,13 +11,8 @@ if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 14)
 endif()
 
-include(cmake/get_default_rc_logging_implementation.cmake)
-
-
 find_package(ament_cmake_python REQUIRED)
 find_package(ament_cmake_ros REQUIRED)
-
-get_default_rc_logging_implementation(RC_LOGGING_IMPL)
 
 ament_python_install_package(${PROJECT_NAME})
 
@@ -95,8 +90,6 @@ include_directories("${CMAKE_CURRENT_BINARY_DIR}/include")
 add_library(
   ${PROJECT_NAME}
   ${rcutils_sources})
-
-target_link_libraries(${PROJECT_NAME} ${${RC_LOGGING_IMPL}_LIBRARIES})
 
 # Causes the visibility macros to use dllexport rather than dllimport,
 # which is appropriate when building the dll but not consuming it.

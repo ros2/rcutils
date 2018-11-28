@@ -88,7 +88,7 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logging) {
   }
   EXPECT_EQ(RCUTILS_LOG_SEVERITY_DEBUG, g_last_log_event.level);
   EXPECT_EQ("name1", g_last_log_event.name);
-  EXPECT_EQ("message 11", g_last_log_event.message);
+  EXPECT_EQ("[DEBUG] [name1]: message 11", g_last_log_event.message);
 
   // check default level
   int original_level = rcutils_logging_get_default_logger_level();
@@ -106,7 +106,7 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logging) {
   EXPECT_EQ(2u, g_log_calls);
   EXPECT_EQ(RCUTILS_LOG_SEVERITY_INFO, g_last_log_event.level);
   EXPECT_EQ("name3", g_last_log_event.name);
-  EXPECT_EQ("message 33", g_last_log_event.message);
+  EXPECT_EQ("[INFO] [name3]: message 33", g_last_log_event.message);
 
   rcutils_log(NULL, RCUTILS_LOG_SEVERITY_WARN, "", "");
   EXPECT_EQ(3u, g_log_calls);

@@ -18,18 +18,6 @@
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
-#define RCUTILS_VALIDATE_CHAR_ARRAY(char_array) \
-  RCUTILS_CHECK_FOR_NULL_WITH_MSG( \
-      char_array, \
-      "char array pointer is null", \
-      return RCUTILS_RET_ERROR);
-
-#define RCUTILS_VALIDATE_ALLOCATOR(allocator) \
-  if (!rcutils_allocator_is_valid(allocator)) { \
-    RCUTILS_SET_ERROR_MSG("char array has no valid allocator"); \
-    return RCUTILS_RET_ERROR; \
-  }
-
 rcutils_char_array_t
 rcutils_get_zero_initialized_char_array(void)
 {
@@ -49,8 +37,9 @@ rcutils_char_array_init(
   size_t buffer_capacity,
   const rcutils_allocator_t * allocator)
 {
-  RCUTILS_VALIDATE_CHAR_ARRAY(char_array);
-  RCUTILS_VALIDATE_ALLOCATOR(allocator);
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(char_array, RCUTILS_RET_ERROR);
+  RCUTILS_CHECK_ALLOCATOR_WITH_MSG(allocator, "char array has no valid allocator",
+    return RCUTILS_RET_ERROR);
 
   char_array->owns_buffer = true;
   char_array->buffer_length = 0lu;
@@ -74,16 +63,16 @@ rcutils_char_array_init(
 rcutils_ret_t
 rcutils_char_array_fini(rcutils_char_array_t * char_array)
 {
-  RCUTILS_VALIDATE_CHAR_ARRAY(char_array);
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(char_array, RCUTILS_RET_ERROR);
 
-  if (!char_array->owns_buffer) {
-    return RCUTILS_RET_OK;
+  if (char_array->owns_buffer) {
+    rcutils_allocator_t * allocator = &char_array->allocator;
+    RCUTILS_CHECK_ALLOCATOR_WITH_MSG(allocator, "char array has no valid allocator",
+      return RCUTILS_RET_ERROR);
+
+    allocator->deallocate(char_array->buffer, allocator->state);
   }
 
-  rcutils_allocator_t * allocator = &char_array->allocator;
-  RCUTILS_VALIDATE_ALLOCATOR(allocator);
-
-  allocator->deallocate(char_array->buffer, allocator->state);
   char_array->buffer = NULL;
   char_array->buffer_length = 0lu;
   char_array->buffer_capacity = 0lu;
@@ -94,7 +83,7 @@ rcutils_char_array_fini(rcutils_char_array_t * char_array)
 rcutils_ret_t
 rcutils_char_array_resize(rcutils_char_array_t * char_array, size_t new_size)
 {
-  RCUTILS_VALIDATE_CHAR_ARRAY(char_array);
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(char_array, RCUTILS_RET_ERROR);
 
   if (0lu == new_size) {
     RCUTILS_SET_ERROR_MSG("new size of char_array has to be greater than zero");
@@ -102,7 +91,8 @@ rcutils_char_array_resize(rcutils_char_array_t * char_array, size_t new_size)
   }
 
   rcutils_allocator_t * allocator = &char_array->allocator;
-  RCUTILS_VALIDATE_ALLOCATOR(allocator);
+  RCUTILS_CHECK_ALLOCATOR_WITH_MSG(allocator, "char array has no valid allocator",
+    return RCUTILS_RET_ERROR);
 
   if (new_size == char_array->buffer_capacity) {
     // nothing to do here
@@ -113,13 +103,13 @@ rcutils_char_array_resize(rcutils_char_array_t * char_array, size_t new_size)
   size_t old_size = char_array->buffer_capacity;
   size_t old_length = char_array->buffer_length;
 
-  if (char_array->owns_buffer) { // we own the buffer, we can do whatever we want
+  if (char_array->owns_buffer) {  // we own the buffer, we can do whatever we want
     char_array->buffer = rcutils_reallocf(char_array->buffer, new_size * sizeof(char), allocator);
     RCUTILS_CHECK_FOR_NULL_WITH_MSG(
-        char_array->buffer,
-        "failed to reallocate memory for char array",
-        return RCUTILS_RET_BAD_ALLOC);
-  } else { // we don't realloc memory we don't own. instead, we alloc some new space
+      char_array->buffer,
+      "failed to reallocate memory for char array",
+      return RCUTILS_RET_BAD_ALLOC);
+  } else {  // we don't realloc memory we don't own. instead, we alloc some new space
     rcutils_ret_t ret = rcutils_char_array_init(char_array, new_size, allocator);
     if (ret != RCUTILS_RET_OK) {
       return ret;
@@ -136,9 +126,9 @@ rcutils_char_array_resize(rcutils_char_array_t * char_array, size_t new_size)
 }
 
 rcutils_ret_t
-rcutils_char_array_expand_as_needed(rcutils_char_array_t *char_array, size_t new_size)
+rcutils_char_array_expand_as_needed(rcutils_char_array_t * char_array, size_t new_size)
 {
-  RCUTILS_VALIDATE_CHAR_ARRAY(char_array);
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(char_array, RCUTILS_RET_ERROR);
 
   if (new_size <= char_array->buffer_capacity) {
     return RCUTILS_RET_OK;
@@ -148,12 +138,13 @@ rcutils_char_array_expand_as_needed(rcutils_char_array_t *char_array, size_t new
 }
 
 static int
-_rcutils_char_array_vsprintf(rcutils_char_array_t *char_array, const char *format, va_list args)
+_rcutils_char_array_vsprintf(rcutils_char_array_t * char_array, const char * format, va_list args)
 {
   va_list args_clone;
   va_copy(args_clone, args);
 
-  // when doing size calculation, remember the return value of vsnprintf excludes terminating null byte
+  // when doing size calculation, remember the return value of vsnprintf excludes terminating null
+  // byte
   int size = vsnprintf(char_array->buffer, char_array->buffer_capacity, format, args_clone);
 
   va_end(args_clone);
@@ -162,7 +153,7 @@ _rcutils_char_array_vsprintf(rcutils_char_array_t *char_array, const char *forma
 }
 
 rcutils_ret_t
-rcutils_char_array_vsprintf(rcutils_char_array_t * char_array, const char *format, va_list args)
+rcutils_char_array_vsprintf(rcutils_char_array_t * char_array, const char * format, va_list args)
 {
   int size = _rcutils_char_array_vsprintf(char_array, format, args);
 
@@ -171,7 +162,7 @@ rcutils_char_array_vsprintf(rcutils_char_array_t * char_array, const char *forma
     return RCUTILS_RET_ERROR;
   }
 
-  size_t new_size = (size_t) size + 1; // with the terminating null byte
+  size_t new_size = (size_t) size + 1;  // with the terminating null byte
 
   if (new_size > char_array->buffer_capacity) {
     rcutils_ret_t ret = rcutils_char_array_expand_as_needed(char_array, new_size);
@@ -211,7 +202,7 @@ rcutils_char_array_memcpy(rcutils_char_array_t * char_array, const char * src, s
 rcutils_ret_t
 rcutils_char_array_strcpy(rcutils_char_array_t * char_array, const char * src)
 {
-    return rcutils_char_array_memcpy(char_array, src, strlen(src) + 1);
+  return rcutils_char_array_memcpy(char_array, src, strlen(src) + 1);
 }
 
 rcutils_ret_t

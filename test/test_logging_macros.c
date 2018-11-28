@@ -93,8 +93,8 @@ int main(int argc, char ** argv)
     fprintf(stderr, "name unexpectedly not empty string\n");
     return 8;
   }
-  if (strcmp(g_last_log_event.message, "empty message")) {
-    fprintf(stderr, "message unexpectedly not 'empty message'\n");
+  if (strcmp(g_last_log_event.message, "[INFO] []: empty message")) {
+    fprintf(stderr, "message unexpectedly not '[INFO] []: empty message'\n");
     return 9;
   }
 
@@ -123,8 +123,8 @@ int main(int argc, char ** argv)
     fprintf(stderr, "name unexpectedly not empty string\n");
     return 15;
   }
-  if (strcmp(g_last_log_event.message, "message foo")) {
-    fprintf(stderr, "message unexpectedly not 'empty message'\n");
+  if (strcmp(g_last_log_event.message, "[INFO] []: message foo")) {
+    fprintf(stderr, "message unexpectedly not '[INFO] []: message foo'\n");
     return 16;
   }
 

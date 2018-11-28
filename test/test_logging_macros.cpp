@@ -89,7 +89,7 @@ TEST_F(TestLoggingMacros, test_logging_named) {
   }
   EXPECT_EQ(RCUTILS_LOG_SEVERITY_DEBUG, g_last_log_event.level);
   EXPECT_EQ("name", g_last_log_event.name);
-  EXPECT_EQ("message 3", g_last_log_event.message);
+  EXPECT_EQ("[DEBUG] [name]: message 3", g_last_log_event.message);
 }
 
 TEST_F(TestLoggingMacros, test_logging_once) {
@@ -99,7 +99,7 @@ TEST_F(TestLoggingMacros, test_logging_once) {
   EXPECT_EQ(1u, g_log_calls);
   EXPECT_EQ(RCUTILS_LOG_SEVERITY_INFO, g_last_log_event.level);
   EXPECT_EQ("", g_last_log_event.name);
-  EXPECT_EQ("message 1", g_last_log_event.message);
+  EXPECT_EQ("[INFO] []: message 1", g_last_log_event.message);
 }
 
 TEST_F(TestLoggingMacros, test_logging_expression) {
@@ -107,7 +107,7 @@ TEST_F(TestLoggingMacros, test_logging_expression) {
     RCUTILS_LOG_INFO_EXPRESSION(i % 3, "message %d", i);
   }
   EXPECT_EQ(4u, g_log_calls);
-  EXPECT_EQ("message 5", g_last_log_event.message);
+  EXPECT_EQ("[INFO] []: message 5", g_last_log_event.message);
 }
 
 int g_counter = 0;
@@ -136,7 +136,7 @@ TEST_F(TestLoggingMacros, test_logging_function) {
   }
   EXPECT_EQ(4u, g_log_calls);
   EXPECT_TRUE(g_function_called);
-  EXPECT_EQ("message 5", g_last_log_event.message);
+  EXPECT_EQ("[INFO] []: message 5", g_last_log_event.message);
 }
 
 TEST_F(TestLoggingMacros, test_logging_skipfirst) {
@@ -155,7 +155,7 @@ TEST_F(TestLoggingMacros, test_logging_throttle) {
   EXPECT_EQ(5u, g_log_calls);
   EXPECT_EQ(RCUTILS_LOG_SEVERITY_ERROR, g_last_log_event.level);
   EXPECT_EQ("", g_last_log_event.name);
-  EXPECT_EQ("throttled message 8", g_last_log_event.message);
+  EXPECT_EQ("[ERROR] []: throttled message 8", g_last_log_event.message);
 }
 
 TEST_F(TestLoggingMacros, test_logging_skipfirst_throttle) {
@@ -168,7 +168,7 @@ TEST_F(TestLoggingMacros, test_logging_skipfirst_throttle) {
   EXPECT_EQ(4u, g_log_calls);
   EXPECT_EQ(RCUTILS_LOG_SEVERITY_FATAL, g_last_log_event.level);
   EXPECT_EQ("", g_last_log_event.name);
-  EXPECT_EQ("throttled message 8", g_last_log_event.message);
+  EXPECT_EQ("[FATAL] []: throttled message 8", g_last_log_event.message);
 }
 
 TEST_F(TestLoggingMacros, test_logger_hierarchy) {
