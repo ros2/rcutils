@@ -15,19 +15,44 @@
 #ifndef RCUTILS__STDATOMIC_HELPER_H_
 #define RCUTILS__STDATOMIC_HELPER_H_
 
+#include <stdbool.h>
+#include <stdint.h>
+
+// disable unused function warnings within this file, due to inline in a header
+#if !defined(_WIN32)
+# pragma GCC diagnostic push
+# if defined(__clang__)
+#   pragma clang diagnostic ignored "-Wunused-function"
+# endif
+#endif
+
 #if !defined(_WIN32)
 
-#if defined(__GNUC__) && __GNUC__ <= 4 && __GNUC_MINOR__ <= 9
-// If GCC and below GCC-4.9, use the compatability header.
-#include "stdatomic_helper/gcc/stdatomic.h"
-#elif defined(__clang__) && defined(__has_feature)
-#if !__has_feature(c_atomic)
-// If Clang and no c_atomics (true for some older versions), use the compatability header.
-#include "stdatomic_helper/gcc/stdatomic.h"
-#endif
+// The my__has_feature avoids a preprocessor error when you check for it and
+// use it on the same line below.
+#if defined(__has_feature)
+#define my__has_feature(...) __has_feature(__VAR_ARGS__)
 #else
-#include <stdatomic.h>
+#define my__has_feature(...) 0
 #endif
+
+#if !defined(__clang__) && defined(__GNUC__) && __GNUC__ <= 4 && __GNUC_MINOR__ <= 9
+// If GCC and below GCC-4.9, use the compatability header.
+# include "stdatomic_helper/gcc/stdatomic.h"
+#else  // !defined(__clang__) && defined(__GNUC__) && __GNUC__ <= 4 && __GNUC_MINOR__ <= 9
+# if __cplusplus
+// NOLINTNEXTLINE
+#   error "cannot be used with C++ due to a conflict with the C++ <atomic> header, see: p0943r1"
+// See: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0943r1.html"
+# else
+#   if defined(__has_feature) && !my__has_feature(c_atomic)
+// If Clang and no c_atomics (true for some older versions), use the compatability header.
+#     include "stdatomic_helper/gcc/stdatomic.h"
+#   else
+#     include <stdatomic.h>
+#   endif
+# endif
+#endif  // !defined(__clang__) && defined(__GNUC__) && __GNUC__ <= 4 && __GNUC_MINOR__ <= 9
 
 #define rcutils_atomic_load(object, out) (out) = atomic_load(object)
 
@@ -37,6 +62,8 @@
 #define rcutils_atomic_exchange(object, out, desired) (out) = atomic_exchange(object, desired)
 
 #define rcutils_atomic_store(object, desired) atomic_store(object, desired)
+
+#define rcutils_atomic_fetch_add(object, out, arg) (out) = atomic_fetch_add(object, arg)
 
 #else  // !defined(_WIN32)
 
@@ -51,6 +78,8 @@
   rcutils_win32_atomic_exchange(object, out, desired)
 
 #define rcutils_atomic_store(object, desired) rcutils_win32_atomic_store(object, desired)
+
+#define rcutils_atomic_fetch_add(object, out, arg) rcutils_win32_atomic_fetch_add(object, out, arg)
 
 #endif  // !defined(_WIN32)
 
@@ -91,7 +120,15 @@ rcutils_atomic_compare_exchange_strong_uint_least64_t(
   atomic_uint_least64_t * a_uint_least64_t, uint64_t * expected, uint64_t desired)
 {
   bool result;
+#if defined(__clang__)
+# pragma clang diagnostic push
+  // we know it's a gnu feature, but clang supports it, so suppress pedantic warning
+# pragma clang diagnostic ignored "-Wgnu-statement-expression"
+#endif
   rcutils_atomic_compare_exchange_strong(a_uint_least64_t, result, expected, desired);
+#if defined(__clang__)
+# pragma clang diagnostic pop
+#endif
   return result;
 }
 
@@ -126,5 +163,17 @@ rcutils_atomic_exchange_uintptr_t(atomic_uintptr_t * a_uintptr_t, uintptr_t desi
   rcutils_atomic_exchange(a_uintptr_t, result, desired);
   return result;
 }
+
+static inline uint64_t
+rcutils_atomic_fetch_add_uint64_t(atomic_uint_least64_t * a_uint64_t, uint64_t arg)
+{
+  uint64_t result;
+  rcutils_atomic_fetch_add(a_uint64_t, result, arg);
+  return result;
+}
+
+#if !defined(_WIN32)
+# pragma GCC diagnostic pop
+#endif
 
 #endif  // RCUTILS__STDATOMIC_HELPER_H_
