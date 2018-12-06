@@ -196,14 +196,16 @@ rcutils_logging_severity_level_from_string(
  * \param severity The severity level
  * \param name The name of the logger
  * \param timestamp The timestamp
- * \param log_str The string to be logged
+ * \param format The format string
+ * \param args The variable argument list
  */
 typedef void (* rcutils_logging_output_handler_t)(
   const rcutils_log_location_t *,  // location
   int,  // severity
   const char *,  // name
   rcutils_time_point_value_t,  // timestamp
-  const char *  // log_str
+  const char *,  // format
+  va_list *  // args
 );
 
 /// The function pointer of the current output handler.
@@ -240,6 +242,36 @@ rcutils_logging_output_handler_t rcutils_logging_get_output_handler();
  */
 RCUTILS_PUBLIC
 void rcutils_logging_set_output_handler(rcutils_logging_output_handler_t function);
+
+/// Formats a log message according to RCUTILS_CONSOLE_OUTPUT_FORMAT
+/**
+ * A formatter that is meant to be used by an output handler to format a log message to the match
+ * the format specified in RCUTILS_CONSOLE_OUTPUT_FORMAT by performing token replacement.
+ *
+ * <hr>
+ * Attribute          | Adherence
+ * ------------------ | -------------
+ * Allocates Memory   | Yes
+ * Thread-Safe        | No
+ * Uses Atomics       | No
+ * Lock-Free          | Yes
+ *
+ * \return `RCUTILS_RET_OK` if successful.
+ * \return `RCUTILS_RET_BAD_ALLOC` if memory allocation error occured
+ * \param location The location information about where the log came from
+ * \param severity The severity of the log message expressed as an integer
+ * \param name The name of the logger that this message came from
+ * \param timestamp The time at which the log message was generated
+ * \param msg The message being logged
+ * \param args The list of arguments to insert into the formatted log messgae
+ * \param[out] logging_output An output buffer for the formatted message
+ */
+RCUTILS_PUBLIC
+RCUTILS_WARN_UNUSED
+rcutils_ret_t rcutils_logging_format_message(
+  const rcutils_log_location_t * location,
+  int severity, const char * name, rcutils_time_point_value_t timestamp,
+  const char * msg, rcutils_char_array_t * logging_output);
 
 /// The default severity level for loggers.
 /**
@@ -463,7 +495,7 @@ RCUTILS_PUBLIC
 void rcutils_logging_console_output_handler(
   const rcutils_log_location_t * location,
   int severity, const char * name, rcutils_time_point_value_t timestamp,
-  const char * log_str);
+  const char * format, va_list * args);
 
 // Provide the compiler with branch prediction information
 #ifndef _WIN32

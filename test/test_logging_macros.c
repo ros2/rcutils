@@ -34,7 +34,7 @@ struct LogEvent g_last_log_event;
 void custom_handler(
   const rcutils_log_location_t * location,
   int severity, const char * name, rcutils_time_point_value_t timestamp,
-  const char * log_str)
+  const char * format, va_list * args)
 {
   rcutils_allocator_t allocator = rcutils_get_default_allocator();
   g_log_calls += 1;
@@ -47,7 +47,7 @@ void custom_handler(
   }
   const size_t size = 1024;
   g_last_log_event.message = allocator.allocate(size, allocator.state);
-  strncpy(g_last_log_event.message, log_str, size);
+  vsnprintf(g_last_log_event.message, size, format, *args);
 }
 
 int main(int argc, char ** argv)
@@ -93,8 +93,8 @@ int main(int argc, char ** argv)
     fprintf(stderr, "name unexpectedly not empty string\n");
     return 8;
   }
-  if (strcmp(g_last_log_event.message, "[INFO] []: empty message")) {
-    fprintf(stderr, "message unexpectedly not '[INFO] []: empty message'\n");
+  if (strcmp(g_last_log_event.message, "empty message")) {
+    fprintf(stderr, "message unexpectedly not 'empty message'\n");
     return 9;
   }
 
@@ -123,8 +123,8 @@ int main(int argc, char ** argv)
     fprintf(stderr, "name unexpectedly not empty string\n");
     return 15;
   }
-  if (strcmp(g_last_log_event.message, "[INFO] []: message foo")) {
-    fprintf(stderr, "message unexpectedly not '[INFO] []: message foo'\n");
+  if (strcmp(g_last_log_event.message, "message foo")) {
+    fprintf(stderr, "message unexpectedly not 'message foo'\n");
     return 16;
   }
 

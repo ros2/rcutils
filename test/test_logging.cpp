@@ -58,7 +58,7 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logging) {
   auto rcutils_logging_console_output_handler = [](
     const rcutils_log_location_t * location,
     int level, const char * name, rcutils_time_point_value_t timestamp,
-    const char * log_str) -> void
+    const char * format, va_list * args) -> void
     {
       g_log_calls += 1;
       g_last_log_event.location = location;
@@ -66,7 +66,7 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logging) {
       g_last_log_event.name = name ? name : "";
       g_last_log_event.timestamp = timestamp;
       char buffer[1024];
-      strncpy(buffer, log_str, sizeof(buffer));
+      vsnprintf(buffer, sizeof(buffer), format, *args);
       g_last_log_event.message = buffer;
     };
 
@@ -88,7 +88,7 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logging) {
   }
   EXPECT_EQ(RCUTILS_LOG_SEVERITY_DEBUG, g_last_log_event.level);
   EXPECT_EQ("name1", g_last_log_event.name);
-  EXPECT_EQ("[DEBUG] [name1]: message 11", g_last_log_event.message);
+  EXPECT_EQ("message 11", g_last_log_event.message);
 
   // check default level
   int original_level = rcutils_logging_get_default_logger_level();
@@ -106,7 +106,7 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logging) {
   EXPECT_EQ(2u, g_log_calls);
   EXPECT_EQ(RCUTILS_LOG_SEVERITY_INFO, g_last_log_event.level);
   EXPECT_EQ("name3", g_last_log_event.name);
-  EXPECT_EQ("[INFO] [name3]: message 33", g_last_log_event.message);
+  EXPECT_EQ("message 33", g_last_log_event.message);
 
   rcutils_log(NULL, RCUTILS_LOG_SEVERITY_WARN, "", "");
   EXPECT_EQ(3u, g_log_calls);

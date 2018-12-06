@@ -63,13 +63,6 @@ int g_rcutils_logging_default_logger_level = 0;
 bool g_force_stdout_line_buffered = false;
 bool g_stdout_flush_failure_reported = false;
 
-/**
- *  Handles formatting the log data into a common string format for every logger
- */
-static void format_log(
-  const rcutils_log_location_t * location,
-  int severity, const char * name, rcutils_time_point_value_t timestamp,
-  const char * format, va_list * args, rcutils_char_array_t * logging_output);
 
 rcutils_ret_t rcutils_logging_initialize(void)
 {
@@ -386,7 +379,7 @@ bool rcutils_logging_logger_is_enabled_for(const char * name, int severity)
 
 #define OK_OR_RETURN_EARLY(op) \
   if (op != RCUTILS_RET_OK) { \
-    SAFE_FWRITE_TO_STDERR_AND(return ); \
+    return op; \
   }
 
 #define APPEND_AND_RETURN_LOG_OUTPUT(s) \
@@ -409,25 +402,10 @@ void rcutils_log(
   }
   rcutils_logging_output_handler_t output_handler = g_rcutils_logging_output_handler;
   if (output_handler != NULL) {
-    char buf[1024] = "";
-    rcutils_char_array_t logging_output = {
-      .buffer = buf,
-      .owns_buffer = false,
-      .buffer_length = 0u,
-      .buffer_capacity = sizeof(buf),
-      .allocator = g_rcutils_logging_allocator
-    };
-
     va_list args;
     va_start(args, format);
-    format_log(location, severity, name, now, format, &args, &logging_output);
+    (*output_handler)(location, severity, name ? name : "", now, format, &args);
     va_end(args);
-
-    (*output_handler)(location, severity, name ? name : "", now, logging_output.buffer);
-
-    if (rcutils_char_array_fini(&logging_output) != RCUTILS_RET_OK) {
-      SAFE_FWRITE_TO_STDERR_AND(fprintf(stderr, "Error: failed to clean up rcutils char array.\n"));
-    }
   }
 }
 
@@ -435,8 +413,7 @@ typedef struct logging_input
 {
   const char * name;
   const rcutils_log_location_t * location;
-  const char * format;
-  va_list * args;
+  const char * msg;
   int severity;
   rcutils_time_point_value_t timestamp;
 } logging_input;
@@ -524,28 +501,8 @@ const char * expand_message(
   const logging_input * logging_input,
   rcutils_char_array_t * logging_output)
 {
-  char buf[1024] = "";
-
-  rcutils_char_array_t message_buffer = {
-    .buffer = buf,
-    .owns_buffer = false,
-    .buffer_length = 0u,
-    .buffer_capacity = sizeof(buf),
-    .allocator = g_rcutils_logging_allocator
-  };
-
-  char * ret = NULL;
-  if (rcutils_char_array_vsprintf(&message_buffer, logging_input->format,
-    *(logging_input->args)) == RCUTILS_RET_OK)
-  {
-    if (rcutils_char_array_strcat(logging_output, message_buffer.buffer) == RCUTILS_RET_OK) {
-      ret = logging_output->buffer;
-    }
-  }
-
-  OK_OR_RETURN_NULL(rcutils_char_array_fini(&message_buffer));
-
-  return ret;
+  OK_OR_RETURN_NULL(rcutils_char_array_strcat(logging_output, logging_input->msg));
+  return logging_output->buffer;
 }
 
 const char * expand_function_name(
@@ -590,11 +547,12 @@ token_handler find_token_handler(const char * token)
   return NULL;
 }
 
-static void format_log(
+rcutils_ret_t rcutils_logging_format_message(
   const rcutils_log_location_t * location,
   int severity, const char * name, rcutils_time_point_value_t timestamp,
-  const char * format, va_list * args, rcutils_char_array_t * logging_output)
+  const char * msg, rcutils_char_array_t * logging_output)
 {
+  rcutils_ret_t status = RCUTILS_RET_OK;
   // Process the format string looking for known tokens.
   const char token_start_delimiter = '{';
   const char token_end_delimiter = '}';
@@ -607,8 +565,7 @@ static void format_log(
     .severity = severity,
     .name = name,
     .timestamp = timestamp,
-    .format = format,
-    .args = args
+    .msg = msg
   };
 
   // Walk through the format string and expand tokens when they're encountered.
@@ -621,7 +578,8 @@ static void format_log(
     if (chars_to_start_delim > 0) {  // there are stuff before a token start delimiter
       size_t chars_to_copy = chars_to_start_delim >
         remaining_chars ? remaining_chars : chars_to_start_delim;
-      OK_OR_RETURN_EARLY(rcutils_char_array_strncat(logging_output, str + i, chars_to_copy));
+      status = rcutils_char_array_strncat(logging_output, str + i, chars_to_copy);
+      OK_OR_RETURN_EARLY(status);
       i += chars_to_copy;
       if (i >= size) {  // perhaps no start delimiter was found
         break;
@@ -639,7 +597,8 @@ static void format_log(
     if (chars_to_end_delim > remaining_chars) {
       // No end delimiters found in the remainder of the format string;
       // there won't be any more tokens so shortcut the rest of the checking.
-      OK_OR_RETURN_EARLY(rcutils_char_array_strncat(logging_output, str + i, remaining_chars));
+      status = rcutils_char_array_strncat(logging_output, str + i, remaining_chars);
+      OK_OR_RETURN_EARLY(status);
       break;
     }
 
@@ -653,27 +612,29 @@ static void format_log(
     if (!expand_token) {
       // This wasn't a token; print the start delimiter and continue the search as usual
       // (the substring might contain more start delimiters).
-      OK_OR_RETURN_EARLY(rcutils_char_array_strncat(logging_output, str + i, 1));
+      status = rcutils_char_array_strncat(logging_output, str + i, 1);
+      OK_OR_RETURN_EARLY(status);
       i++;
       continue;
     }
 
     if (!expand_token(&logging_input, logging_output)) {
-      return;
+      return RCUTILS_RET_ERROR;
     }
     // Skip ahead to avoid re-processing the token characters (including the 2 delimiters).
     i += token_len + 2;
   }
+
+  return status;
 }
 
 void rcutils_logging_console_output_handler(
   const rcutils_log_location_t * location,
   int severity, const char * name, rcutils_time_point_value_t timestamp,
-  const char * log_str)
+  const char * format, va_list * args)
 {
-  RCUTILS_UNUSED(location);
-  RCUTILS_UNUSED(name);
-  RCUTILS_UNUSED(timestamp);
+  rcutils_ret_t status = RCUTILS_RET_OK;
+
   if (!g_rcutils_logging_initialized) {
     fprintf(
       stderr,
@@ -697,15 +658,55 @@ void rcutils_logging_console_output_handler(
       return;
   }
 
-  fprintf(stream, "%s\n", log_str);
+  char msg_buf[1024] = "";
+  rcutils_char_array_t msg_array = {
+    .buffer = msg_buf,
+    .owns_buffer = false,
+    .buffer_length = 0u,
+    .buffer_capacity = sizeof(msg_buf),
+    .allocator = g_rcutils_logging_allocator
+  };
 
-  if (g_force_stdout_line_buffered && stream == stdout) {
-    int flush_result = fflush(stream);
-    if (flush_result != 0 && !g_stdout_flush_failure_reported) {
-      g_stdout_flush_failure_reported = true;
-      fprintf(stderr, "Error: failed to perform fflush on stdout, fflush return code is: %d\n",
-        flush_result);
+  char output_buf[1024] = "";
+  rcutils_char_array_t output_array = {
+    .buffer = output_buf,
+    .owns_buffer = false,
+    .buffer_length = 0u,
+    .buffer_capacity = sizeof(output_buf),
+    .allocator = g_rcutils_logging_allocator
+  };
+
+  va_list args_clone;
+  va_copy(args_clone, *args);
+  status = rcutils_char_array_vsprintf(&msg_array, format, args_clone);
+  va_end(args_clone);
+
+  if (RCUTILS_RET_OK == status) {
+    status = rcutils_logging_format_message(
+      location, severity, name, timestamp, msg_array.buffer, &output_array);
+  }
+
+
+  if (RCUTILS_RET_OK == status) {
+    fprintf(stream, "%s\n", output_array.buffer);
+
+    if (g_force_stdout_line_buffered && stream == stdout) {
+      int flush_result = fflush(stream);
+      if (flush_result != 0 && !g_stdout_flush_failure_reported) {
+        g_stdout_flush_failure_reported = true;
+        fprintf(stderr, "Error: failed to perform fflush on stdout, fflush return code is: %d\n",
+          flush_result);
+      }
     }
+  }
+
+  status = rcutils_char_array_fini(&msg_array);
+  if (RCUTILS_RET_OK != status) {
+    fprintf(stderr, "Failed to fini array.\n");
+  }
+  status = rcutils_char_array_fini(&output_array);
+  if (RCUTILS_RET_OK != status) {
+    fprintf(stderr, "Failed to fini array.\n");
   }
 }
 

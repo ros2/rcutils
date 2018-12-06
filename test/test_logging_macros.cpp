@@ -52,7 +52,7 @@ public:
     auto rcutils_logging_console_output_handler = [](
       const rcutils_log_location_t * location,
       int level, const char * name, rcutils_time_point_value_t timestamp,
-      const char * log_str) -> void
+      const char * format, va_list * args) -> void
       {
         g_log_calls += 1;
         g_last_log_event.location = location;
@@ -60,7 +60,7 @@ public:
         g_last_log_event.name = name ? name : "";
         g_last_log_event.timestamp = timestamp;
         char buffer[1024];
-        strncpy(buffer, log_str, sizeof(buffer));
+        vsnprintf(buffer, sizeof(buffer), format, *args);
         g_last_log_event.message = buffer;
       };
 
@@ -89,7 +89,7 @@ TEST_F(TestLoggingMacros, test_logging_named) {
   }
   EXPECT_EQ(RCUTILS_LOG_SEVERITY_DEBUG, g_last_log_event.level);
   EXPECT_EQ("name", g_last_log_event.name);
-  EXPECT_EQ("[DEBUG] [name]: message 3", g_last_log_event.message);
+  EXPECT_EQ("message 3", g_last_log_event.message);
 }
 
 TEST_F(TestLoggingMacros, test_logging_once) {
@@ -99,7 +99,7 @@ TEST_F(TestLoggingMacros, test_logging_once) {
   EXPECT_EQ(1u, g_log_calls);
   EXPECT_EQ(RCUTILS_LOG_SEVERITY_INFO, g_last_log_event.level);
   EXPECT_EQ("", g_last_log_event.name);
-  EXPECT_EQ("[INFO] []: message 1", g_last_log_event.message);
+  EXPECT_EQ("message 1", g_last_log_event.message);
 }
 
 TEST_F(TestLoggingMacros, test_logging_expression) {
@@ -107,7 +107,7 @@ TEST_F(TestLoggingMacros, test_logging_expression) {
     RCUTILS_LOG_INFO_EXPRESSION(i % 3, "message %d", i);
   }
   EXPECT_EQ(4u, g_log_calls);
-  EXPECT_EQ("[INFO] []: message 5", g_last_log_event.message);
+  EXPECT_EQ("message 5", g_last_log_event.message);
 }
 
 int g_counter = 0;
@@ -136,7 +136,7 @@ TEST_F(TestLoggingMacros, test_logging_function) {
   }
   EXPECT_EQ(4u, g_log_calls);
   EXPECT_TRUE(g_function_called);
-  EXPECT_EQ("[INFO] []: message 5", g_last_log_event.message);
+  EXPECT_EQ("message 5", g_last_log_event.message);
 }
 
 TEST_F(TestLoggingMacros, test_logging_skipfirst) {
@@ -155,7 +155,7 @@ TEST_F(TestLoggingMacros, test_logging_throttle) {
   EXPECT_EQ(5u, g_log_calls);
   EXPECT_EQ(RCUTILS_LOG_SEVERITY_ERROR, g_last_log_event.level);
   EXPECT_EQ("", g_last_log_event.name);
-  EXPECT_EQ("[ERROR] []: throttled message 8", g_last_log_event.message);
+  EXPECT_EQ("throttled message 8", g_last_log_event.message);
 }
 
 TEST_F(TestLoggingMacros, test_logging_skipfirst_throttle) {
@@ -168,7 +168,7 @@ TEST_F(TestLoggingMacros, test_logging_skipfirst_throttle) {
   EXPECT_EQ(4u, g_log_calls);
   EXPECT_EQ(RCUTILS_LOG_SEVERITY_FATAL, g_last_log_event.level);
   EXPECT_EQ("", g_last_log_event.name);
-  EXPECT_EQ("[FATAL] []: throttled message 8", g_last_log_event.message);
+  EXPECT_EQ("throttled message 8", g_last_log_event.message);
 }
 
 TEST_F(TestLoggingMacros, test_logger_hierarchy) {
