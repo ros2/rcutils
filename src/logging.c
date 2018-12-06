@@ -679,11 +679,19 @@ void rcutils_logging_console_output_handler(
   va_list args_clone;
   va_copy(args_clone, *args);
   status = rcutils_char_array_vsprintf(&msg_array, format, args_clone);
+  if (RCUTILS_RET_OK != status) {
+    fprintf(stderr, "Error: rcutils_char_array_vsprintf failed with: %d\n",
+      status);
+  }
   va_end(args_clone);
 
   if (RCUTILS_RET_OK == status) {
     status = rcutils_logging_format_message(
       location, severity, name, timestamp, msg_array.buffer, &output_array);
+    if (RCUTILS_RET_OK != status) {
+      fprintf(stderr, "Error: rcutils_logging_format_message failed with: %d\n",
+        status);
+    }
   }
 
 
