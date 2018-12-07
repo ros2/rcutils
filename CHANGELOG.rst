@@ -2,8 +2,8 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.6.1 (2018-12-06)
+------------------
 * Logging (`#127 <https://github.com/ros2/rcutils/issues/127>`_)
 * fixes to support including in c++ and fetch_add (`#129 <https://github.com/ros2/rcutils/issues/129>`_)
 * reiterate over char array (`#130 <https://github.com/ros2/rcutils/issues/130>`_)
