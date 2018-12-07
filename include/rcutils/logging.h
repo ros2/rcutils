@@ -243,6 +243,36 @@ rcutils_logging_output_handler_t rcutils_logging_get_output_handler();
 RCUTILS_PUBLIC
 void rcutils_logging_set_output_handler(rcutils_logging_output_handler_t function);
 
+/// Formats a log message according to RCUTILS_CONSOLE_OUTPUT_FORMAT
+/**
+ * A formatter that is meant to be used by an output handler to format a log message to the match
+ * the format specified in RCUTILS_CONSOLE_OUTPUT_FORMAT by performing token replacement.
+ *
+ * <hr>
+ * Attribute          | Adherence
+ * ------------------ | -------------
+ * Allocates Memory   | Yes
+ * Thread-Safe        | No
+ * Uses Atomics       | No
+ * Lock-Free          | Yes
+ *
+ * \return `RCUTILS_RET_OK` if successful.
+ * \return `RCUTILS_RET_BAD_ALLOC` if memory allocation error occured
+ * \param location The location information about where the log came from
+ * \param severity The severity of the log message expressed as an integer
+ * \param name The name of the logger that this message came from
+ * \param timestamp The time at which the log message was generated
+ * \param msg The message being logged
+ * \param args The list of arguments to insert into the formatted log messgae
+ * \param[out] logging_output An output buffer for the formatted message
+ */
+RCUTILS_PUBLIC
+RCUTILS_WARN_UNUSED
+rcutils_ret_t rcutils_logging_format_message(
+  const rcutils_log_location_t * location,
+  int severity, const char * name, rcutils_time_point_value_t timestamp,
+  const char * msg, rcutils_char_array_t * logging_output);
+
 /// The default severity level for loggers.
 /**
  * This level is used for (1) nameless log calls and (2) named log
@@ -418,7 +448,8 @@ int rcutils_logging_get_logger_effective_level(const char * name);
  * <hr>
  * Attribute          | Adherence
  * ------------------ | -------------
- * Allocates Memory   | No
+ * Allocates Memory   | No, for formatted outputs <= 1023 characters
+ *                    | Yes, for formatted outputs >= 1024 characters
  * Thread-Safe        | No
  * Uses Atomics       | No
  * Lock-Free          | Yes
@@ -449,8 +480,7 @@ void rcutils_log(
  * <hr>
  * Attribute          | Adherence
  * ------------------ | -------------
- * Allocates Memory   | No, for formatted outputs <= 1023 characters
- *                    | Yes, for formatted outputs >= 1024 characters
+ * Allocates Memory   | No
  * Thread-Safe        | Yes, if the underlying *printf functions are
  * Uses Atomics       | No
  * Lock-Free          | Yes
@@ -459,8 +489,7 @@ void rcutils_log(
  * \param severity The severity level
  * \param name The name of the logger, must be null terminated c string
  * \param timestamp The timestamp for when the log message was made
- * \param format The format string for the message contents
- * \param args The variable argument list for the message format string
+ * \param log_str The string to be logged
  */
 RCUTILS_PUBLIC
 void rcutils_logging_console_output_handler(

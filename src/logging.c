@@ -33,7 +33,7 @@ extern "C"
 #include "rcutils/time.h"
 #include "rcutils/types/string_map.h"
 
-#define RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN 2048
+#define RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN (2048)
 
 const char * g_rcutils_log_severity_names[] = {
   [RCUTILS_LOG_SEVERITY_UNSET] = "UNSET",
@@ -232,6 +232,9 @@ void rcutils_logging_set_default_logger_level(int level)
 int rcutils_logging_get_logger_level(const char * name)
 {
   RCUTILS_LOGGING_AUTOINIT
+  if (NULL == name) {
+    return -1;
+  }
   return rcutils_logging_get_logger_leveln(name, strlen(name));
 }
 
@@ -363,6 +366,26 @@ bool rcutils_logging_logger_is_enabled_for(const char * name, int severity)
   }
   return severity >= logger_level;
 }
+#define SAFE_FWRITE_TO_STDERR_AND(action) \
+  RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string().str); \
+  rcutils_reset_error(); \
+  RCUTILS_SAFE_FWRITE_TO_STDERR("\n"); \
+  action;
+
+#define OK_OR_RETURN_NULL(op) \
+  if (op != RCUTILS_RET_OK) { \
+    SAFE_FWRITE_TO_STDERR_AND(return NULL); \
+  }
+
+#define OK_OR_RETURN_EARLY(op) \
+  if (op != RCUTILS_RET_OK) { \
+    return op; \
+  }
+
+#define APPEND_AND_RETURN_LOG_OUTPUT(s) \
+  OK_OR_RETURN_NULL(rcutils_char_array_strcat(logging_output, s)); \
+  return logging_output->buffer;
+
 
 void rcutils_log(
   const rcutils_log_location_t * location,
@@ -386,66 +409,232 @@ void rcutils_log(
   }
 }
 
-/// Ensure that the logging buffer is large enough.
-/**
- * Macro for (re)allocating a dynamic buffer if the ouput buffer doesn't have
- * enough space for an additional n characters and null terminator.
- * Whether to allocate or re-allocate is determined by if the output_buffer
- * points to the original static_output_buffer or not.
- * If a new buffer is allocated it will be null-terminated.
- *
- * /param n Number of characters requiring space (not including null terminator)
- * /param output_buffer_size Size allocated for the output buffer
- * /param output_buffer The output buffer to ensure has enough space
- * /param static_output_buffer The static buffer initially used as the output
- */
-#define RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER( \
-    n, \
-    output_buffer_size, \
-    output_buffer, \
-    static_output_buffer \
-) \
-  size_t old_output_buffer_len = strlen(output_buffer); \
-  size_t required_output_buffer_size = old_output_buffer_len + n + 1; \
-  /* ensure that required size calculation did not overflow */ \
-  if (required_output_buffer_size <= old_output_buffer_len) { \
-    fprintf(stderr, "required buffer for logging output too large\n"); \
-    goto cleanup; \
-  } \
-  if (required_output_buffer_size > output_buffer_size) { \
-    do { \
-      if (output_buffer_size <= (SIZE_MAX / 2)) { \
-        output_buffer_size *= 2; \
-      } else { \
-        output_buffer_size = SIZE_MAX; \
-      } \
-    } while (required_output_buffer_size > output_buffer_size); \
-    if (output_buffer == static_output_buffer) { \
-      void * dynamic_output_buffer = g_rcutils_logging_allocator.allocate( \
-        output_buffer_size, g_rcutils_logging_allocator.state); \
-      if (NULL == dynamic_output_buffer) { \
-        fprintf(stderr, "failed to allocate buffer for logging output\n"); \
-        goto cleanup; \
-      } \
-      memcpy(dynamic_output_buffer, output_buffer, old_output_buffer_len); \
-      output_buffer = (char *)dynamic_output_buffer; \
-    } else { \
-      void * new_dynamic_output_buffer = g_rcutils_logging_allocator.reallocate( \
-        output_buffer, output_buffer_size, g_rcutils_logging_allocator.state); \
-      if (NULL == new_dynamic_output_buffer) { \
-        fprintf(stderr, "failed to reallocate buffer for logging output\n"); \
-        goto cleanup; \
-      } \
-      output_buffer = (char *)new_dynamic_output_buffer; \
-    } \
-    output_buffer[old_output_buffer_len] = '\0'; \
+typedef struct logging_input
+{
+  const char * name;
+  const rcutils_log_location_t * location;
+  const char * msg;
+  int severity;
+  rcutils_time_point_value_t timestamp;
+} logging_input;
+
+typedef const char * (* token_handler)(
+  const logging_input * logging_input,
+  rcutils_char_array_t * logging_output);
+
+typedef struct token_map_entry
+{
+  const char * token;
+  token_handler handler;
+} token_map_entry;
+
+const char * expand_time(
+  const logging_input * logging_input, rcutils_char_array_t * logging_output,
+  rcutils_ret_t (* time_func)(const rcutils_time_point_value_t *, char *, size_t))
+{
+  // Temporary, local storage for integer/float conversion to string
+  // Note:
+  //   32 characters enough, because the most it can be is 20 characters
+  //   for the 19 possible digits in a signed 64-bit number plus the optional
+  //   decimal point in the floating point seconds version
+  char numeric_storage[32];
+  OK_OR_RETURN_NULL(time_func(&logging_input->timestamp, numeric_storage, sizeof(numeric_storage)));
+  APPEND_AND_RETURN_LOG_OUTPUT(numeric_storage);
+}
+
+const char * expand_time_as_seconds(
+  const logging_input * logging_input,
+  rcutils_char_array_t * logging_output)
+{
+  return expand_time(logging_input, logging_output, rcutils_time_point_value_as_seconds_string);
+}
+
+const char * expand_time_as_nanoseconds(
+  const logging_input * logging_input,
+  rcutils_char_array_t * logging_output)
+{
+  return expand_time(logging_input, logging_output, rcutils_time_point_value_as_nanoseconds_string);
+}
+
+const char * expand_line_number(
+  const logging_input * logging_input,
+  rcutils_char_array_t * logging_output)
+{
+  // Allow 9 digits for the expansion of the line number (otherwise, truncate).
+  char line_number_expansion[10];
+
+  const rcutils_log_location_t * location = logging_input->location;
+
+  if (!location) {
+    OK_OR_RETURN_NULL(rcutils_char_array_strcpy(logging_output, "0"));
+    return logging_output->buffer;
   }
+
+  // Even in the case of truncation the result will still be null-terminated.
+  int written = rcutils_snprintf(line_number_expansion, sizeof(line_number_expansion), "%zu",
+      location->line_number);
+  if (written < 0) {
+    fprintf(stderr, "failed to format line number: '%zu'\n", location->line_number);
+    return NULL;
+  }
+
+  APPEND_AND_RETURN_LOG_OUTPUT(line_number_expansion);
+}
+
+const char * expand_severity(
+  const logging_input * logging_input,
+  rcutils_char_array_t * logging_output)
+{
+  const char * severity_string = g_rcutils_log_severity_names[logging_input->severity];
+  APPEND_AND_RETURN_LOG_OUTPUT(severity_string);
+}
+
+const char * expand_name(const logging_input * logging_input, rcutils_char_array_t * logging_output)
+{
+  if (NULL != logging_input->name) {
+    APPEND_AND_RETURN_LOG_OUTPUT(logging_input->name);
+  }
+  return logging_output->buffer;
+}
+
+const char * expand_message(
+  const logging_input * logging_input,
+  rcutils_char_array_t * logging_output)
+{
+  OK_OR_RETURN_NULL(rcutils_char_array_strcat(logging_output, logging_input->msg));
+  return logging_output->buffer;
+}
+
+const char * expand_function_name(
+  const logging_input * logging_input,
+  rcutils_char_array_t * logging_output)
+{
+  if (logging_input->location) {
+    APPEND_AND_RETURN_LOG_OUTPUT(logging_input->location->function_name);
+  }
+  return logging_output->buffer;
+}
+
+const char * expand_file_name(
+  const logging_input * logging_input,
+  rcutils_char_array_t * logging_output)
+{
+  if (logging_input->location) {
+    APPEND_AND_RETURN_LOG_OUTPUT(logging_input->location->file_name);
+  }
+  return logging_output->buffer;
+}
+
+static const token_map_entry tokens[] = {
+  {.token = "severity", .handler = expand_severity},
+  {.token = "name", .handler = expand_name},
+  {.token = "message", .handler = expand_message},
+  {.token = "function_name", .handler = expand_function_name},
+  {.token = "file_name", .handler = expand_file_name},
+  {.token = "time", .handler = expand_time_as_seconds},
+  {.token = "time_as_nanoseconds", .handler = expand_time_as_nanoseconds},
+  {.token = "line_number", .handler = expand_line_number},
+};
+
+token_handler find_token_handler(const char * token)
+{
+  int token_number = sizeof(tokens) / sizeof(tokens[0]);
+  for (int token_index = 0; token_index < token_number; token_index++) {
+    if (strcmp(token, tokens[token_index].token) == 0) {
+      return tokens[token_index].handler;
+    }
+  }
+  return NULL;
+}
+
+rcutils_ret_t rcutils_logging_format_message(
+  const rcutils_log_location_t * location,
+  int severity, const char * name, rcutils_time_point_value_t timestamp,
+  const char * msg, rcutils_char_array_t * logging_output)
+{
+  rcutils_ret_t status = RCUTILS_RET_OK;
+  // Process the format string looking for known tokens.
+  const char token_start_delimiter = '{';
+  const char token_end_delimiter = '}';
+
+  const char * str = g_rcutils_logging_output_format_string;
+  size_t size = strlen(g_rcutils_logging_output_format_string);
+
+  const logging_input logging_input = {
+    .location = location,
+    .severity = severity,
+    .name = name,
+    .timestamp = timestamp,
+    .msg = msg
+  };
+
+  // Walk through the format string and expand tokens when they're encountered.
+  size_t i = 0;
+  while (i < size) {
+    // Print everything up to the next token start delimiter.
+    size_t chars_to_start_delim = rcutils_find(str + i, token_start_delimiter);
+    size_t remaining_chars = size - i;
+
+    if (chars_to_start_delim > 0) {  // there are stuff before a token start delimiter
+      size_t chars_to_copy = chars_to_start_delim >
+        remaining_chars ? remaining_chars : chars_to_start_delim;
+      status = rcutils_char_array_strncat(logging_output, str + i, chars_to_copy);
+      OK_OR_RETURN_EARLY(status);
+      i += chars_to_copy;
+      if (i >= size) {  // perhaps no start delimiter was found
+        break;
+      }
+    }
+
+    // We are at a token start delimiter: determine if there's a known token or not.
+    // Potential tokens can't possibly be longer than the format string itself.
+    char token[RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN];
+
+    // Look for a token end delimiter.
+    size_t chars_to_end_delim = rcutils_find(str + i, token_end_delimiter);
+    remaining_chars = size - i;
+
+    if (chars_to_end_delim > remaining_chars) {
+      // No end delimiters found in the remainder of the format string;
+      // there won't be any more tokens so shortcut the rest of the checking.
+      status = rcutils_char_array_strncat(logging_output, str + i, remaining_chars);
+      OK_OR_RETURN_EARLY(status);
+      break;
+    }
+
+    // Found what looks like a token; determine if it's recognized.
+    size_t token_len = chars_to_end_delim - 1;  // Not including delimiters.
+    memcpy(token, str + i + 1, token_len);  // Skip the start delimiter.
+    token[token_len] = '\0';
+
+    token_handler expand_token = find_token_handler(token);
+
+    if (!expand_token) {
+      // This wasn't a token; print the start delimiter and continue the search as usual
+      // (the substring might contain more start delimiters).
+      status = rcutils_char_array_strncat(logging_output, str + i, 1);
+      OK_OR_RETURN_EARLY(status);
+      i++;
+      continue;
+    }
+
+    if (!expand_token(&logging_input, logging_output)) {
+      return RCUTILS_RET_ERROR;
+    }
+    // Skip ahead to avoid re-processing the token characters (including the 2 delimiters).
+    i += token_len + 2;
+  }
+
+  return status;
+}
 
 void rcutils_logging_console_output_handler(
   const rcutils_log_location_t * location,
   int severity, const char * name, rcutils_time_point_value_t timestamp,
   const char * format, va_list * args)
 {
+  rcutils_ret_t status = RCUTILS_RET_OK;
+
   if (!g_rcutils_logging_initialized) {
     fprintf(
       stderr,
@@ -454,20 +643,13 @@ void rcutils_logging_console_output_handler(
     return;
   }
   FILE * stream = NULL;
-  const char * severity_string = "";
   switch (severity) {
     case RCUTILS_LOG_SEVERITY_DEBUG:
-      stream = stdout;
-      break;
     case RCUTILS_LOG_SEVERITY_INFO:
       stream = stdout;
       break;
     case RCUTILS_LOG_SEVERITY_WARN:
-      stream = stderr;
-      break;
     case RCUTILS_LOG_SEVERITY_ERROR:
-      stream = stderr;
-      break;
     case RCUTILS_LOG_SEVERITY_FATAL:
       stream = stderr;
       break;
@@ -475,196 +657,64 @@ void rcutils_logging_console_output_handler(
       fprintf(stderr, "unknown severity level: %d\n", severity);
       return;
   }
-  severity_string = g_rcutils_log_severity_names[severity];
-  if (NULL == severity_string) {
-    fprintf(stderr, "couldn't determine name for severity level: %d\n", severity);
-    return;
-  }
 
-  // Declare variables that will be needed for cleanup ahead of time.
-  char static_output_buffer[1024];
-  char * output_buffer = NULL;
+  char msg_buf[1024] = "";
+  rcutils_char_array_t msg_array = {
+    .buffer = msg_buf,
+    .owns_buffer = false,
+    .buffer_length = 0u,
+    .buffer_capacity = sizeof(msg_buf),
+    .allocator = g_rcutils_logging_allocator
+  };
 
-  // Start with a fixed size message buffer and if during message formatting we need longer, we'll
-  // dynamically allocate space.
-  char static_message_buffer[1024];
-  char * message_buffer = static_message_buffer;
+  char output_buf[1024] = "";
+  rcutils_char_array_t output_array = {
+    .buffer = output_buf,
+    .owns_buffer = false,
+    .buffer_length = 0u,
+    .buffer_capacity = sizeof(output_buf),
+    .allocator = g_rcutils_logging_allocator
+  };
 
-  int written;
-  {
-    // use copy of args to keep args for potential later user
-    va_list args_clone;
-    va_copy(args_clone, *args);
-    written = vsnprintf(static_message_buffer, sizeof(static_message_buffer), format, args_clone);
-    va_end(args_clone);
+  va_list args_clone;
+  va_copy(args_clone, *args);
+  status = rcutils_char_array_vsprintf(&msg_array, format, args_clone);
+  if (RCUTILS_RET_OK != status) {
+    fprintf(stderr, "Error: rcutils_char_array_vsprintf failed with: %d\n",
+      status);
   }
-  if (written < 0) {
-    fprintf(stderr, "failed to format message: '%s'\n", format);
-    return;
-  }
-  if ((size_t)written >= sizeof(static_message_buffer)) {
-    // write was incomplete, allocate necessary memory dynamically
-    size_t message_buffer_size = written + 1;
-    void * dynamic_message_buffer = g_rcutils_logging_allocator.allocate(
-      message_buffer_size, g_rcutils_logging_allocator.state);
-    if (NULL == dynamic_message_buffer) {
-      fprintf(stderr, "failed to allocate buffer for message\n");
-      return;
-    }
-    written = vsnprintf(dynamic_message_buffer, message_buffer_size, format, *args);
-    message_buffer = (char *)dynamic_message_buffer;
-    if (written < 0 || (size_t)written >= message_buffer_size) {
-      fprintf(
-        stderr,
-        "failed to format message (using dynamically allocated memory): '%s'\n",
-        format);
-      goto cleanup;
+  va_end(args_clone);
+
+  if (RCUTILS_RET_OK == status) {
+    status = rcutils_logging_format_message(
+      location, severity, name, timestamp, msg_array.buffer, &output_array);
+    if (RCUTILS_RET_OK != status) {
+      fprintf(stderr, "Error: rcutils_logging_format_message failed with: %d\n",
+        status);
     }
   }
 
-  // Process the format string looking for known tokens.
-  const char token_start_delimiter = '{';
-  const char token_end_delimiter = '}';
-  // Start with a fixed size output buffer and if during token expansion we need longer, we'll
-  // dynamically allocate space.
-  output_buffer = static_output_buffer;
-  output_buffer[0] = '\0';
-  size_t output_buffer_size = sizeof(static_output_buffer);
-  const char * str = g_rcutils_logging_output_format_string;
-  size_t size = strlen(g_rcutils_logging_output_format_string);
 
-  // Walk through the format string and expand tokens when they're encountered.
-  size_t i = 0;
-  while (i < size) {
-    // Print everything up to the next token start delimiter.
-    size_t chars_to_start_delim = rcutils_find(str + i, token_start_delimiter);
-    size_t remaining_chars = size - i;
-    if (chars_to_start_delim > 0) {
-      if (chars_to_start_delim > remaining_chars) {
-        // No start delimiters found; don't allow printing more of than what's left if.
-        chars_to_start_delim = remaining_chars;
-      }
-      RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(
-        chars_to_start_delim, output_buffer_size, output_buffer, static_output_buffer)
-      memcpy(output_buffer + old_output_buffer_len, str + i, chars_to_start_delim);
-      output_buffer[old_output_buffer_len + chars_to_start_delim] = '\0';
-      i += chars_to_start_delim;
-      if (i >= size) {
-        break;
+  if (RCUTILS_RET_OK == status) {
+    fprintf(stream, "%s\n", output_array.buffer);
+
+    if (g_force_stdout_line_buffered && stream == stdout) {
+      int flush_result = fflush(stream);
+      if (flush_result != 0 && !g_stdout_flush_failure_reported) {
+        g_stdout_flush_failure_reported = true;
+        fprintf(stderr, "Error: failed to perform fflush on stdout, fflush return code is: %d\n",
+          flush_result);
       }
     }
-    // We are at a token start delimiter: determine if there's a known token or not.
-    // Potential tokens can't possibly be longer than the format string itself.
-    char token[RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN];
-    // Look for a token end delimiter.
-    size_t chars_to_end_delim = rcutils_find(str + i, token_end_delimiter);
-    remaining_chars = size - i;
-    if (chars_to_end_delim > remaining_chars) {
-      // No end delimiters found in the remainder of the format string;
-      // there won't be any more tokens so shortcut the rest of the checking.
-      RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(
-        remaining_chars, output_buffer_size, output_buffer, static_output_buffer)
-      memcpy(output_buffer + old_output_buffer_len, str + i, remaining_chars + 1);
-      break;
-    }
-    // Found what looks like a token; determine if it's recognized.
-    size_t token_len = chars_to_end_delim - 1;  // Not including delimiters.
-    memcpy(token, str + i + 1, token_len);  // Skip the start delimiter.
-    token[token_len] = '\0';
-    // Expand known tokens into their content strings.
-    // The resulting token_expansion string must always be null-terminated.
-    const char * token_expansion = NULL;
-    // Temporary, local storage for integer/float conversion to string
-    // Note:
-    //   32 characters enough, because the most it can be is 20 characters
-    //   for the 19 possible digits in a signed 64-bit number plus the optional
-    //   decimal point in the floating point seconds version
-    char numeric_storage[32];
-    // Allow 9 digits for the expansion of the line number (otherwise, truncate).
-    char line_number_expansion[10];
-    if (strcmp("severity", token) == 0) {
-      token_expansion = severity_string;
-    } else if (strcmp("name", token) == 0) {
-      token_expansion = name;
-    } else if (strcmp("message", token) == 0) {
-      token_expansion = message_buffer;
-    } else if (strcmp("time", token) == 0) {
-      rcutils_ret_t ret = rcutils_time_point_value_as_seconds_string(
-        &timestamp,
-        numeric_storage, sizeof(numeric_storage));
-      if (ret != RCUTILS_RET_OK) {
-        RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string().str);
-        rcutils_reset_error();
-        RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
-        goto cleanup;
-      }
-      token_expansion = numeric_storage;
-    } else if (strcmp("time_as_nanoseconds", token) == 0) {
-      rcutils_ret_t ret = rcutils_time_point_value_as_nanoseconds_string(
-        &timestamp,
-        numeric_storage, sizeof(numeric_storage));
-      if (ret != RCUTILS_RET_OK) {
-        RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string().str);
-        rcutils_reset_error();
-        RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
-        goto cleanup;
-      }
-      token_expansion = numeric_storage;
-    } else if (strcmp("function_name", token) == 0) {
-      token_expansion = location ? location->function_name : "\"\"";
-    } else if (strcmp("file_name", token) == 0) {
-      token_expansion = location ? location->file_name : "\"\"";
-    } else if (strcmp("line_number", token) == 0) {
-      if (location) {
-        // Even in the case of truncation the result will still be null-terminated.
-        written = rcutils_snprintf(
-          line_number_expansion, sizeof(line_number_expansion), "%zu", location->line_number);
-        if (written < 0) {
-          fprintf(
-            stderr,
-            "failed to format line number: '%zu'\n",
-            location->line_number);
-          goto cleanup;
-        }
-        token_expansion = line_number_expansion;
-      } else {
-        token_expansion = "0";
-      }
-    } else {
-      // This wasn't a token; print the start delimiter and continue the search as usual
-      // (the substring might contain more start delimiters).
-      RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(
-        1, output_buffer_size, output_buffer, static_output_buffer)
-      memcpy(output_buffer + old_output_buffer_len, str + i, 1);
-      output_buffer[old_output_buffer_len + 1] = '\0';
-      i++;
-      continue;
-    }
-    size_t n = strlen(token_expansion);
-    RCUTILS_LOGGING_ENSURE_LARGE_ENOUGH_BUFFER(
-      n, output_buffer_size, output_buffer, static_output_buffer)
-    memcpy(output_buffer + old_output_buffer_len, token_expansion, n + 1);
-    // Skip ahead to avoid re-processing the token characters (including the 2 delimiters).
-    i += token_len + 2;
-  }
-  fprintf(stream, "%s\n", output_buffer);
-
-  if (g_force_stdout_line_buffered && stream == stdout) {
-    int flush_result = fflush(stream);
-    if (flush_result != 0 && !g_stdout_flush_failure_reported) {
-      g_stdout_flush_failure_reported = true;
-      fprintf(stderr, "Error: failed to perform fflush on stdout, fflush return code is: %d\n",
-        flush_result);
-    }
   }
 
-cleanup:
-  if (message_buffer && message_buffer != static_message_buffer) {
-    g_rcutils_logging_allocator.deallocate(message_buffer, g_rcutils_logging_allocator.state);
+  status = rcutils_char_array_fini(&msg_array);
+  if (RCUTILS_RET_OK != status) {
+    fprintf(stderr, "Failed to fini array.\n");
   }
-
-  if (output_buffer && output_buffer != static_output_buffer) {
-    g_rcutils_logging_allocator.deallocate(output_buffer, g_rcutils_logging_allocator.state);
+  status = rcutils_char_array_fini(&output_array);
+  if (RCUTILS_RET_OK != status) {
+    fprintf(stderr, "Failed to fini array.\n");
   }
 }
 

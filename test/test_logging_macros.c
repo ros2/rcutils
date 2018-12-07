@@ -124,7 +124,7 @@ int main(int argc, char ** argv)
     return 15;
   }
   if (strcmp(g_last_log_event.message, "message foo")) {
-    fprintf(stderr, "message unexpectedly not 'empty message'\n");
+    fprintf(stderr, "message unexpectedly not 'message foo'\n");
     return 16;
   }
 
