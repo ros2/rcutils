@@ -2,6 +2,14 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Logging (`#127 <https://github.com/ros2/rcutils/issues/127>`_)
+* fixes to support including in c++ and fetch_add (`#129 <https://github.com/ros2/rcutils/issues/129>`_)
+* reiterate over char array (`#130 <https://github.com/ros2/rcutils/issues/130>`_)
+* add rcutils_unsigned_char_array_t (`#125 <https://github.com/ros2/rcutils/issues/125>`_)
+* Contributors: Karsten Knese, Nick Burek, William Woodall
+
 0.6.0 (2018-11-16)
 ------------------
 * Added rcutils_to_native_path function (`#119 <https://github.com/ros2/rcutils/issues/119>`_)
