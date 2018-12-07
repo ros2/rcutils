@@ -215,7 +215,7 @@ rcutils_char_array_strncat(rcutils_char_array_t * char_array, const char * src, 
     RCUTILS_SET_ERROR_MSG("char array failed to expand");
     return ret;
   }
-#ifndef WIN32_
+#ifndef _WIN32
   strncat(char_array->buffer, src, n);
 #else
   errno_t err = strncat_s(char_array->buffer, new_length, src, n);
