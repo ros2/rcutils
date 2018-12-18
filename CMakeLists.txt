@@ -124,16 +124,12 @@ if(BUILD_TESTING)
   if(ament_cmake_cpplint_FOUND)
     ament_cpplint(
       TESTNAME "cpplint_logging_macros"
-      # the generated code might contain longer lines for templated types
-      MAX_LINE_LENGTH 999
       ROOT "${CMAKE_CURRENT_BINARY_DIR}/include"
       "${CMAKE_CURRENT_BINARY_DIR}/include/rcutils/logging_macros.h")
   endif()
   if(ament_cmake_uncrustify_FOUND)
     ament_uncrustify(
       TESTNAME "uncrustify_logging_macros"
-      # the generated code might contain longer lines for templated types
-      MAX_LINE_LENGTH 999
       "${CMAKE_CURRENT_BINARY_DIR}/include/rcutils/logging_macros.h")
   endif()
 
