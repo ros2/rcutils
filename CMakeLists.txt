@@ -133,7 +133,7 @@ if(BUILD_TESTING)
     ament_uncrustify(
       TESTNAME "uncrustify_logging_macros"
       # the generated code might contain longer lines for templated types
-      MAX_LINE_LENGTH 999
+      MAX_LINE_LENGTH 0
       "${CMAKE_CURRENT_BINARY_DIR}/include/rcutils/logging_macros.h")
   endif()
 
