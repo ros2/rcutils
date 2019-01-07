@@ -1,4 +1,4 @@
-// Copyright 2017 Open Source Robotics Foundation, Inc.
+// Copyright 2018-2019 Open Source Robotics Foundation, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,21 +31,6 @@ extern "C"
 
 #define LOAD_FACTOR         (0.75)
 #define BUCKET_INITIAL_CAP  ((size_t)2)
-
-#define HASH_MAP_VALIDATE_HASH_MAP(map) \
-  if (NULL == map) { \
-    RCUTILS_SET_ERROR_MSG("map is null"); \
-    return RCUTILS_RET_INVALID_ARGUMENT; \
-  } else if (NULL == map->impl) { \
-    RCUTILS_SET_ERROR_MSG("map is not initialized"); \
-    return RCUTILS_RET_NOT_INITIALIZED; \
-  }
-
-#define HASH_MAP_VALIDATE_ARGUMENT_NOT_NULL(arg) \
-  if (NULL == arg) { \
-    RCUTILS_SET_ERROR_MSG("argument is null"); \
-    return RCUTILS_RET_INVALID_ARGUMENT; \
-  }
 
 typedef struct rcutils_hash_map_entry_t
 {
@@ -92,8 +77,7 @@ int rcutils_hash_map_string_cmp_func(const void * val1, const void * val2)
 rcutils_hash_map_t
 rcutils_get_zero_initialized_hash_map()
 {
-  static rcutils_hash_map_t zero_initialized_hash_map;
-  zero_initialized_hash_map.impl = NULL;
+  static rcutils_hash_map_t zero_initialized_hash_map = {NULL};
   return zero_initialized_hash_map;
 }
 
@@ -107,7 +91,7 @@ static rcutils_ret_t hash_map_allocate_new_map(
     return RCUTILS_RET_BAD_ALLOC;
   }
 
-  // Make sure the list for ever bucket is zero initialized
+  // Make sure the list for every bucket is zero initialized
   rcutils_array_list_t zero_list = rcutils_get_zero_initialized_array_list();
   for (size_t i = 0; i < capacity; ++i) {
     (*map)[i] = zero_list;
@@ -260,10 +244,10 @@ rcutils_hash_map_init(
   rcutils_hash_map_key_cmp_t key_cmp_func,
   const rcutils_allocator_t * allocator)
 {
-  HASH_MAP_VALIDATE_ARGUMENT_NOT_NULL(hash_map);
-  HASH_MAP_VALIDATE_ARGUMENT_NOT_NULL(key_hashing_func);
-  HASH_MAP_VALIDATE_ARGUMENT_NOT_NULL(key_cmp_func);
-  HASH_MAP_VALIDATE_ARGUMENT_NOT_NULL(allocator);
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(hash_map, RCUTILS_RET_INVALID_ARGUMENT);
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(key_hashing_func, RCUTILS_RET_INVALID_ARGUMENT);
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(key_cmp_func, RCUTILS_RET_INVALID_ARGUMENT);
+  RCUTILS_CHECK_ALLOCATOR(allocator, return RCUTILS_RET_INVALID_ARGUMENT);
   if (1 > initial_capacity) {
     RCUTILS_SET_ERROR_MSG("initial_capacity cannot be less than 1");
     return RCUTILS_RET_INVALID_ARGUMENT;
@@ -321,7 +305,7 @@ rcutils_ret_t
 rcutils_hash_map_get_capacity(const rcutils_hash_map_t * hash_map, size_t * capacity)
 {
   HASH_MAP_VALIDATE_HASH_MAP(hash_map);
-  HASH_MAP_VALIDATE_ARGUMENT_NOT_NULL(capacity);
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(capacity, RCUTILS_RET_INVALID_ARGUMENT);
   *capacity = hash_map->impl->capacity;
   return RCUTILS_RET_OK;
 }
@@ -330,7 +314,7 @@ rcutils_ret_t
 rcutils_hash_map_get_size(const rcutils_hash_map_t * hash_map, size_t * size)
 {
   HASH_MAP_VALIDATE_HASH_MAP(hash_map);
-  HASH_MAP_VALIDATE_ARGUMENT_NOT_NULL(size);
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(size, RCUTILS_RET_INVALID_ARGUMENT);
   *size = hash_map->impl->size;
   return RCUTILS_RET_OK;
 }
@@ -380,8 +364,8 @@ rcutils_ret_t
 rcutils_hash_map_set(rcutils_hash_map_t * hash_map, const void * key, const void * value)
 {
   HASH_MAP_VALIDATE_HASH_MAP(hash_map);
-  HASH_MAP_VALIDATE_ARGUMENT_NOT_NULL(key);
-  HASH_MAP_VALIDATE_ARGUMENT_NOT_NULL(value);
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(key, RCUTILS_RET_INVALID_ARGUMENT);
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(value, RCUTILS_RET_INVALID_ARGUMENT);
 
   size_t key_hash = 0, map_index = 0, bucket_index = 0;
   bool already_exists = false;
@@ -422,9 +406,8 @@ rcutils_hash_map_set(rcutils_hash_map_t * hash_map, const void * key, const void
       // If somethign went wrong somewhere then cleanup the memory we've allocated
       hash_map_deallocate_entry(allocator, entry);
       return ret;
-    } else {
-      hash_map->impl->size++;
     }
+    hash_map->impl->size++;
   }
 
   // Time to check if we've exceeded our Load Factor and grow the map if so
@@ -439,7 +422,7 @@ rcutils_ret_t
 rcutils_hash_map_unset(rcutils_hash_map_t * hash_map, const void * key)
 {
   HASH_MAP_VALIDATE_HASH_MAP(hash_map);
-  HASH_MAP_VALIDATE_ARGUMENT_NOT_NULL(key);
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(key, RCUTILS_RET_INVALID_ARGUMENT);
 
   size_t key_hash = 0, map_index = 0, bucket_index = 0;
   bool already_exists = false;
@@ -487,8 +470,8 @@ rcutils_ret_t
 rcutils_hash_map_get(const rcutils_hash_map_t * hash_map, const void * key, void * data)
 {
   HASH_MAP_VALIDATE_HASH_MAP(hash_map);
-  HASH_MAP_VALIDATE_ARGUMENT_NOT_NULL(key);
-  HASH_MAP_VALIDATE_ARGUMENT_NOT_NULL(data);
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(key, RCUTILS_RET_INVALID_ARGUMENT);
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(data, RCUTILS_RET_INVALID_ARGUMENT);
 
   size_t key_hash = 0, map_index = 0, bucket_index = 0;
   bool already_exists = false;
@@ -512,8 +495,8 @@ rcutils_hash_map_get_next_key_and_data(
   void * data)
 {
   HASH_MAP_VALIDATE_HASH_MAP(hash_map);
-  HASH_MAP_VALIDATE_ARGUMENT_NOT_NULL(key);
-  HASH_MAP_VALIDATE_ARGUMENT_NOT_NULL(data);
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(key, RCUTILS_RET_INVALID_ARGUMENT);
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(data, RCUTILS_RET_INVALID_ARGUMENT);
 
   size_t key_hash = 0, map_index = 0, bucket_index = 0;
   bool already_exists = false;

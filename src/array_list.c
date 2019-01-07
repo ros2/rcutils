@@ -1,4 +1,4 @@
-// Copyright 2017 Open Source Robotics Foundation, Inc.
+// Copyright 2018-2019 Open Source Robotics Foundation, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,21 +26,6 @@ extern "C"
 #include "rcutils/types/rcutils_ret.h"
 #include "rcutils/visibility_control.h"
 
-#define ARRAY_LIST_VALIDATE_ARRAY_LIST(array_list) \
-  if (NULL == array_list) { \
-    RCUTILS_SET_ERROR_MSG("array_list is null"); \
-    return RCUTILS_RET_INVALID_ARGUMENT; \
-  } else if (NULL == array_list->impl) { \
-    RCUTILS_SET_ERROR_MSG("array_list is not initialized"); \
-    return RCUTILS_RET_NOT_INITIALIZED; \
-  }
-
-#define ARRAY_LIST_VALIDATE_ARGUMENT_NOT_NULL(arg) \
-  if (NULL == arg) { \
-    RCUTILS_SET_ERROR_MSG("argument is null"); \
-    return RCUTILS_RET_INVALID_ARGUMENT; \
-  }
-
 #define ARRAY_LIST_VALIDATE_INDEX_IN_BOUNDS(array_list, index) \
   if (array_list->impl->size <= index) { \
     RCUTILS_SET_ERROR_MSG("index is out of bounds of the list"); \
@@ -59,8 +44,7 @@ typedef struct rcutils_array_list_impl_t
 rcutils_array_list_t
 rcutils_get_zero_initialized_array_list(void)
 {
-  static rcutils_array_list_t zero_initialized_array_list;
-  zero_initialized_array_list.impl = NULL;
+  static rcutils_array_list_t zero_initialized_array_list = {NULL};
   return zero_initialized_array_list;
 }
 
@@ -71,8 +55,8 @@ rcutils_array_list_init(
   size_t data_size,
   const rcutils_allocator_t * allocator)
 {
-  ARRAY_LIST_VALIDATE_ARGUMENT_NOT_NULL(array_list);
-  ARRAY_LIST_VALIDATE_ARGUMENT_NOT_NULL(allocator);
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(array_list, RCUTILS_RET_INVALID_ARGUMENT);
+  RCUTILS_CHECK_ALLOCATOR(allocator, return RCUTILS_RET_INVALID_ARGUMENT);
   if (NULL != array_list->impl) {
     RCUTILS_SET_ERROR_MSG("array_list is already initialized");
     return RCUTILS_RET_INVALID_ARGUMENT;
@@ -146,7 +130,7 @@ rcutils_ret_t
 rcutils_array_list_add(rcutils_array_list_t * array_list, const void * data)
 {
   ARRAY_LIST_VALIDATE_ARRAY_LIST(array_list);
-  ARRAY_LIST_VALIDATE_ARGUMENT_NOT_NULL(data);
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(data, RCUTILS_RET_INVALID_ARGUMENT);
   rcutils_ret_t ret = RCUTILS_RET_OK;
 
   if (array_list->impl->size + 1 > array_list->impl->capacity) {
@@ -168,7 +152,7 @@ rcutils_ret_t
 rcutils_array_list_set(rcutils_array_list_t * array_list, size_t index, const void * data)
 {
   ARRAY_LIST_VALIDATE_ARRAY_LIST(array_list);
-  ARRAY_LIST_VALIDATE_ARGUMENT_NOT_NULL(data);
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(data, RCUTILS_RET_INVALID_ARGUMENT);
   ARRAY_LIST_VALIDATE_INDEX_IN_BOUNDS(array_list, index);
 
   uint8_t * index_ptr = rcutils_array_list_get_pointer_for_index(array_list, index);
@@ -198,7 +182,7 @@ rcutils_ret_t
 rcutils_array_list_get(const rcutils_array_list_t * array_list, size_t index, void * data)
 {
   ARRAY_LIST_VALIDATE_ARRAY_LIST(array_list);
-  ARRAY_LIST_VALIDATE_ARGUMENT_NOT_NULL(data);
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(data, RCUTILS_RET_INVALID_ARGUMENT);
   ARRAY_LIST_VALIDATE_INDEX_IN_BOUNDS(array_list, index);
 
   uint8_t * index_ptr = rcutils_array_list_get_pointer_for_index(array_list, index);
@@ -211,7 +195,7 @@ rcutils_ret_t
 rcutils_array_list_get_size(const rcutils_array_list_t * array_list, size_t * size)
 {
   ARRAY_LIST_VALIDATE_ARRAY_LIST(array_list);
-  ARRAY_LIST_VALIDATE_ARGUMENT_NOT_NULL(size);
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(size, RCUTILS_RET_INVALID_ARGUMENT);
   *size = array_list->impl->size;
   return RCUTILS_RET_OK;
 }
