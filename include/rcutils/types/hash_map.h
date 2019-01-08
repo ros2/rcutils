@@ -366,7 +366,7 @@ rcutils_hash_map_get(const rcutils_hash_map_t * hash_map, const void * key, void
  * This function allows you to iteratively get each key/value pair in the hash_map.
  *
  * If NULL is given for the previous_key, then the first key in the hash_map is returned.
- * If that returned key if given as the previous_key for the next call to this function,
+ * If that returned key is given as the previous_key for the next call to this function,
  * then the next key in the hash_map is returned.
  * If there are no more keys in the hash_map or if the given key is not in the hash_map,
  * an error will be returned.
