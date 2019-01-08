@@ -203,7 +203,7 @@ rcutils_hash_map_fini(rcutils_hash_map_t * hash_map);
 /**
  * This function will return the internal capacity of the hash_map, which is the
  * number of buckets the hash_map uses to sort the keys.
- * The capacity does not indicate how many key value paris are stored in the
+ * The capacity does not indicate how many key value pairs are stored in the
  * hash_map, the rcutils_hash_map_get_size() function can provide that, nor the
  * maximum number that can be stored without increasing the capacity.
  * The capacity can be set initially with rcutils_hash_map_init().
