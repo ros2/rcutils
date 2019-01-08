@@ -373,7 +373,7 @@ rcutils_hash_map_get(const rcutils_hash_map_t * hash_map, const void * key, void
  *
  * The order of the keys in the hash_map is arbitrary and if the hash_map is modified
  * between calls to this function the behavior is undefined.
- * If the hash_map is modifeid then iteration should begin again by passing NULL to
+ * If the hash_map is modified then iteration should begin again by passing NULL to
  * get the first key again.
  *
  * <hr>
