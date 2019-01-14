@@ -196,7 +196,6 @@ rcutils_array_list_add(rcutils_array_list_t * array_list, const void * data);
  * \return `RCUTILS_RET_OK` if successful, or
  * \return `RCUTILS_RET_INVALID_ARGUMENT` for invalid arguments, or
  * \return `RCUTILS_RET_INVALID_ARGUMENT` if index out of bounds, or
- * \return `RCUTILS_RET_BAD_ALLOC` if memory allocation fails, or
  * \return `RCUTILS_RET_ERROR` if an unknown error occurs
  */
 RCUTILS_PUBLIC
@@ -218,10 +217,10 @@ rcutils_array_list_set(rcutils_array_list_t * array_list, size_t index, const vo
  * Lock-Free          | Yes
  *
  * \param[in] array_list to add the data to
+ * \param[in] index the index of the item to remove from the list
  * \return `RCUTILS_RET_OK` if successful, or
  * \return `RCUTILS_RET_INVALID_ARGUMENT` for invalid arguments, or
  * \return `RCUTILS_RET_INVALID_ARGUMENT` if index out of bounds, or
- * \return `RCUTILS_RET_BAD_ALLOC` if memory allocation fails, or
  * \return `RCUTILS_RET_ERROR` if an unknown error occurs
  */
 RCUTILS_PUBLIC
@@ -247,7 +246,6 @@ rcutils_array_list_remove(rcutils_array_list_t * array_list, size_t index);
  * \param[out] data a copy of the data stored in the list
  * \return `RCUTILS_RET_OK` if successful, or
  * \return `RCUTILS_RET_INVALID_ARGUMENT` for invalid arguments, or
- * \return `RCUTILS_RET_BAD_ALLOC` if memory allocation fails, or
  * \return `RCUTILS_RET_ERROR` if an unknown error occurs
  */
 RCUTILS_PUBLIC

@@ -106,12 +106,8 @@ static void hash_map_deallocate_entry(
   rcutils_hash_map_entry_t * entry)
 {
   if (NULL != entry) {
-    if (NULL != entry->key) {
-      allocator->deallocate(entry->key, allocator->state);
-    }
-    if (NULL != entry->value) {
-      allocator->deallocate(entry->value, allocator->state);
-    }
+    allocator->deallocate(entry->key, allocator->state);
+    allocator->deallocate(entry->value, allocator->state);
     allocator->deallocate(entry, allocator->state);
   }
 }
@@ -403,7 +399,7 @@ rcutils_hash_map_set(rcutils_hash_map_t * hash_map, const void * key, const void
     }
 
     if (RCUTILS_RET_OK != ret) {
-      // If somethign went wrong somewhere then cleanup the memory we've allocated
+      // If something went wrong somewhere then cleanup the memory we've allocated
       hash_map_deallocate_entry(allocator, entry);
       return ret;
     }
