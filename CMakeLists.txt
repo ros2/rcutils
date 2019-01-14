@@ -30,6 +30,7 @@ endif()
 
 set(rcutils_sources
   src/allocator.c
+  src/array_list.c
   src/char_array.c
   src/cmdline_parser.c
   src/error_handling.c
@@ -37,6 +38,7 @@ set(rcutils_sources
   src/find.c
   src/format_string.c
   src/get_env.c
+  src/hash_map.c
   src/logging.c
   src/repl_str.c
   src/snprintf.c
@@ -311,6 +313,20 @@ if(BUILD_TESTING)
   )
   if(TARGET test_uint8_array)
     target_link_libraries(test_uint8_array ${PROJECT_NAME})
+  endif()
+
+  rcutils_custom_add_gtest(test_array_list
+    test/test_array_list.cpp
+  )
+  if(TARGET test_array_list)
+    target_link_libraries(test_array_list ${PROJECT_NAME})
+  endif()
+
+  rcutils_custom_add_gtest(test_hash_map
+    test/test_hash_map.cpp
+  )
+  if(TARGET test_hash_map)
+    target_link_libraries(test_hash_map ${PROJECT_NAME})
   endif()
 endif()
 
