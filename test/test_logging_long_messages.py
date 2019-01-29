@@ -14,42 +14,36 @@
 
 import os
 
-from launch.legacy import LaunchDescriptor
-from launch.legacy.exit_handler import ignore_exit_handler
-from launch.legacy.launcher import DefaultLauncher
-from launch.legacy.output_handler import ConsoleOutput
-from launch_testing import create_handler
+from launch import LaunchDescription
+from launch import LaunchService
+from launch.actions import ExecuteProcess
+from launch_testing import LaunchTestService
+from launch_testing.output import create_output_test_from_file
 
 
 def test_logging_long_messages():
-    launch_descriptor = LaunchDescriptor()
-
-    output_file = os.path.join(os.path.dirname(__file__), 'test_logging_long_messages')
-    handler = create_handler(
-        'test_logging_long_messages', launch_descriptor, output_file)
-    assert handler, 'Cannot find appropriate handler for %s' % output_file
-
     # Set the output format to a "verbose" format that is expected by the executable output
     os.environ['RCUTILS_CONSOLE_OUTPUT_FORMAT'] = \
         '[{severity}] [{name}]: {message} ({function_name}() at {file_name}:{line_number})'
     executable = os.path.join(os.getcwd(), 'test_logging_long_messages')
     if os.name == 'nt':
         executable += '.exe'
-    launch_descriptor.add_process(
-        cmd=[executable],
-        name='test_logging_long_messages',
-        exit_handler=ignore_exit_handler,  # The process will automatically exit after printing.
-        output_handlers=[ConsoleOutput(), handler],
+    ld = LaunchDescription()
+    launch_test = LaunchTestService()
+    action = launch_test.add_fixture_action(ld, ExecuteProcess(
+        cmd=[executable], name='test_logging_long_messages', output='screen'
+    ))
+    output_file = os.path.join(
+        os.path.dirname(__file__), 'test_logging_long_messages'
+    )
+    launch_test.add_output_test(
+        ld, action, create_output_test_from_file(output_file)
     )
 
-    launcher = DefaultLauncher()
-    launcher.add_launch_descriptor(launch_descriptor)
-    rc = launcher.launch()
-
-    assert rc == 0, \
-        "The launch file failed with exit code '" + str(rc) + "'"
-
-    handler.check()
+    launch_service = LaunchService()
+    launch_service.include_launch_description(ld)
+    return_code = launch_test.run(launch_service)
+    assert return_code == 0, 'Launch failed with exit code %r' % (return_code,)
 
 
 if __name__ == '__main__':
