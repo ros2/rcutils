@@ -2,6 +2,12 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.6.2 (2019-02-07)
+------------------
+* Adding an ArrayList and HashMap implementation to rcutils (`#131 <https://github.com/ros2/rcutils/issues/131>`_)
+* Change uncrustify max line length to 0 (`#133 <https://github.com/ros2/rcutils/issues/133>`_)
+* Contributors: Jacob Perron, Nick Burek
+
 0.6.1 (2018-12-06)
 ------------------
 * Logging (`#127 <https://github.com/ros2/rcutils/issues/127>`_)
