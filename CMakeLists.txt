@@ -255,7 +255,7 @@ if(BUILD_TESTING)
     test/test_filesystem.cpp
   )
   if(TARGET test_filesystem)
-    target_include_directories(test_filesystem PUBLIC ${osrf_testing_tools_cpp_INCLUDE_DIRS})
+    ament_target_dependencies(test_filesystem "osrf_testing_tools_cpp")
     target_link_libraries(test_filesystem ${PROJECT_NAME})
   endif()
 
