@@ -142,6 +142,8 @@ if(BUILD_TESTING)
   find_package(osrf_testing_tools_cpp REQUIRED)
   get_target_property(memory_tools_test_env_vars
     osrf_testing_tools_cpp::memory_tools LIBRARY_PRELOAD_ENVIRONMENT_VARIABLE)
+  get_target_property(memory_tools_is_available
+    osrf_testing_tools_cpp::memory_tools LIBRARY_PRELOAD_ENVIRONMENT_IS_AVAILABLE)
 
   ament_add_gtest(test_logging test/test_logging.cpp)
   target_link_libraries(test_logging ${PROJECT_NAME})
@@ -167,15 +169,9 @@ if(BUILD_TESTING)
     COMMAND "$<TARGET_FILE:test_logging_macros_c>"
     GENERATE_RESULT_FOR_RETURN_CODE_ZERO)
 
-  set(SKIP_TEST_IF_WIN32_OR_AARCH64 "")
-  if(WIN32)
-    # (memory tools doesn't do anything on Windows)
-    set(SKIP_TEST_IF_WIN32_OR_AARCH64 "SKIP_TEST")
-  endif()
-  # TODO(wjwwood): reenable for ARM (aarch64) when fixed in osrf_testing_tools_cpp
-  # see: https://github.com/osrf/osrf_testing_tools_cpp/issues/3
-  if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
-    set(SKIP_TEST_IF_WIN32_OR_AARCH64 "SKIP_TEST")
+  set(SKIP_MEMORY_TOOLS_TEST "")
+  if(NOT memory_tools_is_available)
+    set(SKIP_MEMORY_TOOLS_TEST "SKIP_TEST")
   endif()
 
   macro(rcutils_custom_add_gtest target)
@@ -189,7 +185,7 @@ if(BUILD_TESTING)
   # Gtests
   rcutils_custom_add_gtest(test_allocator test/test_allocator.cpp
     ENV ${memory_tools_test_env_vars}
-    ${SKIP_TEST_IF_WIN32_OR_AARCH64}
+    ${SKIP_MEMORY_TOOLS_TEST}
   )
   if(TARGET test_allocator)
     target_link_libraries(test_allocator ${PROJECT_NAME} osrf_testing_tools_cpp::memory_tools)
