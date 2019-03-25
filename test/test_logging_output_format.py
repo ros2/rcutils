@@ -1,3 +1,4 @@
+
 # Copyright 2017 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,8 +18,8 @@ import os
 from launch import LaunchDescription
 from launch import LaunchService
 from launch.actions import ExecuteProcess
-from launch_testing import LaunchTestService
-from launch_testing.output import create_output_test_from_file
+from launch_testing.legacy import LaunchTestService
+from launch_testing.legacy.output import create_output_test_from_file
 
 
 def test_logging_output_format():
