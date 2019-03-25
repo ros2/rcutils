@@ -110,6 +110,27 @@ RCUTILS_WARN_UNUSED
 rcutils_ret_t
 rcutils_string_array_fini(rcutils_string_array_t * string_array);
 
+/// Compare two string arrays.
+/**
+ * The two string arrays are compared according to lexographical order.
+ *
+ * \param[in] sa0 The first string array.
+ * \param[in] sa1 The second string array.
+ * \param[out] res Negative value if `lhs` appears before `rhs` in lexographical order.
+ *   Zero if `lhs` and `rhs` are equal.
+ *   Positive value if `lhs` appears after `rhs in lexographical order.
+ * \return `RCUTILS_RET_OK` if successful, or
+ * \return `RCUTILS_RET_INVALID_ARGUMENT` if there is an invalid arguments, or
+ * \return `RCUTILS_RET_ERROR` if an unknown error occurs.
+ */
+RCUTILS_PUBLIC
+RCUTILS_WARN_UNUSED
+rcutils_ret_t
+rcutils_string_array_cmp(
+  const rcutils_string_array_t * lhs,
+  const rcutils_string_array_t * rhs,
+  int * res);
+
 #ifdef __cplusplus
 }
 #endif

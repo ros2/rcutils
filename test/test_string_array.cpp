@@ -46,3 +46,75 @@ TEST(test_string_array, boot_string_array) {
   ret = rcutils_string_array_fini(&sa2);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 }
+
+TEST(test_string_array, string_array_cmp) {
+  auto allocator = rcutils_get_default_allocator();
+  rcutils_ret_t ret = RCUTILS_RET_OK;
+  int res = 0;
+
+  // Initialize some string arrays
+  rcutils_string_array_t sa0 = rcutils_get_zero_initialized_string_array();
+  ret = rcutils_string_array_init(&sa0, 3, &allocator);
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
+  sa0.data[0] = strdup("foo");
+  sa0.data[1] = strdup("bar");
+  sa0.data[2] = strdup("baz");
+
+  rcutils_string_array_t sa1 = rcutils_get_zero_initialized_string_array();
+  ret = rcutils_string_array_init(&sa1, 3, &allocator);
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
+  sa1.data[0] = strdup("foo");
+  sa1.data[1] = strdup("bar");
+  sa1.data[2] = strdup("baz");
+
+  rcutils_string_array_t sa2 = rcutils_get_zero_initialized_string_array();
+  ret = rcutils_string_array_init(&sa2, 3, &allocator);
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
+  sa2.data[0] = strdup("foo");
+  sa2.data[1] = strdup("baz");
+  sa2.data[2] = strdup("bar");
+
+  rcutils_string_array_t sa3 = rcutils_get_zero_initialized_string_array();
+  ret = rcutils_string_array_init(&sa3, 2, &allocator);
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
+  sa3.data[0] = strdup("foo");
+  sa3.data[1] = strdup("bar");
+
+  rcutils_string_array_t incomplete_string_array = rcutils_get_zero_initialized_string_array();
+  ret = rcutils_string_array_init(&incomplete_string_array, 3, &allocator);
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
+
+  // Test failure cases
+  EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, rcutils_string_array_cmp(NULL, &sa0, &res));
+  EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, rcutils_string_array_cmp(&sa0, NULL, &res));
+  EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, rcutils_string_array_cmp(&sa0, &sa1, NULL));
+  EXPECT_EQ(RCUTILS_RET_ERROR, rcutils_string_array_cmp(&sa0, &incomplete_string_array, &res));
+
+  // Test success cases
+  EXPECT_EQ(RCUTILS_RET_OK, rcutils_string_array_cmp(&sa0, &sa1, &res));
+  EXPECT_EQ(res, 0);
+  EXPECT_EQ(RCUTILS_RET_OK, rcutils_string_array_cmp(&sa1, &sa0, &res));
+  EXPECT_EQ(res, 0);
+  EXPECT_EQ(RCUTILS_RET_OK, rcutils_string_array_cmp(&sa0, &sa2, &res));
+  EXPECT_LT(res, 0);
+  EXPECT_EQ(RCUTILS_RET_OK, rcutils_string_array_cmp(&sa2, &sa0, &res));
+  EXPECT_GT(res, 0);
+  EXPECT_EQ(RCUTILS_RET_OK, rcutils_string_array_cmp(&sa0, &sa3, &res));
+  EXPECT_GT(res, 0);
+  EXPECT_EQ(RCUTILS_RET_OK, rcutils_string_array_cmp(&sa3, &sa0, &res));
+  EXPECT_LT(res, 0);
+  // Test transitivity
+  EXPECT_EQ(RCUTILS_RET_OK, rcutils_string_array_cmp(&sa3, &sa2, &res));
+  EXPECT_LT(res, 0);
+
+  ret = rcutils_string_array_fini(&sa0);
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
+  ret = rcutils_string_array_fini(&sa1);
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
+  ret = rcutils_string_array_fini(&sa2);
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
+  ret = rcutils_string_array_fini(&sa3);
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
+  ret = rcutils_string_array_fini(&incomplete_string_array);
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
+}
