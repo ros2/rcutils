@@ -1,4 +1,3 @@
-
 # Copyright 2017 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,17 +13,20 @@
 # limitations under the License.
 
 import os
+import unittest
 
 from launch import LaunchDescription
-from launch import LaunchService
 from launch.actions import ExecuteProcess
-from launch_testing.legacy import LaunchTestService
-from launch_testing.legacy.output import create_output_test_from_file
+from launch.actions import OpaqueFunction
+
+import launch_testing
+import launch_testing.asserts
 
 
-def test_logging_output_format():
-    ld = LaunchDescription()
-    launch_test = LaunchTestService()
+def generate_test_description(ready_fn):
+    processes_to_test = []
+
+    launch_description = LaunchDescription()
     # Re-use the test_logging_long_messages test binary and modify the output format from an
     # environment variable.
     executable = os.path.join(os.getcwd(), 'test_logging_long_messages')
@@ -36,55 +38,59 @@ def test_logging_output_format():
     env_long['RCUTILS_CONSOLE_OUTPUT_FORMAT'] = \
         '[{{name}}].({severity}) output: {file_name}:{line_number} {message}, again: {message} ({function_name}()){'  # noqa
     name = 'test_logging_output_format_long'
-    action = launch_test.add_fixture_action(ld, ExecuteProcess(
+    launch_description.add_action(ExecuteProcess(
         cmd=[executable], env=env_long, name=name, output='screen'
     ))
-    output_file = os.path.join(os.path.dirname(__file__), name)
-    launch_test.add_output_test(
-        ld, action, create_output_test_from_file(output_file)
-    )
+    processes_to_test.append(name)
 
     env_edge_cases = dict(os.environ)
     # This custom output is to check different edge cases of the output format string parsing.
     env_edge_cases['RCUTILS_CONSOLE_OUTPUT_FORMAT'] = '{}}].({unknown_token}) {{{{'
     name = 'test_logging_output_format_edge_cases'
-    action = launch_test.add_fixture_action(ld, ExecuteProcess(
+    launch_description.add_action(ExecuteProcess(
         cmd=[executable], env=env_edge_cases, name=name, output='screen'
     ))
-    output_file = os.path.join(os.path.dirname(__file__), name)
-    launch_test.add_output_test(
-        ld, action, create_output_test_from_file(output_file)
-    )
+    processes_to_test.append(name)
 
     env_no_tokens = dict(os.environ)
     # This custom output is to check that there are no issues when no tokens are used.
     env_no_tokens['RCUTILS_CONSOLE_OUTPUT_FORMAT'] = 'no_tokens'
     name = 'test_logging_output_format_no_tokens'
-    action = launch_test.add_fixture_action(ld, ExecuteProcess(
+    launch_description.add_action(ExecuteProcess(
         cmd=[executable], env=env_no_tokens, name=name, output='screen'
     ))
-    output_file = os.path.join(os.path.dirname(__file__), name)
-    launch_test.add_output_test(
-        ld, action, create_output_test_from_file(output_file)
-    )
+    processes_to_test.append(name)
 
     env_time_tokens = dict(os.environ)
     # This custom output is to check that time stamps work correctly
     env_time_tokens['RCUTILS_CONSOLE_OUTPUT_FORMAT'] = "'{time}' '{time_as_nanoseconds}'"
     name = 'test_logging_output_timestamps'
-    action = launch_test.add_fixture_action(ld, ExecuteProcess(
+    launch_description.add_action(ExecuteProcess(
         cmd=[executable], env=env_time_tokens, name=name, output='screen'
     ))
-    output_file = os.path.join(os.path.dirname(__file__), name)
-    launch_test.add_output_test(
-        ld, action, create_output_test_from_file(output_file)
+    processes_to_test.append(name)
+
+    launch_description.add_action(
+        OpaqueFunction(function=lambda context: ready_fn())
     )
 
-    launch_service = LaunchService()
-    launch_service.include_launch_description(ld)
-    return_code = launch_test.run(launch_service)
-    assert return_code == 0, 'Launch failed with exit code %r' % (return_code,)
+    return launch_description, {'processes_to_test': processes_to_test}
 
 
-if __name__ == '__main__':
-    test_logging_output_format()
+@launch_testing.post_shutdown_test()
+class TestLoggingOutputFormatAfterShutdown(unittest.TestCase):
+
+    def test_logging_output(self, processes_to_test):
+        """Test all executables output against expectations."""
+        for process_name in processes_to_test:
+            launch_testing.asserts.assertInStdout(
+                self.proc_output,
+                expected_output=launch_testing.tools.expected_output_from_file(
+                    path=os.path.join(os.path.dirname(__file__), process_name)
+                ),
+                process=process_name
+            )
+
+    def test_processes_exit_codes(self):
+        """Test that all executables finished cleanly."""
+        launch_testing.asserts.assertExitCodes(self.proc_info)

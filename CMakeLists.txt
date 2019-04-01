@@ -118,6 +118,8 @@ if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
 
+  find_package(launch_testing_ament_cmake REQUIRED)
+
   if(ament_cmake_cppcheck_FOUND)
     ament_cppcheck(
       TESTNAME "cppcheck_logging_macros"
@@ -148,15 +150,19 @@ if(BUILD_TESTING)
 
   add_executable(test_logging_long_messages test/test_logging_long_messages.cpp)
   target_link_libraries(test_logging_long_messages ${PROJECT_NAME})
-  ament_add_pytest_test(test_logging_long_messages
+  add_launch_test(
     "test/test_logging_long_messages.py"
+    TARGET test_logging_long_messages
     WORKING_DIRECTORY "$<TARGET_FILE_DIR:test_logging_long_messages>"
-    TIMEOUT 10)
+    TIMEOUT 10
+  )
 
-  ament_add_pytest_test(test_logging_output_format
+  add_launch_test(
     "test/test_logging_output_format.py"
+    TARGET test_logging_output_format
     WORKING_DIRECTORY "$<TARGET_FILE_DIR:test_logging_long_messages>"
-    TIMEOUT 10)
+    TIMEOUT 10
+  )
 
   ament_add_gmock(test_logging_macros test/test_logging_macros.cpp)
   target_link_libraries(test_logging_macros ${PROJECT_NAME})

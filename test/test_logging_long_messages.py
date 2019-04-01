@@ -13,38 +13,41 @@
 # limitations under the License.
 
 import os
+import unittest
 
 from launch import LaunchDescription
-from launch import LaunchService
 from launch.actions import ExecuteProcess
-from launch_testing.legacy import LaunchTestService
-from launch_testing.legacy.output import create_output_test_from_file
+from launch.actions import OpaqueFunction
+
+import launch_testing
+import launch_testing.asserts
 
 
-def test_logging_long_messages():
+def generate_test_description(ready_fn):
+    launch_description = LaunchDescription()
     # Set the output format to a "verbose" format that is expected by the executable output
     os.environ['RCUTILS_CONSOLE_OUTPUT_FORMAT'] = \
         '[{severity}] [{name}]: {message} ({function_name}() at {file_name}:{line_number})'
     executable = os.path.join(os.getcwd(), 'test_logging_long_messages')
     if os.name == 'nt':
         executable += '.exe'
-    ld = LaunchDescription()
-    launch_test = LaunchTestService()
-    action = launch_test.add_fixture_action(ld, ExecuteProcess(
-        cmd=[executable], name='test_logging_long_messages', output='screen'
+    process_name = 'test_logging_long_messages'
+    launch_description.add_action(ExecuteProcess(
+        cmd=[executable], name=process_name, output='screen'
     ))
-    output_file = os.path.join(
-        os.path.dirname(__file__), 'test_logging_long_messages'
+
+    launch_description.add_action(
+        OpaqueFunction(function=lambda context: ready_fn())
     )
-    launch_test.add_output_test(
-        ld, action, create_output_test_from_file(output_file)
-    )
-
-    launch_service = LaunchService()
-    launch_service.include_launch_description(ld)
-    return_code = launch_test.run(launch_service)
-    assert return_code == 0, 'Launch failed with exit code %r' % (return_code,)
+    return launch_description, {'process_name': process_name}
 
 
-if __name__ == '__main__':
-    test_logging_long_messages()
+class TestLoggingLongMessages(unittest.TestCase):
+
+    def test_logging_output(self, process_name):
+        """Test executable output against expectation."""
+        self.proc_output.assertWaitFor(
+            expected_output=launch_testing.tools.expected_output_from_file(
+                path=os.path.join(os.path.dirname(__file__), process_name)
+            ), process=process_name, timeout=10
+        )
