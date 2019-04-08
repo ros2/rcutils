@@ -409,6 +409,4 @@ typedef _Atomic (uintmax_t) atomic_uintmax_t;
 // #define atomic_flag_test_and_set(object) \
 //   atomic_flag_test_and_set_explicit(object, memory_order_seq_cst)
 
-#undef _RCUTILS_PACKAGE_NAME
-
 #endif  // RCUTILS__STDATOMIC_HELPER__WIN32__STDATOMIC_H_
