@@ -94,18 +94,16 @@ rcutils_string_array_cmp(
   const rcutils_string_array_t * rhs,
   int * res)
 {
-  if (NULL == lhs || NULL == rhs) {
-    RCUTILS_SET_ERROR_MSG("string_array is null");
-    return RCUTILS_RET_INVALID_ARGUMENT;
-  }
-  if (NULL == lhs->data || NULL == rhs->data) {
-    RCUTILS_SET_ERROR_MSG("string_array data is null");
-    return RCUTILS_RET_INVALID_ARGUMENT;
-  }
-  if (NULL == res) {
-    RCUTILS_SET_ERROR_MSG("res argument is null");
-    return RCUTILS_RET_INVALID_ARGUMENT;
-  }
+  RCUTILS_CHECK_FOR_NULL_WITH_MSG(
+    lhs, "lhs string array is null", return RCUTILS_RET_INVALID_ARGUMENT);
+  RCUTILS_CHECK_FOR_NULL_WITH_MSG(
+    rhs, "rhs string array is null", return RCUTILS_RET_INVALID_ARGUMENT);
+  RCUTILS_CHECK_FOR_NULL_WITH_MSG(
+    lhs->data, "lhs->data is null", return RCUTILS_RET_INVALID_ARGUMENT);
+  RCUTILS_CHECK_FOR_NULL_WITH_MSG(
+    rhs->data, "rhs->data is null", return RCUTILS_RET_INVALID_ARGUMENT);
+  RCUTILS_CHECK_FOR_NULL_WITH_MSG(
+    res, "res argument is null", return RCUTILS_RET_INVALID_ARGUMENT);
 
   size_t smallest_size = lhs->size;
   if (rhs->size < smallest_size) {
@@ -113,10 +111,10 @@ rcutils_string_array_cmp(
   }
 
   for (size_t i = 0; i < smallest_size; ++i) {
-    if (NULL == lhs->data[i] || NULL == rhs->data[i]) {
-      RCUTILS_SET_ERROR_MSG("string_array element is null");
-      return RCUTILS_RET_ERROR;
-    }
+    RCUTILS_CHECK_FOR_NULL_WITH_MSG(
+      lhs->data[i], "lhs array element is null", return RCUTILS_RET_ERROR);
+    RCUTILS_CHECK_FOR_NULL_WITH_MSG(
+      rhs->data[i], "rhs array element is null", return RCUTILS_RET_ERROR);
     // Loop until we find a pair of strings that are not equal
     int strcmp_res = strcmp(lhs->data[i], rhs->data[i]);
     if (0 != strcmp_res) {
