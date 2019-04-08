@@ -120,7 +120,8 @@ rcutils_string_array_fini(rcutils_string_array_t * string_array);
  *   Zero if `lhs` and `rhs` are equal.
  *   Positive value if `lhs` appears after `rhs in lexographical order.
  * \return `RCUTILS_RET_OK` if successful, or
- * \return `RCUTILS_RET_INVALID_ARGUMENT` if there is an invalid arguments, or
+ * \return `RCUTILS_RET_INVALID_ARGUMENT` if any argument is `NULL`, or
+ * \return `RCUTILS_RET_INVALID_ARGUMENT` if `lhs->data` or `rhs->data` is `NULL`, or
  * \return `RCUTILS_RET_ERROR` if an unknown error occurs.
  */
 RCUTILS_PUBLIC
