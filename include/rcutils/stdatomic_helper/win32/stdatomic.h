@@ -212,6 +212,7 @@ typedef _Atomic (uintmax_t) atomic_uintmax_t;
         out = _InterlockedCompareExchange8((char *) object, desired, *expected); \
         break; \
       default: \
+        #pragma message("Unsupported integer type in atomic_compare_exchange_strong")
         RCUTILS_LOG_ERROR_NAMED( \
           ROS_PACKAGE_NAME, "Unsupported integer type in atomic_compare_exchange_strong"); \
         exit(-1); \
@@ -241,6 +242,7 @@ typedef _Atomic (uintmax_t) atomic_uintmax_t;
         out = _InterlockedExchange8((char *) object, desired); \
         break; \
       default: \
+        #pragma message("Unsupported integer type in atomic_exchange_strong")
         RCUTILS_LOG_ERROR_NAMED( \
           ROS_PACKAGE_NAME, "Unsupported integer type in atomic_exchange_strong"); \
         exit(-1); \
@@ -267,6 +269,7 @@ typedef _Atomic (uintmax_t) atomic_uintmax_t;
         out = _InterlockedExchangeAdd8((char *) object, operand); \
         break; \
       default: \
+        #pragma message("Unsupported integer type in atomic_fetch_add")
         RCUTILS_LOG_ERROR_NAMED( \
           ROS_PACKAGE_NAME, "Unsupported integer type in atomic_fetch_add"); \
         exit(-1); \
@@ -293,6 +296,7 @@ typedef _Atomic (uintmax_t) atomic_uintmax_t;
         out = _InterlockedAnd8((char *) object, operand); \
         break; \
       default: \
+        #pragma message("Unsupported integer type in atomic_fetch_and")
         RCUTILS_LOG_ERROR_NAMED( \
           ROS_PACKAGE_NAME, "Unsupported integer type in atomic_fetch_and"); \
         exit(-1); \
@@ -319,6 +323,7 @@ typedef _Atomic (uintmax_t) atomic_uintmax_t;
         out = _InterlockedOr8((char *) object, operand); \
         break; \
       default: \
+        #pragma message("Unsupported integer type in atomic_fetch_or")
         RCUTILS_LOG_ERROR_NAMED( \
           ROS_PACKAGE_NAME, "Unsupported integer type in atomic_fetch_or"); \
         exit(-1); \
@@ -348,6 +353,7 @@ typedef _Atomic (uintmax_t) atomic_uintmax_t;
         out = _InterlockedXor8((char *) object, operand); \
         break; \
       default: \
+        #pragma message("Unsupported integer type in atomic_fetch_xor")
         RCUTILS_LOG_ERROR_NAMED( \
           ROS_PACKAGE_NAME, "Unsupported integer type in atomic_fetch_xor"); \
         exit(-1); \
@@ -374,6 +380,7 @@ typedef _Atomic (uintmax_t) atomic_uintmax_t;
         out = _InterlockedExchangeAdd8((char *) object, 0); \
         break; \
       default: \
+        #pragma message("Unsupported integer type in atomic_fetch_load")
         RCUTILS_LOG_ERROR_NAMED( \
           ROS_PACKAGE_NAME, "Unsupported integer type in atomic_load"); \
         exit(-1); \
