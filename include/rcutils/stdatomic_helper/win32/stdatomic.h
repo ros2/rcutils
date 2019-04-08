@@ -186,8 +186,10 @@ typedef _Atomic (ptrdiff_t) atomic_ptrdiff_t;
 typedef _Atomic (intmax_t) atomic_intmax_t;
 typedef _Atomic (uintmax_t) atomic_uintmax_t;
 
-#ifndef ROS_PACKAGE_NAME
-  #define ROS_PACKAGE_NAME "<Uknown Package>"
+#ifdef ROS_PACKAGE_NAME
+  #define RCUTILS_COPY_NAME ROS_PACKAGE_NAME
+#else
+  #define RCUTILS_COPY_NAME "<Uknown Package>"
 #endif
 
 /*
@@ -214,7 +216,7 @@ typedef _Atomic (uintmax_t) atomic_uintmax_t;
       default: \
         #pragma message("Unsupported integer type in atomic_compare_exchange_strong")
         RCUTILS_LOG_ERROR_NAMED( \
-          ROS_PACKAGE_NAME, "Unsupported integer type in atomic_compare_exchange_strong"); \
+          RCUTILS_COPY_NAME, "Unsupported integer type in atomic_compare_exchange_strong"); \
         exit(-1); \
         break; \
     } \
@@ -244,7 +246,7 @@ typedef _Atomic (uintmax_t) atomic_uintmax_t;
       default: \
         #pragma message("Unsupported integer type in atomic_exchange_strong")
         RCUTILS_LOG_ERROR_NAMED( \
-          ROS_PACKAGE_NAME, "Unsupported integer type in atomic_exchange_strong"); \
+          RCUTILS_COPY_NAME, "Unsupported integer type in atomic_exchange_strong"); \
         exit(-1); \
         break; \
     } \
@@ -271,7 +273,7 @@ typedef _Atomic (uintmax_t) atomic_uintmax_t;
       default: \
         #pragma message("Unsupported integer type in atomic_fetch_add")
         RCUTILS_LOG_ERROR_NAMED( \
-          ROS_PACKAGE_NAME, "Unsupported integer type in atomic_fetch_add"); \
+          RCUTILS_COPY_NAME, "Unsupported integer type in atomic_fetch_add"); \
         exit(-1); \
         break; \
     } \
@@ -298,7 +300,7 @@ typedef _Atomic (uintmax_t) atomic_uintmax_t;
       default: \
         #pragma message("Unsupported integer type in atomic_fetch_and")
         RCUTILS_LOG_ERROR_NAMED( \
-          ROS_PACKAGE_NAME, "Unsupported integer type in atomic_fetch_and"); \
+          RCUTILS_COPY_NAME, "Unsupported integer type in atomic_fetch_and"); \
         exit(-1); \
         break; \
     } \
@@ -325,7 +327,7 @@ typedef _Atomic (uintmax_t) atomic_uintmax_t;
       default: \
         #pragma message("Unsupported integer type in atomic_fetch_or")
         RCUTILS_LOG_ERROR_NAMED( \
-          ROS_PACKAGE_NAME, "Unsupported integer type in atomic_fetch_or"); \
+          RCUTILS_COPY_NAME, "Unsupported integer type in atomic_fetch_or"); \
         exit(-1); \
         break; \
     } \
@@ -355,7 +357,7 @@ typedef _Atomic (uintmax_t) atomic_uintmax_t;
       default: \
         #pragma message("Unsupported integer type in atomic_fetch_xor")
         RCUTILS_LOG_ERROR_NAMED( \
-          ROS_PACKAGE_NAME, "Unsupported integer type in atomic_fetch_xor"); \
+          RCUTILS_COPY_NAME, "Unsupported integer type in atomic_fetch_xor"); \
         exit(-1); \
         break; \
     } \
@@ -382,7 +384,7 @@ typedef _Atomic (uintmax_t) atomic_uintmax_t;
       default: \
         #pragma message("Unsupported integer type in atomic_fetch_load")
         RCUTILS_LOG_ERROR_NAMED( \
-          ROS_PACKAGE_NAME, "Unsupported integer type in atomic_load"); \
+          RCUTILS_COPY_NAME, "Unsupported integer type in atomic_load"); \
         exit(-1); \
         break; \
     } \
@@ -413,5 +415,7 @@ typedef _Atomic (uintmax_t) atomic_uintmax_t;
 //   atomic_flag_clear_explicit(object, memory_order_seq_cst)
 // #define atomic_flag_test_and_set(object) \
 //   atomic_flag_test_and_set_explicit(object, memory_order_seq_cst)
+
+#undef RCUTILS_COPY_NAME
 
 #endif  // RCUTILS__STDATOMIC_HELPER__WIN32__STDATOMIC_H_
