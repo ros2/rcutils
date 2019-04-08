@@ -186,6 +186,10 @@ typedef _Atomic (ptrdiff_t) atomic_ptrdiff_t;
 typedef _Atomic (intmax_t) atomic_intmax_t;
 typedef _Atomic (uintmax_t) atomic_uintmax_t;
 
+#ifndef ROS_PACKAGE_NAME
+  #define ROS_PACKAGE_NAME "<Uknown Package>"
+#endif
+
 /*
  * 7.17.7 Operations on atomic types. (pruned modified for Windows' crappy C compiler)
  */
