@@ -189,7 +189,7 @@ typedef _Atomic (uintmax_t) atomic_uintmax_t;
 #ifdef ROS_PACKAGE_NAME
   #define RCUTILS_COPY_NAME ROS_PACKAGE_NAME
 #else
-  #define RCUTILS_COPY_NAME "<Uknown Package>"
+  #define RCUTILS_COPY_NAME "<Unknown Package>"
 #endif
 
 /*
