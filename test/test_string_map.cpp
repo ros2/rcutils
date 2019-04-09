@@ -21,6 +21,32 @@
 #include "rcutils/error_handling.h"
 #include "rcutils/types/string_map.h"
 
+class TestStringMap : public ::testing::Test
+{
+protected:
+  void SetUp() final
+  {
+    // Reset rcutil error global state in case a previously
+    // running test has failed.
+    rcutils_reset_error();
+
+    allocator = rcutils_get_default_allocator();
+    failing_allocator = get_failing_allocator();
+    string_map = rcutils_get_zero_initialized_string_map();
+  }
+
+  void TearDown() final
+  {
+    EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&string_map)) <<
+      rcutils_get_error_string().str;
+  }
+
+  rcutils_allocator_t allocator;
+  rcutils_allocator_t failing_allocator;
+  rcutils_string_map_t string_map;
+};
+
 TEST(test_string_map, lifecycle) {
   auto allocator = rcutils_get_default_allocator();
   auto failing_allocator = get_failing_allocator();
@@ -98,8 +124,7 @@ TEST(test_string_map, lifecycle) {
   }
 }
 
-TEST(test_string_map, getters) {
-  auto allocator = rcutils_get_default_allocator();
+TEST_F(TestStringMap, getters) {
   rcutils_ret_t ret;
 
   // null for string_map
@@ -115,10 +140,6 @@ TEST(test_string_map, getters) {
 
   // null for capacity/size
   {
-    rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
-    ret = rcutils_string_map_init(&string_map, 0, allocator);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
-
     ret = rcutils_string_map_get_capacity(&string_map, NULL);
     EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string().str;
     rcutils_reset_error();
@@ -133,16 +154,16 @@ TEST(test_string_map, getters) {
     ret = rcutils_string_map_init(&string_map, 0, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
 
-    size_t expected = 0;
     size_t capacity = 42;
-    ret = rcutils_string_map_get_capacity(&string_map, &capacity);
-    EXPECT_EQ(RCUTILS_RET_OK, ret);
-    EXPECT_EQ(expected, capacity);
+    EXPECT_EQ(
+      RCUTILS_RET_OK,
+      rcutils_string_map_get_capacity(&string_map, &capacity));
+    EXPECT_EQ(0u, capacity);
 
     size_t size = 42;
     ret = rcutils_string_map_get_size(&string_map, &size);
     EXPECT_EQ(RCUTILS_RET_OK, ret);
-    EXPECT_EQ(expected, size);
+    EXPECT_EQ(0u, size);
 
     ret = rcutils_string_map_fini(&string_map);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
