@@ -37,9 +37,15 @@ protected:
 
   void TearDown() final
   {
-    EXPECT_EQ(RCUTILS_RET_OK,
-      rcutils_string_map_fini(&string_map)) <<
-      rcutils_get_error_string().str;
+    // Ensure the next call will be successful even if the test
+    // failed.
+    rcutils_reset_error();
+
+    // In some cases, the test may exit before the list has been initialized.
+    // This is OK to ignore.
+    const rcutils_ret_t ret = rcutils_string_map_fini(&string_map);
+    EXPECT_TRUE(ret == RCUTILS_RET_OK || ret == RCUTILS_RET_NOT_INITIALIZED);
+    rcutils_reset_error();
   }
 
   rcutils_allocator_t allocator;
