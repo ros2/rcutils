@@ -146,6 +146,10 @@ TEST_F(TestStringMap, getters) {
 
   // null for capacity/size
   {
+    rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
+    ret = rcutils_string_map_init(&string_map, 0, allocator);
+    ASSERT_EQ(RCUTILS_RET_OK, ret);
+
     ret = rcutils_string_map_get_capacity(&string_map, NULL);
     EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string().str;
     rcutils_reset_error();
