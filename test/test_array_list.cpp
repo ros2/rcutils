@@ -28,38 +28,39 @@ class ArrayListTest : public ::testing::Test
 protected:
   void SetUp() override
   {
+    // Reset rcutils error to prevent failure from a previous test case to contaminate
+    // another one.
+    rcutils_reset_error();
+
     allocator = rcutils_get_default_allocator();
     list = rcutils_get_zero_initialized_array_list();
-    rcutils_reset_error();
   }
 
-  // void TearDown() override {}
+  void TearDown() override
+  {
+    // Ensures rcutils_array_list_fini will not fail even if the test case failed.
+    rcutils_reset_error();
+
+    // In some cases, the test may exit before the list has been initialized.
+    // This is OK to ignore.
+    const rcutils_ret_t ret = rcutils_array_list_fini(&list);
+    EXPECT_TRUE(ret == RCUTILS_RET_OK || ret == RCUTILS_RET_NOT_INITIALIZED);
+  }
 
   rcutils_allocator_t allocator;
   rcutils_array_list_t list;
 };
 
 // This fixture is used for test that want the list pre initialized
-class ArrayListPreInitTest : public ::testing::Test
+class ArrayListPreInitTest : public ArrayListTest
 {
 protected:
   void SetUp() override
   {
-    allocator = rcutils_get_default_allocator();
-    list = rcutils_get_zero_initialized_array_list();
-    rcutils_ret_t ret = rcutils_array_list_init(&list, 2, sizeof(uint32_t), &allocator);
-    EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
-    rcutils_reset_error();
-  }
-
-  void TearDown() override
-  {
-    rcutils_ret_t ret = rcutils_array_list_fini(&list);
+    ArrayListTest::SetUp();
+    const rcutils_ret_t ret = rcutils_array_list_init(&list, 2, sizeof(uint32_t), &allocator);
     EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
   }
-
-  rcutils_allocator_t allocator;
-  rcutils_array_list_t list;
 };
 
 TEST_F(ArrayListTest, init_list_null_fails) {
