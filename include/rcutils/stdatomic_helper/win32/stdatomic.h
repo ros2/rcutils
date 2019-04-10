@@ -199,6 +199,8 @@ typedef _Atomic (uintmax_t) atomic_uintmax_t;
 #define rcutils_win32_atomic_compare_exchange_strong(object, out, expected, desired) \
   __pragma(warning(push)) \
   __pragma(warning(disable: 4244)) \
+  __pragma(warning(disable: 4047)) \
+  __pragma(warning(disable: 4024)) \
   do { \
     switch (sizeof(out)) { \
       case sizeof(uint64_t): \
@@ -228,6 +230,8 @@ typedef _Atomic (uintmax_t) atomic_uintmax_t;
 #define rcutils_win32_atomic_exchange(object, out, desired) \
   __pragma(warning(push)) \
   __pragma(warning(disable: 4244)) \
+  __pragma(warning(disable: 4047)) \
+  __pragma(warning(disable: 4024)) \
   do { \
     switch (sizeof(out)) { \
       case sizeof(uint64_t): \
@@ -254,6 +258,8 @@ typedef _Atomic (uintmax_t) atomic_uintmax_t;
 #define rcutils_win32_atomic_fetch_add(object, out, operand) \
   __pragma(warning(push)) \
   __pragma(warning(disable: 4244)) \
+  __pragma(warning(disable: 4047)) \
+  __pragma(warning(disable: 4024)) \
   do { \
     switch (sizeof(out)) { \
       case sizeof(uint64_t): \
@@ -280,6 +286,8 @@ typedef _Atomic (uintmax_t) atomic_uintmax_t;
 #define rcutils_win32_atomic_fetch_and(object, out, operand) \
   __pragma(warning(push)) \
   __pragma(warning(disable: 4244)) \
+  __pragma(warning(disable: 4047)) \
+  __pragma(warning(disable: 4024)) \
   do { \
     switch (sizeof(out)) { \
       case sizeof(uint64_t): \
@@ -306,6 +314,8 @@ typedef _Atomic (uintmax_t) atomic_uintmax_t;
 #define rcutils_win32_atomic_fetch_or(object, out, operand) \
   __pragma(warning(push)) \
   __pragma(warning(disable: 4244)) \
+  __pragma(warning(disable: 4047)) \
+  __pragma(warning(disable: 4024)) \
   do { \
     switch (sizeof(out)) { \
       case sizeof(uint64_t): \
@@ -335,6 +345,8 @@ typedef _Atomic (uintmax_t) atomic_uintmax_t;
 #define rcutils_win32_atomic_fetch_xor(object, out, operand) \
   __pragma(warning(push)) \
   __pragma(warning(disable: 4244)) \
+  __pragma(warning(disable: 4047)) \
+  __pragma(warning(disable: 4024)) \
   do { \
     switch (sizeof(out)) { \
       case sizeof(uint64_t): \
@@ -361,6 +373,8 @@ typedef _Atomic (uintmax_t) atomic_uintmax_t;
 #define rcutils_win32_atomic_load(object, out) \
   __pragma(warning(push)) \
   __pragma(warning(disable: 4244)) \
+  __pragma(warning(disable: 4047)) \
+  __pragma(warning(disable: 4024)) \
   do { \
     switch (sizeof(out)) { \
       case sizeof(uint64_t): \
