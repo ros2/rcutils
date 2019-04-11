@@ -36,17 +36,6 @@ protected:
     list = rcutils_get_zero_initialized_array_list();
   }
 
-  void TearDown() override
-  {
-    // Ensures rcutils_array_list_fini will not fail even if the test case failed.
-    rcutils_reset_error();
-
-    // In some cases, the test may exit before the list has been initialized.
-    // This is OK to ignore.
-    const rcutils_ret_t ret = rcutils_array_list_fini(&list);
-    EXPECT_TRUE(ret == RCUTILS_RET_OK || ret == RCUTILS_RET_NOT_INITIALIZED);
-  }
-
   rcutils_allocator_t allocator;
   rcutils_array_list_t list;
 };
@@ -60,6 +49,14 @@ protected:
     ArrayListTest::SetUp();
     const rcutils_ret_t ret = rcutils_array_list_init(&list, 2, sizeof(uint32_t), &allocator);
     EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
+  }
+
+  void TearDown() override
+  {
+    // If the test fails, the test may exit before the list has been initialized
+    // so we allow rcutils_array_list_fini to fail if the list is not initialized.
+    const rcutils_ret_t ret = rcutils_array_list_fini(&list);
+    EXPECT_TRUE(ret == RCUTILS_RET_OK || ret == RCUTILS_RET_NOT_INITIALIZED);
   }
 };
 
@@ -85,6 +82,9 @@ TEST_F(ArrayListTest, init_null_allocator_fails) {
 
 TEST_F(ArrayListTest, init_success) {
   rcutils_ret_t ret = rcutils_array_list_init(&list, 2, sizeof(uint32_t), &allocator);
+  EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
+
+  ret = rcutils_array_list_fini(&list);
   EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 }
 
@@ -319,6 +319,9 @@ TEST_F(ArrayListTest, add_grow_capacity) {
     ret = rcutils_array_list_get(&list, i, &ret_data);
     EXPECT_EQ((i * 2), ret_data) << rcutils_get_error_string().str;
   }
+
+  ret = rcutils_array_list_fini(&list);
+  EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 }
 
 TEST_F(ArrayListPreInitTest, remove_preserves_data_around_it) {
