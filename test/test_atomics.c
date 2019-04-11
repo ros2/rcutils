@@ -18,14 +18,12 @@
 // Cannot use gtest or C++ because stdatomic_helper.h forces a compiler error if C++ is used
 
 #define TEST_ATOMIC_TYPE(BASE_TYPE, ATOMIC_TYPE) \
-  do \
-  { \
+  do { \
     ATOMIC_TYPE uut; \
     atomic_init(&uut, (BASE_TYPE)0); \
     BASE_TYPE loaded_value; \
     rcutils_atomic_load(&uut, loaded_value); \
-    if ((BASE_TYPE)0 != loaded_value) \
-    { \
+    if ((BASE_TYPE)0 != loaded_value) { \
       fprintf(stderr, "load test failed " #ATOMIC_TYPE " base " #BASE_TYPE "\n"); \
       return 1; \
     } \
@@ -33,13 +31,11 @@
     rcutils_atomic_store(&uut, (BASE_TYPE)28); \
     rcutils_atomic_exchange(&uut, exchanged_value, (BASE_TYPE)42); \
     rcutils_atomic_load(&uut, loaded_value); \
-    if ((BASE_TYPE)28 != exchanged_value) \
-    { \
+    if ((BASE_TYPE)28 != exchanged_value) { \
       fprintf(stderr, "exchange test failed " #ATOMIC_TYPE " base " #BASE_TYPE "\n"); \
       return 1; \
     } \
-    if ((BASE_TYPE)42 != loaded_value) \
-    { \
+    if ((BASE_TYPE)42 != loaded_value) { \
       fprintf(stderr, "exchange test failed " #ATOMIC_TYPE " base " #BASE_TYPE "\n"); \
       return 1; \
     } \
@@ -52,14 +48,14 @@ main()
   TEST_ATOMIC_TYPE(char, atomic_char);
   TEST_ATOMIC_TYPE(signed char, atomic_schar);
   TEST_ATOMIC_TYPE(unsigned char, atomic_uchar);
-  TEST_ATOMIC_TYPE(short, atomic_short);
-  TEST_ATOMIC_TYPE(unsigned short, atomic_ushort);
+  TEST_ATOMIC_TYPE(short, atomic_short);  // NOLINT(runtime/int)
+  TEST_ATOMIC_TYPE(unsigned short, atomic_ushort);  // NOLINT(runtime/int)
   TEST_ATOMIC_TYPE(int, atomic_int);
   TEST_ATOMIC_TYPE(unsigned int, atomic_uint);
-  TEST_ATOMIC_TYPE(long, atomic_long);
-  TEST_ATOMIC_TYPE(unsigned long, atomic_ulong);
-  TEST_ATOMIC_TYPE(long long, atomic_llong);
-  TEST_ATOMIC_TYPE(unsigned long long, atomic_ullong);
+  TEST_ATOMIC_TYPE(long, atomic_long);  // NOLINT(runtime/int)
+  TEST_ATOMIC_TYPE(unsigned long, atomic_ulong);  // NOLINT(runtime/int)
+  TEST_ATOMIC_TYPE(long long, atomic_llong);  // NOLINT(runtime/int)
+  TEST_ATOMIC_TYPE(unsigned long long, atomic_ullong);  // NOLINT(runtime/int)
   TEST_ATOMIC_TYPE(int_least16_t, atomic_int_least16_t);
   TEST_ATOMIC_TYPE(uint_least16_t, atomic_uint_least16_t);
   TEST_ATOMIC_TYPE(int_least32_t, atomic_int_least32_t);
