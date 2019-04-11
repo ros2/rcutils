@@ -35,19 +35,6 @@ protected:
     string_map = rcutils_get_zero_initialized_string_map();
   }
 
-  void TearDown() final
-  {
-    // Ensure the next call will be successful even if the test
-    // failed.
-    rcutils_reset_error();
-
-    // In some cases, the test may exit before the list has been initialized.
-    // This is OK to ignore.
-    const rcutils_ret_t ret = rcutils_string_map_fini(&string_map);
-    EXPECT_TRUE(ret == RCUTILS_RET_OK || ret == RCUTILS_RET_NOT_INITIALIZED);
-    rcutils_reset_error();
-  }
-
   rcutils_allocator_t allocator;
   rcutils_allocator_t failing_allocator;
   rcutils_string_map_t string_map;
@@ -135,6 +122,7 @@ TEST_F(TestStringMap, getters_capacity_null_list) {
   size_t capacity;
   ret = rcutils_string_map_get_capacity(NULL, &capacity);
   EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string().str;
+  rcutils_reset_error();
 }
 
 TEST_F(TestStringMap, getters_size_null_list) {
@@ -142,6 +130,7 @@ TEST_F(TestStringMap, getters_size_null_list) {
   size_t size;
   ret = rcutils_string_map_get_size(NULL, &size);
   EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string().str;
+  rcutils_reset_error();
 }
 
 TEST_F(TestStringMap, getters_capacity_null_capacity) {
@@ -151,6 +140,10 @@ TEST_F(TestStringMap, getters_capacity_null_capacity) {
 
   ret = rcutils_string_map_get_capacity(&string_map, NULL);
   EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string().str;
+  rcutils_reset_error();
+
+  ret = rcutils_string_map_fini(&string_map);
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
 }
 
 TEST_F(TestStringMap, getters_size_null_size) {
@@ -160,6 +153,10 @@ TEST_F(TestStringMap, getters_size_null_size) {
 
   ret = rcutils_string_map_get_size(&string_map, NULL);
   EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string().str;
+  rcutils_reset_error();
+
+  ret = rcutils_string_map_fini(&string_map);
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
 }
 
 TEST_F(TestStringMap, getters_initialize_to_zero) {
@@ -180,6 +177,7 @@ TEST_F(TestStringMap, getters_initialize_to_zero) {
 
   ret = rcutils_string_map_fini(&string_map);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
+  rcutils_reset_error();
 }
 
 TEST(test_string_map, reserve_and_clear) {
