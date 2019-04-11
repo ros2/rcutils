@@ -16,6 +16,7 @@
 #define RCUTILS__STDATOMIC_HELPER_H_
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 // disable unused function warnings within this file, due to inline in a header

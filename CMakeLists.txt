@@ -198,6 +198,17 @@ if(BUILD_TESTING)
     target_link_libraries(test_char_array ${PROJECT_NAME})
   endif()
 
+  # Can't use C++ with stdatomic_helper.h
+  add_executable(test_atomics_executable
+    test/test_atomics.c
+  )
+  set_target_properties(test_atomics_executable
+    PROPERTIES
+      LANGUAGE C
+  )
+  target_link_libraries(test_atomics_executable ${PROJECT_NAME})
+  add_test(NAME test_atomics COMMAND test_atomics_executable)
+
   rcutils_custom_add_gmock(test_error_handling test/test_error_handling.cpp
     # Append the directory of librcutils so it is found at test time.
     APPEND_LIBRARY_DIRS "$<TARGET_FILE_DIR:${PROJECT_NAME}>"
