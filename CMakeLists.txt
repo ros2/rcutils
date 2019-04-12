@@ -284,6 +284,7 @@ if(BUILD_TESTING)
     test/test_string_map.cpp
   )
   if(TARGET test_string_map)
+    ament_target_dependencies(test_string_map "osrf_testing_tools_cpp")
     target_link_libraries(test_string_map ${PROJECT_NAME})
   endif()
 
