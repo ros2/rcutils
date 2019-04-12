@@ -80,17 +80,17 @@ def generate_test_description(ready_fn):
 @launch_testing.post_shutdown_test()
 class TestLoggingOutputFormatAfterShutdown(unittest.TestCase):
 
-    def test_logging_output(self, processes_to_test):
+    def test_logging_output(self, proc_output, processes_to_test):
         """Test all executables output against expectations."""
         for process_name in processes_to_test:
             launch_testing.asserts.assertInStdout(
-                self.proc_output,
+                proc_output,
                 expected_output=launch_testing.tools.expected_output_from_file(
                     path=os.path.join(os.path.dirname(__file__), process_name)
                 ),
                 process=process_name
             )
 
-    def test_processes_exit_codes(self):
+    def test_processes_exit_codes(self, proc_info):
         """Test that all executables finished cleanly."""
-        launch_testing.asserts.assertExitCodes(self.proc_info)
+        launch_testing.asserts.assertExitCodes(proc_info)

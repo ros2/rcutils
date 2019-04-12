@@ -44,9 +44,9 @@ def generate_test_description(ready_fn):
 
 class TestLoggingLongMessages(unittest.TestCase):
 
-    def test_logging_output(self, process_name):
+    def test_logging_output(self, proc_output, process_name):
         """Test executable output against expectation."""
-        self.proc_output.assertWaitFor(
+        proc_output.assertWaitFor(
             expected_output=launch_testing.tools.expected_output_from_file(
                 path=os.path.join(os.path.dirname(__file__), process_name)
             ), process=process_name, timeout=10
