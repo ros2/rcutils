@@ -17,6 +17,8 @@
 #include <string>
 
 #include "./allocator_testing_utils.h"
+
+#include "osrf_testing_tools_cpp/scope_exit.hpp"
 #include "rcutils/allocator.h"
 #include "rcutils/error_handling.h"
 #include "rcutils/types/string_map.h"
@@ -137,32 +139,46 @@ TEST_F(TestStringMap, getters_capacity_null_capacity) {
   rcutils_ret_t ret;
   ret = rcutils_string_map_init(&string_map, 0, allocator);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
+  rcutils_reset_error();
+
+  OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+    EXPECT_EQ(RCUTILS_RET_OK,
+    rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+    rcutils_reset_error();
+  });
 
   ret = rcutils_string_map_get_capacity(&string_map, NULL);
   EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string().str;
   rcutils_reset_error();
-
-  ret = rcutils_string_map_fini(&string_map);
-  ASSERT_EQ(RCUTILS_RET_OK, ret);
 }
 
 TEST_F(TestStringMap, getters_size_null_size) {
   rcutils_ret_t ret;
   ret = rcutils_string_map_init(&string_map, 0, allocator);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
+  rcutils_reset_error();
+
+  OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+    EXPECT_EQ(RCUTILS_RET_OK,
+    rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+    rcutils_reset_error();
+  });
 
   ret = rcutils_string_map_get_size(&string_map, NULL);
   EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string().str;
   rcutils_reset_error();
-
-  ret = rcutils_string_map_fini(&string_map);
-  ASSERT_EQ(RCUTILS_RET_OK, ret);
 }
 
 TEST_F(TestStringMap, getters_initialize_to_zero) {
   rcutils_ret_t ret;
   ret = rcutils_string_map_init(&string_map, 0, allocator);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
+
+  OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+    EXPECT_EQ(RCUTILS_RET_OK,
+    rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+    rcutils_reset_error();
+  });
 
   size_t capacity = 42;
   EXPECT_EQ(
@@ -174,10 +190,6 @@ TEST_F(TestStringMap, getters_initialize_to_zero) {
   ret = rcutils_string_map_get_size(&string_map, &size);
   EXPECT_EQ(RCUTILS_RET_OK, ret);
   EXPECT_EQ(0u, size);
-
-  ret = rcutils_string_map_fini(&string_map);
-  ASSERT_EQ(RCUTILS_RET_OK, ret);
-  rcutils_reset_error();
 }
 
 TEST(test_string_map, reserve_and_clear) {
