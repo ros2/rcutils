@@ -49,14 +49,14 @@ protected:
     ArrayListTest::SetUp();
     const rcutils_ret_t ret = rcutils_array_list_init(&list, 2, sizeof(uint32_t), &allocator);
     EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
+    rcutils_reset_error();
   }
 
   void TearDown() override
   {
-    // If the test fails, the test may exit before the list has been initialized
-    // so we allow rcutils_array_list_fini to fail if the list is not initialized.
     const rcutils_ret_t ret = rcutils_array_list_fini(&list);
-    EXPECT_TRUE(ret == RCUTILS_RET_OK || ret == RCUTILS_RET_NOT_INITIALIZED);
+    EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
+    rcutils_reset_error();
   }
 };
 
