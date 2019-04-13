@@ -2,6 +2,19 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.7.0 (2019-04-13)
+------------------
+* Fix ASAN failure in test_string_map.cpp (`#147 <https://github.com/ros2/rcutils/issues/147>`_)
+* Add tests for stdatomic_helper.h and fix bugs (`#150 <https://github.com/ros2/rcutils/issues/150>`_)
+* Windows messages when atomic type is unsupported (`#145 <https://github.com/ros2/rcutils/issues/145>`_)
+* Use CMake property to determine when to use memory_tools. (`#139 <https://github.com/ros2/rcutils/issues/139>`_)
+* Add section about DCO to CONTRIBUTING.md
+* Use ament_target_dependencies where possible. (`#137 <https://github.com/ros2/rcutils/issues/137>`_)
+* Fix doc typo in string_map.h. (`#138 <https://github.com/ros2/rcutils/issues/138>`_)
+* Add launch along with launch_testing as test dependencies. (`#136 <https://github.com/ros2/rcutils/issues/136>`_)
+* Drops legacy launch API usage. (`#134 <https://github.com/ros2/rcutils/issues/134>`_)
+* Contributors: Dirk Thomas, Jacob Perron, Michel Hidalgo, Shane Loretz, Steven! Ragnarök, Thomas Moulard, ivanpauno
+
 0.6.2 (2019-02-07)
 ------------------
 * Adding an ArrayList and HashMap implementation to rcutils (`#131 <https://github.com/ros2/rcutils/issues/131>`_)
