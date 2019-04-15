@@ -202,6 +202,12 @@ TEST(test_string_map, reserve_and_clear) {
     ret = rcutils_string_map_init(&string_map, 10, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
 
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
+
     size_t expected = 10;
     size_t capacity = 42;
     ret = rcutils_string_map_get_capacity(&string_map, &capacity);
@@ -213,9 +219,6 @@ TEST(test_string_map, reserve_and_clear) {
     ret = rcutils_string_map_get_size(&string_map, &size);
     EXPECT_EQ(RCUTILS_RET_OK, ret);
     EXPECT_EQ(expected, size);
-
-    ret = rcutils_string_map_fini(&string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
 
   // initialize to 0, reserve to 10
@@ -223,6 +226,12 @@ TEST(test_string_map, reserve_and_clear) {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&string_map, 0, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     {
       size_t expected = 0;
@@ -254,9 +263,6 @@ TEST(test_string_map, reserve_and_clear) {
       EXPECT_EQ(RCUTILS_RET_OK, ret);
       EXPECT_EQ(expected, size);
     }
-
-    ret = rcutils_string_map_fini(&string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
 
   // initialize to 10, set, set, clear, reserve 0
@@ -264,6 +270,12 @@ TEST(test_string_map, reserve_and_clear) {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&string_map, 10, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     {
       size_t expected = 10;
@@ -346,9 +358,6 @@ TEST(test_string_map, reserve_and_clear) {
       EXPECT_EQ(RCUTILS_RET_OK, ret);
       EXPECT_EQ(expected, size);
     }
-
-    ret = rcutils_string_map_fini(&string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
 
   // initialize to 0, clear
@@ -356,6 +365,12 @@ TEST(test_string_map, reserve_and_clear) {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&string_map, 0, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     {
       size_t expected = 0;
@@ -387,9 +402,6 @@ TEST(test_string_map, reserve_and_clear) {
       EXPECT_EQ(RCUTILS_RET_OK, ret);
       EXPECT_EQ(expected, size);
     }
-
-    ret = rcutils_string_map_fini(&string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
 
   // initialize to 0, reserve 10, clear
@@ -397,6 +409,12 @@ TEST(test_string_map, reserve_and_clear) {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&string_map, 0, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     {
       size_t expected = 0;
@@ -445,9 +463,6 @@ TEST(test_string_map, reserve_and_clear) {
       EXPECT_EQ(RCUTILS_RET_OK, ret);
       EXPECT_EQ(expected, size);
     }
-
-    ret = rcutils_string_map_fini(&string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
 
   // null for string_map to reserve
@@ -475,6 +490,11 @@ TEST(test_string_map, set_no_resize) {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&string_map, 1, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     {
       size_t expected = 1;
@@ -512,9 +532,6 @@ TEST(test_string_map, set_no_resize) {
     ret = rcutils_string_map_set_no_resize(&string_map, "key2", "value2");
     ASSERT_EQ(RCUTILS_RET_NOT_ENOUGH_SPACE, ret) << rcutils_get_error_string().str;
     rcutils_reset_error();
-
-    ret = rcutils_string_map_fini(&string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
 
   // initialize to 2, set key1, set key1 again, set key2
@@ -522,6 +539,11 @@ TEST(test_string_map, set_no_resize) {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&string_map, 2, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     {
       size_t expected = 2;
@@ -593,9 +615,6 @@ TEST(test_string_map, set_no_resize) {
 
       EXPECT_STREQ("value2", rcutils_string_map_get(&string_map, "key2"));
     }
-
-    ret = rcutils_string_map_fini(&string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
 
   // use failing allocator
@@ -604,14 +623,17 @@ TEST(test_string_map, set_no_resize) {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&string_map, 1, failing_allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      set_failing_allocator_is_failing(failing_allocator, false);
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     set_failing_allocator_is_failing(failing_allocator, true);
     ret = rcutils_string_map_set_no_resize(&string_map, "key1", "value1");
     EXPECT_EQ(RCUTILS_RET_BAD_ALLOC, ret) << rcutils_get_error_string().str;
     rcutils_reset_error();
-
-    ret = rcutils_string_map_fini(&string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
 
   // pass NULL for string_map
@@ -626,13 +648,16 @@ TEST(test_string_map, set_no_resize) {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&string_map, 2, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     ret = rcutils_string_map_set_no_resize(&string_map, NULL, "value1");
+
     EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string().str;
     rcutils_reset_error();
-
-    ret = rcutils_string_map_fini(&string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
 
   // pass NULL for value
@@ -640,13 +665,15 @@ TEST(test_string_map, set_no_resize) {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&string_map, 2, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     ret = rcutils_string_map_set_no_resize(&string_map, "key1", NULL);
     EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string().str;
     rcutils_reset_error();
-
-    ret = rcutils_string_map_fini(&string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
 }
 
@@ -660,6 +687,11 @@ TEST(test_string_map, set) {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&string_map, 0, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     {
       size_t expected = 0;
@@ -693,9 +725,6 @@ TEST(test_string_map, set) {
 
       EXPECT_STREQ("value1", rcutils_string_map_get(&string_map, "key1"));
     }
-
-    ret = rcutils_string_map_fini(&string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
 
   // initialize to 1, set key1, set key2 (capacity -> 2), set key3 (capacity -> 4)
@@ -703,6 +732,11 @@ TEST(test_string_map, set) {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&string_map, 1, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     {
       size_t expected = 1;
@@ -774,9 +808,6 @@ TEST(test_string_map, set) {
 
       EXPECT_STREQ("value3", rcutils_string_map_get(&string_map, "key3"));
     }
-
-    ret = rcutils_string_map_fini(&string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
 
   // initialize to 2, set key1, set key1 again, set key2
@@ -784,6 +815,11 @@ TEST(test_string_map, set) {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&string_map, 2, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     {
       size_t expected = 2;
@@ -855,9 +891,6 @@ TEST(test_string_map, set) {
 
       EXPECT_STREQ("value2", rcutils_string_map_get(&string_map, "key2"));
     }
-
-    ret = rcutils_string_map_fini(&string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
 
   // use failing allocator
@@ -866,14 +899,17 @@ TEST(test_string_map, set) {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&string_map, 1, failing_allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      set_failing_allocator_is_failing(failing_allocator, false);
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     set_failing_allocator_is_failing(failing_allocator, true);
     ret = rcutils_string_map_set(&string_map, "key1", "value1");
     EXPECT_EQ(RCUTILS_RET_BAD_ALLOC, ret) << rcutils_get_error_string().str;
     rcutils_reset_error();
-
-    ret = rcutils_string_map_fini(&string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
 
   // pass NULL for string_map
@@ -888,13 +924,15 @@ TEST(test_string_map, set) {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&string_map, 2, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     ret = rcutils_string_map_set(&string_map, NULL, "value1");
     EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string().str;
     rcutils_reset_error();
-
-    ret = rcutils_string_map_fini(&string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
 
   // pass NULL for value
@@ -902,13 +940,15 @@ TEST(test_string_map, set) {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&string_map, 2, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     ret = rcutils_string_map_set(&string_map, "key1", NULL);
     EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string().str;
     rcutils_reset_error();
-
-    ret = rcutils_string_map_fini(&string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
 }
 
@@ -921,6 +961,12 @@ TEST(test_string_map, key_exists) {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&string_map, 2, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
+
     key_exists = rcutils_string_map_key_exists(&string_map, "key1");
     EXPECT_FALSE(key_exists);
     key_exists = rcutils_string_map_key_exists(&string_map, "key2");
@@ -939,9 +985,6 @@ TEST(test_string_map, key_exists) {
     EXPECT_FALSE(key_exists);
     key_exists = rcutils_string_map_key_exists(&string_map, "key2");
     EXPECT_FALSE(key_exists);
-
-    ret = rcutils_string_map_fini(&string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
 
   // key_exists with string_map as null
@@ -955,12 +998,14 @@ TEST(test_string_map, key_exists) {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&string_map, 2, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     key_exists = rcutils_string_map_key_exists(&string_map, NULL);
     EXPECT_FALSE(key_exists);
-
-    ret = rcutils_string_map_fini(&string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
 
   // key_exists on empty map
@@ -968,12 +1013,14 @@ TEST(test_string_map, key_exists) {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&string_map, 0, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     key_exists = rcutils_string_map_key_exists(&string_map, "missing");
     EXPECT_FALSE(key_exists);
-
-    ret = rcutils_string_map_fini(&string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
 }
 
@@ -986,6 +1033,11 @@ TEST(test_string_map, key_existsn) {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&string_map, 2, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     ret = rcutils_string_map_set(&string_map, "key1", "value1");
     ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
@@ -995,9 +1047,6 @@ TEST(test_string_map, key_existsn) {
     EXPECT_TRUE(rcutils_string_map_key_existsn(&string_map, "key1andsome", 4));
     EXPECT_TRUE(rcutils_string_map_key_existsn(&string_map, "key2andsome", 4));
     EXPECT_FALSE(rcutils_string_map_key_existsn(&string_map, "key1andsome", 5));
-
-    ret = rcutils_string_map_fini(&string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
 }
 
@@ -1010,6 +1059,11 @@ TEST(test_string_map, unset) {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&string_map, 3, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     {
       size_t expected = 3;
@@ -1110,9 +1164,6 @@ TEST(test_string_map, unset) {
       EXPECT_STREQ("value2", rcutils_string_map_get(&string_map, "key2"));
       EXPECT_STREQ("value3.1", rcutils_string_map_get(&string_map, "key3"));
     }
-
-    ret = rcutils_string_map_fini(&string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
 
   // unset with string_map as null
@@ -1127,13 +1178,15 @@ TEST(test_string_map, unset) {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&string_map, 10, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     ret = rcutils_string_map_unset(&string_map, NULL);
     EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string().str;
     rcutils_reset_error();
-
-    ret = rcutils_string_map_fini(&string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
 
   // unset on empty map
@@ -1141,13 +1194,15 @@ TEST(test_string_map, unset) {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&string_map, 0, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     ret = rcutils_string_map_unset(&string_map, "missing");
     EXPECT_EQ(RCUTILS_RET_STRING_KEY_NOT_FOUND, ret) << rcutils_get_error_string().str;
     rcutils_reset_error();
-
-    ret = rcutils_string_map_fini(&string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
 
   // unset on missing key in non-empty map
@@ -1155,6 +1210,11 @@ TEST(test_string_map, unset) {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&string_map, 2, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     ret = rcutils_string_map_set(&string_map, "key1", "value1");
     ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
@@ -1164,9 +1224,6 @@ TEST(test_string_map, unset) {
     ret = rcutils_string_map_unset(&string_map, "missing");
     EXPECT_EQ(RCUTILS_RET_STRING_KEY_NOT_FOUND, ret) << rcutils_get_error_string().str;
     rcutils_reset_error();
-
-    ret = rcutils_string_map_fini(&string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
 }
 
@@ -1179,6 +1236,11 @@ TEST(test_string_map, get) {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&string_map, 2, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     ret = rcutils_string_map_set(&string_map, "key1", "value1");
     ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
@@ -1187,9 +1249,6 @@ TEST(test_string_map, get) {
 
     EXPECT_STREQ("value1", rcutils_string_map_get(&string_map, "key1"));
     EXPECT_STREQ("value2", rcutils_string_map_get(&string_map, "key2"));
-
-    ret = rcutils_string_map_fini(&string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
 
   // get missing key
@@ -1197,14 +1256,16 @@ TEST(test_string_map, get) {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&string_map, 2, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     ret = rcutils_string_map_set(&string_map, "key1", "value1");
     ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
     EXPECT_EQ(NULL, rcutils_string_map_get(&string_map, "some_key"));
-
-    ret = rcutils_string_map_fini(&string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
 
   // get on empty map (capacity but no pairs in it)
@@ -1212,11 +1273,13 @@ TEST(test_string_map, get) {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&string_map, 2, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     EXPECT_EQ(NULL, rcutils_string_map_get(&string_map, "some_key"));
-
-    ret = rcutils_string_map_fini(&string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
 
   // get on map with no capacity (also empty)
@@ -1224,11 +1287,13 @@ TEST(test_string_map, get) {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&string_map, 0, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     EXPECT_EQ(NULL, rcutils_string_map_get(&string_map, "some_key"));
-
-    ret = rcutils_string_map_fini(&string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
 
   // get with string_map null
@@ -1241,14 +1306,16 @@ TEST(test_string_map, get) {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&string_map, 2, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     ret = rcutils_string_map_set(&string_map, "key1", "value1");
     ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
     EXPECT_EQ(NULL, rcutils_string_map_get(&string_map, NULL));
-
-    ret = rcutils_string_map_fini(&string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
 }
 
@@ -1261,6 +1328,11 @@ TEST(test_string_map, getn) {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&string_map, 2, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     ret = rcutils_string_map_set(&string_map, "key1", "value1");
     ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
@@ -1269,9 +1341,6 @@ TEST(test_string_map, getn) {
 
     EXPECT_STREQ("value1", rcutils_string_map_getn(&string_map, "key1andsome", 4));
     EXPECT_STREQ("value2", rcutils_string_map_getn(&string_map, "key2andsome", 4));
-
-    ret = rcutils_string_map_fini(&string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
 
   // get missing key
@@ -1279,14 +1348,16 @@ TEST(test_string_map, getn) {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&string_map, 2, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     ret = rcutils_string_map_set(&string_map, "key1", "value1");
     ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
     EXPECT_EQ(NULL, rcutils_string_map_get(&string_map, "some_key"));
-
-    ret = rcutils_string_map_fini(&string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
 
   // get on empty map (capacity but no pairs in it)
@@ -1294,11 +1365,13 @@ TEST(test_string_map, getn) {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&string_map, 2, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     EXPECT_EQ(NULL, rcutils_string_map_get(&string_map, "some_key"));
-
-    ret = rcutils_string_map_fini(&string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
 
   // get on map with no capacity (also empty)
@@ -1306,11 +1379,13 @@ TEST(test_string_map, getn) {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&string_map, 0, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     EXPECT_EQ(NULL, rcutils_string_map_get(&string_map, "some_key"));
-
-    ret = rcutils_string_map_fini(&string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
 
   // get with string_map null
@@ -1323,14 +1398,16 @@ TEST(test_string_map, getn) {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&string_map, 2, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     ret = rcutils_string_map_set(&string_map, "key1", "value1");
     ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
     EXPECT_EQ(NULL, rcutils_string_map_get(&string_map, NULL));
-
-    ret = rcutils_string_map_fini(&string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
 }
 
@@ -1343,6 +1420,11 @@ TEST(test_string_map, get_next_key) {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&string_map, 4, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     ret = rcutils_string_map_set(&string_map, "key1", "value1");
     ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
@@ -1355,9 +1437,6 @@ TEST(test_string_map, get_next_key) {
     EXPECT_STREQ("key2", second_key);
     const char * last_key = rcutils_string_map_get_next_key(&string_map, second_key);
     EXPECT_EQ(NULL, last_key);
-
-    ret = rcutils_string_map_fini(&string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
 
   // iterate over a full map
@@ -1365,6 +1444,11 @@ TEST(test_string_map, get_next_key) {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&string_map, 2, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     ret = rcutils_string_map_set(&string_map, "key1", "value1");
     ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
@@ -1377,9 +1461,6 @@ TEST(test_string_map, get_next_key) {
     EXPECT_STREQ("key2", second_key);
     const char * last_key = rcutils_string_map_get_next_key(&string_map, second_key);
     EXPECT_EQ(NULL, last_key);
-
-    ret = rcutils_string_map_fini(&string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
 
   // iterate over an empty map
@@ -1387,12 +1468,14 @@ TEST(test_string_map, get_next_key) {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&string_map, 0, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     const char * last_key = rcutils_string_map_get_next_key(&string_map, NULL);
     EXPECT_EQ(NULL, last_key);
-
-    ret = rcutils_string_map_fini(&string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
 
   // iterate over a map with a gap in the keys
@@ -1400,6 +1483,11 @@ TEST(test_string_map, get_next_key) {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&string_map, 4, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     ret = rcutils_string_map_set(&string_map, "key1", "value1");
     ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
@@ -1418,9 +1506,6 @@ TEST(test_string_map, get_next_key) {
     EXPECT_STREQ("key3", second_key);
     const char * last_key = rcutils_string_map_get_next_key(&string_map, second_key);
     EXPECT_EQ(NULL, last_key);
-
-    ret = rcutils_string_map_fini(&string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
 }
 
@@ -1433,6 +1518,11 @@ TEST(test_string_map, copy) {
     rcutils_string_map_t src_string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&src_string_map, 4, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&src_string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     ret = rcutils_string_map_set(&src_string_map, "key1", "value1");
     ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
@@ -1442,17 +1532,17 @@ TEST(test_string_map, copy) {
     rcutils_string_map_t dst_string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&dst_string_map, 0, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&dst_string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     ret = rcutils_string_map_copy(&src_string_map, &dst_string_map);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
 
     EXPECT_STREQ("value1", rcutils_string_map_get(&dst_string_map, "key1"));
     EXPECT_STREQ("value2", rcutils_string_map_get(&dst_string_map, "key2"));
-
-    ret = rcutils_string_map_fini(&src_string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
-    ret = rcutils_string_map_fini(&dst_string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
 
   // copy empty map into empty map
@@ -1460,17 +1550,22 @@ TEST(test_string_map, copy) {
     rcutils_string_map_t src_string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&src_string_map, 0, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&src_string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     rcutils_string_map_t dst_string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&dst_string_map, 0, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&dst_string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     ret = rcutils_string_map_copy(&src_string_map, &dst_string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
-
-    ret = rcutils_string_map_fini(&src_string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
-    ret = rcutils_string_map_fini(&dst_string_map);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
 
@@ -1479,10 +1574,20 @@ TEST(test_string_map, copy) {
     rcutils_string_map_t src_string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&src_string_map, 0, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&src_string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     rcutils_string_map_t dst_string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&dst_string_map, 4, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&dst_string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     ret = rcutils_string_map_set(&dst_string_map, "key1", "value1");
     ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
@@ -1494,11 +1599,6 @@ TEST(test_string_map, copy) {
 
     EXPECT_STREQ("value1", rcutils_string_map_get(&dst_string_map, "key1"));
     EXPECT_STREQ("value2", rcutils_string_map_get(&dst_string_map, "key2"));
-
-    ret = rcutils_string_map_fini(&src_string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
-    ret = rcutils_string_map_fini(&dst_string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
 
   // copy map into map with overlapping keys
@@ -1506,6 +1606,11 @@ TEST(test_string_map, copy) {
     rcutils_string_map_t src_string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&src_string_map, 0, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&src_string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     ret = rcutils_string_map_set(&src_string_map, "key1", "value1");
     ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
@@ -1515,6 +1620,11 @@ TEST(test_string_map, copy) {
     rcutils_string_map_t dst_string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&dst_string_map, 4, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&dst_string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     ret = rcutils_string_map_set(&dst_string_map, "key2", "value2.1");
     ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
@@ -1527,11 +1637,6 @@ TEST(test_string_map, copy) {
     EXPECT_STREQ("value1", rcutils_string_map_get(&dst_string_map, "key1"));
     EXPECT_STREQ("value2", rcutils_string_map_get(&dst_string_map, "key2"));
     EXPECT_STREQ("value3", rcutils_string_map_get(&dst_string_map, "key3"));
-
-    ret = rcutils_string_map_fini(&src_string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
-    ret = rcutils_string_map_fini(&dst_string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
 }
 
@@ -1544,14 +1649,16 @@ TEST(test_string_map, strange_keys) {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&string_map, 2, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     ret = rcutils_string_map_set(&string_map, "", "value1");
     ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
     EXPECT_STREQ("value1", rcutils_string_map_get(&string_map, ""));
-
-    ret = rcutils_string_map_fini(&string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
 
   // key with spaces
@@ -1559,13 +1666,15 @@ TEST(test_string_map, strange_keys) {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
     ret = rcutils_string_map_init(&string_map, 2, allocator);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      EXPECT_EQ(RCUTILS_RET_OK,
+      rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
 
     ret = rcutils_string_map_set(&string_map, "key with spaces", "value1");
     ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
     EXPECT_STREQ("value1", rcutils_string_map_get(&string_map, "key with spaces"));
-
-    ret = rcutils_string_map_fini(&string_map);
-    ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
 }
