@@ -28,38 +28,36 @@ class ArrayListTest : public ::testing::Test
 protected:
   void SetUp() override
   {
+    // Reset rcutils error to prevent failure from a previous test case to contaminate
+    // another one.
+    rcutils_reset_error();
+
     allocator = rcutils_get_default_allocator();
     list = rcutils_get_zero_initialized_array_list();
-    rcutils_reset_error();
   }
-
-  // void TearDown() override {}
 
   rcutils_allocator_t allocator;
   rcutils_array_list_t list;
 };
 
 // This fixture is used for test that want the list pre initialized
-class ArrayListPreInitTest : public ::testing::Test
+class ArrayListPreInitTest : public ArrayListTest
 {
 protected:
   void SetUp() override
   {
-    allocator = rcutils_get_default_allocator();
-    list = rcutils_get_zero_initialized_array_list();
-    rcutils_ret_t ret = rcutils_array_list_init(&list, 2, sizeof(uint32_t), &allocator);
+    ArrayListTest::SetUp();
+    const rcutils_ret_t ret = rcutils_array_list_init(&list, 2, sizeof(uint32_t), &allocator);
     EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
     rcutils_reset_error();
   }
 
   void TearDown() override
   {
-    rcutils_ret_t ret = rcutils_array_list_fini(&list);
+    const rcutils_ret_t ret = rcutils_array_list_fini(&list);
     EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
+    rcutils_reset_error();
   }
-
-  rcutils_allocator_t allocator;
-  rcutils_array_list_t list;
 };
 
 TEST_F(ArrayListTest, init_list_null_fails) {
@@ -84,6 +82,9 @@ TEST_F(ArrayListTest, init_null_allocator_fails) {
 
 TEST_F(ArrayListTest, init_success) {
   rcutils_ret_t ret = rcutils_array_list_init(&list, 2, sizeof(uint32_t), &allocator);
+  EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
+
+  ret = rcutils_array_list_fini(&list);
   EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 }
 
@@ -318,6 +319,9 @@ TEST_F(ArrayListTest, add_grow_capacity) {
     ret = rcutils_array_list_get(&list, i, &ret_data);
     EXPECT_EQ((i * 2), ret_data) << rcutils_get_error_string().str;
   }
+
+  ret = rcutils_array_list_fini(&list);
+  EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 }
 
 TEST_F(ArrayListPreInitTest, remove_preserves_data_around_it) {
