@@ -39,7 +39,6 @@ LogEvent g_last_log_event;
 class TestLoggingMacros : public ::testing::Test
 {
 public:
-  rcutils_logging_output_handler_t previous_output_handler;
   void SetUp()
   {
     g_log_calls = 0;
@@ -63,16 +62,12 @@ public:
         vsnprintf(buffer, sizeof(buffer), format, *args);
         g_last_log_event.message = buffer;
       };
-
-    this->previous_output_handler = rcutils_logging_get_output_handler();
     rcutils_logging_set_output_handler(rcutils_logging_console_output_handler);
   }
 
   void TearDown()
   {
-    rcutils_logging_set_output_handler(this->previous_output_handler);
-    g_rcutils_logging_initialized = false;
-    EXPECT_FALSE(g_rcutils_logging_initialized);
+    EXPECT_EQ(RCUTILS_RET_OK, rcutils_logging_shutdown());
   }
 };
 
@@ -85,7 +80,7 @@ TEST_F(TestLoggingMacros, test_logging_named) {
   if (g_last_log_event.location) {
     EXPECT_STREQ("TestBody", g_last_log_event.location->function_name);
     EXPECT_THAT(g_last_log_event.location->file_name, EndsWith("test_logging_macros.cpp"));
-    EXPECT_EQ(81u, g_last_log_event.location->line_number);
+    EXPECT_GT(g_last_log_event.location->line_number, 1u);
   }
   EXPECT_EQ(RCUTILS_LOG_SEVERITY_DEBUG, g_last_log_event.level);
   EXPECT_EQ("name", g_last_log_event.name);
@@ -120,6 +115,9 @@ bool not_divisible_by_three()
 }
 
 TEST_F(TestLoggingMacros, test_logging_function) {
+  g_counter = 0;
+  g_function_called = false;
+
   // check that evaluation of a specified function does not occur if the severity is not enabled
   g_rcutils_logging_default_logger_level = RCUTILS_LOG_SEVERITY_INFO;
   for (int i : {0, 1}) {  // cover both true and false return values
