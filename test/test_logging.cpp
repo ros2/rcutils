@@ -17,6 +17,7 @@
 #include <string>
 #include <vector>
 
+#include "osrf_testing_tools_cpp/scope_exit.hpp"
 #include "rcutils/logging.h"
 
 #ifdef RMW_IMPLEMENTATION
@@ -29,11 +30,12 @@
 TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logging_initialization) {
   EXPECT_FALSE(g_rcutils_logging_initialized);
   ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_initialize());
+  OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+    EXPECT_EQ(RCUTILS_RET_OK, rcutils_logging_shutdown());
+  });
   EXPECT_TRUE(g_rcutils_logging_initialized);
   ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_initialize());
   EXPECT_TRUE(g_rcutils_logging_initialized);
-  g_rcutils_logging_initialized = false;
-  EXPECT_FALSE(g_rcutils_logging_initialized);
 }
 
 size_t g_log_calls = 0;
@@ -51,6 +53,9 @@ LogEvent g_last_log_event;
 TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logging) {
   EXPECT_FALSE(g_rcutils_logging_initialized);
   ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_initialize());
+  OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+    EXPECT_EQ(RCUTILS_RET_OK, rcutils_logging_shutdown());
+  });
   EXPECT_TRUE(g_rcutils_logging_initialized);
   g_rcutils_logging_default_logger_level = RCUTILS_LOG_SEVERITY_DEBUG;
   EXPECT_EQ(RCUTILS_LOG_SEVERITY_DEBUG, g_rcutils_logging_default_logger_level);
@@ -123,8 +128,6 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logging) {
   // restore original state
   rcutils_logging_set_default_logger_level(original_level);
   rcutils_logging_set_output_handler(original_function);
-  g_rcutils_logging_initialized = false;
-  EXPECT_FALSE(g_rcutils_logging_initialized);
 }
 
 TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_log_severity) {
@@ -164,6 +167,9 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_log_severity) {
 
 TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logger_severities) {
   ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_initialize());
+  OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+    EXPECT_EQ(RCUTILS_RET_OK, rcutils_logging_shutdown());
+  });
   rcutils_logging_set_default_logger_level(RCUTILS_LOG_SEVERITY_INFO);
 
   // check setting of acceptable severities
@@ -219,6 +225,9 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logger_severities) {
 
 TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logger_severity_hierarchy) {
   ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_initialize());
+  OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+    EXPECT_EQ(RCUTILS_RET_OK, rcutils_logging_shutdown());
+  });
 
   // check resolving of effective thresholds in hierarchy of loggers
   rcutils_logging_set_default_logger_level(RCUTILS_LOG_SEVERITY_INFO);
