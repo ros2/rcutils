@@ -146,7 +146,7 @@ if(BUILD_TESTING)
     osrf_testing_tools_cpp::memory_tools LIBRARY_PRELOAD_ENVIRONMENT_IS_AVAILABLE)
 
   ament_add_gtest(test_logging test/test_logging.cpp)
-  target_link_libraries(test_logging ${PROJECT_NAME})
+  target_link_libraries(test_logging ${PROJECT_NAME} osrf_testing_tools_cpp::memory_tools)
 
   add_executable(test_logging_long_messages test/test_logging_long_messages.cpp)
   target_link_libraries(test_logging_long_messages ${PROJECT_NAME})
