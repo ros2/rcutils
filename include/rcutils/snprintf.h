@@ -54,7 +54,8 @@ extern "C"
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
 int
-rcutils_snprintf(char * buffer, size_t buffer_size, const char * format, ...);
+rcutils_snprintf(char * buffer, size_t buffer_size, const char * format, ...)
+RCUTILS_ATTRIBUTE_PRINTF_FORMAT(3, 4);
 
 /// Format a string with va_list for arguments, see rcutils_snprintf().
 RCUTILS_PUBLIC
