@@ -64,6 +64,34 @@ extern "C"
 #define RCUTILS_STRINGIFY(x) RCUTILS_STRINGIFY_IMPL(x)
 #define RCUTILS_UNUSED(x) (void)(x)
 
+#if defined _WIN32 || defined __CYGWIN__
+/// Macro to annotate printf-like functions on Linux. Disabled on Windows.
+#define RCUTILS_ATTRIBUTE_PRINTF_FORMAT(format_string_index, first_to_check_index)
+#else
+/// Macro to annotate printf-like functions which are relying on a format string and a variable
+/// number of arguments.
+/**
+ * This enables GCC to emit warnings if dangerous patterns are detected.
+ * See GCC documentation for details:
+ * https://gcc.gnu.org/onlinedocs/gcc/Common-Function-Attributes.html
+ *
+ * For the following function:
+ * int snprintf(char *str, size_t size, const char *format, ...);
+ *              ^^^^^^^^^  ^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^  ^^^
+ *              ARG 1      ARG 2        ARG 3               ARG 4
+ *                                      format string       first optional argument
+ *
+ * format_string_index value would be 3, first_to_check_index value would be 4.
+ *
+ * IMPORTANT: the first argument has an index of ONE (not zero!).
+ *
+ * \param format_string_index index of the format string passed to the function
+ * \param first_to_check_index index of the first "optional argument"
+ */
+#define RCUTILS_ATTRIBUTE_PRINTF_FORMAT(format_string_index, first_to_check_index) \
+  __attribute__ ((format(printf, format_string_index, first_to_check_index)))
+#endif  // !defined _WIN32 || defined __CYGWIN__
+
 #ifdef __cplusplus
 }
 #endif

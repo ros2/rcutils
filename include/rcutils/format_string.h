@@ -69,7 +69,8 @@ rcutils_format_string_limit(
   rcutils_allocator_t allocator,
   size_t limit,
   const char * format_string,
-  ...);
+  ...)
+RCUTILS_ATTRIBUTE_PRINTF_FORMAT(3, 4);
 
 #ifdef __cplusplus
 }

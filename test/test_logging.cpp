@@ -113,15 +113,15 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logging) {
   EXPECT_EQ("name3", g_last_log_event.name);
   EXPECT_EQ("message 33", g_last_log_event.message);
 
-  rcutils_log(NULL, RCUTILS_LOG_SEVERITY_WARN, "", "");
+  rcutils_log(NULL, RCUTILS_LOG_SEVERITY_WARN, "", "%s", "");
   EXPECT_EQ(3u, g_log_calls);
   EXPECT_EQ(RCUTILS_LOG_SEVERITY_WARN, g_last_log_event.level);
 
-  rcutils_log(NULL, RCUTILS_LOG_SEVERITY_ERROR, "", "");
+  rcutils_log(NULL, RCUTILS_LOG_SEVERITY_ERROR, "", "%s", "");
   EXPECT_EQ(4u, g_log_calls);
   EXPECT_EQ(RCUTILS_LOG_SEVERITY_ERROR, g_last_log_event.level);
 
-  rcutils_log(NULL, RCUTILS_LOG_SEVERITY_FATAL, NULL, "");
+  rcutils_log(NULL, RCUTILS_LOG_SEVERITY_FATAL, NULL, "%s", "");
   EXPECT_EQ(5u, g_log_calls);
   EXPECT_EQ(RCUTILS_LOG_SEVERITY_FATAL, g_last_log_event.level);
 

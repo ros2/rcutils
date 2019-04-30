@@ -44,7 +44,7 @@ TEST(test_format_string_limit, invalid_arguments) {
   auto allocator = rcutils_get_default_allocator();
   auto failing_allocator = get_failing_allocator();
 
-  char * formatted = rcutils_format_string_limit(allocator, 10, NULL, "test");
+  char * formatted = rcutils_format_string_limit(allocator, 10, NULL);
   EXPECT_STREQ(NULL, formatted);
 
   formatted = rcutils_format_string_limit(failing_allocator, 10, "%s", "test");

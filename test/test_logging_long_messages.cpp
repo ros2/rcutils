@@ -35,7 +35,7 @@ int main(int, char **)
   }
   message[sizeof(message) - 2] = 'X';
   message[sizeof(message) - 1] = '\0';
-  rcutils_log(&location, RCUTILS_LOG_SEVERITY_INFO, "name1", message);
+  rcutils_log(&location, RCUTILS_LOG_SEVERITY_INFO, "name1", "%s", message);
 
   message[1] = '%';
   message[2] = 'd';

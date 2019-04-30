@@ -466,7 +466,8 @@ void rcutils_log(
   int severity,
   const char * name,
   const char * format,
-  ...);
+  ...)
+RCUTILS_ATTRIBUTE_PRINTF_FORMAT(4, 5);
 
 /// The default output handler outputs log messages to the standard streams.
 /**
