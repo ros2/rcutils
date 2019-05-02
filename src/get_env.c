@@ -55,6 +55,27 @@ rcutils_get_env(const char * env_name, const char ** env_value)
   return NULL;
 }
 
+const char *
+rcutils_get_home_dir(void)
+{
+  const char * homedir;
+
+  if (rcutils_get_env("HOME", &homedir) == NULL && *homedir != '\0') {
+    // The HOME environment variable was set and is non-empty, return it.
+    return homedir;
+  }
+
+  // OK, we didn't find a HOME variable, try USERPROFILE (mostly for
+  // Windows)
+  if (rcutils_get_env("USERPROFILE", &homedir) == NULL && *homedir != '\0') {
+    // The USERPROFILE environment variable was set and is non-empty, return it.
+    return homedir;
+  }
+
+  // Couldn't get the home directory, return NULL.
+  return NULL;
+}
+
 #ifdef __cplusplus
 }
 #endif
