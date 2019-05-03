@@ -28,8 +28,6 @@ extern "C"
 #include "rcutils/error_handling.h"
 #include "rcutils/snprintf.h"
 
-RCUTILS_PUBLIC
-RCUTILS_WARN_UNUSED
 rcutils_ret_t
 rcutils_time_point_value_as_nanoseconds_string(
   const rcutils_time_point_value_t * time_point,
