@@ -30,6 +30,7 @@ extern "C"
 
 #include "rcutils/allocator.h"
 #include "rcutils/error_handling.h"
+#include "rcutils/process.h"
 
 int rcutils_get_pid(void)
 {
@@ -50,7 +51,7 @@ char * rcutils_get_executable_name(rcutils_allocator_t allocator)
 #elif defined __GNUC__
   const char * appname = program_invocation_name;
 #elif defined _WIN32 || defined __CYGWIN
-  const char appname[MAX_PATH];
+  char appname[MAX_PATH];
   int32_t size = GetModuleFileNameA(NULL, appname, MAX_PATH);
   if (size == 0) {
     return NULL;
