@@ -24,7 +24,7 @@ extern "C"
 #include "rcutils/macros.h"
 #include "rcutils/visibility_control.h"
 
-// Retrieve the current process ID.
+/// Retrieve the current process ID.
 /*
  * This function returns the current process ID, and is always successful.
  *
@@ -36,7 +36,7 @@ RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
 int rcutils_get_pid(void);
 
-// Retrieve the current program name.
+/// Retrieve the current program name.
 /*
  * This function portably retrieves the current program name and returns
  * a copy of it.  It is up to the caller to free the memory.

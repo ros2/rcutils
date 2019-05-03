@@ -61,18 +61,18 @@ RCUTILS_WARN_UNUSED
 const char *
 rcutils_get_env(const char * env_name, const char ** env_value);
 
-// Retrieve the full path to the home directory.
+/// Retrieve the full path to the home directory.
 /*
  * The c-string which is returned is only valid until the next time this
  * function is called, because it is a direct pointer to the static storage.
  * Also note that the string returned here should *not* be freed.
  *
- * The function work by first trying to get the contents of the HOME environment
- * variable.  If that variable exists and is non-empty, that will be returned.
- * Otherwise, the function will try to get the contents of the USERPROFILE
- * environment variable.  If that variable exists and is non-empty, that will be
- * returned.  If neither exists, NULL will be returned.  The above algorithm
- * should be portable across both Unix and Windows.
+ * The function first tries to get the HOME environment variable.
+ * If that variable exists and is non-empty, that will be returned.
+ * Otherwise, the function tries to get the USERPROFILE environment variable.
+ * If that variable exists and is non-empty, that will be returned.
+ * If neither exists, NULL will be returned.
+ * The above algorithm is portable across both Unix and Windows.
  *
  * The home directory will be truncated at 2048 characters on Windows.
  *
