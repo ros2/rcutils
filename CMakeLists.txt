@@ -40,7 +40,7 @@ set(rcutils_sources
   src/get_env.c
   src/hash_map.c
   src/logging.c
-  src/program.c
+  src/process.c
   src/repl_str.c
   src/snprintf.c
   src/split.c

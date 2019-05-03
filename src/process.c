@@ -40,7 +40,7 @@ int rcutils_get_pid(void)
 #endif
 }
 
-char *rcutils_get_program_name(rcutils_allocator_t allocator)
+char * rcutils_get_executable_name(rcutils_allocator_t allocator)
 {
   RCUTILS_CHECK_ALLOCATOR_WITH_MSG(
     &allocator, "invalid allocator", return NULL);
@@ -73,6 +73,7 @@ char *rcutils_get_program_name(rcutils_allocator_t allocator)
   // We need an intermediate copy because basename may modify its arguments
   char * intermediate = allocator.allocate(applen + 1, allocator.state);
   if (NULL == intermediate) {
+    allocator.deallocate(basec, allocator.state);
     return NULL;
   }
   memcpy(intermediate, appname, applen);

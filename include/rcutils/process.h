@@ -36,10 +36,11 @@ RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
 int rcutils_get_pid(void);
 
-/// Retrieve the current program name.
+/// Retrieve the current executable name.
 /*
  * This function portably retrieves the current program name and returns
- * a copy of it.  It is up to the caller to free the memory.
+ * a copy of it.
+ * It is up to the caller to free the memory.
  *
  * This function is thread-safe.
  *
@@ -48,7 +49,7 @@ int rcutils_get_pid(void);
  */
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
-char * rcutils_get_program_name(rcutils_allocator_t allocator);
+char * rcutils_get_executable_name(rcutils_allocator_t allocator);
 
 #ifdef __cplusplus
 }
