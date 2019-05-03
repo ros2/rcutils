@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef RCUTILS__PROGRAM_H_
-#define RCUTILS__PROGRAM_H_
+#ifndef RCUTILS__PROCESS_H_
+#define RCUTILS__PROCESS_H_
 
 #ifdef __cplusplus
 extern "C"
@@ -55,4 +55,4 @@ char * rcutils_get_executable_name(rcutils_allocator_t allocator);
 }
 #endif
 
-#endif  // RCUTILS__PROGRAM_H_
+#endif  // RCUTILS__PROCESS_H_
