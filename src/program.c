@@ -50,24 +50,48 @@ char *rcutils_get_program_name(rcutils_allocator_t allocator)
 #elif defined __GNUC__
   const char * appname = program_invocation_name;
 #elif defined _WIN32 || defined __CYGWIN
-  int32_t size;
   const char appname[MAX_PATH];
-  size = GetModuleFileNameA(NULL, appname, MAX_PATH);
-  // TODO(clalancette): deal with error
+  int32_t size = GetModuleFileNameA(NULL, appname, MAX_PATH);
+  if (size == 0) {
+    return NULL;
+  }
 #else
 #error "Unsupported OS"
 #endif
 
-  size_t len = strlen(appname);
+  size_t applen = strlen(appname);
 
   // Since the above memory may be static, and the caller may want to modify
   // the argument, make and return a copy here.
-  char * basec = allocator.allocate(len + 1, allocator.state);
+  char * basec = allocator.allocate(applen + 1, allocator.state);
   if (NULL == basec) {
     return NULL;
   }
-  memcpy(basec, appname, len);
-  basec[len] = '\0';
+
+  // Get just the executable name (Unix may return the absolute path)
+#if defined __APPLE__ || defined __GNUC__
+  // We need an intermediate copy because basename may modify its arguments
+  char * intermediate = allocator.allocate(applen + 1, allocator.state);
+  if (NULL == intermediate) {
+    return NULL;
+  }
+  memcpy(intermediate, appname, applen);
+  intermediate[applen] = '\0';
+
+  char * bname = basename(intermediate);
+  size_t baselen = strlen(bname);
+  memcpy(basec, bname, baselen);
+  basec[baselen] = '\0';
+  allocator.deallocate(intermediate, allocator.state);
+#elif defined _WIN32 || defined __CYGWIN
+  errno_t err = _splitpath_s(appname, NULL, 0, NULL, 0, basec, applen, NULL, 0);
+  if (err != 0) {
+    allocator.deallocate(basec, allocator.state);
+    return NULL;
+  }
+#else
+#error "Unsupported OS"
+#endif
 
   return basec;
 }
