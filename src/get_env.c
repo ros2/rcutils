@@ -65,12 +65,13 @@ rcutils_get_home_dir(void)
     return homedir;
   }
 
-  // OK, we didn't find a HOME variable, try USERPROFILE (mostly for
-  // Windows)
+#ifdef _WIN32
+  // We didn't find a HOME variable, try USERPROFILE on Windows.
   if (rcutils_get_env("USERPROFILE", &homedir) == NULL && *homedir != '\0') {
     // The USERPROFILE environment variable was set and is non-empty, return it.
     return homedir;
   }
+#endif
 
   // Couldn't get the home directory, return NULL.
   return NULL;
