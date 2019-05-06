@@ -62,7 +62,7 @@ const char *
 rcutils_get_env(const char * env_name, const char ** env_value);
 
 /// Retrieve the full path to the home directory.
-/*
+/**
  * The c-string which is returned is only valid until the next time this
  * function is called, because it is a direct pointer to the static storage.
  * Also note that the string returned here should *not* be freed.
