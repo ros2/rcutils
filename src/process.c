@@ -25,6 +25,7 @@ extern "C"
 #if defined _WIN32 || defined __CYGWIN__
 #include <Windows.h>
 #else
+#include <libgen.h>
 #include <unistd.h>
 #endif
 
