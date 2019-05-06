@@ -65,8 +65,8 @@ char * rcutils_get_executable_name(rcutils_allocator_t allocator)
 
   // Since the above memory may be static, and the caller may want to modify
   // the argument, make and return a copy here.
-  char * basec = allocator.allocate(applen + 1, allocator.state);
-  if (NULL == basec) {
+  char * executable_name = allocator.allocate(applen + 1, allocator.state);
+  if (NULL == executable_name) {
     return NULL;
   }
 
@@ -75,7 +75,7 @@ char * rcutils_get_executable_name(rcutils_allocator_t allocator)
   // We need an intermediate copy because basename may modify its arguments
   char * intermediate = allocator.allocate(applen + 1, allocator.state);
   if (NULL == intermediate) {
-    allocator.deallocate(basec, allocator.state);
+    allocator.deallocate(executable_name, allocator.state);
     return NULL;
   }
   memcpy(intermediate, appname, applen);
@@ -83,20 +83,20 @@ char * rcutils_get_executable_name(rcutils_allocator_t allocator)
 
   char * bname = basename(intermediate);
   size_t baselen = strlen(bname);
-  memcpy(basec, bname, baselen);
-  basec[baselen] = '\0';
+  memcpy(executable_name, bname, baselen);
+  executable_name[baselen] = '\0';
   allocator.deallocate(intermediate, allocator.state);
 #elif defined _WIN32 || defined __CYGWIN
-  errno_t err = _splitpath_s(appname, NULL, 0, NULL, 0, basec, applen, NULL, 0);
+  errno_t err = _splitpath_s(appname, NULL, 0, NULL, 0, executable_name, applen, NULL, 0);
   if (err != 0) {
-    allocator.deallocate(basec, allocator.state);
+    allocator.deallocate(executable_name, allocator.state);
     return NULL;
   }
 #else
 #error "Unsupported OS"
 #endif
 
-  return basec;
+  return executable_name;
 }
 
 #ifdef __cplusplus
