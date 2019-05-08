@@ -2,6 +2,20 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.7.1 (2019-05-08)
+------------------
+* Add function rcutils_string_array_cmp (`#144 <https://github.com/ros2/rcutils/issues/144>`_)
+* Rename result variable for clarity. (`#157 <https://github.com/ros2/rcutils/issues/157>`_)
+* Add in utilities needed for log location (`#155 <https://github.com/ros2/rcutils/issues/155>`_)
+* remove macros from source file (`#156 <https://github.com/ros2/rcutils/issues/156>`_)
+* Migrate launch tests to new launch_testing features & API (`#140 <https://github.com/ros2/rcutils/issues/140>`_)
+* Use GCC extension for printf-like functions (`#154 <https://github.com/ros2/rcutils/issues/154>`_)
+* Fix leak in test_logging.cpp (`#153 <https://github.com/ros2/rcutils/issues/153>`_)
+* Fix leak in test_logging_macros.cpp (`#152 <https://github.com/ros2/rcutils/issues/152>`_)
+* Fix remaining leaks in test_string_map.cpp (`#151 <https://github.com/ros2/rcutils/issues/151>`_)
+* Fix a leak in test_array_list.cpp (`#149 <https://github.com/ros2/rcutils/issues/149>`_)
+* Contributors: Chris Lalancette, Dirk Thomas, Jacob Perron, Michel Hidalgo, Steven! Ragnarök, Thomas Moulard
+
 0.7.0 (2019-04-13)
 ------------------
 * Fix ASAN failure in test_string_map.cpp (`#147 <https://github.com/ros2/rcutils/issues/147>`_)
