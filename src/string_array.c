@@ -18,6 +18,7 @@ extern "C"
 #endif
 
 #include <stdlib.h>
+#include <string.h>
 
 #include "rcutils/allocator.h"
 #include "rcutils/error_handling.h"
@@ -84,6 +85,51 @@ rcutils_string_array_fini(rcutils_string_array_t * string_array)
   allocator->deallocate(string_array->data, allocator->state);
   string_array->data = NULL;
 
+  return RCUTILS_RET_OK;
+}
+
+rcutils_ret_t
+rcutils_string_array_cmp(
+  const rcutils_string_array_t * lhs,
+  const rcutils_string_array_t * rhs,
+  int * res)
+{
+  RCUTILS_CHECK_FOR_NULL_WITH_MSG(
+    lhs, "lhs string array is null", return RCUTILS_RET_INVALID_ARGUMENT);
+  RCUTILS_CHECK_FOR_NULL_WITH_MSG(
+    rhs, "rhs string array is null", return RCUTILS_RET_INVALID_ARGUMENT);
+  RCUTILS_CHECK_FOR_NULL_WITH_MSG(
+    lhs->data, "lhs->data is null", return RCUTILS_RET_INVALID_ARGUMENT);
+  RCUTILS_CHECK_FOR_NULL_WITH_MSG(
+    rhs->data, "rhs->data is null", return RCUTILS_RET_INVALID_ARGUMENT);
+  RCUTILS_CHECK_FOR_NULL_WITH_MSG(
+    res, "res argument is null", return RCUTILS_RET_INVALID_ARGUMENT);
+
+  size_t smallest_size = lhs->size;
+  if (rhs->size < smallest_size) {
+    smallest_size = rhs->size;
+  }
+
+  for (size_t i = 0; i < smallest_size; ++i) {
+    RCUTILS_CHECK_FOR_NULL_WITH_MSG(
+      lhs->data[i], "lhs array element is null", return RCUTILS_RET_ERROR);
+    RCUTILS_CHECK_FOR_NULL_WITH_MSG(
+      rhs->data[i], "rhs array element is null", return RCUTILS_RET_ERROR);
+    // Loop until we find a pair of strings that are not equal
+    int strcmp_res = strcmp(lhs->data[i], rhs->data[i]);
+    if (0 != strcmp_res) {
+      *res = strcmp_res;
+      return RCUTILS_RET_OK;
+    }
+  }
+
+  // If all strings equal, compare array sizes
+  *res = 0;
+  if (lhs->size < rhs->size) {
+    *res = -1;
+  } else if (lhs->size > rhs->size) {
+    *res = 1;
+  }
   return RCUTILS_RET_OK;
 }
 
