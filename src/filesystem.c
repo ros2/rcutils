@@ -18,6 +18,7 @@ extern "C"
 #endif
 #include "rcutils/filesystem.h"
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -175,6 +176,37 @@ rcutils_to_native_path(
   }
 
   return rcutils_repl_str(path, "/", RCUTILS_PATH_DELIMITER, &allocator);
+}
+
+bool
+rcutils_mkdir(const char * abs_path)
+{
+  if (NULL == abs_path) {
+    return false;
+  }
+
+  if (abs_path[0] == '\0') {
+    return false;
+  }
+
+  bool success = false;
+#ifdef _WIN32
+  // TODO(clalancette): Check to ensure that the path is absolute on Windows.
+  // In theory we can use PathRelativeA to do this, but I was unable to make
+  // it work.  Needs further investigation.
+  int ret = _mkdir(abs_path);
+#else
+  if (abs_path[0] != '/') {
+    return false;
+  }
+
+  int ret = mkdir(abs_path, 0775);
+#endif
+  if (ret == 0 || (errno == EEXIST && rcutils_is_directory(abs_path))) {
+    success = true;
+  }
+
+  return success;
 }
 
 #ifdef __cplusplus

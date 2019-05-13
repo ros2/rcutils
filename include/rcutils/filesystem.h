@@ -144,6 +144,25 @@ rcutils_to_native_path(
   const char * path,
   rcutils_allocator_t allocator);
 
+/// Create the specified directory.
+/**
+ * This function creates an absolutely-specified directory.  If any of the
+ * intermediate directories do not exist, this function will return False.
+ * If the abs_path already exists, and is a directory, this function will
+ * return True.
+ *
+ * \param[in] abs_path
+ * \param[in] allocator
+ * \return bool True if making the directory was successful, False otherwise
+ *              False if path is NULL
+ *              False if path is empty
+ *              False if path is not absolute
+ *              False if any intermediate directories don't exist
+ */
+RCUTILS_PUBLIC
+bool
+rcutils_mkdir(const char * abs_path);
+
 #ifdef __cplusplus
 }
 #endif
