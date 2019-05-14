@@ -44,6 +44,18 @@ const char * g_rcutils_log_severity_names[] = {
   [RCUTILS_LOG_SEVERITY_FATAL] = "FATAL",
 };
 
+#ifdef WIN32
+  #define COLOR_NORMAL ""
+  #define COLOR_RED ""
+  #define COLOR_GREEN ""
+  #define COLOR_YELLOW ""
+#else
+  #define COLOR_NORMAL "\033[0m"
+  #define COLOR_RED "\033[31m"
+  #define COLOR_GREEN "\033[32m"
+  #define COLOR_YELLOW "\033[33m"
+#endif
+
 bool g_rcutils_logging_initialized = false;
 
 char g_rcutils_logging_output_format_string[RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN];
@@ -559,6 +571,7 @@ rcutils_ret_t rcutils_logging_format_message(
 
   const char * str = g_rcutils_logging_output_format_string;
   size_t size = strlen(g_rcutils_logging_output_format_string);
+  const char* color = NULL;
 
   const logging_input logging_input = {
     .location = location,
@@ -567,6 +580,29 @@ rcutils_ret_t rcutils_logging_format_message(
     .timestamp = timestamp,
     .msg = msg
   };
+
+  // Select correct message color.
+  switch (severity) {
+    case RCUTILS_LOG_SEVERITY_DEBUG:
+      color = COLOR_GREEN;
+      break;
+    case RCUTILS_LOG_SEVERITY_INFO:
+      color = COLOR_NORMAL;
+      break;
+    case RCUTILS_LOG_SEVERITY_WARN:
+      color = COLOR_YELLOW;
+      break;
+    case RCUTILS_LOG_SEVERITY_ERROR:
+    case RCUTILS_LOG_SEVERITY_FATAL:
+      color = COLOR_RED;
+      break;
+    default:
+      fprintf(stderr, "unknown severity level: %d\n", severity);
+      return RCUTILS_RET_ERROR;
+  }
+  // Add color escape code at the beggining.
+  status = rcutils_char_array_strncat(logging_output, color, strlen(color));
+  OK_OR_RETURN_EARLY(status);
 
   // Walk through the format string and expand tokens when they're encountered.
   size_t i = 0;
@@ -624,6 +660,9 @@ rcutils_ret_t rcutils_logging_format_message(
     // Skip ahead to avoid re-processing the token characters (including the 2 delimiters).
     i += token_len + 2;
   }
+
+  // Add color escape code at the end.
+  status = rcutils_char_array_strncat(logging_output, COLOR_NORMAL, strlen(COLOR_NORMAL));
 
   return status;
 }
