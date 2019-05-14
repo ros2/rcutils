@@ -70,9 +70,10 @@ extern bool g_rcutils_logging_initialized;
  *
  * The `RCUTILS_COLORIZED_OUTPUT` environment variable allows configuring if colours
  * are used or not. Available values are:
- *  - `FORCE_ENABLE`: Use colours.
- *  - `FORCE_DISABLE`: Don't use colours.
- *  - `DEFAULT`: Is colours if the target stream is a terminal.
+ *  - `1`: Force using colours.
+ *  - `0`: Don't use colours.
+ * If it is unset, colours are used depending if the target stream is a terminal or not.
+ * See `isatty` documentation.
  *
  * The format string can use these tokens by referencing them in curly brackets,
  * e.g. `"[{severity}] [{name}]: {message} ({function_name}() at {file_name}:{line_number})"`.

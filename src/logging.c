@@ -114,19 +114,17 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
     const char * colorized_output;
     const char * ret_str = rcutils_get_env("RCUTILS_COLORIZED_OUTPUT", &colorized_output);
 
-    if (NULL == ret_str && strcmp(colorized_output, "") != 0) {
-      if (!strcmp(colorized_output, "FORCE_ENABLE")) {
+    if (NULL == ret_str) {
+      if (!strcmp(colorized_output, "1")) {
         g_colorized_output = RCUTILS_COLORIZED_OUTPUT_FORCE_ENABLE;
-      } else if (!strcmp(colorized_output, "FORCE_DISABLE")) {
+      } else if (!strcmp(colorized_output, "0")) {
         g_colorized_output = RCUTILS_COLORIZED_OUTPUT_FORCE_DISABLE;
-      } else {
-        if (strcmp(colorized_output, "DEFAULT")) {
+      } else if (strcmp(colorized_output, "")) {
           fprintf(stderr,
             "Warning: unexpected value [%s] specified for RCUTILS_COLORIZED_OUTPUT. "
-            "Default value DEFAULT will be used. Valid values are FORCE_ENABLE, FORCE_DISABLE"
-            " and DEFAULT.\n",
+            "Output will be colorized if target stream is a terminal."
+            " Valid values are 0 and 1.\n",
             colorized_output);
-        }
       }
     } else if (NULL != ret_str) {
         RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
