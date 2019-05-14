@@ -68,6 +68,12 @@ extern bool g_rcutils_logging_initialized;
  *   - `time`, the timestamp of log message in floating point seconds
  *   - `time_as_nanoseconds`, the timestamp of log message in integer nanoseconds
  *
+ * The `RCUTILS_COLORIZED_OUTPUT` environment variable allows configuring if colours
+ * are used or not. Available values are:
+ *  - `FORCE_ENABLE`: Use colours.
+ *  - `FORCE_DISABLE`: Don't use colours.
+ *  - `DEFAULT`: Is colours if the target stream is a terminal.
+ *
  * The format string can use these tokens by referencing them in curly brackets,
  * e.g. `"[{severity}] [{name}]: {message} ({function_name}() at {file_name}:{line_number})"`.
  * Any number of tokens can be used.
@@ -477,6 +483,8 @@ RCUTILS_ATTRIBUTE_PRINTF_FORMAT(4, 5);
  * The console output format of the logged message can be configured through
  * the `RCUTILS_CONSOLE_OUTPUT_FORMAT` environment variable: see
  * rcutils_logging_initialize_with_allocator() for details.
+ * For configuring if using colours or not, `RCUTILS_COLORIZED_OUTPUT` can be used:
+ * see rcutils_logging_initialize_with_allocator() for details.
  *
  * <hr>
  * Attribute          | Adherence

@@ -20,7 +20,9 @@ extern "C"
 #include <ctype.h>
 #include <inttypes.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "rcutils/allocator.h"
 #include "rcutils/error_handling.h"
@@ -44,17 +46,12 @@ const char * g_rcutils_log_severity_names[] = {
   [RCUTILS_LOG_SEVERITY_FATAL] = "FATAL",
 };
 
-#ifdef WIN32
-  #define COLOR_NORMAL ""
-  #define COLOR_RED ""
-  #define COLOR_GREEN ""
-  #define COLOR_YELLOW ""
-#else
-  #define COLOR_NORMAL "\033[0m"
-  #define COLOR_RED "\033[31m"
-  #define COLOR_GREEN "\033[32m"
-  #define COLOR_YELLOW "\033[33m"
-#endif
+enum rcutils_colorized_output
+{
+  RCUTILS_COLORIZED_OUTPUT_FORCE_ENABLE,
+  RCUTILS_COLORIZED_OUTPUT_FORCE_DISABLE,
+  RCUTILS_COLORIZED_OUTPUT_DEFAULT,
+};
 
 bool g_rcutils_logging_initialized = false;
 
@@ -75,6 +72,7 @@ int g_rcutils_logging_default_logger_level = 0;
 bool g_force_stdout_line_buffered = false;
 bool g_stdout_flush_failure_reported = false;
 
+enum rcutils_colorized_output g_colorized_output = RCUTILS_COLORIZED_OUTPUT_DEFAULT;
 
 rcutils_ret_t rcutils_logging_initialize(void)
 {
@@ -112,9 +110,34 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
     g_rcutils_logging_output_handler = &rcutils_logging_console_output_handler;
     g_rcutils_logging_default_logger_level = RCUTILS_DEFAULT_LOGGER_DEFAULT_LEVEL;
 
+    // Check the environment variable for colorized output
+    const char * colorized_output;
+    const char * ret_str = rcutils_get_env("RCUTILS_COLORIZED_OUTPUT", &colorized_output);
+
+    if (NULL == ret_str && strcmp(colorized_output, "") != 0) {
+      if (!strcmp(colorized_output, "FORCE_ENABLE")) {
+        g_colorized_output = RCUTILS_COLORIZED_OUTPUT_FORCE_ENABLE;
+      } else if (!strcmp(colorized_output, "FORCE_DISABLE")) {
+        g_colorized_output = RCUTILS_COLORIZED_OUTPUT_FORCE_DISABLE;
+      } else {
+        if (strcmp(colorized_output, "DEFAULT")) {
+          fprintf(stderr,
+            "Warning: unexpected value [%s] specified for RCUTILS_COLORIZED_OUTPUT. "
+            "Default value DEFAULT will be used. Valid values are FORCE_ENABLE, FORCE_DISABLE"
+            " and DEFAULT.\n",
+            colorized_output);
+        }
+      }
+    } else if (NULL != ret_str) {
+        RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
+            "Failed to get if output is colorized from env. variable [%s]. Using DEFAULT.",
+            ret_str);
+          ret = RCUTILS_RET_INVALID_ARGUMENT;
+    }
+
     // Check for the environment variable for custom output formatting
     const char * output_format;
-    const char * ret_str = rcutils_get_env("RCUTILS_CONSOLE_OUTPUT_FORMAT", &output_format);
+    ret_str = rcutils_get_env("RCUTILS_CONSOLE_OUTPUT_FORMAT", &output_format);
     if (NULL == ret_str && strcmp(output_format, "") != 0) {
       size_t chars_to_copy = strlen(output_format);
       if (chars_to_copy > RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN - 1) {
@@ -571,7 +594,6 @@ rcutils_ret_t rcutils_logging_format_message(
 
   const char * str = g_rcutils_logging_output_format_string;
   size_t size = strlen(g_rcutils_logging_output_format_string);
-  const char* color = NULL;
 
   const logging_input logging_input = {
     .location = location,
@@ -580,29 +602,6 @@ rcutils_ret_t rcutils_logging_format_message(
     .timestamp = timestamp,
     .msg = msg
   };
-
-  // Select correct message color.
-  switch (severity) {
-    case RCUTILS_LOG_SEVERITY_DEBUG:
-      color = COLOR_GREEN;
-      break;
-    case RCUTILS_LOG_SEVERITY_INFO:
-      color = COLOR_NORMAL;
-      break;
-    case RCUTILS_LOG_SEVERITY_WARN:
-      color = COLOR_YELLOW;
-      break;
-    case RCUTILS_LOG_SEVERITY_ERROR:
-    case RCUTILS_LOG_SEVERITY_FATAL:
-      color = COLOR_RED;
-      break;
-    default:
-      fprintf(stderr, "unknown severity level: %d\n", severity);
-      return RCUTILS_RET_ERROR;
-  }
-  // Add color escape code at the beggining.
-  status = rcutils_char_array_strncat(logging_output, color, strlen(color));
-  OK_OR_RETURN_EARLY(status);
 
   // Walk through the format string and expand tokens when they're encountered.
   size_t i = 0;
@@ -661,11 +660,34 @@ rcutils_ret_t rcutils_logging_format_message(
     i += token_len + 2;
   }
 
-  // Add color escape code at the end.
-  status = rcutils_char_array_strncat(logging_output, COLOR_NORMAL, strlen(COLOR_NORMAL));
-
   return status;
 }
+
+#ifdef WIN32
+# define COLOR_NORMAL ""
+# define COLOR_RED ""
+# define COLOR_GREEN ""
+# define COLOR_YELLOW ""
+# define IS_OUTPUT_COLORIZED(colorized_output, stream) \
+  { \
+    colorized_output = false; \
+  }
+#else
+# define COLOR_NORMAL "\033[0m"
+# define COLOR_RED "\033[31m"
+# define COLOR_GREEN "\033[32m"
+# define COLOR_YELLOW "\033[33m"
+# define IS_OUTPUT_COLORIZED(colorized_output, stream) \
+  { \
+    if (g_colorized_output == RCUTILS_COLORIZED_OUTPUT_FORCE_ENABLE) { \
+      colorized_output = true; \
+    } else if (g_colorized_output == RCUTILS_COLORIZED_OUTPUT_FORCE_DISABLE) { \
+      colorized_output = false; \
+    } else { \
+      colorized_output = isatty(fileno(stream)) == 1; \
+    } \
+  }
+#endif
 
 void rcutils_logging_console_output_handler(
   const rcutils_log_location_t * location,
@@ -673,6 +695,8 @@ void rcutils_logging_console_output_handler(
   const char * format, va_list * args)
 {
   rcutils_ret_t status = RCUTILS_RET_OK;
+  const char* color = NULL;
+  bool colorized_output = false;
 
   if (!g_rcutils_logging_initialized) {
     fprintf(
@@ -697,6 +721,29 @@ void rcutils_logging_console_output_handler(
       return;
   }
 
+  // Select correct message color.
+  switch (severity) {
+    case RCUTILS_LOG_SEVERITY_DEBUG:
+      color = COLOR_GREEN;
+      break;
+    case RCUTILS_LOG_SEVERITY_INFO:
+      color = COLOR_NORMAL;
+      break;
+    case RCUTILS_LOG_SEVERITY_WARN:
+      color = COLOR_YELLOW;
+      break;
+    case RCUTILS_LOG_SEVERITY_ERROR:
+    case RCUTILS_LOG_SEVERITY_FATAL:
+      color = COLOR_RED;
+      break;
+    default:
+      fprintf(stderr, "unknown severity level: %d\n", severity);
+      return;
+  }
+  // colorized_output is set to true if g_colorized_output is RCUTILS_COLORIZED_OUTPUT_FORCE_ENABLE,
+  // or the output stream is a terminal. If not is set to false.
+  IS_OUTPUT_COLORIZED(colorized_output, stream)
+
   char msg_buf[1024] = "";
   rcutils_char_array_t msg_array = {
     .buffer = msg_buf,
@@ -715,14 +762,25 @@ void rcutils_logging_console_output_handler(
     .allocator = g_rcutils_logging_allocator
   };
 
-  va_list args_clone;
-  va_copy(args_clone, *args);
-  status = rcutils_char_array_vsprintf(&msg_array, format, args_clone);
-  if (RCUTILS_RET_OK != status) {
-    fprintf(stderr, "Error: rcutils_char_array_vsprintf failed with: %d\n",
-      status);
+  if (colorized_output) {
+    // Add color escape code at the beggining.
+    status = rcutils_char_array_strncat(&output_array, color, strlen(color));
+    if (RCUTILS_RET_OK != status) {
+      fprintf(stderr, "Error: rcutils_char_array_strncat failed with: %d\n",
+        status);
+    }
   }
-  va_end(args_clone);
+
+  if (RCUTILS_RET_OK == status) {
+    va_list args_clone;
+    va_copy(args_clone, *args);
+    status = rcutils_char_array_vsprintf(&msg_array, format, args_clone);
+    if (RCUTILS_RET_OK != status) {
+      fprintf(stderr, "Error: rcutils_char_array_vsprintf failed with: %d\n",
+        status);
+    }
+    va_end(args_clone);
+  }
 
   if (RCUTILS_RET_OK == status) {
     status = rcutils_logging_format_message(
@@ -733,6 +791,14 @@ void rcutils_logging_console_output_handler(
     }
   }
 
+  if (RCUTILS_RET_OK == status && colorized_output) {
+    // Add color escape code at the end.
+    status = rcutils_char_array_strncat(&output_array, COLOR_NORMAL, strlen(COLOR_NORMAL));
+    if (RCUTILS_RET_OK != status) {
+      fprintf(stderr, "Error: rcutils_char_array_strncat failed with: %d\n",
+        status);
+    }
+  }
 
   if (RCUTILS_RET_OK == status) {
     fprintf(stream, "%s\n", output_array.buffer);
