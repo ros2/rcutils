@@ -86,6 +86,7 @@ rcutils_get_zero_initialized_string_array(void);
  * ```
  */
 RCUTILS_PUBLIC
+RCUTILS_WARN_UNUSED
 rcutils_ret_t
 rcutils_string_array_init(
   rcutils_string_array_t * string_array,
