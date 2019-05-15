@@ -48,9 +48,9 @@ const char * g_rcutils_log_severity_names[] = {
 
 enum rcutils_colorized_output
 {
-  RCUTILS_COLORIZED_OUTPUT_FORCE_ENABLE,
-  RCUTILS_COLORIZED_OUTPUT_FORCE_DISABLE,
-  RCUTILS_COLORIZED_OUTPUT_DEFAULT,
+  RCUTILS_COLORIZED_OUTPUT_FORCE_DISABLE = 0,
+  RCUTILS_COLORIZED_OUTPUT_FORCE_ENABLE = 1,
+  RCUTILS_COLORIZED_OUTPUT_AUTO = 2,
 };
 
 bool g_rcutils_logging_initialized = false;
@@ -72,7 +72,7 @@ int g_rcutils_logging_default_logger_level = 0;
 bool g_force_stdout_line_buffered = false;
 bool g_stdout_flush_failure_reported = false;
 
-enum rcutils_colorized_output g_colorized_output = RCUTILS_COLORIZED_OUTPUT_DEFAULT;
+enum rcutils_colorized_output g_colorized_output = RCUTILS_COLORIZED_OUTPUT_AUTO;
 
 rcutils_ret_t rcutils_logging_initialize(void)
 {
