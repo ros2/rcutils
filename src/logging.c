@@ -22,10 +22,12 @@ extern "C"
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>
 
 #ifdef WIN32
+# include <io.h>
 # include <windows.h>
+#else
+# include <unistd.h>
 #endif
 
 #include "rcutils/allocator.h"
@@ -734,6 +736,7 @@ rcutils_ret_t rcutils_logging_format_message(
       } \
     } \
   }
+# define EXPAND(x) x
 # define APPLY(macro, ...) EXPAND(macro(__VA_ARGS__))
 # define SET_OUTPUT_COLOR_WITH_SEVERITY(status, severity, stream, output_array) \
   { \
