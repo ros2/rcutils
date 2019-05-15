@@ -24,6 +24,10 @@ extern "C"
 #include <string.h>
 #include <unistd.h>
 
+#ifdef WIN32
+# include <windows.h>
+#endif
+
 #include "rcutils/allocator.h"
 #include "rcutils/error_handling.h"
 #include "rcutils/find.h"
@@ -662,28 +666,109 @@ rcutils_ret_t rcutils_logging_format_message(
 }
 
 #ifdef WIN32
-# define COLOR_NORMAL ""
-# define COLOR_RED ""
-# define COLOR_GREEN ""
-# define COLOR_YELLOW ""
-# define IS_OUTPUT_COLORIZED(colorized_output, stream) \
-  { \
-    colorized_output = false; \
-  }
+# define COLOR_NORMAL 7
+# define COLOR_RED 4
+# define COLOR_GREEN 2
+# define COLOR_YELLOW 6
 #else
 # define COLOR_NORMAL "\033[0m"
 # define COLOR_RED "\033[31m"
 # define COLOR_GREEN "\033[32m"
 # define COLOR_YELLOW "\033[33m"
-# define IS_OUTPUT_COLORIZED(colorized_output, stream) \
+#endif
+
+#define IS_OUTPUT_COLORIZED(is_colorized, stream) \
   { \
     if (g_colorized_output == RCUTILS_COLORIZED_OUTPUT_FORCE_ENABLE) { \
-      colorized_output = true; \
+      is_colorized = true; \
     } else if (g_colorized_output == RCUTILS_COLORIZED_OUTPUT_FORCE_DISABLE) { \
-      colorized_output = false; \
+      is_colorized = false; \
     } else { \
-      colorized_output = isatty(fileno(stream)) == 1; \
+      is_colorized = isatty(fileno(stream)) == 1; \
     } \
+  }
+#define SET_COLOR_WITH_SEVERITY(status, severity, color) \
+  { \
+    switch (severity) { \
+      case RCUTILS_LOG_SEVERITY_DEBUG: \
+        color = COLOR_GREEN; \
+        break; \
+      case RCUTILS_LOG_SEVERITY_INFO: \
+        color = COLOR_NORMAL; \
+        break; \
+      case RCUTILS_LOG_SEVERITY_WARN: \
+        color = COLOR_YELLOW; \
+        break; \
+      case RCUTILS_LOG_SEVERITY_ERROR: \
+      case RCUTILS_LOG_SEVERITY_FATAL: \
+        color = COLOR_RED; \
+        break; \
+      default: \
+        fprintf(stderr, "unknown severity level: %d\n", severity); \
+        status = RCUTILS_RET_INVALID_ARGUMENT; \
+    } \
+  }
+#ifdef WIN32
+# define SET_OUTPUT_COLOR_WITH_COLOR(status, color, handle) \
+  { \
+    if (RCUTILS_RET_OK == status) { \
+      if (!SetConsoleTextAttribute(handle, color)) { \
+        DWORD error = GetLastError(); \
+        fprintf(stderr, "SetConsoleTextAttribute failed with error code %lu.\n", error); \
+        status = RCUTILS_RET_ERROR; \
+      } \
+    } \
+  }
+# define GET_HANDLE_FROM_STREAM(status, handle, stream) \
+  { \
+    if (RCUTILS_RET_OK == status) { \
+      if (stream == stdout) \
+        handle = GetStdHandle(STD_OUTPUT_HANDLE); \
+      else { \
+        handle = GetStdHandle(STD_ERROR_HANDLE); \
+      } \
+      if (INVALID_HANDLE_VALUE == handle) { \
+        DWORD error = GetLastError(); \
+        fprintf(stderr, "GetStdHandle failed with error code %lu.\n", error); \
+        status = RCUTILS_RET_ERROR; \
+      } \
+    } \
+  }
+# define APPLY(macro, ...) EXPAND(macro(__VA_ARGS__))
+# define SET_OUTPUT_COLOR_WITH_SEVERITY(status, severity, stream, output_array) \
+  { \
+    WORD color; \
+    HANDLE handle; \
+    APPLY(SET_COLOR_WITH_SEVERITY, status, severity, color) \
+    APPLY(GET_HANDLE_FROM_STREAM, status, handle, stream) \
+    APPLY(SET_OUTPUT_COLOR_WITH_COLOR, status, color, handle) \
+  }
+# define SET_STANDARD_COLOR(status, stream, output_array) \
+  { \
+    HANDLE handle; \
+    APPLY(GET_HANDLE_FROM_STREAM, status, handle, stream) \
+    APPLY(SET_OUTPUT_COLOR_WITH_COLOR, status, COLOR_NORMAL, handle) \
+  }
+#else
+# define SET_OUTPUT_COLOR_WITH_COLOR(status, color, output_array) \
+  { \
+    if (RCUTILS_RET_OK == status) { \
+      status = rcutils_char_array_strncat(&output_array, color, strlen(color)); \
+      if (RCUTILS_RET_OK != status) { \
+        fprintf(stderr, "Error: rcutils_char_array_strncat failed with: %d\n", \
+          status); \
+      } \
+    } \
+  }
+# define SET_OUTPUT_COLOR_WITH_SEVERITY(status, severity, stream, output_array) \
+  { \
+    const char* color = NULL; \
+    SET_COLOR_WITH_SEVERITY(status, severity, color) \
+    SET_OUTPUT_COLOR_WITH_COLOR(status, color, output_array) \
+  }
+# define SET_STANDARD_COLOR(status, stream, output_array) \
+  { \
+    SET_OUTPUT_COLOR_WITH_COLOR(status, COLOR_NORMAL, output_array) \
   }
 #endif
 
@@ -693,8 +778,7 @@ void rcutils_logging_console_output_handler(
   const char * format, va_list * args)
 {
   rcutils_ret_t status = RCUTILS_RET_OK;
-  const char* color = NULL;
-  bool colorized_output = false;
+  bool is_colorized = false;
 
   if (!g_rcutils_logging_initialized) {
     fprintf(
@@ -719,28 +803,7 @@ void rcutils_logging_console_output_handler(
       return;
   }
 
-  // Select correct message color.
-  switch (severity) {
-    case RCUTILS_LOG_SEVERITY_DEBUG:
-      color = COLOR_GREEN;
-      break;
-    case RCUTILS_LOG_SEVERITY_INFO:
-      color = COLOR_NORMAL;
-      break;
-    case RCUTILS_LOG_SEVERITY_WARN:
-      color = COLOR_YELLOW;
-      break;
-    case RCUTILS_LOG_SEVERITY_ERROR:
-    case RCUTILS_LOG_SEVERITY_FATAL:
-      color = COLOR_RED;
-      break;
-    default:
-      fprintf(stderr, "unknown severity level: %d\n", severity);
-      return;
-  }
-  // colorized_output is set to true if g_colorized_output is RCUTILS_COLORIZED_OUTPUT_FORCE_ENABLE,
-  // or the output stream is a terminal. If not is set to false.
-  IS_OUTPUT_COLORIZED(colorized_output, stream)
+  IS_OUTPUT_COLORIZED(is_colorized, stream)
 
   char msg_buf[1024] = "";
   rcutils_char_array_t msg_array = {
@@ -760,13 +823,8 @@ void rcutils_logging_console_output_handler(
     .allocator = g_rcutils_logging_allocator
   };
 
-  if (colorized_output) {
-    // Add color escape code at the beggining.
-    status = rcutils_char_array_strncat(&output_array, color, strlen(color));
-    if (RCUTILS_RET_OK != status) {
-      fprintf(stderr, "Error: rcutils_char_array_strncat failed with: %d\n",
-        status);
-    }
+  if (is_colorized) {
+    SET_OUTPUT_COLOR_WITH_SEVERITY(status, severity, stream, output_array)
   }
 
   if (RCUTILS_RET_OK == status) {
@@ -789,13 +847,8 @@ void rcutils_logging_console_output_handler(
     }
   }
 
-  if (RCUTILS_RET_OK == status && colorized_output) {
-    // Add color escape code at the end.
-    status = rcutils_char_array_strncat(&output_array, COLOR_NORMAL, strlen(COLOR_NORMAL));
-    if (RCUTILS_RET_OK != status) {
-      fprintf(stderr, "Error: rcutils_char_array_strncat failed with: %d\n",
-        status);
-    }
+  if (is_colorized) {
+    SET_STANDARD_COLOR(status, stream, output_array)
   }
 
   if (RCUTILS_RET_OK == status) {
