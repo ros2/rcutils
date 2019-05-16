@@ -679,16 +679,6 @@ rcutils_ret_t rcutils_logging_format_message(
 # define COLOR_YELLOW "\033[33m"
 #endif
 
-#define IS_OUTPUT_COLORIZED(is_colorized, stream) \
-  { \
-    if (g_colorized_output == RCUTILS_COLORIZED_OUTPUT_FORCE_ENABLE) { \
-      is_colorized = true; \
-    } else if (g_colorized_output == RCUTILS_COLORIZED_OUTPUT_FORCE_DISABLE) { \
-      is_colorized = false; \
-    } else { \
-      is_colorized = isatty(fileno(stream)) == 1; \
-    } \
-  }
 #define SET_COLOR_WITH_SEVERITY(status, severity, color) \
   { \
     switch (severity) { \
@@ -711,6 +701,16 @@ rcutils_ret_t rcutils_logging_format_message(
     } \
   }
 #ifdef WIN32
+# define IS_OUTPUT_COLORIZED(is_colorized, stream) \
+  { \
+    if (g_colorized_output == RCUTILS_COLORIZED_OUTPUT_FORCE_ENABLE) { \
+      is_colorized = true; \
+    } else if (g_colorized_output == RCUTILS_COLORIZED_OUTPUT_FORCE_DISABLE) { \
+      is_colorized = false; \
+    } else { \
+      is_colorized = _isatty(_fileno(stream)) != 0; \
+    } \
+  }
 # define SET_OUTPUT_COLOR_WITH_COLOR(status, color, handle) \
   { \
     if (RCUTILS_RET_OK == status) { \
@@ -724,9 +724,9 @@ rcutils_ret_t rcutils_logging_format_message(
 # define GET_HANDLE_FROM_STREAM(status, handle, stream) \
   { \
     if (RCUTILS_RET_OK == status) { \
-      if (stream == stdout) \
+      if (stream == stdout) { \
         handle = GetStdHandle(STD_OUTPUT_HANDLE); \
-      else { \
+      } else { \
         handle = GetStdHandle(STD_ERROR_HANDLE); \
       } \
       if (INVALID_HANDLE_VALUE == handle) { \
@@ -753,6 +753,16 @@ rcutils_ret_t rcutils_logging_format_message(
     APPLY(SET_OUTPUT_COLOR_WITH_COLOR, status, COLOR_NORMAL, handle) \
   }
 #else
+# define IS_OUTPUT_COLORIZED(is_colorized, stream) \
+  { \
+    if (g_colorized_output == RCUTILS_COLORIZED_OUTPUT_FORCE_ENABLE) { \
+      is_colorized = true; \
+    } else if (g_colorized_output == RCUTILS_COLORIZED_OUTPUT_FORCE_DISABLE) { \
+      is_colorized = false; \
+    } else { \
+      is_colorized = isatty(fileno(stream)) != 0; \
+    } \
+  }
 # define SET_OUTPUT_COLOR_WITH_COLOR(status, color, output_array) \
   { \
     if (RCUTILS_RET_OK == status) { \
@@ -850,10 +860,6 @@ void rcutils_logging_console_output_handler(
     }
   }
 
-  if (is_colorized) {
-    SET_STANDARD_COLOR(status, stream, output_array)
-  }
-
   if (RCUTILS_RET_OK == status) {
     fprintf(stream, "%s\n", output_array.buffer);
 
@@ -865,6 +871,10 @@ void rcutils_logging_console_output_handler(
           flush_result);
       }
     }
+  }
+
+  if (is_colorized) {
+    SET_STANDARD_COLOR(status, stream, output_array)
   }
 
   status = rcutils_char_array_fini(&msg_array);
