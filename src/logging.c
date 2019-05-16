@@ -738,21 +738,19 @@ rcutils_ret_t rcutils_logging_format_message(
       } \
     } \
   }
-# define EXPAND(x) x
-# define APPLY(macro, ...) EXPAND(macro(__VA_ARGS__))
 # define SET_OUTPUT_COLOR_WITH_SEVERITY(status, severity, stream, output_array) \
   { \
     WORD color; \
     HANDLE handle; \
-    APPLY(SET_COLOR_WITH_SEVERITY, status, severity, color) \
-    APPLY(GET_HANDLE_FROM_STREAM, status, handle, stream) \
-    APPLY(SET_OUTPUT_COLOR_WITH_COLOR, status, color, handle) \
+    SET_COLOR_WITH_SEVERITY(status, severity, color) \
+    GET_HANDLE_FROM_STREAM(status, handle, stream) \
+    SET_OUTPUT_COLOR_WITH_COLOR(status, color, handle) \
   }
 # define SET_STANDARD_COLOR(status, stream, output_array) \
   { \
     HANDLE handle; \
-    APPLY(GET_HANDLE_FROM_STREAM, status, handle, stream) \
-    APPLY(SET_OUTPUT_COLOR_WITH_COLOR, status, COLOR_NORMAL, handle) \
+    GET_HANDLE_FROM_STREAM(status, handle, stream) \
+    SET_OUTPUT_COLOR_WITH_COLOR(status, COLOR_NORMAL, handle) \
   }
 #else
 # define SET_OUTPUT_COLOR_WITH_COLOR(status, color, output_array) \
