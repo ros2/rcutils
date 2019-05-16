@@ -672,13 +672,25 @@ rcutils_ret_t rcutils_logging_format_message(
 # define COLOR_RED 4
 # define COLOR_GREEN 2
 # define COLOR_YELLOW 6
+# define IS_STREAM_A_TTY(stream) (_isatty(_fileno(stream)) != 0)
 #else
 # define COLOR_NORMAL "\033[0m"
 # define COLOR_RED "\033[31m"
 # define COLOR_GREEN "\033[32m"
 # define COLOR_YELLOW "\033[33m"
+# define IS_STREAM_A_TTY(stream) (isatty(fileno(stream)) != 0)
 #endif
 
+#define IS_OUTPUT_COLORIZED(is_colorized, stream) \
+  { \
+    if (g_colorized_output == RCUTILS_COLORIZED_OUTPUT_FORCE_ENABLE) { \
+      is_colorized = true; \
+    } else if (g_colorized_output == RCUTILS_COLORIZED_OUTPUT_FORCE_DISABLE) { \
+      is_colorized = false; \
+    } else { \
+      is_colorized = IS_STREAM_A_TTY(stream); \
+    } \
+  }
 #define SET_COLOR_WITH_SEVERITY(status, severity, color) \
   { \
     switch (severity) { \
@@ -701,16 +713,6 @@ rcutils_ret_t rcutils_logging_format_message(
     } \
   }
 #ifdef WIN32
-# define IS_OUTPUT_COLORIZED(is_colorized, stream) \
-  { \
-    if (g_colorized_output == RCUTILS_COLORIZED_OUTPUT_FORCE_ENABLE) { \
-      is_colorized = true; \
-    } else if (g_colorized_output == RCUTILS_COLORIZED_OUTPUT_FORCE_DISABLE) { \
-      is_colorized = false; \
-    } else { \
-      is_colorized = _isatty(_fileno(stream)) != 0; \
-    } \
-  }
 # define SET_OUTPUT_COLOR_WITH_COLOR(status, color, handle) \
   { \
     if (RCUTILS_RET_OK == status) { \
@@ -753,16 +755,6 @@ rcutils_ret_t rcutils_logging_format_message(
     APPLY(SET_OUTPUT_COLOR_WITH_COLOR, status, COLOR_NORMAL, handle) \
   }
 #else
-# define IS_OUTPUT_COLORIZED(is_colorized, stream) \
-  { \
-    if (g_colorized_output == RCUTILS_COLORIZED_OUTPUT_FORCE_ENABLE) { \
-      is_colorized = true; \
-    } else if (g_colorized_output == RCUTILS_COLORIZED_OUTPUT_FORCE_DISABLE) { \
-      is_colorized = false; \
-    } else { \
-      is_colorized = isatty(fileno(stream)) != 0; \
-    } \
-  }
 # define SET_OUTPUT_COLOR_WITH_COLOR(status, color, output_array) \
   { \
     if (RCUTILS_RET_OK == status) { \
