@@ -126,17 +126,18 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
       } else if (!strcmp(colorized_output, "0")) {
         g_colorized_output = RCUTILS_COLORIZED_OUTPUT_FORCE_DISABLE;
       } else if (strcmp(colorized_output, "")) {
-          fprintf(stderr,
-            "Warning: unexpected value [%s] specified for RCUTILS_COLORIZED_OUTPUT. "
-            "Output will be colorized if target stream is a terminal."
-            " Valid values are 0 and 1.\n",
-            colorized_output);
+        fprintf(
+          stderr,
+          "Warning: unexpected value [%s] specified for RCUTILS_COLORIZED_OUTPUT. "
+          "Output will be colorized if target stream is a terminal."
+          " Valid values are 0 and 1.\n",
+          colorized_output);
       }
     } else if (NULL != ret_str) {
-        RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
-            "Failed to get if output is colorized from env. variable [%s]. Using DEFAULT.",
-            ret_str);
-          ret = RCUTILS_RET_INVALID_ARGUMENT;
+      RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
+        "Failed to get if output is colorized from env. variable [%s]. Using DEFAULT.",
+        ret_str);
+      ret = RCUTILS_RET_INVALID_ARGUMENT;
     }
 
     // Check for the environment variable for custom output formatting
@@ -768,7 +769,7 @@ rcutils_ret_t rcutils_logging_format_message(
   }
 # define SET_OUTPUT_COLOR_WITH_SEVERITY(status, severity, stream, output_array) \
   { \
-    const char* color = NULL; \
+    const char * color = NULL; \
     SET_COLOR_WITH_SEVERITY(status, severity, color) \
     SET_OUTPUT_COLOR_WITH_COLOR(status, color, output_array) \
   }
@@ -873,6 +874,7 @@ void rcutils_logging_console_output_handler(
   }
 
   // Only does something in windows
+  // cppcheck-suppress uninitvar  // suppress cppcheck false positive
   SET_STANDARD_COLOR_IN_STREAM(is_colorized, status, stream)
 
   status = rcutils_char_array_fini(&msg_array);
