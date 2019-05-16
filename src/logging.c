@@ -746,12 +746,15 @@ rcutils_ret_t rcutils_logging_format_message(
     GET_HANDLE_FROM_STREAM(status, handle, stream) \
     SET_OUTPUT_COLOR_WITH_COLOR(status, color, handle) \
   }
-# define SET_STANDARD_COLOR(status, stream, output_array) \
+# define SET_STANDARD_COLOR_IN_STREAM(is_colorized, status, stream) \
   { \
-    HANDLE handle; \
-    GET_HANDLE_FROM_STREAM(status, handle, stream) \
-    SET_OUTPUT_COLOR_WITH_COLOR(status, COLOR_NORMAL, handle) \
+    if (is_colorized) { \
+      HANDLE handle; \
+      GET_HANDLE_FROM_STREAM(status, handle, stream) \
+      SET_OUTPUT_COLOR_WITH_COLOR(status, COLOR_NORMAL, handle) \
+    } \
   }
+# define SET_STANDARD_COLOR_IN_BUFFER(is_colorized, status, output_array)
 #else
 # define SET_OUTPUT_COLOR_WITH_COLOR(status, color, output_array) \
   { \
@@ -769,10 +772,13 @@ rcutils_ret_t rcutils_logging_format_message(
     SET_COLOR_WITH_SEVERITY(status, severity, color) \
     SET_OUTPUT_COLOR_WITH_COLOR(status, color, output_array) \
   }
-# define SET_STANDARD_COLOR(status, stream, output_array) \
+# define SET_STANDARD_COLOR_IN_BUFFER(is_colorized, status, output_array) \
   { \
-    SET_OUTPUT_COLOR_WITH_COLOR(status, COLOR_NORMAL, output_array) \
+    if (is_colorized) { \
+      SET_OUTPUT_COLOR_WITH_COLOR(status, COLOR_NORMAL, output_array) \
+    } \
   }
+# define SET_STANDARD_COLOR_IN_STREAM(is_colorized, status, stream)
 #endif
 
 void rcutils_logging_console_output_handler(
@@ -850,6 +856,9 @@ void rcutils_logging_console_output_handler(
     }
   }
 
+  // Does nothing in windows
+  SET_STANDARD_COLOR_IN_BUFFER(is_colorized, status, output_array)
+
   if (RCUTILS_RET_OK == status) {
     fprintf(stream, "%s\n", output_array.buffer);
 
@@ -863,9 +872,8 @@ void rcutils_logging_console_output_handler(
     }
   }
 
-  if (is_colorized) {
-    SET_STANDARD_COLOR(status, stream, output_array)
-  }
+  // Only does something in windows
+  SET_STANDARD_COLOR_IN_STREAM(is_colorized, status, stream)
 
   status = rcutils_char_array_fini(&msg_array);
   if (RCUTILS_RET_OK != status) {
