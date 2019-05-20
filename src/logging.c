@@ -82,24 +82,6 @@ enum rcutils_colorized_output g_colorized_output = RCUTILS_COLORIZED_OUTPUT_AUTO
 
 rcutils_ret_t rcutils_logging_initialize(void)
 {
-  const char * line_buffered;
-  const char * ret_str = rcutils_get_env("RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED", &line_buffered);
-
-  if (NULL == ret_str) {
-    if (strcmp(line_buffered, "1")) {
-      g_force_stdout_line_buffered = true;
-    } else {
-      if (!strcmp(line_buffered, "0")) {
-        fprintf(stderr,
-          "Warning: unexpected value [%s] specified for RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED. "
-          "Default value 0 will be used. Valid values are 1 or 0.\n",
-          line_buffered);
-      }
-    }
-  } else {
-    fprintf(stderr, "Error getting env. variable "
-      "RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED: %s\n", ret_str);
-  }
   return rcutils_logging_initialize_with_allocator(rcutils_get_default_allocator());
 }
 
@@ -116,16 +98,35 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
     g_rcutils_logging_output_handler = &rcutils_logging_console_output_handler;
     g_rcutils_logging_default_logger_level = RCUTILS_DEFAULT_LOGGER_DEFAULT_LEVEL;
 
-    // Check the environment variable for colorized output
-    const char * colorized_output;
-    const char * ret_str = rcutils_get_env("RCUTILS_COLORIZED_OUTPUT", &colorized_output);
+    // Check the environment variable for line buffered output
+    const char * line_buffered;
+    const char * ret_str = rcutils_get_env("RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED", &line_buffered);
 
     if (NULL == ret_str) {
-      if (!strcmp(colorized_output, "1")) {
+      if (strcmp(line_buffered, "1") == 0) {
+        g_force_stdout_line_buffered = true;
+      } else if (strcmp(line_buffered, "0") != 0 && strcmp(line_buffered, "") != 0) {
+        fprintf(stderr,
+          "Warning: unexpected value [%s] specified for RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED. "
+          "Default value 0 will be used. Valid values are 1 or 0.\n",
+          line_buffered);
+      }
+    } else {
+      fprintf(stderr, "Error getting env. variable "
+        "RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED: %s\n", ret_str);
+      ret = RCUTILS_RET_INVALID_ARGUMENT;
+    }
+
+    // Check the environment variable for colorized output
+    const char * colorized_output;
+    ret_str = rcutils_get_env("RCUTILS_COLORIZED_OUTPUT", &colorized_output);
+
+    if (NULL == ret_str) {
+      if (strcmp(colorized_output, "1") == 0) {
         g_colorized_output = RCUTILS_COLORIZED_OUTPUT_FORCE_ENABLE;
-      } else if (!strcmp(colorized_output, "0")) {
+      } else if (strcmp(colorized_output, "0") == 0) {
         g_colorized_output = RCUTILS_COLORIZED_OUTPUT_FORCE_DISABLE;
-      } else if (strcmp(colorized_output, "")) {
+      } else if (strcmp(colorized_output, "") != 0) {
         fprintf(
           stderr,
           "Warning: unexpected value [%s] specified for RCUTILS_COLORIZED_OUTPUT. "
@@ -133,7 +134,7 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
           " Valid values are 0 and 1.\n",
           colorized_output);
       }
-    } else if (NULL != ret_str) {
+    } else {
       RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
         "Failed to get if output is colorized from env. variable [%s]. Using DEFAULT.",
         ret_str);
