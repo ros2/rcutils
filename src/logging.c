@@ -103,9 +103,9 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
     const char * ret_str = rcutils_get_env("RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED", &line_buffered);
 
     if (NULL == ret_str) {
-      if (!strcmp(line_buffered, "1")) {
+      if (strcmp(line_buffered, "1") == 0) {
         g_force_stdout_line_buffered = true;
-      } else if (strcmp(line_buffered, "0")) {
+      } else if (strcmp(line_buffered, "0") != 0) {
         fprintf(stderr,
           "Warning: unexpected value [%s] specified for RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED. "
           "Default value 0 will be used. Valid values are 1 or 0.\n",
@@ -121,11 +121,11 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
     ret_str = rcutils_get_env("RCUTILS_COLORIZED_OUTPUT", &colorized_output);
 
     if (NULL == ret_str) {
-      if (!strcmp(colorized_output, "1")) {
+      if (strcmp(colorized_output, "1") == 0) {
         g_colorized_output = RCUTILS_COLORIZED_OUTPUT_FORCE_ENABLE;
-      } else if (!strcmp(colorized_output, "0")) {
+      } else if (strcmp(colorized_output, "0") == 0) {
         g_colorized_output = RCUTILS_COLORIZED_OUTPUT_FORCE_DISABLE;
-      } else if (strcmp(colorized_output, "")) {
+      } else if (strcmp(colorized_output, "") != 0) {
         fprintf(
           stderr,
           "Warning: unexpected value [%s] specified for RCUTILS_COLORIZED_OUTPUT. "
