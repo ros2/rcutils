@@ -133,7 +133,7 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
           " Valid values are 0 and 1.\n",
           colorized_output);
       }
-    } else if (NULL != ret_str) {
+    } else {
       RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
         "Failed to get if output is colorized from env. variable [%s]. Using DEFAULT.",
         ret_str);
