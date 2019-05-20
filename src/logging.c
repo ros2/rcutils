@@ -105,7 +105,7 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
     if (NULL == ret_str) {
       if (strcmp(line_buffered, "1") == 0) {
         g_force_stdout_line_buffered = true;
-      } else if (strcmp(line_buffered, "0") != 0) {
+      } else if (strcmp(line_buffered, "0") != 0 && strcmp(line_buffered, "") != 0) {
         fprintf(stderr,
           "Warning: unexpected value [%s] specified for RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED. "
           "Default value 0 will be used. Valid values are 1 or 0.\n",
