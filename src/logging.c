@@ -114,6 +114,7 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
     } else {
       fprintf(stderr, "Error getting env. variable "
         "RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED: %s\n", ret_str);
+      ret = RCUTILS_RET_INVALID_ARGUMENT;
     }
 
     // Check the environment variable for colorized output
