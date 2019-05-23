@@ -47,11 +47,11 @@ char * rcutils_get_executable_name(rcutils_allocator_t allocator)
   RCUTILS_CHECK_ALLOCATOR_WITH_MSG(
     &allocator, "invalid allocator", return NULL);
 
-#if defined __APPLE__
+#if defined __APPLE__ || defined __ANDROID__
   const char * appname = getprogname();
 #elif defined __GNUC__
   const char * appname = program_invocation_name;
-#elif defined _WIN32 || defined __CYGWIN
+#elif defined _WIN32 || defined __CYGWIN__
   char appname[MAX_PATH];
   int32_t size = GetModuleFileNameA(NULL, appname, MAX_PATH);
   if (size == 0) {
