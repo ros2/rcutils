@@ -86,7 +86,7 @@ char * rcutils_get_executable_name(rcutils_allocator_t allocator)
   memcpy(executable_name, bname, baselen);
   executable_name[baselen] = '\0';
   allocator.deallocate(intermediate, allocator.state);
-#elif defined _WIN32 || defined __CYGWIN
+#elif defined _WIN32 || defined __CYGWIN__
   errno_t err = _splitpath_s(appname, NULL, 0, NULL, 0, executable_name, applen, NULL, 0);
   if (err != 0) {
     allocator.deallocate(executable_name, allocator.state);
