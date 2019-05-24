@@ -47,7 +47,7 @@ char * rcutils_get_executable_name(rcutils_allocator_t allocator)
   RCUTILS_CHECK_ALLOCATOR_WITH_MSG(
     &allocator, "invalid allocator", return NULL);
 
-#if defined __APPLE__ || defined __ANDROID__
+#if defined __APPLE__ || (defined __ANDROID__ && __ANDROID_API__ >= 21)
   const char * appname = getprogname();
 #elif defined __GNUC__
   const char * appname = program_invocation_name;
