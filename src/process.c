@@ -47,11 +47,11 @@ char * rcutils_get_executable_name(rcutils_allocator_t allocator)
   RCUTILS_CHECK_ALLOCATOR_WITH_MSG(
     &allocator, "invalid allocator", return NULL);
 
-#if defined __APPLE__
+#if defined __APPLE__ || (defined __ANDROID__ && __ANDROID_API__ >= 21)
   const char * appname = getprogname();
 #elif defined __GNUC__
   const char * appname = program_invocation_name;
-#elif defined _WIN32 || defined __CYGWIN
+#elif defined _WIN32 || defined __CYGWIN__
   char appname[MAX_PATH];
   int32_t size = GetModuleFileNameA(NULL, appname, MAX_PATH);
   if (size == 0) {
@@ -86,7 +86,7 @@ char * rcutils_get_executable_name(rcutils_allocator_t allocator)
   memcpy(executable_name, bname, baselen);
   executable_name[baselen] = '\0';
   allocator.deallocate(intermediate, allocator.state);
-#elif defined _WIN32 || defined __CYGWIN
+#elif defined _WIN32 || defined __CYGWIN__
   errno_t err = _splitpath_s(appname, NULL, 0, NULL, 0, executable_name, applen, NULL, 0);
   if (err != 0) {
     allocator.deallocate(executable_name, allocator.state);
