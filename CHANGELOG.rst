@@ -2,6 +2,11 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.7.3 (2019-05-29)
+------------------
+* getprogname() is the correct API to use on Android. (`#162 <https://github.com/ros2/rcutils/issues/162>`_)
+* Contributors: Chris Lalancette
+
 0.7.1 (2019-05-08)
 ------------------
 * Add function rcutils_string_array_cmp (`#144 <https://github.com/ros2/rcutils/issues/144>`_)
