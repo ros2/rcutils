@@ -33,6 +33,10 @@ extern "C"
 // RCUTILS_REPORT_ERROR_HANDLING_ERRORS and RCUTILS_WARN_ON_TRUNCATION are set in the header below
 #include "./error_handling_helpers.h"
 
+#ifndef SIZE_MAX
+#define SIZE_MAX (size_t)-1
+#endif
+
 // g_ is to global variable, as gtls_ is to global thread-local storage variable
 RCUTILS_THREAD_LOCAL bool gtls_rcutils_thread_local_initialized = false;
 RCUTILS_THREAD_LOCAL rcutils_error_state_t gtls_rcutils_error_state;
@@ -92,7 +96,7 @@ __format_overwriting_error_state_message(
 {
   assert(NULL != buffer);
   assert(0 != buffer_size);
-  assert(INT64_MAX > buffer_size);
+  assert(SIZE_MAX > buffer_size);
   assert(NULL != new_error_state);
 
   int64_t bytes_left = buffer_size;
