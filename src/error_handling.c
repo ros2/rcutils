@@ -21,6 +21,7 @@ extern "C"
 
 #include <rcutils/error_handling.h>
 
+#include <limits.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -92,7 +93,7 @@ __format_overwriting_error_state_message(
 {
   assert(NULL != buffer);
   assert(0 != buffer_size);
-  assert(INT64_MAX > buffer_size);
+  assert(SIZE_MAX > buffer_size);
   assert(NULL != new_error_state);
 
   int64_t bytes_left = buffer_size;
