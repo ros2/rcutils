@@ -21,8 +21,8 @@ extern "C"
 
 #include <rcutils/error_handling.h>
 
+#include <limits.h>
 #include <stdbool.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -33,10 +33,6 @@ extern "C"
 
 // RCUTILS_REPORT_ERROR_HANDLING_ERRORS and RCUTILS_WARN_ON_TRUNCATION are set in the header below
 #include "./error_handling_helpers.h"
-
-#ifndef SIZE_MAX
-#define SIZE_MAX (size_t)-1
-#endif
 
 // g_ is to global variable, as gtls_ is to global thread-local storage variable
 RCUTILS_THREAD_LOCAL bool gtls_rcutils_thread_local_initialized = false;
