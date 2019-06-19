@@ -195,7 +195,10 @@ typedef _Atomic (uintmax_t) atomic_uintmax_t;
 /*
  * 7.17.7 Operations on atomic types. (pruned modified for Windows' crappy C compiler)
  */
-// *INDENT-OFF*  // uncrustify doesn't like the extra indentations in macros
+
+// TODO(emersonknapp) Regression in uncrustify breaks formatting for macros with __pragma
+// remove indent-off when we have fix for https://github.com/uncrustify/uncrustify/issues/2314
+// *INDENT-OFF*
 
 #define rcutils_win32_atomic_compare_exchange_strong(object, out, expected, desired) \
   __pragma(warning(push)) \
