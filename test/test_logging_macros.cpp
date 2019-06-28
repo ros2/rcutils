@@ -42,6 +42,7 @@ public:
   void SetUp()
   {
     g_log_calls = 0;
+    g_last_log_event.message = "SetUp";
     EXPECT_FALSE(g_rcutils_logging_initialized);
     ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_initialize());
     EXPECT_TRUE(g_rcutils_logging_initialized);
@@ -145,28 +146,65 @@ TEST_F(TestLoggingMacros, test_logging_skipfirst) {
 }
 
 TEST_F(TestLoggingMacros, test_logging_throttle) {
-  for (int i : {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}) {
-    RCUTILS_LOG_ERROR_THROTTLE(RCUTILS_STEADY_TIME, 50 /* ms */, "throttled message %d", i);
-    using namespace std::chrono_literals;
-    std::this_thread::sleep_for(30ms);
+  using namespace std::chrono_literals;
+  const auto start = std::chrono::system_clock::now();
+  const auto throttle_time = 200ms;
+  bool first = true;
+  while (true) {
+    auto is_before_throttle_end =
+      ((std::chrono::system_clock::now() - start) < throttle_time);
+    RCUTILS_LOG_ERROR_THROTTLE(
+      RCUTILS_STEADY_TIME, throttle_time.count(), first ? "first" : "other");
+    first = false;
+    auto is_still_before_throttle_end =
+      ((std::chrono::system_clock::now() - start) < throttle_time);
+    // If the other LOG call happens around the timeout, we don't know
+    // know if it got throttled or not, so we will loop one more time
+    if (is_before_throttle_end == is_still_before_throttle_end) {
+      if (is_before_throttle_end) {
+        EXPECT_EQ("first", g_last_log_event.message);
+        EXPECT_EQ(g_log_calls, 1u);
+      } else {
+        break;
+      }
+    }
+    std::this_thread::sleep_for(5ms);
   }
-  EXPECT_EQ(5u, g_log_calls);
+  EXPECT_EQ("other", g_last_log_event.message);
+  EXPECT_EQ(g_log_calls, 2u);
   EXPECT_EQ(RCUTILS_LOG_SEVERITY_ERROR, g_last_log_event.level);
   EXPECT_EQ("", g_last_log_event.name);
-  EXPECT_EQ("throttled message 8", g_last_log_event.message);
 }
 
 TEST_F(TestLoggingMacros, test_logging_skipfirst_throttle) {
-  for (int i : {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}) {
+  using namespace std::chrono_literals;
+  const auto start = std::chrono::system_clock::now();
+  const auto throttle_time = 200ms;
+  bool first = true;
+  while (true) {
+    auto is_before_throttle_end =
+      ((std::chrono::system_clock::now() - start) < throttle_time);
     RCUTILS_LOG_FATAL_SKIPFIRST_THROTTLE(
-      RCUTILS_STEADY_TIME, 50 /* ms */, "throttled message %d", i);
-    using namespace std::chrono_literals;
-    std::this_thread::sleep_for(30ms);
+      RCUTILS_STEADY_TIME, throttle_time.count(), first ? "first" : "other");
+    first = false;
+    auto is_still_before_throttle_end =
+      ((std::chrono::system_clock::now() - start) < throttle_time);
+    // If the other LOG call happens around the timeout, we don't know
+    // know if it got throttled or not, so we will loop one more time
+    if (is_before_throttle_end == is_still_before_throttle_end) {
+      if (is_before_throttle_end) {
+        EXPECT_EQ("SetUp", g_last_log_event.message);
+        EXPECT_EQ(g_log_calls, 0u);
+      } else {
+        break;
+      }
+    }
+    std::this_thread::sleep_for(5ms);
   }
-  EXPECT_EQ(4u, g_log_calls);
+  EXPECT_EQ("other", g_last_log_event.message);
+  EXPECT_EQ(g_log_calls, 1u);
   EXPECT_EQ(RCUTILS_LOG_SEVERITY_FATAL, g_last_log_event.level);
   EXPECT_EQ("", g_last_log_event.name);
-  EXPECT_EQ("throttled message 8", g_last_log_event.message);
 }
 
 TEST_F(TestLoggingMacros, test_logger_hierarchy) {
