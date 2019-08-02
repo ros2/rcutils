@@ -27,7 +27,7 @@ void test_assert(bool value)
 
 void test_assert_msg(bool value, std::string message)
 {
-  RCUTILS_ASSERT_MSG(value, message.c_str());
+  RCUTILS_ASSERT_MSG(value, "%s", message.c_str());
 }
 
 
