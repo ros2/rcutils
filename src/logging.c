@@ -644,6 +644,7 @@ rcutils_ret_t rcutils_logging_format_message(
     }
 
     // Found what looks like a token; determine if it's recognized.
+    assert(chars_to_end_delim > 0);
     size_t token_len = chars_to_end_delim - 1;  // Not including delimiters.
     memcpy(token, str + i + 1, token_len);  // Skip the start delimiter.
     token[token_len] = '\0';
