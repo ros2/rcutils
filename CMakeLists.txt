@@ -90,6 +90,41 @@ list(APPEND rcutils_sources
   include/rcutils/logging_macros.h)
 include_directories("${CMAKE_CURRENT_BINARY_DIR}/include")
 
+###############################################################################
+# Create version file in build/<package>/include/<package> folder which is already in the include list
+set(TMP_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/include/${PROJECT_NAME})
+set(RCUTILS_VERSION_FILE_NAME ${TMP_INCLUDE_DIR}/version.h)
+# if the version file does not exist, create its directory and the file itself
+if(NOT (EXISTS "${RCUTILS_VERSION_FILE_NAME}"))
+  file(MAKE_DIRECTORY ${TMP_INCLUDE_DIR})
+
+  # retrieve verson information from <package>.xml file
+  # call ament_package_xml() if it has not been called before
+  if(NOT _AMENT_PACKAGE_NAME)
+    ament_package_xml()
+  endif()
+  # parse version information from the version string
+  string(REGEX REPLACE "([0-9]+\).([0-9]+)\.([0-9]+)" "" dummy ${rcutils_VERSION})
+  set(RCUTILS_VERSION_MAJOR ${CMAKE_MATCH_1})
+  set(RCUTILS_VERSION_MINOR ${CMAKE_MATCH_2})
+  set(RCUTILS_VERSION_PATCH ${CMAKE_MATCH_3})
+  string(TIMESTAMP RCUTILS_VERSION_TIMESTAMP "%Y-%m-%dT%H:%M:%SZ" UTC)
+
+  # sanity checks
+  if("${RCUTILS_VERSION_MAJOR}" STREQUAL "")
+    message(FATAL_ERROR "RCUTILS_VERSION_MAJOR is empty or non-numeric, check <package>.XML")
+  endif()
+  if("${RCUTILS_VERSION_MINOR}" STREQUAL "")
+    message(FATAL_ERROR "RCUTILS_VERSION_MINOR is empty or non-numeric, check <package>.XML")
+  endif()
+  if("${RCUTILS_VERSION_PATCH}" STREQUAL "")
+    message(FATAL_ERROR "RCUTILS_VERSION_PATCH is empty or non-numeric, check <package>.XML")
+  endif()
+
+  # create the version.h file
+  configure_file("resource/version.h.in" ${RCUTILS_VERSION_FILE_NAME} NEWLINE_STYLE UNIX)
+endif()
+
 add_library(
   ${PROJECT_NAME}
   ${rcutils_sources})
@@ -342,6 +377,13 @@ if(BUILD_TESTING)
   )
   if(TARGET test_hash_map)
     target_link_libraries(test_hash_map ${PROJECT_NAME})
+  endif()
+
+  rcutils_custom_add_gtest(test_version_header
+    test/test_version_header.cpp
+  )
+  if(TARGET test_version_header)
+    target_link_libraries(test_version_header ${PROJECT_NAME})
   endif()
 endif()
 
