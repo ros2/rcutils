@@ -14,7 +14,7 @@
 
 #include <gtest/gtest.h>
 #include <rcutils/version.h>
-#include <cstring>
+#include <string>
 
 TEST(test_version_header, test_version_macros) {
 #ifdef RCUTILS_VERSION_TIMESTAMP

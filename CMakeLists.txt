@@ -124,11 +124,11 @@ if(EXISTS "${RCUTILS_VERSION_FILE_NAME}")
   # The file exists
   # Check if it contains the same version
   file(STRINGS ${RCUTILS_VERSION_FILE_NAME} VERSION_FILE_STRINGS REGEX "#define RCUTILS_VERSION_STR")
-  if (VERSION_FILE_STRINGS STREQUAL "")
+  if(VERSION_FILE_STRINGS STREQUAL "")
     set(NEED_TO_CREATE_VERSION_FILE true)
   else()
     string(REGEX REPLACE "^#define[ \t]+RCUTILS_VERSION_STR[ \t]+\"([0-9]+\.[0-9]+\.[0-9]+)\"" "" dummy ${VERSION_FILE_STRINGS})
-    if (NOT (${CMAKE_MATCH_1} STREQUAL ${rcutils_VERSION}))
+    if(NOT (${CMAKE_MATCH_1} STREQUAL ${rcutils_VERSION}))
       # Create new file if file version != rcutils_VERSION
       set(NEED_TO_CREATE_VERSION_FILE true)
     endif()
@@ -138,7 +138,7 @@ else()
   set(NEED_TO_CREATE_VERSION_FILE true)
 endif()
 
-if (${NEED_TO_CREATE_VERSION_FILE})
+if(${NEED_TO_CREATE_VERSION_FILE})
   message(STATUS "Create new version file for version ${rcutils_VERSION}")
   file(MAKE_DIRECTORY ${TMP_INCLUDE_DIR})
   # create the version.h file
