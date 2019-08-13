@@ -17,12 +17,6 @@
 #include <string>
 
 TEST(test_version_header, test_version_macros) {
-#ifdef RCUTILS_VERSION_TIMESTAMP
-  EXPECT_NE(std::strlen(RCUTILS_VERSION_TIMESTAMP), 0);
-#else  // RCUTILS_VERSION_TIMESTAMP
-  EXPECT_TRUE(false);
-#endif  // RCUTILS_VERSION_TIMESTAMP
-
 #ifdef RCUTILS_VERSION_MAJOR
   EXPECT_GE(RCUTILS_VERSION_MAJOR, 0);
 #else  // RCUTILS_VERSION_MAJOR

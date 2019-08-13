@@ -91,61 +91,70 @@ list(APPEND rcutils_sources
 include_directories("${CMAKE_CURRENT_BINARY_DIR}/include")
 
 ###############################################################################
-# Create version file in build/<package>/include/<package> folder which is already in the include list
-set(TMP_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/include/${PROJECT_NAME})
-set(RCUTILS_VERSION_FILE_NAME ${TMP_INCLUDE_DIR}/version.h)
-set(NEED_TO_CREATE_VERSION_FILE false)
+# Create version file if needed
+function(ament_cmake_version)
+  include_directories(${CMAKE_CURRENT_BINARY_DIR}/ament_cmake_version/include)
+  set(TMP_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/ament_cmake_version/include/${PROJECT_NAME})
 
-# retrieve verson information from <package>.xml file
-# call ament_package_xml() if it has not been called before
-if(NOT _AMENT_PACKAGE_NAME)
-  ament_package_xml()
-endif()
-# parse version information from the version string
-string(REGEX REPLACE "([0-9]+\).([0-9]+)\.([0-9]+)" "" dummy ${rcutils_VERSION})
-set(RCUTILS_VERSION_MAJOR ${CMAKE_MATCH_1})
-set(RCUTILS_VERSION_MINOR ${CMAKE_MATCH_2})
-set(RCUTILS_VERSION_PATCH ${CMAKE_MATCH_3})
-string(TIMESTAMP RCUTILS_VERSION_TIMESTAMP "%Y-%m-%dT%H:%M:%SZ" UTC)
+  set(${PROJECT_NAME}_VERSION_FILE_NAME ${TMP_INCLUDE_DIR}/version.h)
+  set(NEED_TO_CREATE_VERSION_FILE FALSE)
 
-# sanity checks
-if("${RCUTILS_VERSION_MAJOR}" STREQUAL "")
-  message(FATAL_ERROR "RCUTILS_VERSION_MAJOR is empty or non-numeric, check <package>.XML")
-endif()
-if("${RCUTILS_VERSION_MINOR}" STREQUAL "")
-  message(FATAL_ERROR "RCUTILS_VERSION_MINOR is empty or non-numeric, check <package>.XML")
-endif()
-if("${RCUTILS_VERSION_PATCH}" STREQUAL "")
-  message(FATAL_ERROR "RCUTILS_VERSION_PATCH is empty or non-numeric, check <package>.XML")
-endif()
-
-# Check if the version file exist
-if(EXISTS "${RCUTILS_VERSION_FILE_NAME}")
-  # The file exists
-  # Check if it contains the same version
-  file(STRINGS ${RCUTILS_VERSION_FILE_NAME} VERSION_FILE_STRINGS REGEX "#define RCUTILS_VERSION_STR")
-  if(VERSION_FILE_STRINGS STREQUAL "")
-    set(NEED_TO_CREATE_VERSION_FILE true)
-  else()
-    string(REGEX REPLACE "^#define[ \t]+RCUTILS_VERSION_STR[ \t]+\"([0-9]+\.[0-9]+\.[0-9]+)\"" "" dummy ${VERSION_FILE_STRINGS})
-    if(NOT (${CMAKE_MATCH_1} STREQUAL ${rcutils_VERSION}))
-      # Create new file if file version != rcutils_VERSION
-      set(NEED_TO_CREATE_VERSION_FILE true)
-    endif()
+  # retrieve verson information from <package>.xml file
+  # call ament_package_xml() if it has not been called before
+  if(NOT _AMENT_PACKAGE_NAME)
+    ament_package_xml()
   endif()
-else()
-  # if the version file does not exist, create it
-  set(NEED_TO_CREATE_VERSION_FILE true)
-endif()
+  # parse version information from the version string
+  string(REGEX MATCH "([0-9]+\).([0-9]+)\.([0-9]+)" "" dummy ${${PROJECT_NAME}_VERSION})
+  set(${PROJECT_NAME}_VERSION_MAJOR ${CMAKE_MATCH_1})
+  set(${PROJECT_NAME}_VERSION_MINOR ${CMAKE_MATCH_2})
+  set(${PROJECT_NAME}_VERSION_PATCH ${CMAKE_MATCH_3})
 
-if(${NEED_TO_CREATE_VERSION_FILE})
-  message(STATUS "Create new version file for version ${rcutils_VERSION}")
-  file(MAKE_DIRECTORY ${TMP_INCLUDE_DIR})
-  # create the version.h file
-  configure_file("resource/version.h.in" ${RCUTILS_VERSION_FILE_NAME} NEWLINE_STYLE UNIX)
-else()
-    message(STATUS "Skip version file creation")
-endif()
+  # sanity checks
+  if("${${PROJECT_NAME}_VERSION_MAJOR}" STREQUAL "")
+    message(FATAL_ERROR "${PROJECT_NAME}_VERSION_MAJOR is empty or non-numeric, check <package>.XML")
+  endif()
+  if("${${PROJECT_NAME}_VERSION_MINOR}" STREQUAL "")
+    message(FATAL_ERROR "${PROJECT_NAME}_VERSION_MINOR is empty or non-numeric, check <package>.XML")
+  endif()
+  if("${${PROJECT_NAME}_VERSION_PATCH}" STREQUAL "")
+    message(FATAL_ERROR "${PROJECT_NAME}_VERSION_PATCH is empty or non-numeric, check <package>.XML")
+  endif()
+
+  # Check if the version file exist
+  if(EXISTS "${${PROJECT_NAME}_VERSION_FILE_NAME}")
+    # The file exists
+    # Check if it contains the same version
+    file(STRINGS ${${PROJECT_NAME}_VERSION_FILE_NAME} VERSION_FILE_STRINGS REGEX "#define ${PROJECT_NAME}_VERSION_STR")
+    if(VERSION_FILE_STRINGS STREQUAL "")
+      set(NEED_TO_CREATE_VERSION_FILE TRUE)
+    else()
+      string(REGEX MATCH "^#define[ \t]+${PROJECT_NAME}_VERSION_STR[ \t]+\"([0-9]+\.[0-9]+\.[0-9]+)\"" "" dummy ${VERSION_FILE_STRINGS})
+      if(NOT (${CMAKE_MATCH_1} STREQUAL ${${PROJECT_NAME}_VERSION}))
+        # Create new file if file version != ${PROJECT_NAME}_VERSION
+        set(NEED_TO_CREATE_VERSION_FILE TRUE)
+      endif()
+    endif()
+  else()
+    # if the version file does not exist, create it
+    set(NEED_TO_CREATE_VERSION_FILE TRUE)
+  endif()
+
+  if(${NEED_TO_CREATE_VERSION_FILE})
+    message(STATUS "Create new version file for version ${${PROJECT_NAME}_VERSION}")
+    file(MAKE_DIRECTORY ${TMP_INCLUDE_DIR})
+    # create the version.h file
+    configure_file("resource/version.h.in" ${${PROJECT_NAME}_VERSION_FILE_NAME} NEWLINE_STYLE UNIX)
+  else()
+      message(STATUS "Skip version file creation")
+  endif()
+
+  install(
+    DIRECTORY ${TMP_INCLUDE_DIR}
+    DESTINATION include)
+endfunction()
+
+ament_cmake_version()
 
 add_library(
   ${PROJECT_NAME}

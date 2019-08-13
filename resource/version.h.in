@@ -15,21 +15,17 @@
 #ifndef RCUTILS__VERSION_H_
 #define RCUTILS__VERSION_H_
 
-/// \def RCUTILS_VERSION_TIMESTAMP
-/// Defines version file generation time
-#define RCUTILS_VERSION_TIMESTAMP "@RCUTILS_VERSION_TIMESTAMP@"
-
 /// \def RCUTILS_VERSION_MAJOR
 /// Defines RCUTILS major version number
-#define RCUTILS_VERSION_MAJOR (@RCUTILS_VERSION_MAJOR@)
+#define RCUTILS_VERSION_MAJOR (@rcutils_VERSION_MAJOR@)
 
 /// \def RCUTILS_VERSION_MINOR
 /// Defines RCUTILS minor version number
-#define RCUTILS_VERSION_MINOR (@RCUTILS_VERSION_MINOR@)
+#define RCUTILS_VERSION_MINOR (@rcutils_VERSION_MINOR@)
 
 /// \def RCUTILS_VERSION_PATCH
 /// Defines RCUTILS version patch number
-#define RCUTILS_VERSION_PATCH (@RCUTILS_VERSION_PATCH@)
+#define RCUTILS_VERSION_PATCH (@rcutils_VERSION_PATCH@)
 
 /// \def RCUTILS_VERSION_STR
 /// Defines RCUTILS version string
