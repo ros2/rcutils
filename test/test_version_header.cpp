@@ -42,7 +42,12 @@ TEST(test_version_header, test_version_macros) {
 #endif  // RCUTILS_VERSION_PATCH
 
 #ifdef RCUTILS_VERSION_STR
-  EXPECT_NE(std::strlen(RCUTILS_VERSION_STR), 0);
+  std::string version_str = std::to_string(RCUTILS_VERSION_MAJOR);
+  version_str += ".";
+  version_str += std::to_string(RCUTILS_VERSION_MINOR);
+  version_str += ".";
+  version_str += std::to_string(RCUTILS_VERSION_PATCH);
+  EXPECT_STREQ(version_str.c_str(), RCUTILS_VERSION_STR);
 #else  // RCUTILS_VERSION_STR
   EXPECT_TRUE(false);
 #endif  // RCUTILS_VERSION_STR

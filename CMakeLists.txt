@@ -94,35 +94,57 @@ include_directories("${CMAKE_CURRENT_BINARY_DIR}/include")
 # Create version file in build/<package>/include/<package> folder which is already in the include list
 set(TMP_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/include/${PROJECT_NAME})
 set(RCUTILS_VERSION_FILE_NAME ${TMP_INCLUDE_DIR}/version.h)
-# if the version file does not exist, create its directory and the file itself
-if(NOT (EXISTS "${RCUTILS_VERSION_FILE_NAME}"))
+set(NEED_TO_CREATE_VERSION_FILE false)
+
+# retrieve verson information from <package>.xml file
+# call ament_package_xml() if it has not been called before
+if(NOT _AMENT_PACKAGE_NAME)
+  ament_package_xml()
+endif()
+# parse version information from the version string
+string(REGEX REPLACE "([0-9]+\).([0-9]+)\.([0-9]+)" "" dummy ${rcutils_VERSION})
+set(RCUTILS_VERSION_MAJOR ${CMAKE_MATCH_1})
+set(RCUTILS_VERSION_MINOR ${CMAKE_MATCH_2})
+set(RCUTILS_VERSION_PATCH ${CMAKE_MATCH_3})
+string(TIMESTAMP RCUTILS_VERSION_TIMESTAMP "%Y-%m-%dT%H:%M:%SZ" UTC)
+
+# sanity checks
+if("${RCUTILS_VERSION_MAJOR}" STREQUAL "")
+  message(FATAL_ERROR "RCUTILS_VERSION_MAJOR is empty or non-numeric, check <package>.XML")
+endif()
+if("${RCUTILS_VERSION_MINOR}" STREQUAL "")
+  message(FATAL_ERROR "RCUTILS_VERSION_MINOR is empty or non-numeric, check <package>.XML")
+endif()
+if("${RCUTILS_VERSION_PATCH}" STREQUAL "")
+  message(FATAL_ERROR "RCUTILS_VERSION_PATCH is empty or non-numeric, check <package>.XML")
+endif()
+
+# Check if the version file exist
+if(EXISTS "${RCUTILS_VERSION_FILE_NAME}")
+  # The file exists
+  # Check if it contains the same version
+  file(STRINGS ${RCUTILS_VERSION_FILE_NAME} VERSION_FILE_STRINGS REGEX "#define RCUTILS_VERSION_STR")
+  if (VERSION_FILE_STRINGS STREQUAL "")
+    set(NEED_TO_CREATE_VERSION_FILE true)
+  else()
+    string(REGEX REPLACE "^#define[ \t]+RCUTILS_VERSION_STR[ \t]+\"([0-9]+\.[0-9]+\.[0-9]+)\"" "" dummy ${VERSION_FILE_STRINGS})
+    if (NOT (${CMAKE_MATCH_1} STREQUAL ${rcutils_VERSION}))
+      # Create new file if file version != rcutils_VERSION
+      set(NEED_TO_CREATE_VERSION_FILE true)
+    endif()
+  endif()
+else()
+  # if the version file does not exist, create it
+  set(NEED_TO_CREATE_VERSION_FILE true)
+endif()
+
+if (${NEED_TO_CREATE_VERSION_FILE})
+  message(STATUS "Create new version file for version ${rcutils_VERSION}")
   file(MAKE_DIRECTORY ${TMP_INCLUDE_DIR})
-
-  # retrieve verson information from <package>.xml file
-  # call ament_package_xml() if it has not been called before
-  if(NOT _AMENT_PACKAGE_NAME)
-    ament_package_xml()
-  endif()
-  # parse version information from the version string
-  string(REGEX REPLACE "([0-9]+\).([0-9]+)\.([0-9]+)" "" dummy ${rcutils_VERSION})
-  set(RCUTILS_VERSION_MAJOR ${CMAKE_MATCH_1})
-  set(RCUTILS_VERSION_MINOR ${CMAKE_MATCH_2})
-  set(RCUTILS_VERSION_PATCH ${CMAKE_MATCH_3})
-  string(TIMESTAMP RCUTILS_VERSION_TIMESTAMP "%Y-%m-%dT%H:%M:%SZ" UTC)
-
-  # sanity checks
-  if("${RCUTILS_VERSION_MAJOR}" STREQUAL "")
-    message(FATAL_ERROR "RCUTILS_VERSION_MAJOR is empty or non-numeric, check <package>.XML")
-  endif()
-  if("${RCUTILS_VERSION_MINOR}" STREQUAL "")
-    message(FATAL_ERROR "RCUTILS_VERSION_MINOR is empty or non-numeric, check <package>.XML")
-  endif()
-  if("${RCUTILS_VERSION_PATCH}" STREQUAL "")
-    message(FATAL_ERROR "RCUTILS_VERSION_PATCH is empty or non-numeric, check <package>.XML")
-  endif()
-
   # create the version.h file
   configure_file("resource/version.h.in" ${RCUTILS_VERSION_FILE_NAME} NEWLINE_STYLE UNIX)
+else()
+    message(STATUS "Skip version file creation")
 endif()
 
 add_library(
