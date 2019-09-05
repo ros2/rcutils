@@ -23,7 +23,7 @@ extern "C"
 #include <stdio.h>
 #include <string.h>
 
-#ifdef WIN32
+#ifdef _WIN32
 # include <io.h>
 # include <windows.h>
 #else
@@ -669,7 +669,7 @@ rcutils_ret_t rcutils_logging_format_message(
   return status;
 }
 
-#ifdef WIN32
+#ifdef _WIN32
 # define COLOR_NORMAL 7
 # define COLOR_RED 4
 # define COLOR_GREEN 2
@@ -714,7 +714,7 @@ rcutils_ret_t rcutils_logging_format_message(
         status = RCUTILS_RET_INVALID_ARGUMENT; \
     } \
   }
-#ifdef WIN32
+#ifdef _WIN32
 # define SET_OUTPUT_COLOR_WITH_COLOR(status, color, handle) \
   { \
     if (RCUTILS_RET_OK == status) { \
