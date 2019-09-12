@@ -43,7 +43,7 @@ extern "C"
 
 #define RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN (2048)
 
-const char * g_rcutils_log_severity_names[] = {
+const char * const g_rcutils_log_severity_names[] = {
   [RCUTILS_LOG_SEVERITY_UNSET] = "UNSET",
   [RCUTILS_LOG_SEVERITY_DEBUG] = "DEBUG",
   [RCUTILS_LOG_SEVERITY_INFO] = "INFO",
