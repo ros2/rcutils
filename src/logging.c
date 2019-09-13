@@ -75,9 +75,6 @@ bool g_rcutils_logging_severities_map_valid = false;
 
 int g_rcutils_logging_default_logger_level = 0;
 
-bool g_force_stdout_line_buffered = false;
-bool g_stdout_flush_failure_reported = false;
-
 enum rcutils_colorized_output g_colorized_output = RCUTILS_COLORIZED_OUTPUT_AUTO;
 
 rcutils_ret_t rcutils_logging_initialize(void)
@@ -98,28 +95,9 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
     g_rcutils_logging_output_handler = &rcutils_logging_console_output_handler;
     g_rcutils_logging_default_logger_level = RCUTILS_DEFAULT_LOGGER_DEFAULT_LEVEL;
 
-    // Check the environment variable for line buffered output
-    const char * line_buffered;
-    const char * ret_str = rcutils_get_env("RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED", &line_buffered);
-
-    if (NULL == ret_str) {
-      if (strcmp(line_buffered, "1") == 0) {
-        g_force_stdout_line_buffered = true;
-      } else if (strcmp(line_buffered, "0") != 0 && strcmp(line_buffered, "") != 0) {
-        fprintf(stderr,
-          "Warning: unexpected value [%s] specified for RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED. "
-          "Default value 0 will be used. Valid values are 1 or 0.\n",
-          line_buffered);
-      }
-    } else {
-      fprintf(stderr, "Error getting env. variable "
-        "RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED: %s\n", ret_str);
-      ret = RCUTILS_RET_INVALID_ARGUMENT;
-    }
-
     // Check the environment variable for colorized output
     const char * colorized_output;
-    ret_str = rcutils_get_env("RCUTILS_COLORIZED_OUTPUT", &colorized_output);
+    const char * ret_str = rcutils_get_env("RCUTILS_COLORIZED_OUTPUT", &colorized_output);
 
     if (NULL == ret_str) {
       if (strcmp(colorized_output, "1") == 0) {
@@ -683,14 +661,14 @@ rcutils_ret_t rcutils_logging_format_message(
 # define IS_STREAM_A_TTY(stream) (isatty(fileno(stream)) != 0)
 #endif
 
-#define IS_OUTPUT_COLORIZED(is_colorized, stream) \
+#define IS_OUTPUT_COLORIZED(is_colorized) \
   { \
     if (g_colorized_output == RCUTILS_COLORIZED_OUTPUT_FORCE_ENABLE) { \
       is_colorized = true; \
     } else if (g_colorized_output == RCUTILS_COLORIZED_OUTPUT_FORCE_DISABLE) { \
       is_colorized = false; \
     } else { \
-      is_colorized = IS_STREAM_A_TTY(stream); \
+      is_colorized = IS_STREAM_A_TTY(stderr); \
     } \
   }
 #define SET_COLOR_WITH_SEVERITY(status, severity, color) \
@@ -725,14 +703,10 @@ rcutils_ret_t rcutils_logging_format_message(
       } \
     } \
   }
-# define GET_HANDLE_FROM_STREAM(status, handle, stream) \
+# define GET_HANDLE_FROM_STDERR(status, handle) \
   { \
     if (RCUTILS_RET_OK == status) { \
-      if (stream == stdout) { \
-        handle = GetStdHandle(STD_OUTPUT_HANDLE); \
-      } else { \
-        handle = GetStdHandle(STD_ERROR_HANDLE); \
-      } \
+      handle = GetStdHandle(STD_ERROR_HANDLE); \
       if (INVALID_HANDLE_VALUE == handle) { \
         DWORD error = GetLastError(); \
         fprintf(stderr, "GetStdHandle failed with error code %lu.\n", error); \
@@ -740,19 +714,19 @@ rcutils_ret_t rcutils_logging_format_message(
       } \
     } \
   }
-# define SET_OUTPUT_COLOR_WITH_SEVERITY(status, severity, stream, output_array) \
+# define SET_OUTPUT_COLOR_WITH_SEVERITY(status, severity, output_array) \
   { \
     WORD color; \
     HANDLE handle; \
     SET_COLOR_WITH_SEVERITY(status, severity, color) \
-    GET_HANDLE_FROM_STREAM(status, handle, stream) \
+    GET_HANDLE_FROM_STDERR(status, handle) \
     SET_OUTPUT_COLOR_WITH_COLOR(status, color, handle) \
   }
-# define SET_STANDARD_COLOR_IN_STREAM(is_colorized, status, stream) \
+# define SET_STANDARD_COLOR_IN_STREAM(is_colorized, status) \
   { \
     if (is_colorized) { \
       HANDLE handle; \
-      GET_HANDLE_FROM_STREAM(status, handle, stream) \
+      GET_HANDLE_FROM_STDERR(status, handle) \
       SET_OUTPUT_COLOR_WITH_COLOR(status, COLOR_NORMAL, handle) \
     } \
   }
@@ -768,7 +742,7 @@ rcutils_ret_t rcutils_logging_format_message(
       } \
     } \
   }
-# define SET_OUTPUT_COLOR_WITH_SEVERITY(status, severity, stream, output_array) \
+# define SET_OUTPUT_COLOR_WITH_SEVERITY(status, severity, output_array) \
   { \
     const char * color = NULL; \
     SET_COLOR_WITH_SEVERITY(status, severity, color) \
@@ -780,7 +754,7 @@ rcutils_ret_t rcutils_logging_format_message(
       SET_OUTPUT_COLOR_WITH_COLOR(status, COLOR_NORMAL, output_array) \
     } \
   }
-# define SET_STANDARD_COLOR_IN_STREAM(is_colorized, status, stream)
+# define SET_STANDARD_COLOR_IN_STREAM(is_colorized, status)
 #endif
 
 void rcutils_logging_console_output_handler(
@@ -798,23 +772,18 @@ void rcutils_logging_console_output_handler(
       "call to rcutils_logging_console_output_handler failed.\n");
     return;
   }
-  FILE * stream = NULL;
   switch (severity) {
     case RCUTILS_LOG_SEVERITY_DEBUG:
     case RCUTILS_LOG_SEVERITY_INFO:
-      stream = stdout;
-      break;
     case RCUTILS_LOG_SEVERITY_WARN:
     case RCUTILS_LOG_SEVERITY_ERROR:
     case RCUTILS_LOG_SEVERITY_FATAL:
-      stream = stderr;
       break;
     default:
       fprintf(stderr, "unknown severity level: %d\n", severity);
-      return;
   }
 
-  IS_OUTPUT_COLORIZED(is_colorized, stream)
+  IS_OUTPUT_COLORIZED(is_colorized)
 
   char msg_buf[1024] = "";
   rcutils_char_array_t msg_array = {
@@ -835,7 +804,7 @@ void rcutils_logging_console_output_handler(
   };
 
   if (is_colorized) {
-    SET_OUTPUT_COLOR_WITH_SEVERITY(status, severity, stream, output_array)
+    SET_OUTPUT_COLOR_WITH_SEVERITY(status, severity, output_array)
   }
 
   if (RCUTILS_RET_OK == status) {
@@ -862,21 +831,12 @@ void rcutils_logging_console_output_handler(
   SET_STANDARD_COLOR_IN_BUFFER(is_colorized, status, output_array)
 
   if (RCUTILS_RET_OK == status) {
-    fprintf(stream, "%s\n", output_array.buffer);
-
-    if (g_force_stdout_line_buffered && stream == stdout) {
-      int flush_result = fflush(stream);
-      if (flush_result != 0 && !g_stdout_flush_failure_reported) {
-        g_stdout_flush_failure_reported = true;
-        fprintf(stderr, "Error: failed to perform fflush on stdout, fflush return code is: %d\n",
-          flush_result);
-      }
-    }
+    fprintf(stderr, "%s\n", output_array.buffer);
   }
 
   // Only does something in windows
   // cppcheck-suppress uninitvar  // suppress cppcheck false positive
-  SET_STANDARD_COLOR_IN_STREAM(is_colorized, status, stream)
+  SET_STANDARD_COLOR_IN_STREAM(is_colorized, status)
 
   status = rcutils_char_array_fini(&msg_array);
   if (RCUTILS_RET_OK != status) {
