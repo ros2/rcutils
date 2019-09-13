@@ -172,7 +172,8 @@ enum RCUTILS_LOG_SEVERITY
 };
 
 /// The names of severity levels.
-extern const char * g_rcutils_log_severity_names[RCUTILS_LOG_SEVERITY_FATAL + 1];
+RCUTILS_PUBLIC
+extern const char * const g_rcutils_log_severity_names[RCUTILS_LOG_SEVERITY_FATAL + 1];
 
 /// Get a severity value from its string representation (e.g. DEBUG).
 /**
