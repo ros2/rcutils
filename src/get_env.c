@@ -21,10 +21,11 @@ extern "C"
 #include <stdlib.h>
 
 #include "rcutils/get_env.h"
+#include "rcutils/thread.h"
 
 #ifdef _WIN32
 # define WINDOWS_ENV_BUFFER_SIZE 2048
-static char __env_buffer[WINDOWS_ENV_BUFFER_SIZE];
+THREAD_LOCAL_STORAGE static char __env_buffer[WINDOWS_ENV_BUFFER_SIZE];
 #endif  // _WIN32
 
 
