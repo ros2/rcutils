@@ -2,6 +2,17 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.8.0 (2019-09-24)
+------------------
+* Make g_rcutils_log_severity_names public and immutable. (`#180 <https://github.com/ros2/rcutils/issues/180>`_)
+* use _WIN32 instead of WIN32 (`#179 <https://github.com/ros2/rcutils/issues/179>`_)
+* Revert "check and link against libatomic (`#172 <https://github.com/ros2/rcutils/issues/172>`_)" (`#177 <https://github.com/ros2/rcutils/issues/177>`_)
+* check and link against libatomic (`#172 <https://github.com/ros2/rcutils/issues/172>`_)
+* Rewrite test_logging_throttle tests: (`#167 <https://github.com/ros2/rcutils/issues/167>`_)
+* Disable uncrustify indentation check for macros that use windows  `__pragma` (`#164 <https://github.com/ros2/rcutils/issues/164>`_)
+* Fix armhf warning (`#163 <https://github.com/ros2/rcutils/issues/163>`_)
+* Contributors: Christian Rauch, Dirk Thomas, Emerson Knapp, Michel Hidalgo, Shane Loretz, jpsamper2009
+
 0.7.3 (2019-05-29)
 ------------------
 * getprogname() is the correct API to use on Android. (`#162 <https://github.com/ros2/rcutils/issues/162>`_)
