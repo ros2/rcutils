@@ -194,6 +194,7 @@ rcutils_mkdir(const char * abs_path)
   // TODO(clalancette): Check to ensure that the path is absolute on Windows.
   // In theory we can use PathRelativeA to do this, but I was unable to make
   // it work.  Needs further investigation.
+
   int ret = _mkdir(abs_path);
 #else
   if (abs_path[0] != '/') {
