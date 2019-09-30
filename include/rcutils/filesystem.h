@@ -152,6 +152,9 @@ rcutils_to_native_path(
  * If the abs_path already exists, and is a directory, this function will
  * return True.
  *
+ * This function is not thread-safe due to mkdir races as described in the
+ * openat(2) documentation.
+ *
  * \param[in] abs_path
  * \param[in] allocator
  * \return bool True if making the directory was successful, False otherwise
