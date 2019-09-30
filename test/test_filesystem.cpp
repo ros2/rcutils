@@ -236,3 +236,47 @@ TEST_F(TestFilesystemFixture, is_readable_and_writable) {
     EXPECT_FALSE(rcutils_is_readable_and_writable(path));
   }
 }
+
+TEST_F(TestFilesystemFixture, mkdir) {
+  {
+    // Make a new directory
+    char * path =
+      rcutils_join_path(BUILD_DIR, "mkdir_test_dir", g_allocator);
+    ASSERT_FALSE(nullptr == path);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      g_allocator.deallocate(path, g_allocator.state);
+    });
+    ASSERT_TRUE(rcutils_mkdir(path));
+  }
+  {
+    // Purposely do it again, to make sure mkdir handles the case where the
+    // directory already exists
+    char * path =
+      rcutils_join_path(BUILD_DIR, "mkdir_test_dir", g_allocator);
+    ASSERT_FALSE(nullptr == path);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      g_allocator.deallocate(path, g_allocator.state);
+    });
+    ASSERT_TRUE(rcutils_mkdir(path));
+  }
+  {
+    ASSERT_FALSE(rcutils_mkdir(nullptr));
+  }
+  {
+    ASSERT_FALSE(rcutils_mkdir("foo/bar"));
+  }
+  {
+    // Make sure it throws an error when the intermediate path doesn't exist
+    char * path =
+      rcutils_join_path(BUILD_DIR, "mkdir_test_dir2", g_allocator);
+    ASSERT_FALSE(nullptr == path);
+    char * path2 =
+      rcutils_join_path(path, "mkdir_test_dir3", g_allocator);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+      g_allocator.deallocate(path2, g_allocator.state);
+      g_allocator.deallocate(path, g_allocator.state);
+    });
+    ASSERT_FALSE(nullptr == path2);
+    ASSERT_FALSE(rcutils_mkdir(path2));
+  }
+}
