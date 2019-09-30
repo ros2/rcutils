@@ -146,8 +146,9 @@ rcutils_to_native_path(
 
 /// Create the specified directory.
 /**
- * This function creates an absolutely-specified directory.  If any of the
- * intermediate directories do not exist, this function will return False.
+ * This function creates an absolutely-specified directory.
+ * If any of the intermediate directories do not exist, this function will
+ * return False.
  * If the abs_path already exists, and is a directory, this function will
  * return True.
  *
