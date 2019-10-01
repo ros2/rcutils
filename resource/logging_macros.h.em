@@ -178,7 +178,7 @@ typedef bool (* RclLogFilter)();
     static rcutils_time_point_value_t __rcutils_logging_last_logged = 0; \
     rcutils_time_point_value_t __rcutils_logging_now = 0; \
     bool __rcutils_logging_condition = true; \
-    if (rcutils_steady_time_now(&__rcutils_logging_now) != RCUTILS_RET_OK) { \
+    if (time_source_type(&__rcutils_logging_now) != RCUTILS_RET_OK) { \
       rcutils_log( \
         &__rcutils_logging_location, RCUTILS_LOG_SEVERITY_ERROR, "", \
         "%s() at %s:%d getting current steady time failed\n", \
