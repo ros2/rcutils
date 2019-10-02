@@ -154,7 +154,7 @@ TEST_F(TestLoggingMacros, test_logging_throttle) {
     auto is_before_throttle_end =
       ((std::chrono::system_clock::now() - start) < throttle_time);
     RCUTILS_LOG_ERROR_THROTTLE(
-      rcutils_steady_time_now, throttle_time.count(), first ? "first" : "other");
+      RCUTILS_STEADY_TIME, throttle_time.count(), first ? "first" : "other");
     first = false;
     auto is_still_before_throttle_end =
       ((std::chrono::system_clock::now() - start) < throttle_time);
@@ -185,7 +185,7 @@ TEST_F(TestLoggingMacros, test_logging_skipfirst_throttle) {
     auto is_before_throttle_end =
       ((std::chrono::system_clock::now() - start) < throttle_time);
     RCUTILS_LOG_FATAL_SKIPFIRST_THROTTLE(
-      rcutils_steady_time_now, throttle_time.count(), first ? "first" : "other");
+      RCUTILS_STEADY_TIME, throttle_time.count(), first ? "first" : "other");
     first = false;
     auto is_still_before_throttle_end =
       ((std::chrono::system_clock::now() - start) < throttle_time);
