@@ -2,6 +2,11 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Implement rcutils_mkdir. (`#166 <https://github.com/ros2/rcutils/issues/166>`_)
+* Contributors: Chris Lalancette
+
 0.8.0 (2019-09-24)
 ------------------
 * Make g_rcutils_log_severity_names public and immutable. (`#180 <https://github.com/ros2/rcutils/issues/180>`_)
