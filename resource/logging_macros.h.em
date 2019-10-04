@@ -173,12 +173,12 @@ typedef bool (* RclLogFilter)();
  * \def RCUTILS_LOG_CONDITION_THROTTLE_BEFORE
  * A macro initializing and checking the `throttle` condition.
  */
-#define RCUTILS_LOG_CONDITION_THROTTLE_BEFORE(time_source, duration) { \
+#define RCUTILS_LOG_CONDITION_THROTTLE_BEFORE(get_time_point_value, duration) { \
     static rcutils_duration_value_t __rcutils_logging_duration = RCUTILS_MS_TO_NS((rcutils_duration_value_t)duration); \
     static rcutils_time_point_value_t __rcutils_logging_last_logged = 0; \
     rcutils_time_point_value_t __rcutils_logging_now = 0; \
     bool __rcutils_logging_condition = true; \
-    if (time_source(&__rcutils_logging_now) != RCUTILS_RET_OK) { \
+    if (get_time_point_value(&__rcutils_logging_now) != RCUTILS_RET_OK) { \
       rcutils_log( \
         &__rcutils_logging_location, RCUTILS_LOG_SEVERITY_ERROR, "", \
         "%s() at %s:%d getting current steady time failed\n", \
