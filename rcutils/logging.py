@@ -169,7 +169,7 @@ feature_combinations = OrderedDict((
             }, **name_args
         },
         doc_lines=skipfirst_doc_lines + throttle_doc_lines + name_doc_lines)),
-    ))
+))
 
 
 def get_macro_parameters(feature_combination):
