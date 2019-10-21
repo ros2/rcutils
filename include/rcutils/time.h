@@ -39,6 +39,8 @@ extern "C"
 #define RCUTILS_NS_TO_MS(nanoseconds) (nanoseconds / (1000LL * 1000LL))
 /// Convenience macro to convert nanoseconds to microseconds.
 #define RCUTILS_NS_TO_US(nanoseconds) (nanoseconds / 1000LL)
+/// Convenience macro for rcutils_steady_time_now(rcutils_time_point_value_t *).
+#define RCUTILS_STEADY_TIME rcutils_steady_time_now
 
 /// A single point in time, measured in nanoseconds since the Unix epoch.
 typedef int64_t rcutils_time_point_value_t;
