@@ -17,13 +17,13 @@ import unittest
 
 from launch import LaunchDescription
 from launch.actions import ExecuteProcess
-from launch.actions import OpaqueFunction
 
 import launch_testing
+import launch_testing.actions
 import launch_testing.asserts
 
 
-def generate_test_description(ready_fn):
+def generate_test_description():
     processes_to_test = []
 
     launch_description = LaunchDescription()
@@ -71,7 +71,7 @@ def generate_test_description(ready_fn):
     processes_to_test.append(name)
 
     launch_description.add_action(
-        OpaqueFunction(function=lambda context: ready_fn())
+        launch_testing.actions.ReadyToTest()
     )
 
     return launch_description, {'processes_to_test': processes_to_test}
