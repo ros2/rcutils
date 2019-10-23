@@ -2,6 +2,13 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.8.2 (2019-10-23)
+------------------
+* Specify working directory for filesystem test (`#185 <https://github.com/ros2/rcutils/issues/185>`_)
+* Make use of time source type for throttling logs (`#183 <https://github.com/ros2/rcutils/issues/183>`_)
+* Remove ready_fn - will be replaced by ReadyToTest() (`#184 <https://github.com/ros2/rcutils/issues/184>`_)
+* Contributors: Brian Marchi, Dan Rose, Peter Baughman
+
 0.8.1 (2019-10-03)
 ------------------
 * Implement rcutils_mkdir. (`#166 <https://github.com/ros2/rcutils/issues/166>`_)
