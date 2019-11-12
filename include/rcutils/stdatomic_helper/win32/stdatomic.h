@@ -204,7 +204,7 @@ typedef _Atomic (uintmax_t) atomic_uintmax_t;
   do { \
     switch (sizeof(out)) { \
       case sizeof(uint64_t): \
-        out = _InterlockedCompareExchange64((LONGLONG *) object, desired, *expected); \
+        out = InterlockedCompareExchange64((LONGLONG *) object, desired, *expected); \
         break; \
       case sizeof(uint32_t): \
         out = _InterlockedCompareExchange((LONG *) object, desired, *expected); \
@@ -235,7 +235,7 @@ typedef _Atomic (uintmax_t) atomic_uintmax_t;
   do { \
     switch (sizeof(out)) { \
       case sizeof(uint64_t): \
-        out = _InterlockedExchange64((LONGLONG *) object, desired); \
+        out = InterlockedExchange64((LONGLONG *) object, desired); \
         break; \
       case sizeof(uint32_t): \
         out = _InterlockedExchange((LONG *) object, desired); \
@@ -263,7 +263,7 @@ typedef _Atomic (uintmax_t) atomic_uintmax_t;
   do { \
     switch (sizeof(out)) { \
       case sizeof(uint64_t): \
-        out = _InterlockedExchangeAdd64((LONGLONG *) object, operand); \
+        out = InterlockedExchangeAdd64((LONGLONG *) object, operand); \
         break; \
       case sizeof(uint32_t): \
         out = _InterlockedExchangeAdd((LONG *) object, operand); \
@@ -291,7 +291,7 @@ typedef _Atomic (uintmax_t) atomic_uintmax_t;
   do { \
     switch (sizeof(out)) { \
       case sizeof(uint64_t): \
-        out = _InterlockedAnd64((LONGLONG *) object, operand); \
+        out = InterlockedAnd64((LONGLONG *) object, operand); \
         break; \
       case sizeof(uint32_t): \
         out = _InterlockedAnd((LONG *) object, operand); \
@@ -319,7 +319,7 @@ typedef _Atomic (uintmax_t) atomic_uintmax_t;
   do { \
     switch (sizeof(out)) { \
       case sizeof(uint64_t): \
-        out = _InterlockedOr64((LONGLONG *) object, operand); \
+        out = InterlockedOr64((LONGLONG *) object, operand); \
         break; \
       case sizeof(uint32_t): \
         out = _InterlockedOr((LONG *) object, operand); \
@@ -350,7 +350,7 @@ typedef _Atomic (uintmax_t) atomic_uintmax_t;
   do { \
     switch (sizeof(out)) { \
       case sizeof(uint64_t): \
-        out = _InterlockedXor64((LONGLONG *) object, operand); \
+        out = InterlockedXor64((LONGLONG *) object, operand); \
         break; \
       case sizeof(uint32_t): \
         out = _InterlockedXor((LONG *) object, operand); \
@@ -378,7 +378,7 @@ typedef _Atomic (uintmax_t) atomic_uintmax_t;
   do { \
     switch (sizeof(out)) { \
       case sizeof(uint64_t): \
-        out = _InterlockedExchangeAdd64((LONGLONG *) object, 0); \
+        out = InterlockedExchangeAdd64((LONGLONG *) object, 0); \
         break; \
       case sizeof(uint32_t): \
         out = _InterlockedExchangeAdd((LONG *) object, 0); \
