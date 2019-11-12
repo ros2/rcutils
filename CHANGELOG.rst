@@ -2,6 +2,11 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.7.4 (2019-11-11)
+------------------
+* Use Win32 wrapper around 64 bit atomic operations (`#186 <https://github.com/ros2/rcutils/issues/186>`_) (`#188 <https://github.com/ros2/rcutils/issues/188>`_)
+* Contributors: Sean Kelly
+
 0.7.3 (2019-05-29)
 ------------------
 * getprogname() is the correct API to use on Android. (`#162 <https://github.com/ros2/rcutils/issues/162>`_)
