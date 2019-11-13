@@ -742,7 +742,7 @@ rcutils_ret_t rcutils_logging_format_message(
   }
 # define SET_OUTPUT_COLOR_WITH_SEVERITY(status, severity, stream, output_array) \
   { \
-    WORD color; \
+    WORD color = COLOR_NORMAL; \
     HANDLE handle = INVALID_HANDLE_VALUE; \
     SET_COLOR_WITH_SEVERITY(status, severity, color) \
     GET_HANDLE_FROM_STREAM(status, handle, stream) \
