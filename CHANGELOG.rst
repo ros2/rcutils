@@ -2,6 +2,11 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.8.4 (2019-11-18)
+------------------
+* fix type of logging feature keys (`#192 <https://github.com/ros2/rcutils/issues/192>`_)
+* Contributors: Dirk Thomas
+
 0.8.3 (2019-11-12)
 ------------------
 * Fix uninitialized handle error (`#187 <https://github.com/ros2/rcutils/issues/187>`_)
