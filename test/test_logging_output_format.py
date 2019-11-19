@@ -21,8 +21,10 @@ from launch.actions import ExecuteProcess
 import launch_testing
 import launch_testing.actions
 import launch_testing.asserts
+import launch_testing.markers
 
 
+@launch_testing.markers.keep_alive
 def generate_test_description():
     processes_to_test = []
 

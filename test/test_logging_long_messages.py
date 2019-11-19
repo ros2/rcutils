@@ -21,8 +21,10 @@ from launch.actions import ExecuteProcess
 import launch_testing
 import launch_testing.actions
 import launch_testing.asserts
+import launch_testing.markers
 
 
+@launch_testing.markers.keep_alive
 def generate_test_description():
     launch_description = LaunchDescription()
     # Set the output format to a "verbose" format that is expected by the executable output
