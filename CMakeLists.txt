@@ -50,6 +50,7 @@ set(rcutils_sources
   src/time.c
   ${time_impl_c}
   src/uint8_array.c
+  src/security_directory.c
 )
 set_source_files_properties(
   ${rcutils_sources}
