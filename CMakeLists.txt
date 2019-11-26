@@ -13,6 +13,7 @@ endif()
 
 find_package(ament_cmake_python REQUIRED)
 find_package(ament_cmake_ros REQUIRED)
+find_package(tinydir_vendor REQUIRED)
 
 ament_python_install_package(${PROJECT_NAME})
 
@@ -52,6 +53,7 @@ set(rcutils_sources
   src/uint8_array.c
   src/security_directory.c
 )
+
 set_source_files_properties(
   ${rcutils_sources}
   PROPERTIES language "C")
@@ -108,6 +110,10 @@ install(TARGETS ${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin)
+
+ament_target_dependencies(${PROJECT_NAME}
+  "tinydir_vendor"
+)
 
 if(BUILD_TESTING)
   if(NOT WIN32)

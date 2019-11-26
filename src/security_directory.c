@@ -246,12 +246,12 @@ char * rcutils_get_secure_root(
   if (NULL == node_secure_root || !rcutils_is_directory(node_secure_root)) {
     // Check node_secure_root is not NULL before checking directory
     if (NULL == node_secure_root) {
-      RCL_SET_ERROR_MSG_WITH_FORMAT_STRING(
+      RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
         "SECURITY ERROR: unable to find a folder matching the node name in %s%s."
         "Lookup strategy: %s",
         ros_secure_root_env, node_namespace, lookup_strategy);
     } else {
-      RCL_SET_ERROR_MSG_WITH_FORMAT_STRING(
+      RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
         "SECURITY ERROR: directory %s does not exist. Lookup strategy: %s",
         node_secure_root, lookup_strategy);
     }
