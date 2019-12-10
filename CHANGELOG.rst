@@ -2,6 +2,11 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.7.5 (2019-12-10)
+------------------
+* Fix uninitialized handle error (`#187 <https://github.com/ros2/rcutils/issues/187>`_) (`#191 <https://github.com/ros2/rcutils/issues/191>`_)
+* Contributors: Karsten Knese, Sean Kelly
+
 0.7.4 (2019-11-11)
 ------------------
 * Use Win32 wrapper around 64 bit atomic operations (`#186 <https://github.com/ros2/rcutils/issues/186>`_) (`#188 <https://github.com/ros2/rcutils/issues/188>`_)
