@@ -217,7 +217,7 @@ rcutils_calculate_directory_size(const char * directory_path, rcutils_allocator_
 {
   size_t dir_size = 0;
 #ifdef _WIN32
-  char * path = rcutils_joint_path(directory_path, "*", allocator);
+  char * path = rcutils_join_path(directory_path, "*", allocator);
   WIN32_FIND_DATA data;
   HANDLE handle = FindFirstFile(path, &data);
   allocator.deallocate(path, allocator.state);
