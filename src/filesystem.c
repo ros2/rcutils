@@ -24,8 +24,10 @@ extern "C"
 #include <string.h>
 #include <sys/stat.h>
 #ifndef _WIN32
+#include <dirent.h>
 #include <unistd.h>
 #else
+#include <windows.h>
 #include <direct.h>
 #endif  // _WIN32
 
@@ -208,6 +210,53 @@ rcutils_mkdir(const char * abs_path)
   }
 
   return success;
+}
+
+size_t
+rcutils_calculate_directory_size(const char * directory_path, rcutils_allocator_t allocator)
+{
+  size_t dir_size = 0;
+#ifdef _WIN32
+  char * path = rcutils_joint_path(directory_path, "*", allocator);
+  WIN32_FIND_DATA data;
+  HANDLE handle = FindFirstFile(path, &data);
+  allocator.deallocate(path, allocator.state);
+  if (handle != INVALID_HANDLE_VALUE) {
+    do {
+      if (strcmp(data.cFileName, ".") != 0 && strcmp(data.cFileName, "..") != 0) {
+        char * file_path = rcutils_join_path(directory_path, data.cFileName, allocator);
+        dir_size += rcutils_get_file_size(file_path);
+        allocator.deallocate(file_path, allocator.state);
+      }
+    } while (FindNextFile(handle, &data));
+    FindClose(handle);
+  }
+  return dir_size;
+#else
+  DIR * dir = opendir(directory_path);
+  if (NULL == dir) {
+    fprintf(stderr, "%d\n", errno);
+    return dir_size;
+  }
+  struct dirent * entry;
+  while (NULL != (entry = readdir(dir))) {
+    if (strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0) {
+      char * file_path = rcutils_join_path(directory_path, entry->d_name, allocator);
+      dir_size += rcutils_get_file_size(file_path);
+      allocator.deallocate(file_path, allocator.state);
+    }
+  }
+  closedir(dir);
+  return dir_size;
+#endif
+}
+
+size_t
+rcutils_get_file_size(const char * file_path)
+{
+  struct stat stat_buffer;
+  int rc = stat(file_path, &stat_buffer);
+  return rc == 0 ? (size_t)(stat_buffer.st_size) : 0;
 }
 
 #ifdef __cplusplus
