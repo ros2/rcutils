@@ -218,7 +218,7 @@ rcutils_calculate_directory_size(const char * directory_path, rcutils_allocator_
   size_t dir_size = 0;
 
   if (!rcutils_is_directory(directory_path)) {
-    fprintf(stderr, "Path is no directory: %s\n", directory_path);
+    fprintf(stderr, "Path is not a directory: %s\n", directory_path);
     return dir_size;
   }
 #ifdef _WIN32
@@ -266,7 +266,7 @@ size_t
 rcutils_get_file_size(const char * file_path)
 {
   if (!rcutils_is_file(file_path)) {
-    fprintf(stderr, "Path is no file: %s\n", file_path);
+    fprintf(stderr, "Path is not a file: %s\n", file_path);
     return 0;
   }
 
