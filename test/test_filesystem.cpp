@@ -280,3 +280,38 @@ TEST_F(TestFilesystemFixture, mkdir) {
     ASSERT_FALSE(rcutils_mkdir(path2));
   }
 }
+
+TEST_F(TestFilesystemFixture, calculate_directory_size) {
+  char * path =
+    rcutils_join_path(this->test_path, "dummy_folder", g_allocator);
+  size_t size = rcutils_calculate_directory_size(path, g_allocator);
+  ASSERT_EQ(5u, size);
+  OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+    g_allocator.deallocate(path, g_allocator.state);
+  });
+
+  char * non_existing_path = rcutils_join_path(this->test_path, "non_existing_folder", g_allocator);
+  size = rcutils_calculate_directory_size(non_existing_path, g_allocator);
+  ASSERT_EQ(0u, size);
+  OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+    g_allocator.deallocate(non_existing_path, g_allocator.state);
+  });
+}
+
+TEST_F(TestFilesystemFixture, calculate_file_size) {
+  char * path =
+    rcutils_join_path(this->test_path, "dummy_readable_file.txt", g_allocator);
+  size_t size = rcutils_get_file_size(path);
+  OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+    g_allocator.deallocate(path, g_allocator.state);
+  });
+  ASSERT_EQ(5u, size);
+
+  char * non_existing_path =
+    rcutils_join_path(this->test_path, "non_existing_file.txt", g_allocator);
+  size = rcutils_get_file_size(non_existing_path);
+  ASSERT_EQ(0u, size);
+  OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
+    g_allocator.deallocate(non_existing_path, g_allocator.state);
+  });
+}
