@@ -285,7 +285,13 @@ TEST_F(TestFilesystemFixture, calculate_directory_size) {
   char * path =
     rcutils_join_path(this->test_path, "dummy_folder", g_allocator);
   size_t size = rcutils_calculate_directory_size(path, g_allocator);
+#ifdef WIN32
+  // Due to different line breaks on windows, we have one more byte in the file.
+  // See https://github.com/ros2/rcutils/issues/198
+  ASSERT_EQ(6u, size);
+#else
   ASSERT_EQ(5u, size);
+#endif
   OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
     g_allocator.deallocate(path, g_allocator.state);
   });
@@ -305,7 +311,13 @@ TEST_F(TestFilesystemFixture, calculate_file_size) {
   OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT({
     g_allocator.deallocate(path, g_allocator.state);
   });
+#ifdef WIN32
+  // Due to different line breaks on windows, we have one more byte in the file.
+  // See https://github.com/ros2/rcutils/issues/198
+  ASSERT_EQ(6u, size);
+#else
   ASSERT_EQ(5u, size);
+#endif
 
   char * non_existing_path =
     rcutils_join_path(this->test_path, "non_existing_file.txt", g_allocator);
