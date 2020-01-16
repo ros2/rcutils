@@ -23,6 +23,7 @@ extern "C"
 #include "rcutils/get_env.h"
 
 #ifdef _WIN32
+# include <errno.h>
 # define WINDOWS_ENV_BUFFER_SIZE 2048
 static char __env_buffer[WINDOWS_ENV_BUFFER_SIZE];
 #endif  // _WIN32
@@ -41,11 +42,18 @@ rcutils_get_env(const char * env_name, const char ** env_value)
 #ifdef _WIN32
   size_t required_size;
   errno_t ret = getenv_s(&required_size, __env_buffer, sizeof(__env_buffer), env_name);
-  if (ret != 0) {
-    return "unable to read environment variable";
+  switch (ret) {
+    case 0:
+      __env_buffer[WINDOWS_ENV_BUFFER_SIZE - 1] = '\0';
+      *env_value = __env_buffer;
+      break;
+    case EINVAL:
+      return "invalid arguments when reading environment variable";
+    case ERANGE:
+      return "insufficient buffer size to read environment variable";
+    default:
+      return "unknown error code reading environment variable";
   }
-  __env_buffer[WINDOWS_ENV_BUFFER_SIZE - 1] = '\0';
-  *env_value = __env_buffer;
 #else
   *env_value = getenv(env_name);
   if (NULL == *env_value) {
