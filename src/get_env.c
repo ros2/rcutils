@@ -24,7 +24,9 @@ extern "C"
 
 #ifdef _WIN32
 # include <errno.h>
-# define WINDOWS_ENV_BUFFER_SIZE 2048
+// all environment variables live together in a single memory block
+// which has a limit of 32767 characters
+# define WINDOWS_ENV_BUFFER_SIZE 32767
 static char __env_buffer[WINDOWS_ENV_BUFFER_SIZE];
 #endif  // _WIN32
 
