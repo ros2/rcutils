@@ -59,7 +59,8 @@ TEST_F(TestTimeFixture, test_rcutils_system_time_now) {
   rcutils_reset_error();
   // Check for normal operation (not allowed to alloc).
   rcutils_time_point_value_t now = 0;
-  EXPECT_NO_MEMORY_OPERATIONS({
+  EXPECT_NO_MEMORY_OPERATIONS(
+  {
     ret = rcutils_system_time_now(&now);
   });
   EXPECT_EQ(ret, RCUTILS_RET_OK) << rcutils_get_error_string().str;
@@ -86,14 +87,16 @@ TEST_F(TestTimeFixture, test_rcutils_steady_time_now) {
   rcutils_reset_error();
   // Check for normal operation (not allowed to alloc).
   rcutils_time_point_value_t now = 0;
-  EXPECT_NO_MEMORY_OPERATIONS({
+  EXPECT_NO_MEMORY_OPERATIONS(
+  {
     ret = rcutils_steady_time_now(&now);
   });
   EXPECT_EQ(ret, RCUTILS_RET_OK) << rcutils_get_error_string().str;
   EXPECT_NE(0u, now);
   // Compare to std::chrono::steady_clock difference of two times (within a second).
   now = 0;
-  EXPECT_NO_MEMORY_OPERATIONS({
+  EXPECT_NO_MEMORY_OPERATIONS(
+  {
     ret = rcutils_steady_time_now(&now);
   });
   std::chrono::steady_clock::time_point now_sc = std::chrono::steady_clock::now();
@@ -102,7 +105,8 @@ TEST_F(TestTimeFixture, test_rcutils_steady_time_now) {
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
   // Then take a new timestamp with each and compare.
   rcutils_time_point_value_t later;
-  EXPECT_NO_MEMORY_OPERATIONS({
+  EXPECT_NO_MEMORY_OPERATIONS(
+  {
     ret = rcutils_steady_time_now(&later);
   });
   std::chrono::steady_clock::time_point later_sc = std::chrono::steady_clock::now();

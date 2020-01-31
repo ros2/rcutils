@@ -64,8 +64,9 @@ protected:
   {
     allocator = rcutils_get_default_allocator();
     map = rcutils_get_zero_initialized_hash_map();
-    rcutils_ret_t ret = rcutils_hash_map_init(&map, 2, sizeof(uint32_t), sizeof(uint32_t),
-        test_hash_map_uint32_hash_func, test_uint32_cmp, &allocator);
+    rcutils_ret_t ret = rcutils_hash_map_init(
+      &map, 2, sizeof(uint32_t), sizeof(uint32_t),
+      test_hash_map_uint32_hash_func, test_uint32_cmp, &allocator);
     EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
     rcutils_reset_error();
   }
@@ -81,58 +82,67 @@ protected:
 };
 
 TEST_F(HashMapBaseTest, init_map_NULL_fails) {
-  rcutils_ret_t ret = rcutils_hash_map_init(NULL, 2, sizeof(uint32_t), sizeof(uint32_t),
-      test_hash_map_uint32_hash_func, test_uint32_cmp, &allocator);
+  rcutils_ret_t ret = rcutils_hash_map_init(
+    NULL, 2, sizeof(uint32_t), sizeof(uint32_t),
+    test_hash_map_uint32_hash_func, test_uint32_cmp, &allocator);
   EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string().str;
 }
 
 TEST_F(HashMapBaseTest, init_map_initial_capacity_zero_fails) {
-  rcutils_ret_t ret = rcutils_hash_map_init(&map, 0, sizeof(uint32_t), sizeof(uint32_t),
-      test_hash_map_uint32_hash_func, test_uint32_cmp, &allocator);
+  rcutils_ret_t ret = rcutils_hash_map_init(
+    &map, 0, sizeof(uint32_t), sizeof(uint32_t),
+    test_hash_map_uint32_hash_func, test_uint32_cmp, &allocator);
   EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string().str;
 }
 
 TEST_F(HashMapBaseTest, init_map_key_size_zero_fails) {
-  rcutils_ret_t ret = rcutils_hash_map_init(&map, 2, 0, sizeof(uint32_t),
-      test_hash_map_uint32_hash_func, test_uint32_cmp, &allocator);
+  rcutils_ret_t ret = rcutils_hash_map_init(
+    &map, 2, 0, sizeof(uint32_t),
+    test_hash_map_uint32_hash_func, test_uint32_cmp, &allocator);
   EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string().str;
 }
 
 TEST_F(HashMapBaseTest, init_map_data_size_zero_fails) {
-  rcutils_ret_t ret = rcutils_hash_map_init(&map, 2, sizeof(uint32_t), 0,
-      test_hash_map_uint32_hash_func, test_uint32_cmp, &allocator);
+  rcutils_ret_t ret = rcutils_hash_map_init(
+    &map, 2, sizeof(uint32_t), 0,
+    test_hash_map_uint32_hash_func, test_uint32_cmp, &allocator);
   EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string().str;
 }
 
 TEST_F(HashMapBaseTest, init_map_hash_func_NULL_fails) {
-  rcutils_ret_t ret = rcutils_hash_map_init(&map, 2, sizeof(uint32_t), sizeof(uint32_t),
-      NULL, test_uint32_cmp, &allocator);
+  rcutils_ret_t ret = rcutils_hash_map_init(
+    &map, 2, sizeof(uint32_t), sizeof(uint32_t),
+    NULL, test_uint32_cmp, &allocator);
   EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string().str;
 }
 
 TEST_F(HashMapBaseTest, init_map_cmp_func_NULL_fails) {
-  rcutils_ret_t ret = rcutils_hash_map_init(&map, 2, sizeof(uint32_t), sizeof(uint32_t),
-      test_hash_map_uint32_hash_func, NULL, &allocator);
+  rcutils_ret_t ret = rcutils_hash_map_init(
+    &map, 2, sizeof(uint32_t), sizeof(uint32_t),
+    test_hash_map_uint32_hash_func, NULL, &allocator);
   EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string().str;
 }
 
 TEST_F(HashMapBaseTest, init_map_allocator_NULL_fails) {
-  rcutils_ret_t ret = rcutils_hash_map_init(&map, 2, sizeof(uint32_t), sizeof(uint32_t),
-      test_hash_map_uint32_hash_func, test_uint32_cmp, NULL);
+  rcutils_ret_t ret = rcutils_hash_map_init(
+    &map, 2, sizeof(uint32_t), sizeof(uint32_t),
+    test_hash_map_uint32_hash_func, test_uint32_cmp, NULL);
   EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string().str;
 }
 
 TEST_F(HashMapBaseTest, init_map_success) {
-  rcutils_ret_t ret = rcutils_hash_map_init(&map, 2, sizeof(uint32_t), sizeof(uint32_t),
-      test_hash_map_uint32_hash_func, test_uint32_cmp, &allocator);
+  rcutils_ret_t ret = rcutils_hash_map_init(
+    &map, 2, sizeof(uint32_t), sizeof(uint32_t),
+    test_hash_map_uint32_hash_func, test_uint32_cmp, &allocator);
   EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
   ret = rcutils_hash_map_fini(&map);
 }
 
 TEST_F(HashMapBaseTest, fini_map_success) {
-  rcutils_ret_t ret = rcutils_hash_map_init(&map, 2, sizeof(uint32_t), sizeof(uint32_t),
-      test_hash_map_uint32_hash_func, test_uint32_cmp, &allocator);
+  rcutils_ret_t ret = rcutils_hash_map_init(
+    &map, 2, sizeof(uint32_t), sizeof(uint32_t),
+    test_hash_map_uint32_hash_func, test_uint32_cmp, &allocator);
   EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
   ret = rcutils_hash_map_fini(&map);
@@ -398,8 +408,9 @@ TEST_F(HashMapPreInitTest, get_next_key_and_data_working) {
 TEST_F(HashMapBaseTest, growing_the_map_beyond_initial_capacity) {
   size_t capacity = 0;
   uint32_t key = 22, data = 0;
-  rcutils_ret_t ret = rcutils_hash_map_init(&map, 2, sizeof(uint32_t), sizeof(uint32_t),
-      test_hash_map_uint32_hash_func, test_uint32_cmp, &allocator);
+  rcutils_ret_t ret = rcutils_hash_map_init(
+    &map, 2, sizeof(uint32_t), sizeof(uint32_t),
+    test_hash_map_uint32_hash_func, test_uint32_cmp, &allocator);
   EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
   for (uint32_t i = 0; i < 50; ++i) {
@@ -431,9 +442,10 @@ TEST_F(HashMapBaseTest, string_keys) {
   const char * key1 = "one";
   const char * key2 = "two";
   const char * lookup_key = "one";
-  rcutils_ret_t ret = rcutils_hash_map_init(&map, 10, sizeof(char *), sizeof(uint32_t),
-      rcutils_hash_map_string_hash_func, rcutils_hash_map_string_cmp_func,
-      &allocator);
+  rcutils_ret_t ret = rcutils_hash_map_init(
+    &map, 10, sizeof(char *), sizeof(uint32_t),
+    rcutils_hash_map_string_hash_func, rcutils_hash_map_string_cmp_func,
+    &allocator);
   EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
   ret = rcutils_hash_map_set(&map, &key1, &data);

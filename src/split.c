@@ -189,7 +189,8 @@ rcutils_split_last(
       result_error = RCUTILS_RET_BAD_ALLOC;
       goto fail;
     }
-    snprintf(string_array->data[0], found_last + 1 - lhs_offset - inner_rhs_offset,
+    snprintf(
+      string_array->data[0], found_last + 1 - lhs_offset - inner_rhs_offset,
       "%s", str + lhs_offset);
 
     string_array->data[1] = allocator.allocate(
@@ -199,7 +200,8 @@ rcutils_split_last(
       result_error = RCUTILS_RET_BAD_ALLOC;
       goto fail;
     }
-    snprintf(string_array->data[1], string_size - found_last - rhs_offset, "%s",
+    snprintf(
+      string_array->data[1], string_size - found_last - rhs_offset, "%s",
       str + found_last + 1);
   }
 
