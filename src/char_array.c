@@ -38,7 +38,8 @@ rcutils_char_array_init(
   const rcutils_allocator_t * allocator)
 {
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(char_array, RCUTILS_RET_ERROR);
-  RCUTILS_CHECK_ALLOCATOR_WITH_MSG(allocator, "char array has no valid allocator",
+  RCUTILS_CHECK_ALLOCATOR_WITH_MSG(
+    allocator, "char array has no valid allocator",
     return RCUTILS_RET_ERROR);
 
   char_array->owns_buffer = true;
@@ -67,7 +68,8 @@ rcutils_char_array_fini(rcutils_char_array_t * char_array)
 
   if (char_array->owns_buffer) {
     rcutils_allocator_t * allocator = &char_array->allocator;
-    RCUTILS_CHECK_ALLOCATOR_WITH_MSG(allocator, "char array has no valid allocator",
+    RCUTILS_CHECK_ALLOCATOR_WITH_MSG(
+      allocator, "char array has no valid allocator",
       return RCUTILS_RET_ERROR);
 
     allocator->deallocate(char_array->buffer, allocator->state);
@@ -91,7 +93,8 @@ rcutils_char_array_resize(rcutils_char_array_t * char_array, size_t new_size)
   }
 
   rcutils_allocator_t * allocator = &char_array->allocator;
-  RCUTILS_CHECK_ALLOCATOR_WITH_MSG(allocator, "char array has no valid allocator",
+  RCUTILS_CHECK_ALLOCATOR_WITH_MSG(
+    allocator, "char array has no valid allocator",
     return RCUTILS_RET_ERROR);
 
   if (new_size == char_array->buffer_capacity) {

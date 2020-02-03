@@ -107,13 +107,15 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
       if (strcmp(line_buffered, "1") == 0) {
         g_force_stdout_line_buffered = true;
       } else if (strcmp(line_buffered, "0") != 0 && strcmp(line_buffered, "") != 0) {
-        fprintf(stderr,
+        fprintf(
+          stderr,
           "Warning: unexpected value [%s] specified for RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED. "
           "Default value 0 will be used. Valid values are 1 or 0.\n",
           line_buffered);
       }
     } else {
-      fprintf(stderr, "Error getting env. variable "
+      fprintf(
+        stderr, "Error getting env. variable "
         "RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED: %s\n", ret_str);
       ret = RCUTILS_RET_INVALID_ARGUMENT;
     }
@@ -159,7 +161,8 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
           ret_str);
         ret = RCUTILS_RET_INVALID_ARGUMENT;
       }
-      memcpy(g_rcutils_logging_output_format_string, g_rcutils_logging_default_output_format,
+      memcpy(
+        g_rcutils_logging_output_format_string, g_rcutils_logging_default_output_format,
         strlen(g_rcutils_logging_default_output_format) + 1);
     }
 
@@ -513,8 +516,8 @@ const char * expand_line_number(
   }
 
   // Even in the case of truncation the result will still be null-terminated.
-  int written = rcutils_snprintf(line_number_expansion, sizeof(line_number_expansion), "%zu",
-      location->line_number);
+  int written = rcutils_snprintf(
+    line_number_expansion, sizeof(line_number_expansion), "%zu", location->line_number);
   if (written < 0) {
     fprintf(stderr, "failed to format line number: '%zu'\n", location->line_number);
     return NULL;
@@ -764,7 +767,8 @@ rcutils_ret_t rcutils_logging_format_message(
     if (RCUTILS_RET_OK == status) { \
       status = rcutils_char_array_strncat(&output_array, color, strlen(color)); \
       if (RCUTILS_RET_OK != status) { \
-        fprintf(stderr, "Error: rcutils_char_array_strncat failed with: %d\n", \
+        fprintf( \
+          stderr, "Error: rcutils_char_array_strncat failed with: %d\n", \
           status); \
       } \
     } \
@@ -844,7 +848,8 @@ void rcutils_logging_console_output_handler(
     va_copy(args_clone, *args);
     status = rcutils_char_array_vsprintf(&msg_array, format, args_clone);
     if (RCUTILS_RET_OK != status) {
-      fprintf(stderr, "Error: rcutils_char_array_vsprintf failed with: %d\n",
+      fprintf(
+        stderr, "Error: rcutils_char_array_vsprintf failed with: %d\n",
         status);
     }
     va_end(args_clone);
@@ -854,7 +859,8 @@ void rcutils_logging_console_output_handler(
     status = rcutils_logging_format_message(
       location, severity, name, timestamp, msg_array.buffer, &output_array);
     if (RCUTILS_RET_OK != status) {
-      fprintf(stderr, "Error: rcutils_logging_format_message failed with: %d\n",
+      fprintf(
+        stderr, "Error: rcutils_logging_format_message failed with: %d\n",
         status);
     }
   }
@@ -869,7 +875,8 @@ void rcutils_logging_console_output_handler(
       int flush_result = fflush(stream);
       if (flush_result != 0 && !g_stdout_flush_failure_reported) {
         g_stdout_flush_failure_reported = true;
-        fprintf(stderr, "Error: failed to perform fflush on stdout, fflush return code is: %d\n",
+        fprintf(
+          stderr, "Error: failed to perform fflush on stdout, fflush return code is: %d\n",
           flush_result);
       }
     }

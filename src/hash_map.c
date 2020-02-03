@@ -162,8 +162,8 @@ static rcutils_ret_t hash_map_insert_entry(
 
   // If we have initialized this bucket yet then do so
   if (NULL == bucket->impl) {
-    ret = rcutils_array_list_init(bucket, BUCKET_INITIAL_CAP, sizeof(rcutils_hash_map_entry_t *),
-        allocator);
+    ret = rcutils_array_list_init(
+      bucket, BUCKET_INITIAL_CAP, sizeof(rcutils_hash_map_entry_t *), allocator);
   }
 
   if (RCUTILS_RET_OK == ret) {
@@ -220,8 +220,8 @@ static rcutils_ret_t hash_map_check_and_grow_map(rcutils_hash_map_t * hash_map)
     }
 
     // Cleanup the old map and swap in the new one
-    ret = hash_map_deallocate_map(hash_map->impl->map, hash_map->impl->capacity,
-        &hash_map->impl->allocator, false);
+    ret = hash_map_deallocate_map(
+      hash_map->impl->map, hash_map->impl->capacity, &hash_map->impl->allocator, false);
     // everything worked up to this point, so if we fail to dealloc the old map still set the new
     hash_map->impl->map = new_map;
     hash_map->impl->capacity = new_capacity;
@@ -286,8 +286,8 @@ rcutils_ret_t
 rcutils_hash_map_fini(rcutils_hash_map_t * hash_map)
 {
   HASH_MAP_VALIDATE_HASH_MAP(hash_map);
-  rcutils_ret_t ret = hash_map_deallocate_map(hash_map->impl->map, hash_map->impl->capacity,
-      &hash_map->impl->allocator, true);
+  rcutils_ret_t ret = hash_map_deallocate_map(
+    hash_map->impl->map, hash_map->impl->capacity, &hash_map->impl->allocator, true);
 
   if (RCUTILS_RET_OK == ret) {
     hash_map->impl->allocator.deallocate(hash_map->impl, hash_map->impl->allocator.state);
