@@ -14,14 +14,41 @@
 
 #include <gtest/gtest.h>
 
+#include "./allocator_testing_utils.h"
 #include "rcutils/allocator.h"
-
+#include "rcutils/error_handling.h"
 #include "rcutils/types/char_array.h"
 
-TEST(test_char_array, default_initialization) {
-  auto char_array = rcutils_get_zero_initialized_char_array();
+class ArrayCharTest : public ::testing::Test
+{
+protected:
+  void SetUp() override
+  {
+    // Reset rcutils error to prevent failure from a previous test case to contaminate
+    // another one.
+    rcutils_reset_error();
 
-  auto allocator = rcutils_get_default_allocator();
+    allocator = rcutils_get_default_allocator();
+    char_array = rcutils_get_zero_initialized_char_array();
+  }
+
+  rcutils_allocator_t allocator;
+  rcutils_char_array_t char_array;
+};
+
+static rcutils_ret_t example_logger(
+  rcutils_char_array_t * char_array,
+  const char * format, ...)
+{
+  rcutils_ret_t status;
+  va_list args;
+  va_start(args, format);
+  status = rcutils_char_array_vsprintf(char_array, format, args);
+  va_end(args);
+  return status;
+}
+
+TEST_F(ArrayCharTest, default_initialization) {
   EXPECT_EQ(RCUTILS_RET_OK, rcutils_char_array_init(&char_array, 0, &allocator));
   EXPECT_EQ(0lu, char_array.buffer_capacity);
   EXPECT_EQ(RCUTILS_RET_OK, rcutils_char_array_fini(&char_array));
@@ -29,9 +56,7 @@ TEST(test_char_array, default_initialization) {
   EXPECT_FALSE(char_array.buffer);
 }
 
-TEST(test_char_array, resize) {
-  auto char_array = rcutils_get_zero_initialized_char_array();
-  auto allocator = rcutils_get_default_allocator();
+TEST_F(ArrayCharTest, resize) {
   auto ret = rcutils_char_array_init(&char_array, 5, &allocator);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
@@ -41,6 +66,12 @@ TEST(test_char_array, resize) {
 
   ret = rcutils_char_array_resize(&char_array, 0);
   ASSERT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret);
+  EXPECT_EQ(5lu, char_array.buffer_capacity);
+  EXPECT_EQ(5lu, char_array.buffer_length);
+  rcutils_reset_error();
+
+  ret = rcutils_char_array_resize(&char_array, 5);
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
   EXPECT_EQ(5lu, char_array.buffer_capacity);
   EXPECT_EQ(5lu, char_array.buffer_length);
 
@@ -63,5 +94,65 @@ TEST(test_char_array, resize) {
   // the other fields are garbage.
 
   // cleanup only 3 fields
+  EXPECT_EQ(RCUTILS_RET_OK, rcutils_char_array_fini(&char_array));
+}
+
+TEST_F(ArrayCharTest, vsprintf_fail) {
+  auto failing_allocator = get_failing_allocator();
+  auto ret = rcutils_char_array_init(&char_array, 10, &allocator);
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
+
+  setlocale(LC_ALL, ".932");
+  wchar_t wbuf[2];
+  wbuf[0] = 129;
+  wbuf[1] = 0;
+  ret = example_logger(&char_array, "%ls", wbuf);
+  EXPECT_EQ(RCUTILS_RET_ERROR, ret);
+  rcutils_reset_error();
+
+  char_array.allocator = failing_allocator;
+  ret = example_logger(&char_array, "Long string for the case %d", 2);
+  EXPECT_EQ(RCUTILS_RET_BAD_ALLOC, ret);
+  rcutils_reset_error();
+
+  char_array.allocator = allocator;
+  EXPECT_EQ(RCUTILS_RET_OK, rcutils_char_array_fini(&char_array));
+}
+
+TEST_F(ArrayCharTest, strcpy) {
+  auto failing_allocator = get_failing_allocator();
+  auto ret = rcutils_char_array_init(&char_array, 8, &allocator);
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
+
+  EXPECT_EQ(RCUTILS_RET_OK, rcutils_char_array_strcpy(&char_array, "1234"));
+  EXPECT_STREQ("1234\0", char_array.buffer);
+  EXPECT_EQ(5lu, char_array.buffer_length);
+
+  char_array.allocator = failing_allocator;
+  EXPECT_EQ(RCUTILS_RET_BAD_ALLOC, rcutils_char_array_strcpy(&char_array, "123456789"));
+  rcutils_reset_error();
+
+  char_array.allocator = allocator;
+  EXPECT_EQ(RCUTILS_RET_OK, rcutils_char_array_fini(&char_array));
+}
+
+TEST_F(ArrayCharTest, strcat) {
+  auto failing_allocator = get_failing_allocator();
+  auto ret = rcutils_char_array_init(&char_array, 8, &allocator);
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
+
+  EXPECT_EQ(RCUTILS_RET_OK, rcutils_char_array_strcpy(&char_array, "1234"));
+  EXPECT_STREQ("1234\0", char_array.buffer);
+  EXPECT_EQ(5lu, char_array.buffer_length);
+
+  EXPECT_EQ(RCUTILS_RET_OK, rcutils_char_array_strcat(&char_array, "56"));
+  EXPECT_STREQ("123456\0", char_array.buffer);
+  EXPECT_EQ(7lu, char_array.buffer_length);
+
+  char_array.allocator = failing_allocator;
+  EXPECT_EQ(RCUTILS_RET_BAD_ALLOC, rcutils_char_array_strcat(&char_array, "7890"));
+  rcutils_reset_error();
+
+  char_array.allocator = allocator;
   EXPECT_EQ(RCUTILS_RET_OK, rcutils_char_array_fini(&char_array));
 }
