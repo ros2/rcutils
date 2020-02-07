@@ -345,6 +345,14 @@ if(BUILD_TESTING)
   if(TARGET test_hash_map)
     target_link_libraries(test_hash_map ${PROJECT_NAME})
   endif()
+
+  rcutils_custom_add_gtest(test_cmdline_parser
+    test/test_cmdline_parser.cpp
+  )
+  if(TARGET test_cmdline_parser)
+    target_link_libraries(test_cmdline_parser ${PROJECT_NAME})
+  endif()
+
 endif()
 
 ament_export_dependencies(ament_cmake)
