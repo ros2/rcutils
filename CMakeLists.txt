@@ -353,6 +353,13 @@ if(BUILD_TESTING)
     target_link_libraries(test_cmdline_parser ${PROJECT_NAME})
   endif()
 
+  rcutils_custom_add_gtest(test_process
+    test/test_process.cpp
+  )
+  if(TARGET test_process)
+    target_link_libraries(test_process ${PROJECT_NAME})
+  endif()
+
 endif()
 
 ament_export_dependencies(ament_cmake)
