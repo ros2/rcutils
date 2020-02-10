@@ -70,5 +70,6 @@ TEST(test_strdup, invalid_arguments) {
   auto allocator = rcutils_get_default_allocator();
   auto failing_allocator = get_failing_allocator();
   EXPECT_EQ(NULL, rcutils_strdup(NULL, allocator));
+  EXPECT_EQ(NULL, rcutils_strndup(NULL, 5, allocator));
   EXPECT_EQ(NULL, rcutils_strdup("something", failing_allocator));
 }
