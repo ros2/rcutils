@@ -14,6 +14,7 @@
 
 #include "gtest/gtest.h"
 
+#include "./allocator_testing_utils.h"
 #include "rcutils/error_handling.h"
 #include "rcutils/split.h"
 #include "rcutils/types/string_array.h"
@@ -57,6 +58,15 @@ rcutils_string_array_t test_split_last(
 
 TEST(test_split, split) {
   rcutils_ret_t ret = RCUTILS_RET_OK;
+  rcutils_string_array_t tokens_fail;
+
+  EXPECT_EQ(
+    RCUTILS_RET_INVALID_ARGUMENT,
+    rcutils_split("Test", '/', rcutils_get_default_allocator(), NULL));
+
+  EXPECT_EQ(
+    RCUTILS_RET_ERROR,
+    rcutils_split("Test", '/', get_failing_allocator(), &tokens_fail));
 
   rcutils_string_array_t tokens0 = test_split("", '/', 0);
   ret = rcutils_string_array_fini(&tokens0);
@@ -122,7 +132,7 @@ TEST(test_split, split) {
   ret = rcutils_string_array_fini(&tokens9);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
-  rcutils_string_array_t tokens10 = test_split("/my//hello//world/", '/', 3);
+  rcutils_string_array_t tokens10 = test_split("/my//hello//world//", '/', 3);
   EXPECT_STREQ("my", tokens10.data[0]);
   EXPECT_STREQ("hello", tokens10.data[1]);
   EXPECT_STREQ("world", tokens10.data[2]);
@@ -139,6 +149,11 @@ TEST(test_split, split) {
 
 TEST(test_split, split_last) {
   rcutils_ret_t ret = RCUTILS_RET_OK;
+  rcutils_string_array_t tokens_fail;
+
+  EXPECT_EQ(
+    RCUTILS_RET_BAD_ALLOC,
+    rcutils_split_last("Test", '/', get_failing_allocator(), &tokens_fail));
 
   rcutils_string_array_t tokens0 = test_split_last("", '/', 0);
   ret = rcutils_string_array_fini(&tokens0);
