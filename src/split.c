@@ -100,7 +100,7 @@ rcutils_split(
   // take care of trailing token
   if (rhs - lhs < 1) {
     --string_array->size;
-    allocator.deallocate(string_array->data[string_array->size], allocator.state);
+    // allocator.deallocate(string_array->data[string_array->size], allocator.state);
     string_array->data[string_array->size] = NULL;
   } else {
     string_array->data[token_counter] =
