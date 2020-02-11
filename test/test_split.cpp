@@ -128,6 +128,13 @@ TEST(test_split, split) {
   EXPECT_STREQ("world", tokens10.data[2]);
   ret = rcutils_string_array_fini(&tokens10);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
+
+  rcutils_string_array_t tokens11 = test_split("///my//hello//world/////", '/', 3);
+  EXPECT_STREQ("my", tokens11.data[0]);
+  EXPECT_STREQ("hello", tokens11.data[1]);
+  EXPECT_STREQ("world", tokens11.data[2]);
+  ret = rcutils_string_array_fini(&tokens11);
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
 }
 
 TEST(test_split, split_last) {
