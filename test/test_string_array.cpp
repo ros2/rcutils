@@ -14,6 +14,7 @@
 
 #include "gtest/gtest.h"
 
+#include "./allocator_testing_utils.h"
 #include "rcutils/types/string_array.h"
 
 #ifdef _WIN32
@@ -22,15 +23,19 @@
 
 TEST(test_string_array, boot_string_array) {
   auto allocator = rcutils_get_default_allocator();
+  auto failing_allocator = get_failing_allocator();
   rcutils_ret_t ret = RCUTILS_RET_OK;
 
-  // UNDEFIEND BEHAVIOR
+  // UNDEFINED BEHAVIOR
   // rcutils_string_array_t sa00;
   // rcutils_string_array_fini(&sa00);
 
   rcutils_string_array_t sa0 = rcutils_get_zero_initialized_string_array();
   ret = rcutils_string_array_fini(&sa0);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
+
+  EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, rcutils_string_array_init(&sa0, 2, NULL));
+  EXPECT_EQ(RCUTILS_RET_BAD_ALLOC, rcutils_string_array_init(&sa0, 2, &failing_allocator));
 
   rcutils_string_array_t sa1 = rcutils_get_zero_initialized_string_array();
   ret = rcutils_string_array_init(&sa1, 3, &allocator);
@@ -45,6 +50,13 @@ TEST(test_string_array, boot_string_array) {
   sa2.data[1] = strdup("World");
   ret = rcutils_string_array_fini(&sa2);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
+
+  rcutils_string_array_t sa3 = rcutils_get_zero_initialized_string_array();
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_string_array_init(&sa3, 3, &allocator));
+  sa3.allocator.allocate = NULL;
+  ASSERT_EQ(RCUTILS_RET_INVALID_ARGUMENT, rcutils_string_array_fini(&sa3));
+  sa3.allocator = allocator;
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_string_array_fini(&sa3));
 }
 
 TEST(test_string_array, string_array_cmp) {
