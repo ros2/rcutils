@@ -18,6 +18,7 @@ extern "C"
 #endif
 
 #include <ctype.h>
+#include <errno.h>
 #include <inttypes.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -77,9 +78,6 @@ bool g_rcutils_logging_severities_map_valid = false;
 int g_rcutils_logging_default_logger_level = 0;
 
 static FILE * g_output_stream = NULL;
-static bool g_output_flush_stream = false;
-// A one-time print if we fail to flush
-static bool g_stream_flush_failure_reported = false;
 
 enum rcutils_colorized_output g_colorized_output = RCUTILS_COLORIZED_OUTPUT_AUTO;
 
@@ -88,11 +86,20 @@ rcutils_ret_t rcutils_logging_initialize(void)
   return rcutils_logging_initialize_with_allocator(rcutils_get_default_allocator());
 }
 
+enum rcutils_get_env_retval
+{
+  RCUTILS_GET_ENV_ERROR = -1,
+  RCUTILS_GET_ENV_ZERO = 0,
+  RCUTILS_GET_ENV_ONE = 1,
+  RCUTILS_GET_ENV_DEFAULT = 2,
+};
+
 // A utility function to get zero or one from an environment variable.  Returns
-// -1 if we failed to get the environment variable, 0 if the value in the
-// environment variable is something other than "0" or "1", 0 if the environment
-// variable is "0" or "", or "1" if the environment variable is "1".
-static int rcutils_get_env_var_zero_or_one(
+// RCUTILS_GET_ENV_ERROR if we failed to get the environment variable or if it was
+// something we don't understand.  Return RCUTILS_GET_ENV_ZERO if the value in the
+// environment variable is "0", RCUTILS_GET_ENV_ONE if the value in the environment
+// variable is "1", or RCUTILS_GET_ENV_DEFAULT if the environment variables is empty.
+static enum rcutils_get_env_retval rcutils_get_env_var_zero_or_one(
   const char * name, const char * zero_semantic,
   const char * one_semantic)
 {
@@ -102,24 +109,27 @@ static int rcutils_get_env_var_zero_or_one(
     fprintf(
       stderr, "Error getting environment variable "
       "%s: %s\n", name, ret_str);
-    return -1;
+    RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("Error getting environment variable: %s", ret_str);
+    return RCUTILS_GET_ENV_ERROR;
   }
 
-  if (strcmp(env_var_value, "0") == 0 || strcmp(env_var_value, "") == 0) {
-    return 0;
+  if (strcmp(env_var_value, "") == 0) {
+    return RCUTILS_GET_ENV_DEFAULT;
   }
-
+  if (strcmp(env_var_value, "0") == 0) {
+    return RCUTILS_GET_ENV_ZERO;
+  }
   if (strcmp(env_var_value, "1") == 0) {
-    return 1;
+    return RCUTILS_GET_ENV_ONE;
   }
 
   fprintf(
     stderr,
     "Warning: unexpected value [%s] specified for %s. "
-    "Valid values are 0 (%s) or 1 (%s).  Default value 0 will be used.\n",
+    "Valid values are 0 (%s) or 1 (%s).",
     env_var_value, name, zero_semantic, one_semantic);
 
-  return 0;
+  return RCUTILS_GET_ENV_ERROR;
 }
 
 rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allocator)
@@ -139,37 +149,59 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
     // are propagated immediately.  The user can choose to set the output stream
     // to stdout by setting the RCUTILS_CONSOLE_USE_STDOUT environment
     // variable to 1.
-    g_output_stream = stderr;
-    int retval = rcutils_get_env_var_zero_or_one(
+    enum rcutils_get_env_retval retval = rcutils_get_env_var_zero_or_one(
       "RCUTILS_CONSOLE_USE_STDOUT", "use stderr",
       "use stdout");
-    if (retval < 0) {
+    if (retval == RCUTILS_GET_ENV_ERROR) {
       return RCUTILS_RET_INVALID_ARGUMENT;
-    } else if (retval == 0) {
+    } else if (retval == RCUTILS_GET_ENV_DEFAULT || retval == RCUTILS_GET_ENV_ZERO) {
       g_output_stream = stderr;
-    } else if (retval == 1) {
+    } else if (retval == RCUTILS_GET_ENV_ONE) {
       g_output_stream = stdout;
     }
 
-    retval = rcutils_get_env_var_zero_or_one("RCUTILS_CONSOLE_FLUSH_STREAM", "no flush", "flush");
-    if (retval < 0) {
+    // Allow the user to choose how buffering on the stream works by setting
+    // RCUTILS_CONSOLE_BUFFERED_STREAM.  With an empty environment variable, use the
+    // default of the stream.  With a value of 0, force the stream to be unbuffered.
+    // With a value of 1, force the stream to be buffered.
+    retval =
+      rcutils_get_env_var_zero_or_one(
+      "RCUTILS_CONSOLE_BUFFERED_STREAM", "not buffered",
+      "buffered");
+    if (retval == RCUTILS_GET_ENV_ERROR) {
       return RCUTILS_RET_INVALID_ARGUMENT;
-    } else if (retval == 0) {
-      g_output_flush_stream = false;
-    } else if (retval == 1) {
-      g_output_flush_stream = true;
+    } else if (retval == RCUTILS_GET_ENV_ZERO) {
+      if (setvbuf(g_output_stream, NULL, _IONBF, 0) != 0) {
+        fprintf(
+          stderr, "Error setting stream buffering mode: %s\n", strerror(errno));
+        RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
+          "Error setting stream buffering mode: %s", strerror(
+            errno));
+        return RCUTILS_RET_ERROR;
+      }
+    } else if (retval == RCUTILS_GET_ENV_ONE) {
+      if (setvbuf(g_output_stream, NULL, _IOLBF, 0) != 0) {
+        fprintf(
+          stderr, "Error setting stream buffering mode: %s\n", strerror(errno));
+        RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
+          "Error setting stream buffering mode: %s", strerror(
+            errno));
+        return RCUTILS_RET_ERROR;
+      }
     }
+    // Note that for retval == RCUTILS_GET_ENV_DEFAULT, we do nothing to leave it at default.
 
     retval = rcutils_get_env_var_zero_or_one(
       "RCUTILS_COLORIZED_OUTPUT", "force color",
       "force no color");
-    if (retval < 0) {
+    if (retval == RCUTILS_GET_ENV_ERROR) {
       return RCUTILS_RET_INVALID_ARGUMENT;
-    } else if (retval == 0) {
+    } else if (retval == RCUTILS_GET_ENV_ZERO) {
       g_colorized_output = RCUTILS_COLORIZED_OUTPUT_FORCE_DISABLE;
-    } else if (retval == 1) {
+    } else if (retval == RCUTILS_GET_ENV_ONE) {
       g_colorized_output = RCUTILS_COLORIZED_OUTPUT_FORCE_ENABLE;
     }
+    // Note that for retval == RCUTILS_GET_ENV_DEFAULT, we do nothing to leave it at default.
 
     // Check for the environment variable for custom output formatting
     const char * output_format;
@@ -892,16 +924,6 @@ void rcutils_logging_console_output_handler(
 
   if (RCUTILS_RET_OK == status) {
     fprintf(g_output_stream, "%s\n", output_array.buffer);
-
-    if (g_output_flush_stream) {
-      int flush_result = fflush(g_output_stream);
-      if (flush_result != 0 && !g_stream_flush_failure_reported) {
-        g_stream_flush_failure_reported = true;
-        fprintf(
-          stderr, "Error: failed to perform fflush on stdout, fflush return code is: %d\n",
-          flush_result);
-      }
-    }
   }
 
   // Only does something in windows
