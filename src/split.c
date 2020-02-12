@@ -46,7 +46,7 @@ rcutils_split(
 
   size_t string_size = strlen(str);
 
-  // does it start with a delmiter?
+  // does it start with a delimiter?
   size_t lhs_offset = 0;
   if (str[0] == delimiter) {
     lhs_offset = 1;
@@ -75,8 +75,8 @@ rcutils_split(
   size_t rhs = 0 + lhs_offset;
   for (; rhs < string_size - rhs_offset; ++rhs) {
     if (str[rhs] == delimiter) {
-      // in case we have two consequetive delimiters
-      // we ignore these and delimish the size of the array
+      // in case we have two consecutive delimiters
+      // we ignore these and diminish the size of the array
       if (rhs - lhs < 1) {
         --string_array->size;
         string_array->data[string_array->size] = NULL;
@@ -136,7 +136,7 @@ rcutils_split_last(
 
   size_t string_size = strlen(str);
 
-  // does it start with a delmiter?
+  // does it start with a delimiter?
   size_t lhs_offset = 0;
   if (str[0] == delimiter) {
     lhs_offset = 1;
