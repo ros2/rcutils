@@ -1588,6 +1588,11 @@ TEST(test_string_map, get_next_key) {
     EXPECT_STREQ("key3", second_key);
     const char * last_key = rcutils_string_map_get_next_key(&string_map, second_key);
     EXPECT_EQ(NULL, last_key);
+
+    EXPECT_EQ(
+      NULL, rcutils_string_map_get_next_key(NULL, first_key)) << rcutils_get_error_string().str;
+    EXPECT_EQ(
+      NULL, rcutils_string_map_get_next_key(&string_map, "key")) << rcutils_get_error_string().str;
   }
 }
 
