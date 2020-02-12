@@ -383,7 +383,7 @@ TEST_F(ArrayListTest, list_add_bad_allocator_fails) {
   uint32_t data = 22;
   state.is_failing = false;
   failing_allocator.state = &state;
-  
+
   EXPECT_EQ(
     RCUTILS_RET_OK, rcutils_array_list_init(&list, 1, sizeof(uint32_t), &failing_allocator));
   EXPECT_EQ(RCUTILS_RET_OK, rcutils_array_list_add(&list, &data));
@@ -394,5 +394,5 @@ TEST_F(ArrayListTest, list_add_bad_allocator_fails) {
 
   state.is_failing = false;
   failing_allocator.state = &state;
-  EXPECT_EQ(RCUTILS_RET_OK, rcutils_array_list_fini(&list));  
+  EXPECT_EQ(RCUTILS_RET_OK, rcutils_array_list_fini(&list));
 }
