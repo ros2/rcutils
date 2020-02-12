@@ -109,7 +109,9 @@ static enum rcutils_get_env_retval rcutils_get_env_var_zero_or_one(
     fprintf(
       stderr, "Error getting environment variable "
       "%s: %s\n", name, ret_str);
-    RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("Error getting environment variable: %s", ret_str);
+    RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
+      "Error getting environment variable %s: %s", name,
+      ret_str);
     return RCUTILS_GET_ENV_ERROR;
   }
 
@@ -144,6 +146,25 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
 
     g_rcutils_logging_output_handler = &rcutils_logging_console_output_handler;
     g_rcutils_logging_default_logger_level = RCUTILS_DEFAULT_LOGGER_DEFAULT_LEVEL;
+
+    const char * line_buffered = NULL;
+    const char * ret_str = rcutils_get_env("RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED", &line_buffered);
+    if (NULL == ret_str) {
+      if (strcmp(line_buffered, "") != 0) {
+        fprintf(
+          stderr,
+          "RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED is now ignored.  "
+          "Please set RCUTILS_CONSOLE_USE_STDOUT and RCUTILS_CONSOLE_BUFFERED_STREAM "
+          "to control the stream and the buffering of log messages.\n");
+      }
+    } else {
+      fprintf(
+        stderr, "Error getting environment variable "
+        "RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED: %s\n", ret_str);
+      RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
+        "Error getting environment variable RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED: %s", ret_str);
+      return RCUTILS_RET_ERROR;
+    }
 
     // Set the default output stream for all severities to stderr so that errors
     // are propagated immediately.  The user can choose to set the output stream
@@ -205,7 +226,7 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
 
     // Check for the environment variable for custom output formatting
     const char * output_format;
-    const char * ret_str = rcutils_get_env("RCUTILS_CONSOLE_OUTPUT_FORMAT", &output_format);
+    ret_str = rcutils_get_env("RCUTILS_CONSOLE_OUTPUT_FORMAT", &output_format);
     if (NULL == ret_str && strcmp(output_format, "") != 0) {
       size_t chars_to_copy = strlen(output_format);
       if (chars_to_copy > RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN - 1) {
