@@ -137,6 +137,27 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logging) {
   EXPECT_EQ(5u, g_log_calls);
   EXPECT_EQ(RCUTILS_LOG_SEVERITY_FATAL, g_last_log_event.level);
 
+  {
+    rcutils_ret_t ret;
+    rcutils_allocator_t allocator = rcutils_get_default_allocator();
+    rcutils_char_array_t msg_buf, output_buf;
+    ret = rcutils_char_array_init(&msg_buf, 1024, &allocator);
+    ret = rcutils_char_array_init(&output_buf, 1024, &allocator);
+    rcutils_time_point_value_t now = 0;
+
+    const char * test_logging_output_format =
+      "[{severity}] [{time}] [{name}, {file_name}]: {message}";
+    memcpy(
+      g_rcutils_logging_output_format_string, test_logging_output_format,
+      strlen(test_logging_output_format) + 1);
+
+    // rcutils_logging_format_message(
+    //   location, severity, name, timestamp, msg_array.buffer, &output_array);
+    ret = rcutils_logging_format_message(
+      NULL, RCUTILS_LOG_SEVERITY_FATAL, NULL, now, msg_buf.buffer, &output_buf);
+    EXPECT_EQ(RCUTILS_RET_OK, ret);
+  }
+
   // restore original state
   rcutils_logging_set_default_logger_level(original_level);
   rcutils_logging_set_output_handler(original_function);
