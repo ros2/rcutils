@@ -173,12 +173,16 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
     enum rcutils_get_env_retval retval = rcutils_get_env_var_zero_or_one(
       "RCUTILS_CONSOLE_USE_STDOUT", "use stderr",
       "use stdout");
-    if (retval == RCUTILS_GET_ENV_ERROR) {
-      return RCUTILS_RET_INVALID_ARGUMENT;
-    } else if (retval == RCUTILS_GET_ENV_DEFAULT || retval == RCUTILS_GET_ENV_ZERO) {
-      g_output_stream = stderr;
-    } else if (retval == RCUTILS_GET_ENV_ONE) {
-      g_output_stream = stdout;
+    switch (retval) {
+      case RCUTILS_GET_ENV_ERROR:
+        return RCUTILS_RET_INVALID_ARGUMENT;
+      case RCUTILS_GET_ENV_DEFAULT:
+      case RCUTILS_GET_ENV_ZERO:
+        g_output_stream = stderr;
+        break;
+      case RCUTILS_GET_ENV_ONE:
+        g_output_stream = stdout;
+        break;
     }
 
     // Allow the user to choose how buffering on the stream works by setting
@@ -189,40 +193,49 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
       rcutils_get_env_var_zero_or_one(
       "RCUTILS_CONSOLE_BUFFERED_STREAM", "not buffered",
       "buffered");
-    if (retval == RCUTILS_GET_ENV_ERROR) {
-      return RCUTILS_RET_INVALID_ARGUMENT;
-    } else if (retval == RCUTILS_GET_ENV_ZERO) {
-      if (setvbuf(g_output_stream, NULL, _IONBF, 0) != 0) {
-        fprintf(
-          stderr, "Error setting stream buffering mode: %s\n", strerror(errno));
-        RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
-          "Error setting stream buffering mode: %s", strerror(
-            errno));
-        return RCUTILS_RET_ERROR;
-      }
-    } else if (retval == RCUTILS_GET_ENV_ONE) {
-      if (setvbuf(g_output_stream, NULL, _IOLBF, 0) != 0) {
-        fprintf(
-          stderr, "Error setting stream buffering mode: %s\n", strerror(errno));
-        RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
-          "Error setting stream buffering mode: %s", strerror(
-            errno));
-        return RCUTILS_RET_ERROR;
-      }
+    switch (retval) {
+      case RCUTILS_GET_ENV_ERROR:
+        return RCUTILS_RET_INVALID_ARGUMENT;
+      case RCUTILS_GET_ENV_DEFAULT:
+        break;
+      case RCUTILS_GET_ENV_ZERO:
+        if (setvbuf(g_output_stream, NULL, _IONBF, 0) != 0) {
+          fprintf(
+            stderr, "Error setting stream buffering mode: %s\n", strerror(errno));
+          RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
+            "Error setting stream buffering mode: %s", strerror(
+              errno));
+          return RCUTILS_RET_ERROR;
+        }
+        break;
+      case RCUTILS_GET_ENV_ONE:
+        if (setvbuf(g_output_stream, NULL, _IOLBF, 0) != 0) {
+          fprintf(
+            stderr, "Error setting stream buffering mode: %s\n", strerror(errno));
+          RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
+            "Error setting stream buffering mode: %s", strerror(
+              errno));
+          return RCUTILS_RET_ERROR;
+        }
+        break;
     }
-    // Note that for retval == RCUTILS_GET_ENV_DEFAULT, we do nothing to leave it at default.
 
     retval = rcutils_get_env_var_zero_or_one(
       "RCUTILS_COLORIZED_OUTPUT", "force color",
       "force no color");
-    if (retval == RCUTILS_GET_ENV_ERROR) {
-      return RCUTILS_RET_INVALID_ARGUMENT;
-    } else if (retval == RCUTILS_GET_ENV_ZERO) {
-      g_colorized_output = RCUTILS_COLORIZED_OUTPUT_FORCE_DISABLE;
-    } else if (retval == RCUTILS_GET_ENV_ONE) {
-      g_colorized_output = RCUTILS_COLORIZED_OUTPUT_FORCE_ENABLE;
+    switch (retval) {
+      case RCUTILS_GET_ENV_ERROR:
+        return RCUTILS_RET_INVALID_ARGUMENT;
+      case RCUTILS_GET_ENV_DEFAULT:
+        g_colorized_output = RCUTILS_COLORIZED_OUTPUT_AUTO;
+        break;
+      case RCUTILS_GET_ENV_ZERO:
+        g_colorized_output = RCUTILS_COLORIZED_OUTPUT_FORCE_DISABLE;
+        break;
+      case RCUTILS_GET_ENV_ONE:
+        g_colorized_output = RCUTILS_COLORIZED_OUTPUT_FORCE_ENABLE;
+        break;
     }
-    // Note that for retval == RCUTILS_GET_ENV_DEFAULT, we do nothing to leave it at default.
 
     // Check for the environment variable for custom output formatting
     const char * output_format;
@@ -892,6 +905,7 @@ void rcutils_logging_console_output_handler(
       break;
     default:
       fprintf(stderr, "unknown severity level: %d\n", severity);
+      return;
   }
 
   IS_OUTPUT_COLORIZED(is_colorized)
