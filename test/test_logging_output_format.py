@@ -80,6 +80,7 @@ def generate_test_description():
 
 
 class TestLoggingOutputFormat(unittest.TestCase):
+
     def test_logging_output(self, proc_info, proc_output, processes_to_test):
         for process_name in processes_to_test:
             proc_info.assertWaitForShutdown(process=process_name, timeout=10)
