@@ -39,6 +39,7 @@ extern "C"
 #include "rcutils/logging.h"
 #include "rcutils/snprintf.h"
 #include "rcutils/strdup.h"
+#include "rcutils/strerror.h"
 #include "rcutils/time.h"
 #include "rcutils/types/string_map.h"
 
@@ -200,21 +201,23 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
         break;
       case RCUTILS_GET_ENV_ZERO:
         if (setvbuf(g_output_stream, NULL, _IONBF, 0) != 0) {
+          char error_string[1024];
+          rcutils_safe_strerror(error_string, sizeof(error_string));
           fprintf(
-            stderr, "Error setting stream buffering mode: %s\n", strerror(errno));
+            stderr, "Error setting stream buffering mode: %s\n", error_string);
           RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
-            "Error setting stream buffering mode: %s", strerror(
-              errno));
+            "Error setting stream buffering mode: %s", error_string);
           return RCUTILS_RET_ERROR;
         }
         break;
       case RCUTILS_GET_ENV_ONE:
         if (setvbuf(g_output_stream, NULL, _IOLBF, 0) != 0) {
+          char error_string[1024];
+          rcutils_safe_strerror(error_string, sizeof(error_string));
           fprintf(
-            stderr, "Error setting stream buffering mode: %s\n", strerror(errno));
+            stderr, "Error setting stream buffering mode: %s\n", error_string);
           RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
-            "Error setting stream buffering mode: %s", strerror(
-              errno));
+            "Error setting stream buffering mode: %s", error_string);
           return RCUTILS_RET_ERROR;
         }
         break;
