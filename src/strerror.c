@@ -12,13 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <errno.h>
-#include <string.h>
-
 #ifdef __cplusplus
 extern "C"
 {
 #endif
+
+#include <errno.h>
+#include <string.h>
+
+#include "rcutils/strerror.h"
 
 void
 rcutils_safe_strerror(char * buffer, size_t buffer_length)
