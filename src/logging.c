@@ -92,14 +92,15 @@ enum rcutils_get_env_retval
   RCUTILS_GET_ENV_ERROR = -1,
   RCUTILS_GET_ENV_ZERO = 0,
   RCUTILS_GET_ENV_ONE = 1,
-  RCUTILS_GET_ENV_DEFAULT = 2,
+  RCUTILS_GET_ENV_EMPTY = 2,
 };
 
-// A utility function to get zero or one from an environment variable.  Returns
-// RCUTILS_GET_ENV_ERROR if we failed to get the environment variable or if it was
-// something we don't understand.  Return RCUTILS_GET_ENV_ZERO if the value in the
-// environment variable is "0", RCUTILS_GET_ENV_ONE if the value in the environment
-// variable is "1", or RCUTILS_GET_ENV_DEFAULT if the environment variables is empty.
+// A utility function to get zero or one from an environment variable.
+// Returns RCUTILS_GET_ENV_ERROR if we failed to get the environment variable
+// or if it was something we don't understand.
+// Return RCUTILS_GET_ENV_ZERO if the value in the environment variable is "0",
+// RCUTILS_GET_ENV_ONE if the value in the environment variable is "1", or
+// RCUTILS_GET_ENV_EMPTY if the environment variables is empty.
 static enum rcutils_get_env_retval rcutils_get_env_var_zero_or_one(
   const char * name, const char * zero_semantic,
   const char * one_semantic)
@@ -117,7 +118,7 @@ static enum rcutils_get_env_retval rcutils_get_env_var_zero_or_one(
   }
 
   if (strcmp(env_var_value, "") == 0) {
-    return RCUTILS_GET_ENV_DEFAULT;
+    return RCUTILS_GET_ENV_EMPTY;
   }
   if (strcmp(env_var_value, "0") == 0) {
     return RCUTILS_GET_ENV_ZERO;
@@ -155,7 +156,7 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
         fprintf(
           stderr,
           "RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED is now ignored.  "
-          "Please set RCUTILS_CONSOLE_USE_STDOUT and RCUTILS_CONSOLE_BUFFERED_STREAM "
+          "Please set RCUTILS_LOGGING_USE_STDOUT and RCUTILS_LOGGING_BUFFERED_STREAM "
           "to control the stream and the buffering of log messages.\n");
       }
     } else {
@@ -168,16 +169,16 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
     }
 
     // Set the default output stream for all severities to stderr so that errors
-    // are propagated immediately.  The user can choose to set the output stream
-    // to stdout by setting the RCUTILS_CONSOLE_USE_STDOUT environment
-    // variable to 1.
+    // are propagated immediately.
+    // The user can choose to set the output stream to stdout by setting the
+    // RCUTILS_LOGGING_USE_STDOUT environment variable to 1.
     enum rcutils_get_env_retval retval = rcutils_get_env_var_zero_or_one(
-      "RCUTILS_CONSOLE_USE_STDOUT", "use stderr",
+      "RCUTILS_LOGGING_USE_STDOUT", "use stderr",
       "use stdout");
     switch (retval) {
       case RCUTILS_GET_ENV_ERROR:
         return RCUTILS_RET_INVALID_ARGUMENT;
-      case RCUTILS_GET_ENV_DEFAULT:
+      case RCUTILS_GET_ENV_EMPTY:
       case RCUTILS_GET_ENV_ZERO:
         g_output_stream = stderr;
         break;
@@ -187,17 +188,18 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
     }
 
     // Allow the user to choose how buffering on the stream works by setting
-    // RCUTILS_CONSOLE_BUFFERED_STREAM.  With an empty environment variable, use the
-    // default of the stream.  With a value of 0, force the stream to be unbuffered.
-    // With a value of 1, force the stream to be buffered.
+    // RCUTILS_LOGGING_BUFFERED_STREAM.
+    // With an empty environment variable, use the default of the stream.
+    // With a value of 0, force the stream to be unbuffered.
+    // With a value of 1, force the stream to be line buffered.
     retval =
       rcutils_get_env_var_zero_or_one(
-      "RCUTILS_CONSOLE_BUFFERED_STREAM", "not buffered",
+      "RCUTILS_LOGGING_BUFFERED_STREAM", "not buffered",
       "buffered");
     switch (retval) {
       case RCUTILS_GET_ENV_ERROR:
         return RCUTILS_RET_INVALID_ARGUMENT;
-      case RCUTILS_GET_ENV_DEFAULT:
+      case RCUTILS_GET_ENV_EMPTY:
         break;
       case RCUTILS_GET_ENV_ZERO:
         if (setvbuf(g_output_stream, NULL, _IONBF, 0) != 0) {
@@ -229,7 +231,7 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
     switch (retval) {
       case RCUTILS_GET_ENV_ERROR:
         return RCUTILS_RET_INVALID_ARGUMENT;
-      case RCUTILS_GET_ENV_DEFAULT:
+      case RCUTILS_GET_ENV_EMPTY:
         g_colorized_output = RCUTILS_COLORIZED_OUTPUT_AUTO;
         break;
       case RCUTILS_GET_ENV_ZERO:
