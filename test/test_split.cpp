@@ -59,7 +59,6 @@ rcutils_string_array_t test_split_last(
 TEST(test_split, split) {
   rcutils_ret_t ret = RCUTILS_RET_OK;
   rcutils_string_array_t tokens_fail;
-
   EXPECT_EQ(
     RCUTILS_RET_INVALID_ARGUMENT,
     rcutils_split("Test", '/', rcutils_get_default_allocator(), NULL));
@@ -150,7 +149,6 @@ TEST(test_split, split) {
 TEST(test_split, split_last) {
   rcutils_ret_t ret = RCUTILS_RET_OK;
   rcutils_string_array_t tokens_fail;
-
   EXPECT_EQ(
     RCUTILS_RET_BAD_ALLOC,
     rcutils_split_last("Test", '/', get_failing_allocator(), &tokens_fail));

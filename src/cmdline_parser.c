@@ -37,7 +37,7 @@ char * rcutils_cli_get_option(char ** begin, char ** end, const char * option)
     }
   }
 
-  if (idx != end_idx && idx != (end_idx - 1) && begin[idx++] != NULL) {
+  if (idx < end_idx - 1 && begin[idx++] != NULL) {
     return begin[idx];
   }
 

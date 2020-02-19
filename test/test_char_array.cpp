@@ -57,12 +57,12 @@ TEST_F(ArrayCharTest, default_initialization) {
 }
 
 TEST_F(ArrayCharTest, resize) {
-  auto ret = rcutils_char_array_init(&char_array, 5, &allocator);
+  rcutils_ret_t ret = rcutils_char_array_init(&char_array, 5, &allocator);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
-  memcpy(char_array.buffer, "1234\0", 5);
+  memcpy(char_array.buffer, "1234", 5);
   char_array.buffer_length = 5;
-  EXPECT_STREQ("1234\0", char_array.buffer);
+  EXPECT_STREQ("1234", char_array.buffer);
 
   ret = rcutils_char_array_resize(&char_array, 0);
   ASSERT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret);
@@ -80,9 +80,9 @@ TEST_F(ArrayCharTest, resize) {
   EXPECT_EQ(11lu, char_array.buffer_capacity);
   EXPECT_EQ(5lu, char_array.buffer_length);
 
-  memcpy(char_array.buffer, "0987654321\0", 11);
+  memcpy(char_array.buffer, "0987654321", 11);
   char_array.buffer_length = 11;
-  EXPECT_STREQ("0987654321\0", char_array.buffer);
+  EXPECT_STREQ("0987654321", char_array.buffer);
 
   ret = rcutils_char_array_resize(&char_array, 3);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
@@ -98,10 +98,14 @@ TEST_F(ArrayCharTest, resize) {
 }
 
 TEST_F(ArrayCharTest, vsprintf_fail) {
-  auto failing_allocator = get_failing_allocator();
-  auto ret = rcutils_char_array_init(&char_array, 10, &allocator);
+  rcutils_allocator_t failing_allocator = get_failing_allocator();
+  rcutils_ret_t ret = rcutils_char_array_init(&char_array, 10, &allocator);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
+  /* This test aims to make the underlying snprintf function
+   * by setting 129, which is an invalid character in Japanese
+   * code (LOCALE 932).
+   */
   setlocale(LC_ALL, ".932");
   wchar_t wbuf[2];
   wbuf[0] = 129;
@@ -120,12 +124,12 @@ TEST_F(ArrayCharTest, vsprintf_fail) {
 }
 
 TEST_F(ArrayCharTest, strcpy) {
-  auto failing_allocator = get_failing_allocator();
-  auto ret = rcutils_char_array_init(&char_array, 8, &allocator);
+  rcutils_allocator_t failing_allocator = get_failing_allocator();
+  rcutils_ret_t ret = rcutils_char_array_init(&char_array, 8, &allocator);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
   EXPECT_EQ(RCUTILS_RET_OK, rcutils_char_array_strcpy(&char_array, "1234"));
-  EXPECT_STREQ("1234\0", char_array.buffer);
+  EXPECT_STREQ("1234", char_array.buffer);
   EXPECT_EQ(5lu, char_array.buffer_length);
 
   char_array.allocator = failing_allocator;
@@ -137,16 +141,16 @@ TEST_F(ArrayCharTest, strcpy) {
 }
 
 TEST_F(ArrayCharTest, strcat) {
-  auto failing_allocator = get_failing_allocator();
-  auto ret = rcutils_char_array_init(&char_array, 8, &allocator);
+  rcutils_allocator_t failing_allocator = get_failing_allocator();
+  rcutils_ret_t ret = rcutils_char_array_init(&char_array, 8, &allocator);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
   EXPECT_EQ(RCUTILS_RET_OK, rcutils_char_array_strcpy(&char_array, "1234"));
-  EXPECT_STREQ("1234\0", char_array.buffer);
+  EXPECT_STREQ("1234", char_array.buffer);
   EXPECT_EQ(5lu, char_array.buffer_length);
 
   EXPECT_EQ(RCUTILS_RET_OK, rcutils_char_array_strcat(&char_array, "56"));
-  EXPECT_STREQ("123456\0", char_array.buffer);
+  EXPECT_STREQ("123456", char_array.buffer);
   EXPECT_EQ(7lu, char_array.buffer_length);
 
   char_array.allocator = failing_allocator;

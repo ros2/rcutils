@@ -40,11 +40,13 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logging_initialization) {
   EXPECT_TRUE(g_rcutils_logging_initialized);
 
   EXPECT_EQ(RCUTILS_RET_OK, rcutils_logging_shutdown());
-  auto empty_allocator = rcutils_get_zero_initialized_allocator();
+  rcutils_allocator_t empty_allocator = rcutils_get_zero_initialized_allocator();
   EXPECT_EQ(
     RCUTILS_RET_INVALID_ARGUMENT, rcutils_logging_initialize_with_allocator(empty_allocator));
 
-  auto failing_allocator = get_failing_allocator();
+  // Testing with a bad allocator fails when allocating internal memory
+  // for the string map relating severity level values to string
+  rcutils_allocator_t failing_allocator = get_failing_allocator();
   EXPECT_EQ(
     RCUTILS_RET_STRING_MAP_INVALID, rcutils_logging_initialize_with_allocator(failing_allocator));
 }
@@ -176,7 +178,7 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_log_severity) {
     RCUTILS_RET_LOGGING_SEVERITY_STRING_INVALID,
     rcutils_logging_severity_level_from_string("unknown", allocator, &severity));
 
-  auto failing_allocator = get_failing_allocator();
+  rcutils_allocator_t failing_allocator = get_failing_allocator();
   EXPECT_EQ(
     RCUTILS_RET_BAD_ALLOC,
     rcutils_logging_severity_level_from_string("Info", failing_allocator, &severity));
@@ -257,7 +259,7 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logger_severity_hierarchy)
   ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_initialize());
   OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
   {
-    EXPECT_EQ(RCUTILS_LOG_SEVERITY_UNSET, rcutils_logging_shutdown());
+    EXPECT_EQ(RCUTILS_RET_OK, rcutils_logging_shutdown());
   });
 
   // check resolving of effective thresholds in hierarchy of loggers

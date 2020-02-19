@@ -18,31 +18,25 @@
 
 
 TEST(CmdLineParser, cli_option_exist) {
-  char * arr[3];
-  char a[] = "option1";
-  char b[] = "option2";
-  char c[] = "option3";
-  arr[0] = reinterpret_cast<char *>(a);
-  arr[1] = reinterpret_cast<char *>(b);
-  arr[2] = reinterpret_cast<char *>(c);
+  char const * args[] = {"option1", "option2", "option3"};
+  const int args_count = sizeof(args) / sizeof(char *);
+  char ** arr;
+  arr = const_cast<char **>(args);
 
-  EXPECT_EQ(rcutils_cli_option_exist(arr, arr + 3, "option1"), true);
-  EXPECT_EQ(rcutils_cli_option_exist(arr, arr + 3, "option2"), true);
-  EXPECT_EQ(rcutils_cli_option_exist(arr, arr + 3, "option3"), true);
-  EXPECT_EQ(rcutils_cli_option_exist(arr, arr + 3, "opt"), false);
-  EXPECT_EQ(rcutils_cli_option_exist(arr, arr + 3, "NotRelated"), false);
+  EXPECT_TRUE(rcutils_cli_option_exist(arr, arr + args_count, "option1"));
+  EXPECT_TRUE(rcutils_cli_option_exist(arr, arr + args_count, "option2"));
+  EXPECT_TRUE(rcutils_cli_option_exist(arr, arr + args_count, "option3"));
+  EXPECT_FALSE(rcutils_cli_option_exist(arr, arr + args_count, "opt"));
+  EXPECT_FALSE(rcutils_cli_option_exist(arr, arr + args_count, "NotRelated"));
 }
 
 TEST(CmdLineParser, cli_get_option) {
-  char * arr[4];
-  char a[] = "option1";
-  char b[] = "sub1";
-  char c[] = "option2";
-  arr[0] = reinterpret_cast<char *>(a);
-  arr[1] = reinterpret_cast<char *>(b);
-  arr[2] = reinterpret_cast<char *>(c);
+  char const * args[] = {"option1", "sub1", "option2"};
+  const int args_count = sizeof(args) / sizeof(char *);
+  char ** arr;
+  arr = const_cast<char **>(args);
 
-  EXPECT_STREQ(rcutils_cli_get_option(arr, arr + 3, "option1"), "sub1");
-  EXPECT_STREQ(rcutils_cli_get_option(arr, arr + 3, "NotRelated"), NULL);
-  EXPECT_STREQ(rcutils_cli_get_option(arr, arr + 3, "option2"), NULL);
+  EXPECT_STREQ(rcutils_cli_get_option(arr, arr + args_count, "option1"), "sub1");
+  EXPECT_STREQ(rcutils_cli_get_option(arr, arr + args_count, "NotRelated"), NULL);
+  EXPECT_STREQ(rcutils_cli_get_option(arr, arr + args_count, "option2"), NULL);
 }

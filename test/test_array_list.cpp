@@ -389,10 +389,8 @@ TEST_F(ArrayListTest, list_add_bad_allocator_fails) {
   EXPECT_EQ(RCUTILS_RET_OK, rcutils_array_list_add(&list, &data));
 
   state.is_failing = true;
-  failing_allocator.state = &state;
   EXPECT_EQ(RCUTILS_RET_BAD_ALLOC, rcutils_array_list_add(&list, &data));
 
   state.is_failing = false;
-  failing_allocator.state = &state;
   EXPECT_EQ(RCUTILS_RET_OK, rcutils_array_list_fini(&list));
 }

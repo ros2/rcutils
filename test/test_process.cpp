@@ -24,9 +24,11 @@ TEST(TestProcess, test_get_pid) {
 }
 
 TEST(TestProcess, test_get_executable_name) {
-  auto allocator = rcutils_get_default_allocator();
-  auto failing_allocator = get_failing_allocator();
+  rcutils_allocator_t allocator = rcutils_get_default_allocator();
+  rcutils_allocator_t failing_allocator = get_failing_allocator();
 
   EXPECT_STREQ(NULL, rcutils_get_executable_name(failing_allocator));
-  EXPECT_STREQ("test_process", rcutils_get_executable_name(allocator));
+  char * exec_name = rcutils_get_executable_name(allocator);
+  EXPECT_STREQ("test_process", exec_name);
+  allocator.deallocate(exec_name, allocator.state);
 }
