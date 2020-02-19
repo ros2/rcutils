@@ -101,7 +101,7 @@ extern "C"
  * A macro finalizing the `once` condition.
  */
 #define RCUTILS_LOG_CONDITION_ONCE_AFTER } \
-  }
+}
 ///@@}
 
 /** @@name Macros for the `expression` condition which ignores the log calls
@@ -162,7 +162,7 @@ typedef bool (* RclLogFilter)();
  * A macro finalizing the `skipfirst` condition.
  */
 #define RCUTILS_LOG_CONDITION_SKIPFIRST_AFTER } \
-  }
+}
 ///@@}
 
 /** @@name Macros for the `throttle` condition which ignores log calls if the
@@ -195,7 +195,7 @@ typedef bool (* RclLogFilter)();
  * A macro finalizing the `throttle` condition.
  */
 #define RCUTILS_LOG_CONDITION_THROTTLE_AFTER } \
-  }
+}
 ///@@}
 
 @{
