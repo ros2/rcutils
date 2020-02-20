@@ -173,8 +173,7 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
     // The user can choose to set the output stream to stdout by setting the
     // RCUTILS_LOGGING_USE_STDOUT environment variable to 1.
     enum rcutils_get_env_retval retval = rcutils_get_env_var_zero_or_one(
-      "RCUTILS_LOGGING_USE_STDOUT", "use stderr",
-      "use stdout");
+      "RCUTILS_LOGGING_USE_STDOUT", "use stderr", "use stdout");
     switch (retval) {
       case RCUTILS_GET_ENV_ERROR:
         return RCUTILS_RET_INVALID_ARGUMENT;
@@ -185,6 +184,12 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
       case RCUTILS_GET_ENV_ONE:
         g_output_stream = stdout;
         break;
+      default:
+        fprintf(
+          stderr, "Invalid return from environment fetch\n");
+        RCUTILS_SET_ERROR_MSG(
+          "Invalid return from environment fetch");
+        return RCUTILS_RET_ERROR;
     }
 
     // Allow the user to choose how buffering on the stream works by setting
@@ -192,37 +197,28 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
     // With an empty environment variable, use the default of the stream.
     // With a value of 0, force the stream to be unbuffered.
     // With a value of 1, force the stream to be line buffered.
-    retval =
-      rcutils_get_env_var_zero_or_one(
-      "RCUTILS_LOGGING_BUFFERED_STREAM", "not buffered",
-      "buffered");
-    switch (retval) {
-      case RCUTILS_GET_ENV_ERROR:
-        return RCUTILS_RET_INVALID_ARGUMENT;
-      case RCUTILS_GET_ENV_EMPTY:
-        break;
-      case RCUTILS_GET_ENV_ZERO:
-        if (setvbuf(g_output_stream, NULL, _IONBF, 0) != 0) {
-          char error_string[1024];
-          rcutils_safe_strerror(error_string, sizeof(error_string));
-          fprintf(
-            stderr, "Error setting stream buffering mode: %s\n", error_string);
-          RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
-            "Error setting stream buffering mode: %s", error_string);
-          return RCUTILS_RET_ERROR;
-        }
-        break;
-      case RCUTILS_GET_ENV_ONE:
-        if (setvbuf(g_output_stream, NULL, _IOLBF, 0) != 0) {
-          char error_string[1024];
-          rcutils_safe_strerror(error_string, sizeof(error_string));
-          fprintf(
-            stderr, "Error setting stream buffering mode: %s\n", error_string);
-          RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
-            "Error setting stream buffering mode: %s", error_string);
-          return RCUTILS_RET_ERROR;
-        }
-        break;
+    retval = rcutils_get_env_var_zero_or_one(
+      "RCUTILS_LOGGING_BUFFERED_STREAM", "not buffered", "buffered");
+    if (RCUTILS_GET_ENV_ERROR == retval) {
+      return RCUTILS_RET_INVALID_ARGUMENT;
+    }
+    if (RCUTILS_GET_ENV_ZERO == retval || RCUTILS_GET_ENV_ONE == retval) {
+      int mode = retval == RCUTILS_GET_ENV_ZERO ? _IONBF : _IOLBF;
+      if (setvbuf(g_output_stream, NULL, mode, 0) != 0) {
+        char error_string[1024];
+        rcutils_safe_strerror(error_string, sizeof(error_string));
+        fprintf(
+          stderr, "Error setting stream buffering mode: %s\n", error_string);
+        RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
+          "Error setting stream buffering mode: %s", error_string);
+        return RCUTILS_RET_ERROR;
+      }
+    } else if (RCUTILS_GET_ENV_EMPTY != retval) {
+      fprintf(
+        stderr, "Invalid return from environment fetch\n");
+      RCUTILS_SET_ERROR_MSG(
+        "Invalid return from environment fetch");
+      return RCUTILS_RET_ERROR;
     }
 
     retval = rcutils_get_env_var_zero_or_one(
@@ -240,6 +236,12 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
       case RCUTILS_GET_ENV_ONE:
         g_colorized_output = RCUTILS_COLORIZED_OUTPUT_FORCE_ENABLE;
         break;
+      default:
+        fprintf(
+          stderr, "Invalid return from environment fetch\n");
+        RCUTILS_SET_ERROR_MSG(
+          "Invalid return from environment fetch");
+        return RCUTILS_RET_ERROR;
     }
 
     // Check for the environment variable for custom output formatting
