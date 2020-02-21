@@ -206,7 +206,7 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
       int mode = retval == RCUTILS_GET_ENV_ZERO ? _IONBF : _IOLBF;
       if (setvbuf(g_output_stream, NULL, mode, 0) != 0) {
         char error_string[1024];
-        rcutils_safe_strerror(error_string, sizeof(error_string));
+        rcutils_strerror(error_string, sizeof(error_string));
         fprintf(
           stderr, "Error setting stream buffering mode: %s\n", error_string);
         RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(

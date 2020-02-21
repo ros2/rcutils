@@ -37,7 +37,7 @@ extern "C"
  */
 RCUTILS_PUBLIC
 void
-rcutils_safe_strerror(char * buffer, size_t buffer_length);
+rcutils_strerror(char * buffer, size_t buffer_length);
 
 #ifdef __cplusplus
 }

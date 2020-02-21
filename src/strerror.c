@@ -23,7 +23,7 @@ extern "C"
 #include "rcutils/strerror.h"
 
 void
-rcutils_safe_strerror(char * buffer, size_t buffer_length)
+rcutils_strerror(char * buffer, size_t buffer_length)
 {
 #if defined(_WIN32)
   strerror_s(buffer, buffer_length, errno);
