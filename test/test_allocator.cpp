@@ -109,5 +109,4 @@ TEST(test_allocator, realloc_failing_allocators) {
 
   auto failing_allocator = get_failing_allocator();
   EXPECT_EQ(nullptr, rcutils_reallocf(allocated_memory, 1024, &failing_allocator));
-  EXPECT_EQ(nullptr, allocated_memory);
 }
