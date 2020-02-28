@@ -45,6 +45,7 @@ set(rcutils_sources
   src/snprintf.c
   src/split.c
   src/strdup.c
+  src/strerror.c
   src/string_array.c
   src/string_map.c
   src/time.c
