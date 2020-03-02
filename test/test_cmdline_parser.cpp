@@ -1,4 +1,4 @@
-// Copyright 2018 Open Source Robotics Foundation, Inc.
+// Copyright 2020 Open Source Robotics Foundation, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,8 +20,7 @@
 TEST(CmdLineParser, cli_option_exist) {
   char const * args[] = {"option1", "option2", "option3"};
   const int args_count = sizeof(args) / sizeof(char *);
-  char ** arr;
-  arr = const_cast<char **>(args);
+  char ** arr = const_cast<char **>(args);
 
   EXPECT_TRUE(rcutils_cli_option_exist(arr, arr + args_count, "option1"));
   EXPECT_TRUE(rcutils_cli_option_exist(arr, arr + args_count, "option2"));
@@ -33,8 +32,7 @@ TEST(CmdLineParser, cli_option_exist) {
 TEST(CmdLineParser, cli_get_option) {
   char const * args[] = {"option1", "sub1", "option2"};
   const int args_count = sizeof(args) / sizeof(char *);
-  char ** arr;
-  arr = const_cast<char **>(args);
+  char ** arr = const_cast<char **>(args);
 
   EXPECT_STREQ(rcutils_cli_get_option(arr, arr + args_count, "option1"), "sub1");
   EXPECT_STREQ(rcutils_cli_get_option(arr, arr + args_count, "NotRelated"), NULL);
