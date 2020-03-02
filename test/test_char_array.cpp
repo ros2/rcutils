@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <gtest/gtest.h>
+#include <string.h>
 
 #include "./allocator_testing_utils.h"
 #include "rcutils/allocator.h"
@@ -60,7 +61,7 @@ TEST_F(ArrayCharTest, resize) {
   rcutils_ret_t ret = rcutils_char_array_init(&char_array, 5, &allocator);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
-  strcpy(char_array.buffer, "1234"); // NOLINT
+  memcpy(char_array.buffer, "1234", 5);
   char_array.buffer_length = 5;
   EXPECT_STREQ("1234", char_array.buffer);
 
@@ -80,7 +81,7 @@ TEST_F(ArrayCharTest, resize) {
   EXPECT_EQ(11lu, char_array.buffer_capacity);
   EXPECT_EQ(5lu, char_array.buffer_length);
 
-  strcpy(char_array.buffer, "0987654321"); // NOLINT
+  memcpy(char_array.buffer, "0987654321", 11);
   char_array.buffer_length = 11;
   EXPECT_STREQ("0987654321", char_array.buffer);
 
