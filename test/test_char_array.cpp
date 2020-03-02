@@ -60,7 +60,7 @@ TEST_F(ArrayCharTest, resize) {
   rcutils_ret_t ret = rcutils_char_array_init(&char_array, 5, &allocator);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
-  memcpy(char_array.buffer, "1234", 5);
+  strcpy(char_array.buffer, "1234"); // NOLINT
   char_array.buffer_length = 5;
   EXPECT_STREQ("1234", char_array.buffer);
 
@@ -80,7 +80,7 @@ TEST_F(ArrayCharTest, resize) {
   EXPECT_EQ(11lu, char_array.buffer_capacity);
   EXPECT_EQ(5lu, char_array.buffer_length);
 
-  memcpy(char_array.buffer, "0987654321", 11);
+  strcpy(char_array.buffer, "0987654321"); // NOLINT
   char_array.buffer_length = 11;
   EXPECT_STREQ("0987654321", char_array.buffer);
 
@@ -102,7 +102,7 @@ TEST_F(ArrayCharTest, vsprintf_fail) {
   rcutils_ret_t ret = rcutils_char_array_init(&char_array, 10, &allocator);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
-  /* This test aims to make the underlying snprintf function
+  /* This test aims to make the underlying snprintf function fail
    * by setting 129, which is an invalid character in Japanese
    * code (LOCALE 932).
    */
