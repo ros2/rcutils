@@ -103,18 +103,6 @@ TEST_F(ArrayCharTest, vsprintf_fail) {
   rcutils_ret_t ret = rcutils_char_array_init(&char_array, 10, &allocator);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
-  /* This test aims to make the underlying snprintf function fail
-   * by setting 129, which is an invalid character in Japanese
-   * code (LOCALE 932).
-   */
-  setlocale(LC_ALL, ".932");
-  wchar_t wbuf[2];
-  wbuf[0] = 129;
-  wbuf[1] = 0;
-  ret = example_logger(&char_array, "%ls", wbuf);
-  EXPECT_EQ(RCUTILS_RET_ERROR, ret);
-  rcutils_reset_error();
-
   char_array.allocator = failing_allocator;
   ret = example_logger(&char_array, "Long string for the case %d", 2);
   EXPECT_EQ(RCUTILS_RET_BAD_ALLOC, ret);
