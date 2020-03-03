@@ -369,7 +369,8 @@ TEST_F(ArrayListTest, init_list_bad_allocator_fail) {
 }
 
 TEST_F(ArrayListTest, init_list_huge_fail) {
-  rcutils_ret_t ret = rcutils_array_list_init(&list, 9999999999999, sizeof(uint32_t), &allocator);
+  rcutils_ret_t ret = rcutils_array_list_init(
+    &list, 18446744073709551615u, sizeof(uint32_t), &allocator);
   EXPECT_EQ(RCUTILS_RET_BAD_ALLOC, ret) << rcutils_get_error_string().str;
 }
 
