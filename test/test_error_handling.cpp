@@ -14,10 +14,10 @@
 
 #include <string>
 
+#include "./allocator_testing_utils.h"
 #include "gmock/gmock.h"
 
 #include "osrf_testing_tools_cpp/memory_tools/gtest_quickstart.hpp"
-
 #include "rcutils/error_handling.h"
 
 int
@@ -39,6 +39,12 @@ count_substrings(const std::string & str, const std::string & substr)
 
 TEST(test_error_handling, nominal) {
   osrf_testing_tools_cpp::memory_tools::ScopedQuickstartGtest scoped_quickstart_gtest(true);
+
+  auto failing_allocator = get_failing_allocator();
+  failing_allocator.allocate = NULL;
+  EXPECT_EQ(
+    RCUTILS_RET_INVALID_ARGUMENT,
+    rcutils_initialize_error_handling_thread_local_storage(failing_allocator));
 
   // Note that without the thread-local initialization function below, you might get errors like:
   /**

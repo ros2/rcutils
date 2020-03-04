@@ -57,6 +57,16 @@ failing_free(void * pointer, void * state)
   rcutils_get_default_allocator().deallocate(pointer, rcutils_get_default_allocator().state);
 }
 
+void *
+failing_calloc(size_t number_of_elements, size_t size_of_element, void * state)
+{
+  if (((__failing_allocator_state *)state)->is_failing) {
+    return nullptr;
+  }
+  return rcutils_get_default_allocator().zero_allocate(
+    number_of_elements, size_of_element, rcutils_get_default_allocator().state);
+}
+
 static inline rcutils_allocator_t
 get_failing_allocator(void)
 {
@@ -66,6 +76,7 @@ get_failing_allocator(void)
   failing_allocator.allocate = failing_malloc;
   failing_allocator.deallocate = failing_free;
   failing_allocator.reallocate = failing_realloc;
+  failing_allocator.zero_allocate = failing_calloc;
   failing_allocator.state = &state;
   return failing_allocator;
 }

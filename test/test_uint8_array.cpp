@@ -73,6 +73,8 @@ TEST(test_uint8_array, resize) {
   EXPECT_EQ(0xFF - 2, uint8_array.buffer[2]);
   // the other fields are garbage.
 
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_uint8_array_resize(&uint8_array, 3));
+
   // cleanup only 3 fields
   EXPECT_EQ(RCUTILS_RET_OK, rcutils_uint8_array_fini(&uint8_array));
 }

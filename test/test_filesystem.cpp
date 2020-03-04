@@ -43,6 +43,7 @@ public:
 
 TEST_F(TestFilesystemFixture, get_cwd_nullptr) {
   EXPECT_FALSE(rcutils_get_cwd(NULL, sizeof(this->cwd)));
+  EXPECT_FALSE(rcutils_get_cwd(this->cwd, 0));
 }
 
 TEST_F(TestFilesystemFixture, join_path) {
@@ -58,6 +59,9 @@ TEST_F(TestFilesystemFixture, join_path) {
 #endif  // _WIN32
   ASSERT_FALSE(nullptr == path);
   EXPECT_STREQ(ref_str, path);
+
+  EXPECT_STREQ(NULL, rcutils_join_path(NULL, "bar", g_allocator));
+  EXPECT_STREQ(NULL, rcutils_join_path("foo", NULL, g_allocator));
 }
 
 TEST_F(TestFilesystemFixture, to_native_path) {
@@ -74,6 +78,7 @@ TEST_F(TestFilesystemFixture, to_native_path) {
 #endif  // _WIN32
     ASSERT_FALSE(nullptr == path);
     EXPECT_STREQ(ref_str, path);
+    EXPECT_STREQ(NULL, rcutils_to_native_path(NULL, g_allocator));
   }
   {
     char * path = rcutils_to_native_path("/foo//bar/baz", g_allocator);
@@ -100,6 +105,7 @@ TEST_F(TestFilesystemFixture, exists) {
     });
     ASSERT_FALSE(nullptr == path);
     EXPECT_TRUE(rcutils_exists(path));
+    EXPECT_FALSE(rcutils_exists("non_existent_file"));
   }
   {
     char * path = rcutils_join_path(this->test_path, "dummy_folder", g_allocator);
@@ -282,6 +288,7 @@ TEST_F(TestFilesystemFixture, mkdir) {
   }
   {
     ASSERT_FALSE(rcutils_mkdir(nullptr));
+    ASSERT_FALSE(rcutils_mkdir(""));
   }
   {
     ASSERT_FALSE(rcutils_mkdir("foo/bar"));

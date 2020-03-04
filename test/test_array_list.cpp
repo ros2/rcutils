@@ -357,3 +357,41 @@ TEST_F(ArrayListPreInitTest, remove_preserves_data_around_it) {
   EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
   EXPECT_EQ((uint32_t)6, ret_data) << rcutils_get_error_string().str;
 }
+
+TEST_F(ArrayListPreInitTest, init_list_twice_fails) {
+  rcutils_ret_t ret = rcutils_array_list_init(&list, 2, sizeof(uint32_t), &allocator);
+  EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string().str;
+}
+
+TEST_F(ArrayListTest, init_list_bad_allocator_fail) {
+  rcutils_ret_t ret = rcutils_array_list_init(&list, 2, sizeof(uint32_t), &failing_allocator);
+  EXPECT_EQ(RCUTILS_RET_BAD_ALLOC, ret) << rcutils_get_error_string().str;
+}
+
+TEST_F(ArrayListTest, init_list_huge_fail) {
+  rcutils_ret_t ret = rcutils_array_list_init(
+    &list, 18446744073709551615u, sizeof(uint32_t), &allocator);
+  EXPECT_EQ(RCUTILS_RET_BAD_ALLOC, ret) << rcutils_get_error_string().str;
+}
+
+typedef struct allocator_state
+{
+  bool is_failing;
+} allocator_state;
+
+TEST_F(ArrayListTest, list_add_bad_allocator_fails) {
+  allocator_state state;
+  uint32_t data = 22;
+  state.is_failing = false;
+  failing_allocator.state = &state;
+
+  EXPECT_EQ(
+    RCUTILS_RET_OK, rcutils_array_list_init(&list, 1, sizeof(uint32_t), &failing_allocator));
+  EXPECT_EQ(RCUTILS_RET_OK, rcutils_array_list_add(&list, &data));
+
+  state.is_failing = true;
+  EXPECT_EQ(RCUTILS_RET_BAD_ALLOC, rcutils_array_list_add(&list, &data));
+
+  state.is_failing = false;
+  EXPECT_EQ(RCUTILS_RET_OK, rcutils_array_list_fini(&list));
+}

@@ -43,7 +43,7 @@ extern "C"
 bool
 rcutils_get_cwd(char * buffer, size_t max_length)
 {
-  if (NULL == buffer) {
+  if (NULL == buffer || max_length == 0) {
     return false;
   }
 #ifdef _WIN32

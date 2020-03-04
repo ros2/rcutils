@@ -14,6 +14,7 @@
 
 #include <gtest/gtest.h>
 
+#include "./allocator_testing_utils.h"
 #include "rcutils/allocator.h"
 
 #include "osrf_testing_tools_cpp/memory_tools/memory_tools.hpp"
@@ -100,4 +101,12 @@ TEST_F(CLASSNAME(TestAllocatorFixture, RMW_IMPLEMENTATION), test_default_allocat
   EXPECT_EQ(1u, reallocs);
   EXPECT_EQ(1u, callocs);
   EXPECT_EQ(2u, frees);
+}
+
+TEST(test_allocator, realloc_failing_allocators) {
+  void * allocated_memory = nullptr;
+  EXPECT_EQ(nullptr, rcutils_reallocf(allocated_memory, 1024, nullptr));
+
+  auto failing_allocator = get_failing_allocator();
+  EXPECT_EQ(nullptr, rcutils_reallocf(allocated_memory, 1024, &failing_allocator));
 }

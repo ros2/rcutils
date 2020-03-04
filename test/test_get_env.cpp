@@ -46,3 +46,7 @@ TEST(TestGetEnv, test_get_env) {
   EXPECT_FALSE(NULL == env);
   EXPECT_STREQ("", env);
 }
+
+TEST(TestGetEnv, test_get_home) {
+  EXPECT_STRNE(NULL, rcutils_get_home_dir());
+}
