@@ -108,9 +108,6 @@ static enum rcutils_get_env_retval rcutils_get_env_var_zero_or_one(
   const char * env_var_value = NULL;
   const char * ret_str = rcutils_get_env(name, &env_var_value);
   if (NULL != ret_str) {
-    fprintf(
-      stderr, "Error getting environment variable "
-      "%s: %s\n", name, ret_str);
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
       "Error getting environment variable %s: %s", name,
       ret_str);
@@ -127,8 +124,7 @@ static enum rcutils_get_env_retval rcutils_get_env_var_zero_or_one(
     return RCUTILS_GET_ENV_ONE;
   }
 
-  fprintf(
-    stderr,
+  RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
     "Warning: unexpected value [%s] specified for %s. "
     "Valid values are 0 (%s) or 1 (%s).",
     env_var_value, name, zero_semantic, one_semantic);
@@ -160,9 +156,6 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
           "to control the stream and the buffering of log messages.\n");
       }
     } else {
-      fprintf(
-        stderr, "Error getting environment variable "
-        "RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED: %s\n", ret_str);
       RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
         "Error getting environment variable RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED: %s", ret_str);
       return RCUTILS_RET_ERROR;
@@ -185,8 +178,6 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
         g_output_stream = stdout;
         break;
       default:
-        fprintf(
-          stderr, "Invalid return from environment fetch\n");
         RCUTILS_SET_ERROR_MSG(
           "Invalid return from environment fetch");
         return RCUTILS_RET_ERROR;
@@ -207,15 +198,11 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
       if (setvbuf(g_output_stream, NULL, mode, 0) != 0) {
         char error_string[1024];
         rcutils_strerror(error_string, sizeof(error_string));
-        fprintf(
-          stderr, "Error setting stream buffering mode: %s\n", error_string);
         RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
           "Error setting stream buffering mode: %s", error_string);
         return RCUTILS_RET_ERROR;
       }
     } else if (RCUTILS_GET_ENV_EMPTY != retval) {
-      fprintf(
-        stderr, "Invalid return from environment fetch\n");
       RCUTILS_SET_ERROR_MSG(
         "Invalid return from environment fetch");
       return RCUTILS_RET_ERROR;
@@ -237,8 +224,6 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
         g_colorized_output = RCUTILS_COLORIZED_OUTPUT_FORCE_ENABLE;
         break;
       default:
-        fprintf(
-          stderr, "Invalid return from environment fetch\n");
         RCUTILS_SET_ERROR_MSG(
           "Invalid return from environment fetch");
         return RCUTILS_RET_ERROR;
