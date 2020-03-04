@@ -61,8 +61,7 @@ TEST_F(ArrayCharTest, resize) {
   rcutils_ret_t ret = rcutils_char_array_init(&char_array, 5, &allocator);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
-  snprintf(char_array.buffer, char_array.buffer_capacity, "1234");
-  char_array.buffer_length = 5;
+  char_array.buffer_length = snprintf(char_array.buffer, char_array.buffer_capacity, "1234") + 1;
   EXPECT_STREQ("1234", char_array.buffer);
 
   ret = rcutils_char_array_resize(&char_array, 0);
@@ -81,8 +80,8 @@ TEST_F(ArrayCharTest, resize) {
   EXPECT_EQ(11lu, char_array.buffer_capacity);
   EXPECT_EQ(5lu, char_array.buffer_length);
 
-  snprintf(char_array.buffer, char_array.buffer_capacity, "0987654321");
-  char_array.buffer_length = 11;
+  char_array.buffer_length = snprintf(
+    char_array.buffer, char_array.buffer_capacity, "0987654321") + 1;
   EXPECT_STREQ("0987654321", char_array.buffer);
 
   ret = rcutils_char_array_resize(&char_array, 3);
