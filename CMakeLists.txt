@@ -126,6 +126,11 @@ if(BUILD_TESTING)
 
   check_library_exists(atomic __atomic_load_8 "" HAVE_LIBATOMICS)
 
+  if(HAVE_LIBATOMICS AND NOT WIN32)
+    # Exporting link flag since it won't pass ament_export_libraries() existance check
+    ament_export_link_flags("-latomic")
+  endif()
+
   if(ament_cmake_cppcheck_FOUND)
     ament_cppcheck(
       TESTNAME "cppcheck_logging_macros"
@@ -221,7 +226,6 @@ if(BUILD_TESTING)
   target_link_libraries(test_atomics_executable ${PROJECT_NAME})
   if(HAVE_LIBATOMICS)
     target_link_libraries(test_atomics_executable atomic)
-    ament_export_libraries(atomic)
   endif()
 
   add_test(NAME test_atomics COMMAND test_atomics_executable)
