@@ -42,6 +42,7 @@ set(rcutils_sources
   src/logging.c
   src/process.c
   src/repl_str.c
+  src/shared_library.c
   src/snprintf.c
   src/split.c
   src/strdup.c
@@ -98,6 +99,8 @@ add_library(
 # Causes the visibility macros to use dllexport rather than dllimport,
 # which is appropriate when building the dll but not consuming it.
 target_compile_definitions(${PROJECT_NAME} PRIVATE "RCUTILS_BUILDING_DLL")
+
+target_link_libraries(${PROJECT_NAME} ${CMAKE_DL_LIBS})
 
 # Needed if pthread is used for thread local storage.
 if(IOS AND IOS_SDK_VERSION LESS 10.0)
