@@ -79,13 +79,11 @@ rcutils_unload_library(rcutils_shared_library_t * lib)
 {
 #ifndef _WIN32
   dlclose(lib->lib_pointer);
-  free(lib->library_path);
-  free(lib);
 #else
   FreeLibrary(lib->lib_pointer);
+#endif  // _WIN32
   free(lib->library_path);
   free(lib);
-#endif  // _WIN32
 }
 
 #ifdef __cplusplus
