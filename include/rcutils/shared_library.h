@@ -24,53 +24,98 @@ extern "C"
 
 #ifndef _WIN32
 #include <dlfcn.h>
+typedef void * shared_library_type;
 #else
 #include <windows.h>
+typedef HINSTANCE shared_library_type;
 #endif  // _WIN32
 
+#include "rcutils/allocator.h"
+#include "rcutils/types/rcutils_ret.h"
 #include "rcutils/macros.h"
 #include "rcutils/visibility_control.h"
 
-/// The structure
-typedef struct rcutils_shared_library_t
+/// Handle to a loaded shared library.
+typedef struct RCUTILS_PUBLIC_TYPE rcutils_shared_library_t
 {
-  /// The pointer to the shared library.
-  #ifndef _WIN32
-  void * lib_pointer;
-  #else
-  HINSTANCE lib_pointer;
-  #endif
+  /// The pointer to the shared library
+  shared_library_type lib_pointer;
   /// The path of the shared_library
   char * library_path;
 } rcutils_shared_library_t;
 
+/// Return an empty shared library struct.
+/*
+ * This function returns an empty and zero initialized shared library struct.
+ *
+ * Example:
+ *
+ * ```c
+ * // Do not do this:
+ * // rcutils_shared_library_t foo;
+ * // rcutils_allocator_t allocator = rcutils_get_default_allocator();
+ * // rcutils_unload_library(&foo, allocator); // undefined behavior!
+ *
+ * // Do this instead:
+ * rcutils_shared_library_t bar = rcutils_get_zero_initialized_shared_library();
+ * rcutils_allocator_t allocator = rcutils_get_default_allocator();
+ * rcutils_unload_library(&bar, allocator); // ok
+ * ```
+ * */
+RCUTILS_PUBLIC
+RCUTILS_WARN_UNUSED
+rcutils_shared_library_t
+rcutils_get_zero_initialized_shared_library(void);
+
 /// Return shared library pointer.
 /**
- * \param[in] library_path path to the library
- * \return void* shared library pointer.
- *                nullptr if library doesn't exist
+ *
+ * the memory of the library path inside the rcutils_shared_library_t struct should be
+ * reserved and defined outside this function
+ *
+ * \param[in] lib struct with the shared library pointer and shared library path name
+ * \return `RCUTILS_RET_OK` if successful, or
+ * \return `RCUTILS_RET_ERROR` if an unknown error occurs
  */
 RCUTILS_PUBLIC
-rcutils_shared_library_t *
-rcutils_get_shared_library(const char * library_path);
+RCUTILS_WARN_UNUSED
+rcutils_ret_t
+rcutils_get_shared_library(rcutils_shared_library_t * lib);
 
 /// Return shared library symbol pointer.
 /**
+ * \param[in] lib struct with the shared library pointer and shared library path name
  * \param[in] symbol_name name of the symbol inside the shared library
- * \return void* symbol pointer.
- *                nullptr if symbol doesn't exist
+ * \return shared library symbol pointer.
  */
 RCUTILS_PUBLIC
+RCUTILS_WARN_UNUSED
 void *
 rcutils_get_symbol(rcutils_shared_library_t * lib, const char * symbol_name);
 
-/// Unload the shared library.
+/// Return if the shared library contains a specific symbolname .
 /**
- * \param[in] lib struct to the shared library
+ * \param[in] lib struct with the shared library pointer and shared library path name
+ * \param[in] symbol_name name of the symbol inside the shared library
+ * \return returns true on success, and false otherwise.
  */
 RCUTILS_PUBLIC
-void
-rcutils_unload_library(rcutils_shared_library_t * lib);
+RCUTILS_WARN_UNUSED
+bool
+rcutils_has_symbol(rcutils_shared_library_t * lib, const char * symbol_name);
+
+/// Unload the shared library.
+/**
+ * \param[inout] lib rcutils_shared_library_t to be finalized
+ * \param[in] allocator the allocator to use for allocation
+ * \return `RCUTILS_RET_OK` if successful, or
+ * \return `RCUTILS_RET_INVALID_ARGUMENT` for invalid arguments, or
+ * \return `RCUTILS_RET_ERROR` if an unknown error occurs
+ */
+RCUTILS_PUBLIC
+RCUTILS_WARN_UNUSED
+rcutils_ret_t
+rcutils_unload_library(rcutils_shared_library_t * lib, rcutils_allocator_t allocator);
 
 #ifdef __cplusplus
 }

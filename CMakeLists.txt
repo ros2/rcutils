@@ -315,6 +315,21 @@ if(BUILD_TESTING)
     target_link_libraries(test_repl_str ${PROJECT_NAME})
   endif()
 
+  if(WIN32)
+    set(append_library_dirs "$<TARGET_FILE_DIR:${PROJECT_NAME}>")
+  else()
+    set(append_library_dirs "${CMAKE_CURRENT_BINARY_DIR}")
+  endif()
+
+  ament_add_gtest(test_shared_library test/test_shared_library.cpp
+    APPEND_LIBRARY_DIRS "${append_library_dirs}"
+  )
+
+  if(TARGET test_shared_library)
+    add_library(dummy_shared_library test/dummy_shared_library/dummy_shared_library.cpp)
+    target_link_libraries(test_shared_library ${PROJECT_NAME})
+  endif()
+
   rcutils_custom_add_gtest(test_time
     test/test_time.cpp
     ENV ${memory_tools_test_env_vars})

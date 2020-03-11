@@ -16,32 +16,43 @@
 extern "C"
 {
 #endif
-#include "rcutils/shared_library.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 
-rcutils_shared_library_t *
-rcutils_get_shared_library(const char * library_path)
+#include "rcutils/shared_library.h"
+#include "rcutils/error_handling.h"
+
+
+rcutils_shared_library_t
+rcutils_get_zero_initialized_shared_library(void)
 {
-  rcutils_shared_library_t * lib = (rcutils_shared_library_t *)
-    malloc(sizeof(rcutils_shared_library_t));
+  rcutils_shared_library_t zero_initialized_shared_library;
+  zero_initialized_shared_library.library_path = NULL;
+  zero_initialized_shared_library.lib_pointer = NULL;
+  return zero_initialized_shared_library;
+}
+
+rcutils_ret_t
+rcutils_get_shared_library(rcutils_shared_library_t * lib)
+{
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(lib, RCUTILS_RET_INVALID_ARGUMENT);
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(lib->library_path, RCUTILS_RET_INVALID_ARGUMENT);
 
 #ifndef _WIN32
-  lib->lib_pointer = dlopen(library_path, RTLD_LAZY);
-#else
-  lib->lib_pointer = LoadLibrary(library_path);
-#endif  // _WIN32
+  lib->lib_pointer = dlopen(lib->library_path, RTLD_LAZY);
   if (!lib->lib_pointer) {
-    free(lib);
-    return NULL;
+    RCUTILS_SET_ERROR_MSG(dlerror);
+    return RCUTILS_RET_ERROR;
   }
-
-  // +1 to accomodate for the null terminator
-  lib->library_path = (char *) malloc((strlen(library_path) + 1) * sizeof(char));
-  snprintf(lib->library_path, strlen(library_path), "%s", library_path);
-
-  return lib;
+#else
+  lib->lib_pointer = LoadLibrary(lib->library_path);
+  if (!lib->lib_pointer) {
+    DWORD error = GetLastError();
+    RCUTILS_SET_ERROR_MSG("LoadLibrary error");
+    return RCUTILS_RET_ERROR;
+  }
+#endif  // _WIN32
+  return RCUTILS_RET_OK;
 }
 
 void *
@@ -49,41 +60,59 @@ rcutils_get_symbol(rcutils_shared_library_t * lib, const char * symbol_name)
 {
 #ifndef _WIN32
   void * lib_symbol = dlsym(lib->lib_pointer, symbol_name);
-  const char * dlsym_error = dlerror();
-  if (dlsym_error) {
-    fprintf(
-      stderr, "Cannot load symbol '%s' in shared library '%s'",
-      symbol_name, lib->library_path);
-    dlclose(lib->lib_pointer);
-    free(lib->library_path);
-    free(lib);
-    return NULL;
-  }
 #else
   void * lib_symbol = GetProcAddress(lib->lib_pointer, symbol_name);
+#endif  // _WIN32
   if (!lib_symbol) {
-    fprintf(
-      stderr, "Cannot load symbol '%s' in shared library '%s'",
-      symbol_name, lib->library_path);
-    FreeLibrary(lib->lib_pointer);
-    free(lib->library_path);
-    free(lib);
     return NULL;
   }
-#endif  // _WIN32
   return lib_symbol;
 }
 
-void
-rcutils_unload_library(rcutils_shared_library_t * lib)
+bool
+rcutils_has_symbol(rcutils_shared_library_t * lib, const char * symbol_name)
 {
 #ifndef _WIN32
-  dlclose(lib->lib_pointer);
+  void * lib_symbol = dlsym(lib->lib_pointer, symbol_name);
 #else
-  FreeLibrary(lib->lib_pointer);
+  void * lib_symbol = GetProcAddress(lib->lib_pointer, symbol_name);
 #endif  // _WIN32
-  free(lib->library_path);
-  free(lib);
+  if (!lib_symbol) {
+    return false;
+  }
+  return true;
+}
+
+rcutils_ret_t
+rcutils_unload_library(rcutils_shared_library_t * lib, rcutils_allocator_t allocator)
+{
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(lib, RCUTILS_RET_INVALID_ARGUMENT);
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(lib->lib_pointer, RCUTILS_RET_INVALID_ARGUMENT);
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(lib->library_path, RCUTILS_RET_INVALID_ARGUMENT);
+
+  rcutils_ret_t ret = RCUTILS_RET_OK;
+  int error_code = 0;
+#ifndef _WIN32
+  // The function dlclose() returns 0 on success, and nonzero on error.
+  error_code = dlclose(lib->lib_pointer);
+  const char * dlsym_error = dlerror();
+  if (dlsym_error) {
+    RCUTILS_SET_ERROR_MSG(dlerror());
+    ret = RCUTILS_RET_ERROR;
+  }
+#else
+  // zero if the function succeeds
+  error_code = FreeLibrary(lib->lib_pointer);
+  if (!error_code) {
+    RCUTILS_SET_ERROR_MSG(GetLastError());
+    ret = RCUTILS_RET_ERROR;
+  }
+#endif  // _WIN32
+
+  allocator.deallocate(lib->library_path, allocator.state);
+  lib->library_path = NULL;
+  lib->lib_pointer = NULL;
+  return ret;
 }
 
 #ifdef __cplusplus
