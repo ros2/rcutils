@@ -29,26 +29,38 @@ rcutils_get_zero_initialized_shared_library(void)
   rcutils_shared_library_t zero_initialized_shared_library;
   zero_initialized_shared_library.library_path = NULL;
   zero_initialized_shared_library.lib_pointer = NULL;
+  zero_initialized_shared_library.allocator = rcutils_get_default_allocator();
   return zero_initialized_shared_library;
 }
 
 rcutils_ret_t
-rcutils_get_shared_library(rcutils_shared_library_t * lib)
+rcutils_load_shared_library(rcutils_shared_library_t * lib, const char * library_path)
 {
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(lib, RCUTILS_RET_INVALID_ARGUMENT);
-  RCUTILS_CHECK_ARGUMENT_FOR_NULL(lib->library_path, RCUTILS_RET_INVALID_ARGUMENT);
+
+  // allocating memory to
+  lib->library_path = (char *)(lib->allocator.allocate(
+      (strlen(library_path) + 1) * sizeof(char),
+      lib->allocator.state));
+
+  if (!lib->library_path) {
+    RCUTILS_SET_ERROR_MSG("unable to allocate memory");
+    return RCUTILS_RET_BAD_ALLOC;
+  }
+
+  // copying string
+  snprintf(lib->library_path, strlen(library_path) + 1, "%s", library_path);
 
 #ifndef _WIN32
   lib->lib_pointer = dlopen(lib->library_path, RTLD_LAZY);
   if (!lib->lib_pointer) {
-    RCUTILS_SET_ERROR_MSG(dlerror);
+    RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("dlclose error: %s", dlerror());
     return RCUTILS_RET_ERROR;
   }
 #else
   lib->lib_pointer = LoadLibrary(lib->library_path);
   if (!lib->lib_pointer) {
-    DWORD error = GetLastError();
-    RCUTILS_SET_ERROR_MSG("LoadLibrary error");
+    RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("LoadLibrary error: %lu", GetLastError());
     return RCUTILS_RET_ERROR;
   }
 #endif  // _WIN32
@@ -56,22 +68,34 @@ rcutils_get_shared_library(rcutils_shared_library_t * lib)
 }
 
 void *
-rcutils_get_symbol(rcutils_shared_library_t * lib, const char * symbol_name)
+rcutils_get_symbol(const rcutils_shared_library_t * lib, const char * symbol_name)
 {
+  if (!lib || !lib->lib_pointer || (symbol_name == NULL)) {
+    RCUTILS_SET_ERROR_MSG("invalid inputs arguments");
+    return NULL;
+  }
+
 #ifndef _WIN32
   void * lib_symbol = dlsym(lib->lib_pointer, symbol_name);
 #else
   void * lib_symbol = GetProcAddress(lib->lib_pointer, symbol_name);
 #endif  // _WIN32
   if (!lib_symbol) {
+    RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
+      "symbol '%s' doesnt' exit in library '%s'",
+      symbol_name, lib->library_path);
     return NULL;
   }
   return lib_symbol;
 }
 
 bool
-rcutils_has_symbol(rcutils_shared_library_t * lib, const char * symbol_name)
+rcutils_has_symbol(const rcutils_shared_library_t * lib, const char * symbol_name)
 {
+  if (!lib || !lib->lib_pointer || symbol_name) {
+    return false;
+  }
+
 #ifndef _WIN32
   void * lib_symbol = dlsym(lib->lib_pointer, symbol_name);
 #else
@@ -84,32 +108,30 @@ rcutils_has_symbol(rcutils_shared_library_t * lib, const char * symbol_name)
 }
 
 rcutils_ret_t
-rcutils_unload_library(rcutils_shared_library_t * lib, rcutils_allocator_t allocator)
+rcutils_unload_library(rcutils_shared_library_t * lib)
 {
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(lib, RCUTILS_RET_INVALID_ARGUMENT);
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(lib->lib_pointer, RCUTILS_RET_INVALID_ARGUMENT);
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(lib->library_path, RCUTILS_RET_INVALID_ARGUMENT);
 
   rcutils_ret_t ret = RCUTILS_RET_OK;
-  int error_code = 0;
 #ifndef _WIN32
   // The function dlclose() returns 0 on success, and nonzero on error.
-  error_code = dlclose(lib->lib_pointer);
-  const char * dlsym_error = dlerror();
-  if (dlsym_error) {
-    RCUTILS_SET_ERROR_MSG(dlerror());
+  int error_code = dlclose(lib->lib_pointer);
+  if (error_code) {
+    RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("dlclose error: %s", dlerror());
     ret = RCUTILS_RET_ERROR;
   }
 #else
   // zero if the function succeeds
-  error_code = FreeLibrary(lib->lib_pointer);
+  int error_code = FreeLibrary(lib->lib_pointer);
   if (!error_code) {
-    RCUTILS_SET_ERROR_MSG(GetLastError());
+    RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("FreeLibrary error: %lu", GetLastError());
     ret = RCUTILS_RET_ERROR;
   }
 #endif  // _WIN32
 
-  allocator.deallocate(lib->library_path, allocator.state);
+  lib->allocator.deallocate(lib->library_path, lib->allocator.state);
   lib->library_path = NULL;
   lib->lib_pointer = NULL;
   return ret;
