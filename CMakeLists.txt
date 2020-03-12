@@ -326,7 +326,7 @@ if(BUILD_TESTING)
   )
 
   if(TARGET test_shared_library)
-    add_library(dummy_shared_library test/dummy_shared_library/dummy_shared_library.cpp)
+    add_library(dummy_shared_library test/dummy_shared_library/dummy_shared_library.c)
     target_link_libraries(test_shared_library ${PROJECT_NAME})
   endif()
 

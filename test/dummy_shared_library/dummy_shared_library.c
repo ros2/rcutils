@@ -12,37 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef DUMMY_SHARED_LIBRARY__DUMMY_SHARED_LIBRARY_BASE_HPP_
-#define DUMMY_SHARED_LIBRARY__DUMMY_SHARED_LIBRARY_BASE_HPP_
+#include "./dummy_shared_library.h" // NOLINT
 
-#include <iostream>
-
-class DummySharedLibraryBase
+void print_name()
 {
-public:
-  virtual ~DummySharedLibraryBase() {}
-  virtual void speak() = 0;
-};
-
-class Bar : public DummySharedLibraryBase
-{
-public:
-  virtual ~Bar() = default;
-  void speak()
-  {
-    printf("from plugin Bar\n");
-  }
-};
-
-class Baz : public DummySharedLibraryBase
-{
-public:
-  virtual ~Baz() = default;
-  void speak()
-  {
-    printf("from plugin Baz");
-  }
-};
-
-
-#endif  // DUMMY_SHARED_LIBRARY__DUMMY_SHARED_LIBRARY_BASE_HPP_
+  printf("print_name\n");
+}

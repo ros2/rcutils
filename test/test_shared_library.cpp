@@ -32,48 +32,57 @@ protected:
     // Reset rcutil error global state in case a previously
     // running test has failed.
     rcutils_reset_error();
-    allocator = rcutils_get_default_allocator();
     lib = rcutils_get_zero_initialized_shared_library();
   }
-  rcutils_allocator_t allocator;
   rcutils_shared_library_t lib;
 };
 
-TEST_F(TestSharedLibrary, getters_initialize_to_zero) {
+TEST_F(TestSharedLibrary, basic_load) {
   rcutils_ret_t ret;
 
   // checking rcutils_get_zero_initialized_shared_library
   ASSERT_STRNE(lib.library_path, "");
   EXPECT_TRUE(lib.lib_pointer == NULL);
 
-  // Getting RMW_IMPLEMENTATION env var to get the shared library
-  const char * env_var{};
-  const char * err = rcutils_get_env("RMW_IMPLEMENTATION", &env_var);
-  // Is there any error getting the env var?
-  ASSERT_STRNE(err, "");
-  // library path is not empty
+  // library path
   const std::string library_path = std::string("libdummy_shared_library.so");
-  EXPECT_FALSE(library_path.empty());
-
-  // allocating memory to
-  lib.library_path = reinterpret_cast<char *>(allocator.allocate(
-      (library_path.length() + 1) * sizeof(char),
-      allocator.state));
-
-  // checking allocation was fine
-  ASSERT_NE(lib.library_path, nullptr);
-  // copying string
-  snprintf(lib.library_path, library_path.length() + 1, "%s", library_path.c_str());
 
   // getting shared library
-  ret = rcutils_get_shared_library(&lib);
+  ret = rcutils_load_shared_library(&lib, library_path.c_str());
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
   // unload shared_library
-  ret = rcutils_unload_library(&lib, allocator);
+  ret = rcutils_unload_library(&lib);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
   // checking if we have unloaded and freed memory
   ASSERT_STRNE(lib.library_path, "");
   EXPECT_TRUE(lib.lib_pointer == NULL);
+}
+
+TEST_F(TestSharedLibrary, basic_symbol) {
+  void * symbol;
+  bool ret;
+
+  symbol = rcutils_get_symbol(nullptr, "symbol");
+  EXPECT_TRUE(symbol == NULL);
+
+  ret = rcutils_has_symbol(nullptr, "symbol");
+  EXPECT_FALSE(ret);
+
+  const std::string library_path = std::string("libdummy_shared_library.so");
+
+  // getting shared library
+  ret = rcutils_load_shared_library(&lib, library_path.c_str());
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
+
+  symbol = rcutils_get_symbol(&lib, "symbol");
+  EXPECT_TRUE(symbol == NULL);
+
+  symbol = rcutils_get_symbol(&lib, "print_name");
+  EXPECT_TRUE(symbol != NULL);
+
+  // unload shared_library
+  ret = rcutils_unload_library(&lib);
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
 }
