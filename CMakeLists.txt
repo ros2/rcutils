@@ -368,7 +368,7 @@ endif()
 
 ament_export_dependencies(ament_cmake)
 ament_export_include_directories(include)
-ament_export_libraries(${PROJECT_NAME})
+ament_export_libraries(${PROJECT_NAME} ${CMAKE_DL_LIBS})
 ament_package()
 
 install(
