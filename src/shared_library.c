@@ -92,7 +92,7 @@ rcutils_get_symbol(const rcutils_shared_library_t * lib, const char * symbol_nam
 bool
 rcutils_has_symbol(const rcutils_shared_library_t * lib, const char * symbol_name)
 {
-  if (!lib || !lib->lib_pointer || symbol_name) {
+  if (!lib || !lib->lib_pointer || symbol_name == NULL) {
     return false;
   }
 
