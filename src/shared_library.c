@@ -101,10 +101,7 @@ rcutils_has_symbol(const rcutils_shared_library_t * lib, const char * symbol_nam
 #else
   void * lib_symbol = GetProcAddress(lib->lib_pointer, symbol_name);
 #endif  // _WIN32
-  if (!lib_symbol) {
-    return false;
-  }
-  return true;
+  return lib_symbol != 0;
 }
 
 rcutils_ret_t
@@ -123,7 +120,7 @@ rcutils_unload_shared_library(rcutils_shared_library_t * lib)
     ret = RCUTILS_RET_ERROR;
   }
 #else
-  // zero if the function succeeds
+  // If the function succeeds, the return value is nonzero.
   int error_code = FreeLibrary(lib->lib_pointer);
   if (!error_code) {
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("FreeLibrary error: %lu", GetLastError());
