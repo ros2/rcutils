@@ -108,7 +108,7 @@ rcutils_has_symbol(const rcutils_shared_library_t * lib, const char * symbol_nam
 }
 
 rcutils_ret_t
-rcutils_unload_library(rcutils_shared_library_t * lib)
+rcutils_unload_shared_library(rcutils_shared_library_t * lib)
 {
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(lib, RCUTILS_RET_INVALID_ARGUMENT);
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(lib->lib_pointer, RCUTILS_RET_INVALID_ARGUMENT);

@@ -56,7 +56,7 @@ typedef struct RCUTILS_PUBLIC_TYPE rcutils_shared_library_t
  * // Do not do this:
  * // rcutils_shared_library_t foo;
  * // rcutils_allocator_t allocator = rcutils_get_default_allocator();
- * // rcutils_unload_library(&foo, allocator); // undefined behavior!
+ * // rcutils_unload_shared_library(&foo, allocator); // undefined behavior!
  *
  * // Do this instead:
  * rcutils_shared_library_t bar = rcutils_get_zero_initialized_shared_library();
@@ -115,7 +115,7 @@ rcutils_has_symbol(const rcutils_shared_library_t * lib, const char * symbol_nam
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
 rcutils_ret_t
-rcutils_unload_library(rcutils_shared_library_t * lib);
+rcutils_unload_shared_library(rcutils_shared_library_t * lib);
 
 #ifdef __cplusplus
 }

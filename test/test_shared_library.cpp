@@ -52,7 +52,7 @@ TEST_F(TestSharedLibrary, basic_load) {
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
   // unload shared_library
-  ret = rcutils_unload_library(&lib);
+  ret = rcutils_unload_shared_library(&lib);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
   // checking if we have unloaded and freed memory
@@ -83,6 +83,6 @@ TEST_F(TestSharedLibrary, basic_symbol) {
   EXPECT_TRUE(symbol != NULL);
 
   // unload shared_library
-  ret = rcutils_unload_library(&lib);
+  ret = rcutils_unload_shared_library(&lib);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 }
