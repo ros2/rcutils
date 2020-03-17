@@ -54,12 +54,14 @@ rcutils_load_shared_library(rcutils_shared_library_t * lib, const char * library
 #ifndef _WIN32
   lib->lib_pointer = dlopen(lib->library_path, RTLD_LAZY);
   if (!lib->lib_pointer) {
+    lib->allocator.deallocate(lib->library_path, lib->allocator.state);
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("dlclose error: %s", dlerror());
     return RCUTILS_RET_ERROR;
   }
 #else
   lib->lib_pointer = LoadLibrary(lib->library_path);
   if (!lib->lib_pointer) {
+    lib->allocator.deallocate(lib->library_path, lib->allocator.state);
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("LoadLibrary error: %lu", GetLastError());
     return RCUTILS_RET_ERROR;
   }
