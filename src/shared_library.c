@@ -19,9 +19,9 @@ extern "C"
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "rcutils/shared_library.h"
 #include "rcutils/error_handling.h"
-
+#include "rcutils/shared_library.h"
+#include "rcutils/strdup.h"
 
 rcutils_shared_library_t
 rcutils_get_zero_initialized_shared_library(void)
@@ -38,25 +38,18 @@ rcutils_load_shared_library(rcutils_shared_library_t * lib, const char * library
 {
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(lib, RCUTILS_RET_INVALID_ARGUMENT);
 
-  // allocating memory to
-  lib->library_path = (char *)(lib->allocator.allocate(
-      (strlen(library_path) + 1) * sizeof(char),
-      lib->allocator.state));
-
-  if (!lib->library_path) {
+  lib->library_path = rcutils_strdup(library_path, lib->allocator);
+  if (NULL == lib->library_path) {
     RCUTILS_SET_ERROR_MSG("unable to allocate memory");
     return RCUTILS_RET_BAD_ALLOC;
   }
-
-  // copying string
-  snprintf(lib->library_path, strlen(library_path) + 1, "%s", library_path);
 
 #ifndef _WIN32
   lib->lib_pointer = dlopen(lib->library_path, RTLD_LAZY);
   if (!lib->lib_pointer) {
     lib->allocator.deallocate(lib->library_path, lib->allocator.state);
     lib->library_path = NULL;
-    RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("dlclose error: %s", dlerror());
+    RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("dlopen error: %s", dlerror());
     return RCUTILS_RET_ERROR;
   }
 #else
@@ -81,8 +74,21 @@ rcutils_get_symbol(const rcutils_shared_library_t * lib, const char * symbol_nam
 
 #ifndef _WIN32
   void * lib_symbol = dlsym(lib->lib_pointer, symbol_name);
+  char * error = dlerror();
+  if (error != NULL) {
+    RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
+      "Error getting the symbol '%s'. Error '%s'",
+      symbol_name, error);
+      return NULL;
+   }
 #else
   void * lib_symbol = GetProcAddress(lib->lib_pointer, symbol_name);
+  if ( lib_symbol == NULL) {
+    RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
+      "Error getting the symbol '%s'. Error '%d'",
+      symbol_name, GetLastError());
+      return NULL;
+  }
 #endif  // _WIN32
   if (!lib_symbol) {
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
@@ -101,11 +107,17 @@ rcutils_has_symbol(const rcutils_shared_library_t * lib, const char * symbol_nam
   }
 
 #ifndef _WIN32
+  // the correct way to test for an error is to call dlerror() to clear any old error conditions,
+  // then call dlsym(), and then call dlerror() again, saving its return value into a variable,
+  // and check whether this saved value is not NULL.
+  dlerror(); /* Clear any existing error */
   void * lib_symbol = dlsym(lib->lib_pointer, symbol_name);
+  return dlerror() == NULL && lib_symbol != 0;
 #else
   void * lib_symbol = GetProcAddress(lib->lib_pointer, symbol_name);
+  return GetLastError() == 0 && lib_symbol != 0;
+  }
 #endif  // _WIN32
-  return lib_symbol != 0;
 }
 
 rcutils_ret_t
