@@ -79,15 +79,15 @@ rcutils_get_symbol(const rcutils_shared_library_t * lib, const char * symbol_nam
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
       "Error getting the symbol '%s'. Error '%s'",
       symbol_name, error);
-      return NULL;
-   }
+    return NULL;
+  }
 #else
   void * lib_symbol = GetProcAddress(lib->lib_pointer, symbol_name);
-  if ( lib_symbol == NULL) {
+  if (lib_symbol == NULL) {
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
       "Error getting the symbol '%s'. Error '%d'",
       symbol_name, GetLastError());
-      return NULL;
+    return NULL;
   }
 #endif  // _WIN32
   if (!lib_symbol) {
@@ -116,7 +116,6 @@ rcutils_has_symbol(const rcutils_shared_library_t * lib, const char * symbol_nam
 #else
   void * lib_symbol = GetProcAddress(lib->lib_pointer, symbol_name);
   return GetLastError() == 0 && lib_symbol != 0;
-  }
 #endif  // _WIN32
 }
 
