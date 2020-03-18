@@ -49,19 +49,23 @@ typedef struct RCUTILS_PUBLIC_TYPE rcutils_shared_library_t
 /// Return an empty shared library struct.
 /*
  * This function returns an empty and zero initialized shared library struct.
+ * The default allocator is set.
  *
  * Example:
  *
  * ```c
  * // Do not do this:
  * // rcutils_shared_library_t foo;
- * // rcutils_allocator_t allocator = rcutils_get_default_allocator();
- * // rcutils_unload_shared_library(&foo, allocator); // undefined behavior!
+ * // rcutils_load_shared_library(&foo, "library_name"); // undefined behavior!
+ * // or
+ * // rcutils_unload_shared_library(&foo); // undefined behavior!
  *
  * // Do this instead:
  * rcutils_shared_library_t bar = rcutils_get_zero_initialized_shared_library();
- * rcutils_allocator_t allocator = rcutils_get_default_allocator();
  * rcutils_load_shared_library(&bar, "library_name"); // ok
+ * void * symbol = rcutils_get_symbol(&bar, "bazinga"); // ok
+ * bool is_bazinga_symbol = rcutils_has_symbol(&bar, "bazinga"); // ok
+ * rcutils_unload_shared_library(&bar); // ok
  * ```
  * */
 RCUTILS_PUBLIC
@@ -94,7 +98,7 @@ RCUTILS_WARN_UNUSED
 void *
 rcutils_get_symbol(const rcutils_shared_library_t * lib, const char * symbol_name);
 
-/// Return if the shared library contains a specific symbolname .
+/// Return true if the shared library contains a specific symbol name otherwise returns false.
 /**
  * \param[in] lib struct with the shared library pointer and shared library path name
  * \param[in] symbol_name name of the symbol inside the shared library
