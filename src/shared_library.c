@@ -29,6 +29,7 @@ rcutils_get_zero_initialized_shared_library(void)
   rcutils_shared_library_t zero_initialized_shared_library;
   zero_initialized_shared_library.library_path = NULL;
   zero_initialized_shared_library.lib_pointer = NULL;
+  zero_initialized_shared_library.allocator = rcutils_get_zero_initialized_allocator();
   return zero_initialized_shared_library;
 }
 
@@ -39,6 +40,8 @@ rcutils_load_shared_library(
   rcutils_allocator_t allocator)
 {
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(lib, RCUTILS_RET_INVALID_ARGUMENT);
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(library_path, RCUTILS_RET_INVALID_ARGUMENT);
+  RCUTILS_CHECK_ALLOCATOR(&allocator, return RCUTILS_RET_INVALID_ARGUMENT);
 
   lib->allocator = allocator;
 
@@ -51,20 +54,16 @@ rcutils_load_shared_library(
 #ifndef _WIN32
   lib->lib_pointer = dlopen(lib->library_path, RTLD_LAZY);
   if (!lib->lib_pointer) {
-    lib->allocator.deallocate(lib->library_path, lib->allocator.state);
-    lib->library_path = NULL;
-    RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("dlopen error: %s", dlerror());
-    return RCUTILS_RET_ERROR;
-  }
+    RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("LoadLibrary error: %s", dlerror());
 #else
   lib->lib_pointer = LoadLibrary(lib->library_path);
   if (!lib->lib_pointer) {
+    RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("LoadLibrary error: %lu", GetLastError());
+#endif  // _WIN32
     lib->allocator.deallocate(lib->library_path, lib->allocator.state);
     lib->library_path = NULL;
-    RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("LoadLibrary error: %lu", GetLastError());
     return RCUTILS_RET_ERROR;
   }
-#endif  // _WIN32
   return RCUTILS_RET_OK;
 }
 
@@ -129,6 +128,7 @@ rcutils_unload_shared_library(rcutils_shared_library_t * lib)
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(lib, RCUTILS_RET_INVALID_ARGUMENT);
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(lib->lib_pointer, RCUTILS_RET_INVALID_ARGUMENT);
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(lib->library_path, RCUTILS_RET_INVALID_ARGUMENT);
+  RCUTILS_CHECK_ALLOCATOR(&lib->allocator, return RCUTILS_RET_INVALID_ARGUMENT);
 
   rcutils_ret_t ret = RCUTILS_RET_OK;
 #ifndef _WIN32
@@ -136,20 +136,19 @@ rcutils_unload_shared_library(rcutils_shared_library_t * lib)
   int error_code = dlclose(lib->lib_pointer);
   if (error_code) {
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("dlclose error: %s", dlerror());
-    ret = RCUTILS_RET_ERROR;
-  }
 #else
   // If the function succeeds, the return value is nonzero.
   int error_code = FreeLibrary(lib->lib_pointer);
   if (!error_code) {
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("FreeLibrary error: %lu", GetLastError());
+#endif  // _WIN32
     ret = RCUTILS_RET_ERROR;
   }
-#endif  // _WIN32
 
   lib->allocator.deallocate(lib->library_path, lib->allocator.state);
   lib->library_path = NULL;
   lib->lib_pointer = NULL;
+  lib->allocator = rcutils_get_zero_initialized_allocator();
   return ret;
 }
 

@@ -315,11 +315,7 @@ if(BUILD_TESTING)
     target_link_libraries(test_repl_str ${PROJECT_NAME})
   endif()
 
-  if(WIN32)
-    set(append_library_dirs "$<TARGET_FILE_DIR:${PROJECT_NAME}>")
-  else()
-    set(append_library_dirs "${CMAKE_CURRENT_BINARY_DIR}")
-  endif()
+  set(append_library_dirs "$<TARGET_FILE_DIR:${PROJECT_NAME}>")
 
   ament_add_gtest(test_shared_library test/test_shared_library.cpp
     APPEND_LIBRARY_DIRS "${append_library_dirs}"
