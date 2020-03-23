@@ -56,13 +56,16 @@ typedef struct RCUTILS_PUBLIC_TYPE rcutils_shared_library_t
  * ```c
  * // Do not do this:
  * // rcutils_shared_library_t foo;
- * // rcutils_load_shared_library(&foo, "library_name"); // undefined behavior!
+ * // rcutils_load_shared_library(
+ * //     &foo,
+ * //    "library_name",
+ * //    rcutils_get_default_allocator()); // undefined behavior!
  * // or
  * // rcutils_unload_shared_library(&foo); // undefined behavior!
  *
  * // Do this instead:
  * rcutils_shared_library_t bar = rcutils_get_zero_initialized_shared_library();
- * rcutils_load_shared_library(&bar, "library_name"); // ok
+ * rcutils_load_shared_library(&bar, "library_name",rcutils_get_default_allocator()); // ok
  * void * symbol = rcutils_get_symbol(&bar, "bazinga"); // ok
  * bool is_bazinga_symbol = rcutils_has_symbol(&bar, "bazinga"); // ok
  * rcutils_unload_shared_library(&bar); // ok
@@ -77,6 +80,7 @@ rcutils_get_zero_initialized_shared_library(void);
 /**
  * \param[inout] lib struct with the shared library pointer and shared library path name
  * \param[in] library_path string with the path of the library
+ * \param[in] allocator to be used to allocate and deallocate memory
  * \return `RCUTILS_RET_OK` if successful, or
  * \return `RCUTILS_RET_BAD_ALLOC` if memory allocation fails, or
  * \return `RCUTILS_RET_ERROR` if an unknown error occurs, or
@@ -85,7 +89,10 @@ rcutils_get_zero_initialized_shared_library(void);
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
 rcutils_ret_t
-rcutils_load_shared_library(rcutils_shared_library_t * lib, const char * library_path);
+rcutils_load_shared_library(
+  rcutils_shared_library_t * lib,
+  const char * library_path,
+  rcutils_allocator_t allocator);
 
 /// Return shared library symbol pointer.
 /**

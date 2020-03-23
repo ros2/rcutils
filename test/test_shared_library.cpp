@@ -48,7 +48,7 @@ TEST_F(TestSharedLibrary, basic_load) {
   const std::string library_path = std::string("libdummy_shared_library.so");
 
   // getting shared library
-  ret = rcutils_load_shared_library(&lib, library_path.c_str());
+  ret = rcutils_load_shared_library(&lib, library_path.c_str(), rcutils_get_default_allocator());
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
   // unload shared_library
@@ -73,7 +73,7 @@ TEST_F(TestSharedLibrary, basic_symbol) {
   const std::string library_path = std::string("libdummy_shared_library.so");
 
   // getting shared library
-  ret = rcutils_load_shared_library(&lib, library_path.c_str());
+  ret = rcutils_load_shared_library(&lib, library_path.c_str(), rcutils_get_default_allocator());
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
   symbol = rcutils_get_symbol(&lib, "symbol");

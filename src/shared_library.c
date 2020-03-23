@@ -29,14 +29,18 @@ rcutils_get_zero_initialized_shared_library(void)
   rcutils_shared_library_t zero_initialized_shared_library;
   zero_initialized_shared_library.library_path = NULL;
   zero_initialized_shared_library.lib_pointer = NULL;
-  zero_initialized_shared_library.allocator = rcutils_get_default_allocator();
   return zero_initialized_shared_library;
 }
 
 rcutils_ret_t
-rcutils_load_shared_library(rcutils_shared_library_t * lib, const char * library_path)
+rcutils_load_shared_library(
+  rcutils_shared_library_t * lib,
+  const char * library_path,
+  rcutils_allocator_t allocator)
 {
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(lib, RCUTILS_RET_INVALID_ARGUMENT);
+
+  lib->allocator = allocator;
 
   lib->library_path = rcutils_strdup(library_path, lib->allocator);
   if (NULL == lib->library_path) {
