@@ -60,6 +60,46 @@ TEST_F(TestSharedLibrary, basic_load) {
   EXPECT_TRUE(lib.lib_pointer == NULL);
 }
 
+TEST_F(TestSharedLibrary, error_load) {
+  rcutils_ret_t ret;
+
+  rcutils_shared_library_t lib_empty;
+  ret = rcutils_load_shared_library(&lib_empty, NULL, rcutils_get_zero_initialized_allocator());
+  ASSERT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret);
+
+  lib_empty = rcutils_get_zero_initialized_shared_library();
+  ret = rcutils_load_shared_library(&lib_empty, NULL, rcutils_get_zero_initialized_allocator());
+  ASSERT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret);
+
+  const std::string library_path = std::string("libdummy_shared_library.so");
+  ret = rcutils_load_shared_library(&lib_empty, library_path.c_str(), rcutils_get_zero_initialized_allocator());
+  ASSERT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret);
+}
+
+TEST_F(TestSharedLibrary, error_unload) {
+  rcutils_ret_t ret;
+
+  const std::string library_path = std::string("libdummy_shared_library.so");
+  ret = rcutils_load_shared_library(&lib, library_path.c_str(), rcutils_get_default_allocator());
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
+
+  // unload shared_library
+  ret = rcutils_unload_shared_library(&lib);
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
+
+  // unload again shared_library
+  ret = rcutils_unload_shared_library(&lib);
+  ASSERT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret);
+}
+
+TEST_F(TestSharedLibrary, error_symbol) {
+  bool is_symbol = rcutils_has_symbol(&lib, "symbol");
+  EXPECT_TRUE(is_symbol == false);
+
+  void * symbol = rcutils_get_symbol(&lib, "print_name");
+  EXPECT_TRUE(symbol == NULL);
+}
+
 TEST_F(TestSharedLibrary, basic_symbol) {
   void * symbol;
   bool ret;
