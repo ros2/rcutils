@@ -72,7 +72,9 @@ TEST_F(TestSharedLibrary, error_load) {
   ASSERT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret);
 
   const std::string library_path = std::string("libdummy_shared_library.so");
-  ret = rcutils_load_shared_library(&lib_empty, library_path.c_str(), rcutils_get_zero_initialized_allocator());
+  ret = rcutils_load_shared_library(
+    &lib_empty,
+    library_path.c_str(), rcutils_get_zero_initialized_allocator());
   ASSERT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret);
 }
 
