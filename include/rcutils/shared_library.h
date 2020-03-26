@@ -49,7 +49,6 @@ typedef struct RCUTILS_PUBLIC_TYPE rcutils_shared_library_t
 /// Return an empty shared library struct.
 /*
  * This function returns an empty and zero initialized shared library struct.
- * The default allocator is set.
  *
  * Example:
  *
