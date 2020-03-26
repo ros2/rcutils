@@ -18,8 +18,6 @@ find_package(ament_cmake_ros REQUIRED)
 
 ament_python_install_package(${PROJECT_NAME})
 
-include_directories(include)
-
 if(NOT WIN32)
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
@@ -92,11 +90,14 @@ add_custom_command(OUTPUT include/rcutils/logging_macros.h
 )
 list(APPEND rcutils_sources
   include/rcutils/logging_macros.h)
-include_directories("${CMAKE_CURRENT_BINARY_DIR}/include")
 
 add_library(
   ${PROJECT_NAME}
   ${rcutils_sources})
+target_include_directories(${PROJECT_NAME} PUBLIC
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>"
+  "$<INSTALL_INTERFACE:include>")
 
 # Causes the visibility macros to use dllexport rather than dllimport,
 # which is appropriate when building the dll but not consuming it.
@@ -109,7 +110,7 @@ if(IOS AND IOS_SDK_VERSION LESS 10.0)
   ament_export_libraries(pthread)
 endif()
 
-install(TARGETS ${PROJECT_NAME}
+install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin)
@@ -248,6 +249,7 @@ if(BUILD_TESTING)
     ENV ${memory_tools_test_env_vars}
   )
   if(TARGET test_error_handling_helpers)
+    target_include_directories(test_error_handling_helpers PUBLIC include)
     target_link_libraries(test_error_handling_helpers osrf_testing_tools_cpp::memory_tools)
   endif()
 
@@ -407,6 +409,7 @@ endif()
 
 ament_export_dependencies(ament_cmake)
 ament_export_include_directories(include)
+ament_export_interfaces(${PROJECT_NAME})
 ament_export_libraries(${PROJECT_NAME} ${CMAKE_DL_LIBS})
 ament_package()
 
