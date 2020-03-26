@@ -55,19 +55,22 @@ typedef struct RCUTILS_PUBLIC_TYPE rcutils_shared_library_t
  * ```c
  * // Do not do this:
  * // rcutils_shared_library_t foo;
- * // rcutils_load_shared_library(
+ * // rcutils_ret_t ret = rcutils_load_shared_library(
  * //     &foo,
  * //    "library_name",
  * //    rcutils_get_default_allocator()); // undefined behavior!
  * // or
- * // rcutils_unload_shared_library(&foo); // undefined behavior!
+ * // rcutils_ret_t ret = rcutils_unload_shared_library(&foo); // undefined behavior!
  *
  * // Do this instead:
  * rcutils_shared_library_t bar = rcutils_get_zero_initialized_shared_library();
  * rcutils_load_shared_library(&bar, "library_name", rcutils_get_default_allocator()); // ok
  * void * symbol = rcutils_get_symbol(&bar, "bazinga"); // ok
  * bool is_bazinga_symbol = rcutils_has_symbol(&bar, "bazinga"); // ok
- * rcutils_unload_shared_library(&bar); // ok
+ * rcutils_ret_t ret = rcutils_unload_shared_library(&bar); // ok
+ * if (ret != RCUTILS_RET_ERROR) {
+ *   // error handling
+ * }
  * ```
  * */
 RCUTILS_PUBLIC

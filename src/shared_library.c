@@ -95,7 +95,7 @@ rcutils_get_symbol(const rcutils_shared_library_t * lib, const char * symbol_nam
 #endif  // _WIN32
   if (!lib_symbol) {
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
-      "symbol '%s' doesnt' exit in library '%s'",
+      "symbol '%s' does not exist in the library '%s'",
       symbol_name, lib->library_path);
     return NULL;
   }
