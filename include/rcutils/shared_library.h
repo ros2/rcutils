@@ -64,7 +64,7 @@ typedef struct RCUTILS_PUBLIC_TYPE rcutils_shared_library_t
  *
  * // Do this instead:
  * rcutils_shared_library_t bar = rcutils_get_zero_initialized_shared_library();
- * rcutils_load_shared_library(&bar, "library_name",rcutils_get_default_allocator()); // ok
+ * rcutils_load_shared_library(&bar, "library_name", rcutils_get_default_allocator()); // ok
  * void * symbol = rcutils_get_symbol(&bar, "bazinga"); // ok
  * bool is_bazinga_symbol = rcutils_has_symbol(&bar, "bazinga"); // ok
  * rcutils_unload_shared_library(&bar); // ok
