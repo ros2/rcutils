@@ -120,7 +120,7 @@ rcutils_has_symbol(const rcutils_shared_library_t * lib, const char * symbol_nam
 
 /// Unload the shared library.
 /**
- * \param[inout] lib rcutils_shared_library_t to be finalized
+ * \param[in] lib rcutils_shared_library_t to be finalized
  * \return `RCUTILS_RET_OK` if successful, or
  * \return `RCUTILS_RET_INVALID_ARGUMENT` for invalid arguments, or
  * \return `RCUTILS_RET_ERROR` if an unknown error occurs
