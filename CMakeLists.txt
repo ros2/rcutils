@@ -35,6 +35,7 @@ set(rcutils_sources
   src/array_list.c
   src/char_array.c
   src/cmdline_parser.c
+  src/directory_and_file_reader.c
   src/error_handling.c
   src/filesystem.c
   src/find.c
