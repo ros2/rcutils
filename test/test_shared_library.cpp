@@ -60,6 +60,23 @@ TEST_F(TestSharedLibrary, basic_load) {
   EXPECT_TRUE(lib.lib_pointer == NULL);
 }
 
+TEST_F(TestSharedLibrary, load_two_times) {
+  rcutils_ret_t ret;
+
+  const std::string library_path = std::string("libdummy_shared_library.so");
+  // getting shared library
+  ret = rcutils_load_shared_library(&lib, library_path.c_str(), rcutils_get_default_allocator());
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
+
+  // getting shared library
+  ret = rcutils_load_shared_library(&lib, library_path.c_str(), rcutils_get_default_allocator());
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
+
+  // unload shared_library
+  ret = rcutils_unload_shared_library(&lib);
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
+}
+
 TEST_F(TestSharedLibrary, error_load) {
   rcutils_ret_t ret;
 

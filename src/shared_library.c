@@ -45,6 +45,10 @@ rcutils_load_shared_library(
 
   lib->allocator = allocator;
 
+  if (lib->library_path != NULL) {
+    lib->allocator.deallocate(lib->library_path, lib->allocator.state);
+  }
+
   lib->library_path = rcutils_strdup(library_path, lib->allocator);
   if (NULL == lib->library_path) {
     RCUTILS_SET_ERROR_MSG("unable to allocate memory");
