@@ -48,11 +48,19 @@ rcutils_get_zero_initialized_file(void)
   return zero_initialized_file;
 }
 
-void
+rcutils_ret_t
 rcutils_file_fini(rcutils_file_t * file, rcutils_allocator_t allocator)
 {
-  allocator.deallocate(file->path, allocator.state);
-  allocator.deallocate(file->name, allocator.state);
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(file, RCUTILS_RET_INVALID_ARGUMENT);
+
+  if (file->path != NULL) {
+    allocator.deallocate(file->path, allocator.state);
+  }
+  if (file->name != NULL) {
+    allocator.deallocate(file->name, allocator.state);
+  }
+
+  return RCUTILS_RET_OK;
 }
 
 rcutils_ret_t
@@ -73,6 +81,25 @@ rcutils_open_dir(rcutils_dir_t * dir, const char * path, rcutils_allocator_t all
 
   dir->allocator = allocator;
 
+  if (dir->path != NULL) {
+    dir->allocator.deallocate(dir->path, dir->allocator.state);
+  }
+
+  if (dir->dir != NULL) {
+    errno = 0;
+    #ifndef _WIN32
+    int error = closedir(dir->dir);
+    // The closedir() function returns 0 on success
+    if (error) {
+      #else
+    // If the function succeeds, the return value is nonzero.
+    if (!FindClose(dir->dir)) {
+    #endif
+      RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("error closing the directory: '%s'", dir->path);
+      return RCUTILS_RET_ERROR;
+    }
+  }
+
   dir->path = rcutils_strdup(path, dir->allocator);
   if (NULL == dir->path) {
     RCUTILS_SET_ERROR_MSG("unable to allocate memory");
@@ -86,12 +113,16 @@ rcutils_open_dir(rcutils_dir_t * dir, const char * path, rcutils_allocator_t all
   char * path_buf[RCUTILS_DIR_PATH_MAX];
   TCHAR * pathp = &dir->path[strlen(dir->path) - 1];
   while (pathp != dir->path && (*pathp == _TEXT('\\') || *pathp == _TEXT('/')))
-	{
-		*pathp = _TEXT('\0');
-		pathp++;
-	}
-  strcpy(path_buf, dir->path);
-	strcat(path_buf, _TEXT("\\*"));
+  {
+    *pathp = _TEXT('\0');
+    pathp++;
+  }
+
+  if (rcutils_snprintf(path_buf, "%s%s", dir->path, _TEXT("\\*")) < 0)
+  {
+    RCUTILS_SET_ERROR_MSG("failed concat strings");
+    return RCUTILS_RET_ERROR;
+  }
 
   dir->dir = FindFirstFile(path_buf, &dir->f);
   if (dir->dir == INVALID_HANDLE_VALUE) {
@@ -148,12 +179,19 @@ rcutils_readfile(rcutils_dir_t * dir, rcutils_file_t * file)
 #else
     dir->f.cFileName;
 #endif
+
+  if (file->path != NULL) {
+    dir->allocator.deallocate(file->path, dir->allocator.state);
+  }
   file->path = rcutils_strdup(dir->path, dir->allocator);
   if (NULL == file->path) {
     RCUTILS_SET_ERROR_MSG("unable to allocate memory");
     return RCUTILS_RET_BAD_ALLOC;
   }
 
+  if (file->name != NULL) {
+    dir->allocator.deallocate(file->name, dir->allocator.state);
+  }
   file->name = rcutils_strdup(filename, dir->allocator);
   if (NULL == file->name) {
     dir->allocator.deallocate(file->name, dir->allocator.state);
@@ -184,6 +222,7 @@ rcutils_ret_t
 rcutils_next_dir(rcutils_dir_t * dir)
 {
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(dir, RCUTILS_RET_INVALID_ARGUMENT);
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(dir->dir, RCUTILS_RET_INVALID_ARGUMENT);
 
   if (!dir->has_next) {
     return RCUTILS_RET_ERROR;
@@ -220,7 +259,8 @@ rcutils_close_dir(rcutils_dir_t * dir)
 
   rcutils_ret_t ret = RCUTILS_RET_OK;
 
-  dir->allocator.deallocate(dir->path, dir->allocator.state);
+  if (dir->path != NULL)
+    dir->allocator.deallocate(dir->path, dir->allocator.state);
   dir->path = NULL;
 
   dir->has_next = 0;

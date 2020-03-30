@@ -20,11 +20,6 @@ extern "C"
 {
 #endif
 
-#include "rcutils/allocator.h"
-#include "rcutils/types/rcutils_ret.h"
-#include "rcutils/macros.h"
-#include "rcutils/visibility_control.h"
-
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -43,7 +38,11 @@ extern "C"
 #define RCUTILS_DIR_PATH_MAX 4096
 #endif
 #define RCUTILS_FILENAME_MAX 256
-/// Handle directories library.
+
+#include "rcutils/allocator.h"
+#include "rcutils/types/rcutils_ret.h"
+#include "rcutils/macros.h"
+#include "rcutils/visibility_control.h"
 
 /// Handle files.
 typedef struct rcutils_file_t
@@ -89,17 +88,15 @@ typedef struct rcutils_dir_t
  * This function returns an empty and zero initialized directory struct.
  *
  * Example:
+ * rcutils_dir_t bar = rcutils_get_zero_initialized_dir();
+ * rcutils_ret_t ret = rcutils_open_dir(&bar, "directory", rcutils_get_default_allocator());
+ * ret = rcutils_next_dir(&bar);
+ * ret = rcutils_close_dir(&bar);
+ *
  * // Do not do this:
  * // rcutils_dir_t foo;
  * // rcutils_open_dir(&foo, "directory", rcutils_get_default_allocator()); // undefined behavior!
  * // rcutils_ret_t ret = retrcutils_next_dir(&foo); // undefined behavior!
- *
- * // Do this instead:
- * rcutils_dir_t bar = rcutils_get_zero_initialized_dir();
- * rcutils_ret_t ret = rcutils_open_dir(&bar, "directory", rcutils_get_default_allocator());
- * ret = retrcutils_next_dir(&bar);
- * ret = rcutils_close_dir(&bar);
- *
  */
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
@@ -111,19 +108,20 @@ rcutils_get_zero_initialized_dir(void);
  * This function returns an empty and zero initialized file struct.
  *
  * Example:
+ * rcutils_dir_t bar = rcutils_get_zero_initialized_dir();
+ * rcutils_file_t foo = rcutils_get_zero_initialized_file();
+ * rcutils_ret_t ret = rcutils_open_dir(
+ *          &bar, "directory", rcutils_get_default_allocator());
+ * ret = rcutils_readfile(&bar, &foo)
+ * ret = rcutils_next_dir(&bar);
+ * ret = rcutils_close_dir(&bar);
+ *
  * // Do not do this:
  * // rcutils_dir_t foo =  rcutils_get_zero_initialized_dir();
  * // rcutils_file_t file;
- * // rcutils_open_dir(&foo, "directory", rcutils_get_default_allocator());
+ * // rcutils_ret_t ret =rcutils_open_dir(
+ *         &foo, "directory", rcutils_get_default_allocator());
  * // rcutils_ret_t ret = rcutils_readfile(&foo, &file); // undefined behavior!
- *
- * // Do this instead:
- * rcutils_dir_t bar = rcutils_get_zero_initialized_dir();
- * rcutils_file_t foo = rcutils_get_zero_initialized_file();
- * rcutils_ret_t ret = rcutils_open_dir(&bar, "directory", rcutils_get_default_allocator());
- * rcutils_ret_t ret = rcutils_readfile(&bar, &foo)
- * ret = retrcutils_next_dir(&bar);
- * ret = rcutils_close_dir(&bar);
  */
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
@@ -131,12 +129,15 @@ rcutils_file_t
 rcutils_get_zero_initialized_file(void);
 
 /// Destroy a file struct
-/*
-* \param[in] file struct with file information
-* \param[in] allocator to be used to deallocate memory
-*/
+/**
+ * \param[in] file struct with file information
+ * \param[in] allocator to be used to deallocate memory
+ * \return `RCUTILS_RET_OK` if successful, or
+ * \return `RCUTILS_RET_INVALID_ARGUMENT` for invalid arguments
+ */
 RCUTILS_PUBLIC
-void
+RCUTILS_WARN_UNUSED
+rcutils_ret_t
 rcutils_file_fini(rcutils_file_t * file, rcutils_allocator_t allocator);
 
 /// Open a directory
@@ -182,8 +183,9 @@ rcutils_readfile(rcutils_dir_t * dir, rcutils_file_t * file);
 
 /// Close the directory
 /**
-* \param[inout] dir struct with directory information
+* \param[in] dir struct with directory information
  * \return `RCUTILS_RET_OK` if successful, or
+ * \return `RCUTILS_RET_ERROR` if close fails, or
  * \return `RCUTILS_RET_INVALID_ARGUMENT` for invalid arguments
  */
 RCUTILS_PUBLIC
