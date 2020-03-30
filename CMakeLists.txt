@@ -240,6 +240,14 @@ if(BUILD_TESTING)
     target_link_libraries(test_error_handling ${PROJECT_NAME} osrf_testing_tools_cpp::memory_tools)
   endif()
 
+  rcutils_custom_add_gtest(test_directory_and_file_reader
+    test/test_directory_and_file_reader.cpp
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+  )
+  if(TARGET test_directory_and_file_reader)
+    target_link_libraries(test_directory_and_file_reader ${PROJECT_NAME})
+  endif()
+
   rcutils_custom_add_gmock(test_error_handling_helpers test/test_error_handling_helpers.cpp
     # Append the directory of librcutils so it is found at test time.
     APPEND_LIBRARY_DIRS "$<TARGET_FILE_DIR:${PROJECT_NAME}>"
