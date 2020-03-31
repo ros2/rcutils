@@ -33,8 +33,21 @@ protected:
     // running test has failed.
     rcutils_reset_error();
     lib = rcutils_get_zero_initialized_shared_library();
+
+    library_path = std::string("libdummy_shared_library") +
+    #ifdef __linux__
+      std::string(".so");
+    #elif __APPLE__
+      std::string(".dylib");
+    #elif _WIN32
+      std::string(".dll");
+    #else
+      #error "Unsupported OS, dynamic library suffix is unknown."
+    #endif
+
   }
   rcutils_shared_library_t lib;
+  std::string library_path;
 };
 
 TEST_F(TestSharedLibrary, basic_load) {
@@ -43,9 +56,6 @@ TEST_F(TestSharedLibrary, basic_load) {
   // checking rcutils_get_zero_initialized_shared_library
   ASSERT_STRNE(lib.library_path, "");
   EXPECT_TRUE(lib.lib_pointer == NULL);
-
-  // library path
-  const std::string library_path = std::string("libdummy_shared_library.so");
 
   // getting shared library
   ret = rcutils_load_shared_library(&lib, library_path.c_str(), rcutils_get_default_allocator());
@@ -63,7 +73,6 @@ TEST_F(TestSharedLibrary, basic_load) {
 TEST_F(TestSharedLibrary, load_two_times) {
   rcutils_ret_t ret;
 
-  const std::string library_path = std::string("libdummy_shared_library.so");
   // getting shared library
   ret = rcutils_load_shared_library(&lib, library_path.c_str(), rcutils_get_default_allocator());
   ASSERT_EQ(RCUTILS_RET_OK, ret);
@@ -88,7 +97,6 @@ TEST_F(TestSharedLibrary, error_load) {
   ret = rcutils_load_shared_library(&lib_empty, NULL, rcutils_get_zero_initialized_allocator());
   ASSERT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret);
 
-  const std::string library_path = std::string("libdummy_shared_library.so");
   ret = rcutils_load_shared_library(
     &lib_empty,
     library_path.c_str(), rcutils_get_zero_initialized_allocator());
@@ -98,7 +106,6 @@ TEST_F(TestSharedLibrary, error_load) {
 TEST_F(TestSharedLibrary, error_unload) {
   rcutils_ret_t ret;
 
-  const std::string library_path = std::string("libdummy_shared_library.so");
   ret = rcutils_load_shared_library(&lib, library_path.c_str(), rcutils_get_default_allocator());
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
@@ -128,8 +135,6 @@ TEST_F(TestSharedLibrary, basic_symbol) {
 
   ret = rcutils_has_symbol(nullptr, "symbol");
   EXPECT_FALSE(ret);
-
-  const std::string library_path = std::string("libdummy_shared_library.so");
 
   // getting shared library
   ret = rcutils_load_shared_library(&lib, library_path.c_str(), rcutils_get_default_allocator());
