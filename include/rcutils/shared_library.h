@@ -130,6 +130,18 @@ RCUTILS_WARN_UNUSED
 rcutils_ret_t
 rcutils_unload_shared_library(rcutils_shared_library_t * lib);
 
+/// Get the library name for the compiled platform
+/**
+ * \param[in] library_name library base name (without prefix and extension)
+ * \param[out] library_name_platform library name for the compiled platform
+ * \return `RCUTILS_RET_OK` if successful, or
+ * \return `RCUTILS_RET_ERROR` if an unknown error occurs
+ */
+RCUTILS_PUBLIC
+RCUTILS_WARN_UNUSED
+rcutils_ret_t
+rcutils_get_platform_library_name(const char * library_name, char * library_name_platform);
+
 #ifdef __cplusplus
 }
 #endif

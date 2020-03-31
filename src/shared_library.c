@@ -156,6 +156,30 @@ rcutils_unload_shared_library(rcutils_shared_library_t * lib)
   return ret;
 }
 
+rcutils_ret_t
+rcutils_get_platform_library_name(const char * library_name, char * library_name_platform)
+{
+  int written = 0;
+
+#ifdef __linux__
+  written = rcutils_snprintf(
+    library_name_platform, strlen(library_name) + 7, "lib%s.so", library_name);
+#elif __APPLE__
+  written = rcutils_snprintf(
+    library_name_platform, strlen(library_name) + 8, "lib%s.dylib", library_name);
+#elif _WIN32
+  written = rcutils_snprintf(
+    library_name_platform, strlen(library_name) + 5, "%s.dll", library_name);
+#endif
+  if (written < 0) {
+    RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
+      "failed to format library name: '%s'\n",
+      library_name);
+    return RCUTILS_RET_ERROR;
+  }
+  return RCUTILS_RET_OK;
+}
+
 #ifdef __cplusplus
 }
 #endif
