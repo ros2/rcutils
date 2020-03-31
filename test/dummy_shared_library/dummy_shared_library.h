@@ -28,6 +28,6 @@
 #include <stdio.h>
 
 DUMMY_SHARED_LIBRARY_PUBLIC
-void print_foo();
+void print_name();
 
 #endif  // DUMMY_SHARED_LIBRARY__DUMMY_SHARED_LIBRARY_H_
