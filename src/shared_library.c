@@ -43,11 +43,11 @@ rcutils_load_shared_library(
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(library_path, RCUTILS_RET_INVALID_ARGUMENT);
   RCUTILS_CHECK_ALLOCATOR(&allocator, return RCUTILS_RET_INVALID_ARGUMENT);
 
-  lib->allocator = allocator;
-
   if (lib->library_path != NULL) {
     lib->allocator.deallocate(lib->library_path, lib->allocator.state);
   }
+
+  lib->allocator = allocator;
 
   lib->library_path = rcutils_strdup(library_path, lib->allocator);
   if (NULL == lib->library_path) {
