@@ -34,13 +34,12 @@ protected:
     rcutils_reset_error();
     lib = rcutils_get_zero_initialized_shared_library();
 
-    library_path = std::string("libdummy_shared_library") +
     #ifdef __linux__
-      std::string(".so");
+      library_path = std::string("libdummy_shared_library.so");
     #elif __APPLE__
-      std::string(".dylib");
+      library_path = std::string("libdummy_shared_library.dylib");
     #elif _WIN32
-      std::string(".dll");
+      library_path = std::string("dummy_shared_library.dll");
     #else
       #error "Unsupported OS, dynamic library suffix is unknown."
     #endif
