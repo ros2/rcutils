@@ -44,7 +44,6 @@ protected:
     #else
       #error "Unsupported OS, dynamic library suffix is unknown."
     #endif
-
   }
   rcutils_shared_library_t lib;
   std::string library_path;
