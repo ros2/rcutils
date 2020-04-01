@@ -44,6 +44,7 @@ set(rcutils_sources
   src/logging.c
   src/process.c
   src/repl_str.c
+  src/shared_library.c
   src/snprintf.c
   src/split.c
   src/strdup.c
@@ -100,6 +101,8 @@ add_library(
 # Causes the visibility macros to use dllexport rather than dllimport,
 # which is appropriate when building the dll but not consuming it.
 target_compile_definitions(${PROJECT_NAME} PRIVATE "RCUTILS_BUILDING_DLL")
+
+target_link_libraries(${PROJECT_NAME} ${CMAKE_DL_LIBS})
 
 # Needed if pthread is used for thread local storage.
 if(IOS AND IOS_SDK_VERSION LESS 10.0)
@@ -325,6 +328,22 @@ if(BUILD_TESTING)
     target_link_libraries(test_repl_str ${PROJECT_NAME})
   endif()
 
+  set(append_library_dirs "$<TARGET_FILE_DIR:${PROJECT_NAME}>")
+
+  ament_add_gtest(test_shared_library test/test_shared_library.cpp
+    APPEND_LIBRARY_DIRS "${append_library_dirs}"
+  )
+
+  if(TARGET test_shared_library)
+    add_library(dummy_shared_library test/dummy_shared_library/dummy_shared_library.c)
+    if(WIN32)
+      # Causes the visibility macros to use dllexport rather than dllimport
+      # which is appropriate when building the dll but not consuming it.
+      target_compile_definitions(dummy_shared_library PRIVATE "DUMMY_SHARED_LIBRARY_BUILDING_DLL")
+    endif()
+    target_link_libraries(test_shared_library ${PROJECT_NAME})
+  endif()
+
   rcutils_custom_add_gtest(test_time
     test/test_time.cpp
     ENV ${memory_tools_test_env_vars})
@@ -388,7 +407,7 @@ endif()
 
 ament_export_dependencies(ament_cmake)
 ament_export_include_directories(include)
-ament_export_libraries(${PROJECT_NAME})
+ament_export_libraries(${PROJECT_NAME} ${CMAKE_DL_LIBS})
 ament_package()
 
 install(
