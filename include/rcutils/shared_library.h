@@ -25,9 +25,12 @@ extern "C"
 #ifndef _WIN32
 #include <dlfcn.h>
 typedef void * rcutils_shared_library_handle_t;
+# include <limits.h>
+# define RCUTILS_DIR_PATH_MAX PATH_MAX
 #else
 #include <windows.h>
 typedef HINSTANCE rcutils_shared_library_handle_t;
+# define RCUTILS_DIR_PATH_MAX MAX_PATH
 #endif  // _WIN32
 
 #include "rcutils/allocator.h"
@@ -134,13 +137,17 @@ rcutils_unload_shared_library(rcutils_shared_library_t * lib);
 /**
  * \param[in] library_name library base name (without prefix and extension)
  * \param[out] library_name_platform library name for the compiled platform
+ * \param[in] buffer_size size of library_name_platform buffer
  * \return `RCUTILS_RET_OK` if successful, or
  * \return `RCUTILS_RET_ERROR` if an unknown error occurs
  */
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
 rcutils_ret_t
-rcutils_get_platform_library_name(const char * library_name, char * library_name_platform);
+rcutils_get_platform_library_name(
+  const char * library_name,
+  char * library_name_platform,
+  unsigned int buffer_size);
 
 #ifdef __cplusplus
 }

@@ -157,19 +157,38 @@ rcutils_unload_shared_library(rcutils_shared_library_t * lib)
 }
 
 rcutils_ret_t
-rcutils_get_platform_library_name(const char * library_name, char * library_name_platform)
+rcutils_get_platform_library_name(
+  const char * library_name,
+  char * library_name_platform,
+  unsigned int buffer_size)
 {
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(library_name, RCUTILS_RET_INVALID_ARGUMENT);
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(library_name_platform, RCUTILS_RET_INVALID_ARGUMENT);
+
+  if (strlen(library_name) > RCUTILS_DIR_PATH_MAX)
+  {
+    RCUTILS_SET_ERROR_MSG(
+      "library_name is too long more than the maximum allowed size\n");
+    return RCUTILS_RET_ERROR;
+  }
+
   int written = 0;
 
 #ifdef __linux__
-  written = rcutils_snprintf(
-    library_name_platform, strlen(library_name) + 7, "lib%s.so", library_name);
+  if (buffer_size > (strlen(library_name) + 7)) {
+    written = rcutils_snprintf(
+      library_name_platform, strlen(library_name) + 7, "lib%s.so", library_name);
+  }
 #elif __APPLE__
-  written = rcutils_snprintf(
-    library_name_platform, strlen(library_name) + 10, "lib%s.dylib", library_name);
+  if (buffer_size > (strlen(library_name) + 10)) {
+    written = rcutils_snprintf(
+      library_name_platform, strlen(library_name) + 10, "lib%s.dylib", library_name);
+  }
 #elif _WIN32
-  written = rcutils_snprintf(
-    library_name_platform, strlen(library_name) + 5, "%s.dll", library_name);
+  if (buffer_size > (strlen(library_name) + 7)) {
+    written = rcutils_snprintf(
+      library_name_platform, strlen(library_name) + 5, "%s.dll", library_name);
+  }
 #endif
   if (written < 0) {
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
