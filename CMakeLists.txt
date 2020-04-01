@@ -323,6 +323,11 @@ if(BUILD_TESTING)
 
   if(TARGET test_shared_library)
     add_library(dummy_shared_library test/dummy_shared_library/dummy_shared_library.c)
+    if(WIN32)
+      # Causes the visibility macros to use dllexport rather than dllimport
+      # which is appropriate when building the dll but not consuming it.
+      target_compile_definitions(dummy_shared_library PRIVATE "DUMMY_SHARED_LIBRARY_BUILDING_DLL")
+    endif()
     target_link_libraries(test_shared_library ${PROJECT_NAME})
   endif()
 
