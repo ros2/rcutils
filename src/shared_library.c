@@ -165,13 +165,6 @@ rcutils_get_platform_library_name(
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(library_name, RCUTILS_RET_INVALID_ARGUMENT);
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(library_name_platform, RCUTILS_RET_INVALID_ARGUMENT);
 
-  if (strlen(library_name) > RCUTILS_DIR_PATH_MAX)
-  {
-    RCUTILS_SET_ERROR_MSG(
-      "library_name is too long more than the maximum allowed size\n");
-    return RCUTILS_RET_ERROR;
-  }
-
   int written = 0;
 
 #ifdef __linux__

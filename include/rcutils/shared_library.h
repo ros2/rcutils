@@ -25,12 +25,9 @@ extern "C"
 #ifndef _WIN32
 #include <dlfcn.h>
 typedef void * rcutils_shared_library_handle_t;
-# include <limits.h>
-# define RCUTILS_DIR_PATH_MAX PATH_MAX
 #else
 #include <windows.h>
 typedef HINSTANCE rcutils_shared_library_handle_t;
-# define RCUTILS_DIR_PATH_MAX MAX_PATH
 #endif  // _WIN32
 
 #include "rcutils/allocator.h"
