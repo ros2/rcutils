@@ -168,17 +168,17 @@ rcutils_get_platform_library_name(
   int written = 0;
 
 #ifdef __linux__
-  if (buffer_size > (strlen(library_name) + 7)) {
+  if (buffer_size >= (strlen(library_name) + 7)) {
     written = rcutils_snprintf(
       library_name_platform, strlen(library_name) + 7, "lib%s.so", library_name);
   }
 #elif __APPLE__
-  if (buffer_size > (strlen(library_name) + 10)) {
+  if (buffer_size >= (strlen(library_name) + 10)) {
     written = rcutils_snprintf(
       library_name_platform, strlen(library_name) + 10, "lib%s.dylib", library_name);
   }
 #elif _WIN32
-  if (buffer_size > (strlen(library_name) + 7)) {
+  if (buffer_size >= (strlen(library_name) + 7)) {
     written = rcutils_snprintf(
       library_name_platform, strlen(library_name) + 5, "%s.dll", library_name);
   }
