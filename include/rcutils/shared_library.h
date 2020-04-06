@@ -130,6 +130,16 @@ RCUTILS_WARN_UNUSED
 rcutils_ret_t
 rcutils_unload_shared_library(rcutils_shared_library_t * lib);
 
+/// check if the library is loaded
+/**
+ * \param[in] lib rcutils_shared_library_t  to check
+ * \return true if library is loaded, false otherwise
+ */
+RCUTILS_PUBLIC
+RCUTILS_WARN_UNUSED
+bool
+rcutils_is_shared_library_loaded(rcutils_shared_library_t * lib);
+
 /// Get the library name for the compiled platform
 /**
  * \param[in] library_name library base name (without prefix and extension)

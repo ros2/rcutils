@@ -192,6 +192,12 @@ rcutils_get_platform_library_name(
   return RCUTILS_RET_OK;
 }
 
+bool
+rcutils_is_shared_library_loaded(rcutils_shared_library_t * lib)
+{
+  return lib->lib_pointer != NULL;
+}
+
 #ifdef __cplusplus
 }
 #endif
