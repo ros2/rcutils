@@ -130,8 +130,11 @@ RCUTILS_WARN_UNUSED
 rcutils_ret_t
 rcutils_unload_shared_library(rcutils_shared_library_t * lib);
 
-/// check if the library is loaded
+/// Check if the library is loaded.
 /**
+ * This function only determines if "unload" has been called on the current shared library handle.
+ * It could very well be that a second shared library handle is still open and therefore the library
+ * being loaded.
  * \param[in] lib rcutils_shared_library_t  to check
  * \return true if library is loaded, false otherwise
  */
