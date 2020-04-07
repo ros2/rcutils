@@ -44,6 +44,7 @@ TEST_F(TestSharedLibrary, basic_load) {
   // checking rcutils_get_zero_initialized_shared_library
   ASSERT_STRNE(lib.library_path, "");
   EXPECT_TRUE(lib.lib_pointer == NULL);
+  EXPECT_FALSE(rcutils_is_shared_library_loaded(&lib));
 
   ret = rcutils_get_platform_library_name("dummy_shared_library", library_path, 1024);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
@@ -51,6 +52,7 @@ TEST_F(TestSharedLibrary, basic_load) {
   // getting shared library
   ret = rcutils_load_shared_library(&lib, library_path, rcutils_get_default_allocator());
   ASSERT_EQ(RCUTILS_RET_OK, ret);
+  EXPECT_TRUE(rcutils_is_shared_library_loaded(&lib));
 
   // unload shared_library
   ret = rcutils_unload_shared_library(&lib);
