@@ -130,6 +130,14 @@ TEST_F(HashMapBaseTest, init_map_allocator_NULL_fails) {
   EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string().str;
 }
 
+TEST_F(HashMapBaseTest, init_map_failing_allocator) {
+  rcutils_allocator_t failing_allocator = get_failing_allocator();
+  rcutils_ret_t ret = rcutils_hash_map_init(
+    &map, 2, sizeof(uint32_t), sizeof(uint32_t),
+    test_hash_map_uint32_hash_func, test_uint32_cmp, &failing_allocator);
+  EXPECT_EQ(RCUTILS_RET_BAD_ALLOC, ret) << rcutils_get_error_string().str;
+}
+
 TEST_F(HashMapBaseTest, init_map_success) {
   rcutils_ret_t ret = rcutils_hash_map_init(
     &map, 2, sizeof(uint32_t), sizeof(uint32_t),
@@ -225,6 +233,26 @@ TEST_F(HashMapPreInitTest, set_data_success_returns_ok) {
   uint32_t key = 2, data = 22;
   rcutils_ret_t ret = rcutils_hash_map_set(&map, &key, &data);
   EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
+}
+
+TEST_F(HashMapPreInitTest, set_data_two_times_success_returns_ok) {
+  uint32_t key = 2, data = 22;
+  rcutils_ret_t ret;
+  ret = rcutils_hash_map_set(&map, &key, &data);
+  EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
+
+  uint32_t data_get = 0;
+  ret = rcutils_hash_map_get(&map, &key, &data_get);
+  EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
+  EXPECT_EQ(data_get, 22u);
+
+  data = 23;
+  ret = rcutils_hash_map_set(&map, &key, &data);
+  EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
+
+  ret = rcutils_hash_map_get(&map, &key, &data_get);
+  EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
+  EXPECT_EQ(data_get, 23u);
 }
 
 TEST_F(HashMapPreInitTest, unset_map_null_fails) {
