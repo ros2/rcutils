@@ -183,7 +183,7 @@ rcutils_get_platform_library_name(
       library_name_platform, strlen(library_name) + 5, "%s.dll", library_name);
   }
 #endif
-  if (written < 0) {
+  if (written <= 0) {
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
       "failed to format library name: '%s'\n",
       library_name);
