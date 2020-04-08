@@ -46,7 +46,7 @@ TEST_F(TestSharedLibrary, basic_load) {
   EXPECT_TRUE(lib.lib_pointer == NULL);
   EXPECT_FALSE(rcutils_is_shared_library_loaded(&lib));
 
-  ret = rcutils_get_platform_library_name("dummy_shared_library", library_path, 1024);
+  ret = rcutils_get_platform_library_name("dummy_shared_library", library_path, 1024, false);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
   // getting shared library
@@ -66,7 +66,7 @@ TEST_F(TestSharedLibrary, basic_load) {
 TEST_F(TestSharedLibrary, load_two_times) {
   rcutils_ret_t ret;
 
-  ret = rcutils_get_platform_library_name("dummy_shared_library", library_path, 1024);
+  ret = rcutils_get_platform_library_name("dummy_shared_library", library_path, 1024, false);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
   // getting shared library
@@ -93,7 +93,7 @@ TEST_F(TestSharedLibrary, error_load) {
   ret = rcutils_load_shared_library(&lib_empty, NULL, rcutils_get_zero_initialized_allocator());
   ASSERT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret);
 
-  ret = rcutils_get_platform_library_name("dummy_shared_library", library_path, 1024);
+  ret = rcutils_get_platform_library_name("dummy_shared_library", library_path, 1024, false);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
   ret = rcutils_load_shared_library(
@@ -105,7 +105,7 @@ TEST_F(TestSharedLibrary, error_load) {
 TEST_F(TestSharedLibrary, error_unload) {
   rcutils_ret_t ret;
 
-  ret = rcutils_get_platform_library_name("dummy_shared_library", library_path, 1024);
+  ret = rcutils_get_platform_library_name("dummy_shared_library", library_path, 1024, false);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
   ret = rcutils_load_shared_library(&lib, library_path, rcutils_get_default_allocator());
@@ -138,7 +138,7 @@ TEST_F(TestSharedLibrary, basic_symbol) {
   ret = rcutils_has_symbol(nullptr, "symbol");
   EXPECT_FALSE(ret);
 
-  ret = rcutils_get_platform_library_name("dummy_shared_library", library_path, 1024);
+  ret = rcutils_get_platform_library_name("dummy_shared_library", library_path, 1024, false);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
   // getting shared library

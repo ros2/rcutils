@@ -148,6 +148,8 @@ rcutils_is_shared_library_loaded(rcutils_shared_library_t * lib);
  * \param[in] library_name library base name (without prefix and extension)
  * \param[out] library_name_platform library name for the compiled platform
  * \param[in] buffer_size size of library_name_platform buffer
+ * \param[in] debug if true the library will return a debug library name, otherwise
+ * it returns a normal library path
  * \return `RCUTILS_RET_OK` if successful, or
  * \return `RCUTILS_RET_ERROR` if an unknown error occurs
  */
@@ -157,7 +159,8 @@ rcutils_ret_t
 rcutils_get_platform_library_name(
   const char * library_name,
   char * library_name_platform,
-  unsigned int buffer_size);
+  unsigned int buffer_size,
+  bool debug);
 
 #ifdef __cplusplus
 }
