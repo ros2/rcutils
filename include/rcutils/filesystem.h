@@ -31,9 +31,9 @@ extern "C"
 /**
  * \param[in] buffer Allocated string to store current directory path to
  * \param[in] max_length maximum length to be stored in buffer
- * \return bool True if success
- *              False if buffer is NULL
- *              False on failure
+ * \return `True` if success
+ * \return `False` if buffer is NULL
+ * \return `False` on failure
  */
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
@@ -156,7 +156,6 @@ rcutils_to_native_path(
  * openat(2) documentation.
  *
  * \param[in] abs_path
- * \param[in] allocator
  * \return `True` if making the directory was successful, False otherwise
  * \return `False` if path is NULL
  * \return `False` if path is empty
