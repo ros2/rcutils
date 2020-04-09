@@ -26,6 +26,9 @@ extern "C"
 #include <dlfcn.h>
 typedef void * rcutils_shared_library_handle_t;
 #else
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
 #include <windows.h>
 typedef HINSTANCE rcutils_shared_library_handle_t;
 #endif  // _WIN32
