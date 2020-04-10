@@ -42,10 +42,15 @@ TEST(CLASSNAME(TestLoggingCustomEnv, RMW_IMPLEMENTATION), test_logging) {
   rcutils_allocator_t allocator = rcutils_get_default_allocator();
   rcutils_char_array_t msg_buf, output_buf;
   ret = rcutils_char_array_init(&msg_buf, 1024, &allocator);
+  msg_buf.buffer[0] = '\0';
   ret = rcutils_char_array_init(&output_buf, 1024, &allocator);
+  output_buf.buffer[0] = '\0';
   rcutils_time_point_value_t now = 0;
 
   ret = rcutils_logging_format_message(
     NULL, RCUTILS_LOG_SEVERITY_FATAL, NULL, now, msg_buf.buffer, &output_buf);
   EXPECT_EQ(RCUTILS_RET_OK, ret);
+
+  EXPECT_EQ(RCUTILS_RET_OK, rcutils_char_array_fini(&output_buf));
+  EXPECT_EQ(RCUTILS_RET_OK, rcutils_char_array_fini(&msg_buf));
 }
