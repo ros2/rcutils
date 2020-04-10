@@ -185,23 +185,6 @@ RCUTILS_WARN_UNUSED
 rcutils_ret_t
 rcutils_char_array_strcat(rcutils_char_array_t * char_array, const char * src);
 
-/// Copy memory to buffer.
-/**
- * This function is equivalent to `memcpy(char_array->buffer, src, n)` except that the buffer
- * grows as needed so a user doesn't have to worry about overflow.
- *
- * \param char_array pointer to the instance of rcutils_char_array_t which is being resized
- * \param src the memory to be copied from
- * \param n a total of n bytes will be copied
- * \return `RCUTILS_RET_OK` if successful, or
- * \return `RCUTILS_RET_BAD_ALLOC` if memory allocation failed, or
- * \return `RCUTILS_RET_ERROR` if an unexpected error occurs
- */
-RCUTILS_PUBLIC
-RCUTILS_WARN_UNUSED
-rcutils_ret_t
-rcutils_char_array_memcpy(rcutils_char_array_t * char_array, const char * src, size_t n);
-
 /// Copy a string to buffer.
 /**
  * This function is equivalent to `strcpy(char_array->buffer, src)` except that the buffer

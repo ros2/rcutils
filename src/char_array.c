@@ -178,8 +178,9 @@ rcutils_char_array_vsprintf(rcutils_char_array_t * char_array, const char * form
 }
 
 rcutils_ret_t
-rcutils_char_array_memcpy(rcutils_char_array_t * char_array, const char * src, size_t n)
+rcutils_char_array_strcpy(rcutils_char_array_t * char_array, const char * src)
 {
+  size_t n = strlen(src) + 1;
   rcutils_ret_t ret = rcutils_char_array_expand_as_needed(char_array, n);
   if (ret != RCUTILS_RET_OK) {
     RCUTILS_SET_ERROR_MSG("char array failed to expand");
@@ -188,12 +189,6 @@ rcutils_char_array_memcpy(rcutils_char_array_t * char_array, const char * src, s
   memcpy(char_array->buffer, src, n);
   char_array->buffer_length = n;
   return RCUTILS_RET_OK;
-}
-
-rcutils_ret_t
-rcutils_char_array_strcpy(rcutils_char_array_t * char_array, const char * src)
-{
-  return rcutils_char_array_memcpy(char_array, src, strlen(src) + 1);
 }
 
 rcutils_ret_t
