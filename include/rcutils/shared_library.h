@@ -22,6 +22,17 @@ extern "C"
 
 #include <string.h>
 
+#ifndef _WIN32
+#include <dlfcn.h>
+typedef void * rcutils_shared_library_handle_t;
+#else
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+typedef HINSTANCE rcutils_shared_library_handle_t;
+#endif  // _WIN32
+
 #include "rcutils/allocator.h"
 #include "rcutils/types/rcutils_ret.h"
 #include "rcutils/macros.h"
@@ -30,8 +41,8 @@ extern "C"
 /// Handle to a loaded shared library.
 typedef struct RCUTILS_PUBLIC_TYPE rcutils_shared_library_t
 {
-  /// The platform-specific pointer to the shared library
-  void * lib_pointer;
+  /// The pointer to the shared library
+  rcutils_shared_library_handle_t lib_pointer;
   /// The path of the shared_library
   char * library_path;
   /// allocator

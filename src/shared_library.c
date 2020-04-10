@@ -19,13 +19,6 @@ extern "C"
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifndef _WIN32
-#include <dlfcn.h>
-#else
-#include <windows.h>
-C_ASSERT(sizeof(void *) == sizeof(HINSTANCE));
-#endif  // _WIN32
-
 #include "rcutils/error_handling.h"
 #include "rcutils/shared_library.h"
 #include "rcutils/strdup.h"
@@ -67,7 +60,7 @@ rcutils_load_shared_library(
   if (!lib->lib_pointer) {
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("LoadLibrary error: %s", dlerror());
 #else
-  lib->lib_pointer = (void *)(LoadLibrary(lib->library_path));
+  lib->lib_pointer = LoadLibrary(lib->library_path);
   if (!lib->lib_pointer) {
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("LoadLibrary error: %lu", GetLastError());
 #endif  // _WIN32
@@ -96,7 +89,7 @@ rcutils_get_symbol(const rcutils_shared_library_t * lib, const char * symbol_nam
     return NULL;
   }
 #else
-  void * lib_symbol = GetProcAddress((HINSTANCE)(lib->lib_pointer), symbol_name);
+  void * lib_symbol = GetProcAddress(lib->lib_pointer, symbol_name);
   if (lib_symbol == NULL) {
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
       "Error getting the symbol '%s'. Error '%d'",
@@ -128,7 +121,7 @@ rcutils_has_symbol(const rcutils_shared_library_t * lib, const char * symbol_nam
   void * lib_symbol = dlsym(lib->lib_pointer, symbol_name);
   return dlerror() == NULL && lib_symbol != 0;
 #else
-  void * lib_symbol = GetProcAddress((HINSTANCE)(lib->lib_pointer), symbol_name);
+  void * lib_symbol = GetProcAddress(lib->lib_pointer, symbol_name);
   return GetLastError() == 0 && lib_symbol != 0;
 #endif  // _WIN32
 }
@@ -149,7 +142,7 @@ rcutils_unload_shared_library(rcutils_shared_library_t * lib)
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("dlclose error: %s", dlerror());
 #else
   // If the function succeeds, the return value is nonzero.
-  int error_code = FreeLibrary((HINSTANCE)(lib->lib_pointer));
+  int error_code = FreeLibrary(lib->lib_pointer);
   if (!error_code) {
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("FreeLibrary error: %lu", GetLastError());
 #endif  // _WIN32
