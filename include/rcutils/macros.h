@@ -99,6 +99,13 @@ extern "C"
 # define RCUTILS_DEPRECATED __declspec(deprecated)
 #endif
 
+/// Macro to declare deprecation in the platform appropriate manner with a message.
+#ifndef _WIN32
+# define RCUTILS_DEPRECATED_WITH_MSG(msg) __attribute__((deprecated(msg)))
+#else
+# define RCUTILS_DEPRECATED_WITH_MSG(msg) __declspec(deprecated(msg))
+#endif
+
 #ifdef __cplusplus
 }
 #endif
