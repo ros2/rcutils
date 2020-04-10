@@ -107,11 +107,12 @@ rcutils_char_array_resize(rcutils_char_array_t * char_array, size_t new_size)
   size_t old_length = char_array->buffer_length;
 
   if (char_array->owns_buffer) {  // we own the buffer, we can do whatever we want
-    char_array->buffer = rcutils_reallocf(char_array->buffer, new_size * sizeof(char), allocator);
+    char * new_buf = rcutils_reallocf(char_array->buffer, new_size * sizeof(char), allocator);
     RCUTILS_CHECK_FOR_NULL_WITH_MSG(
-      char_array->buffer,
+      new_buf,
       "failed to reallocate memory for char array",
       return RCUTILS_RET_BAD_ALLOC);
+    char_array->buffer = new_buf;
   } else {  // we don't realloc memory we don't own. instead, we alloc some new space
     rcutils_ret_t ret = rcutils_char_array_init(char_array, new_size, allocator);
     if (ret != RCUTILS_RET_OK) {
