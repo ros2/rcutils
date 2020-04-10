@@ -110,24 +110,6 @@ RCUTILS_WARN_UNUSED
 rcutils_ret_t
 rcutils_char_array_resize(rcutils_char_array_t * char_array, size_t new_size);
 
-/// Expand the internal buffer of the char array.
-/**
- * This function is equivalent to `rcutils_char_array_resize` except that it resizes
- * the internal buffer only when it is not big enough.
- * If the buffer is already big enough for `new_size`, it returns `RCUTILS_RET_OK` without
- * doing anything.
- *
- * \param char_array pointer to the instance of rcutils_char_array_t which is being resized
- * \param new_size the new size of the internal buffer
- * \return `RCUTILS_RET_OK` if successful, or
- * \return `RCUTILS_RET_BAD_ALLOC` if memory allocation failed, or
- * \return `RCUTILS_RET_ERROR` if an unexpected error occurs
- */
-RCUTILS_PUBLIC
-RCUTILS_WARN_UNUSED
-rcutils_ret_t
-rcutils_char_array_expand_as_needed(rcutils_char_array_t * char_array, size_t new_size);
-
 /// Produce output according to format and args.
 /**
  * This function is equivalent to `vsprintf(char_array->buffer, format, args)`

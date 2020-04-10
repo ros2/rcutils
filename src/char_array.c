@@ -116,7 +116,7 @@ rcutils_char_array_resize(rcutils_char_array_t * char_array, size_t new_size)
   return RCUTILS_RET_OK;
 }
 
-rcutils_ret_t
+static rcutils_ret_t
 rcutils_char_array_expand_as_needed(rcutils_char_array_t * char_array, size_t new_size)
 {
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(char_array, RCUTILS_RET_ERROR);
