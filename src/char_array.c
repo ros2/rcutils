@@ -33,6 +33,7 @@ rcutils_char_array_init(
   char_array->buffer_length = 0lu;
   char_array->buffer_capacity = buffer_capacity;
   char_array->allocator = *allocator;
+  char_array->buffer = NULL;
 
   if (buffer_capacity > 0lu) {
     char_array->buffer =
