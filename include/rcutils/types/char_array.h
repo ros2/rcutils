@@ -42,16 +42,7 @@ typedef struct RCUTILS_PUBLIC_TYPE rcutils_char_array_t
   rcutils_allocator_t allocator;
 } rcutils_char_array_t;
 
-/// Return a zero initialized char array struct.
-/**
- * \return rcutils_char_array_t a zero initialized char array struct
- */
-RCUTILS_PUBLIC
-RCUTILS_WARN_UNUSED
-rcutils_char_array_t
-rcutils_get_zero_initialized_char_array(void);
-
-/// Initialize a zero initialized char array struct.
+/// Initialize a char array struct.
 /**
  * This function may leak if the char array struct is already
  * pre-initialized.

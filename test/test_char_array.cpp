@@ -30,7 +30,7 @@ protected:
     rcutils_reset_error();
 
     allocator = rcutils_get_default_allocator();
-    char_array = rcutils_get_zero_initialized_char_array();
+    EXPECT_EQ(RCUTILS_RET_OK, rcutils_char_array_init(&char_array, 0, &allocator));
   }
 
   rcutils_allocator_t allocator;

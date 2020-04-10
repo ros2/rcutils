@@ -18,19 +18,6 @@
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
-rcutils_char_array_t
-rcutils_get_zero_initialized_char_array(void)
-{
-  static rcutils_char_array_t char_array = {
-    .buffer = NULL,
-    .owns_buffer = true,
-    .buffer_length = 0u,
-    .buffer_capacity = 0u
-  };
-  char_array.allocator = rcutils_get_zero_initialized_allocator();
-  return char_array;
-}
-
 rcutils_ret_t
 rcutils_char_array_init(
   rcutils_char_array_t * char_array,
