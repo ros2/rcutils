@@ -135,6 +135,8 @@ TEST_F(TestSharedLibrary, basic_symbol) {
   symbol = rcutils_get_symbol(nullptr, "symbol");
   EXPECT_TRUE(symbol == NULL);
 
+  rcutils_reset_error();
+
   ret = rcutils_has_symbol(nullptr, "symbol");
   EXPECT_FALSE(ret);
 
@@ -150,6 +152,9 @@ TEST_F(TestSharedLibrary, basic_symbol) {
 
   symbol = rcutils_get_symbol(&lib, "print_name");
   EXPECT_TRUE(symbol != NULL);
+
+  ret = rcutils_has_symbol(&lib, "print_name");
+  EXPECT_TRUE(ret);
 
   // unload shared_library
   ret = rcutils_unload_shared_library(&lib);
