@@ -129,7 +129,7 @@ rcutils_has_symbol(const rcutils_shared_library_t * lib, const char * symbol_nam
   return dlerror() == NULL && lib_symbol != 0;
 #else
   void * lib_symbol = GetProcAddress((HINSTANCE)(lib->lib_pointer), symbol_name);
-  return GetLastError() == 0 && lib_symbol != 0;
+  return lib_symbol != NULL;
 #endif  // _WIN32
 }
 
