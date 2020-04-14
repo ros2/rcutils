@@ -27,7 +27,6 @@ extern "C"
 // all environment variables live together in a single memory block
 // which has a limit of 32767 characters
 # define WINDOWS_ENV_BUFFER_SIZE 32767
-static char __env_buffer[WINDOWS_ENV_BUFFER_SIZE];
 #endif  // _WIN32
 
 
@@ -43,6 +42,7 @@ rcutils_get_env(const char * env_name, const char ** env_value)
   *env_value = NULL;
 #ifdef _WIN32
   size_t required_size;
+  char * __env_buffer = (char*) malloc(WINDOWS_ENV_BUFFER_SIZE * sizeof(char));
   errno_t ret = getenv_s(&required_size, __env_buffer, sizeof(__env_buffer), env_name);
   switch (ret) {
     case 0:
