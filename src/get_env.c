@@ -22,13 +22,7 @@ extern "C"
 
 #include "rcutils/get_env.h"
 
-#ifdef _WIN32
-# include <errno.h>
-// all environment variables live together in a single memory block
-// which has a limit of 32767 characters
-# define WINDOWS_ENV_BUFFER_SIZE 32767
-#endif  // _WIN32
-
+#pragma warning(disable : 4996)
 
 const char *
 rcutils_get_env(const char * env_name, const char ** env_value)
@@ -39,29 +33,12 @@ rcutils_get_env(const char * env_name, const char ** env_value)
   if (NULL == env_value) {
     return "argument env_value is null";
   }
-  *env_value = NULL;
-#ifdef _WIN32
-  size_t required_size;
-  char * __env_buffer = (char*) malloc(WINDOWS_ENV_BUFFER_SIZE * sizeof(char));
-  errno_t ret = getenv_s(&required_size, __env_buffer, sizeof(__env_buffer), env_name);
-  switch (ret) {
-    case 0:
-      __env_buffer[WINDOWS_ENV_BUFFER_SIZE - 1] = '\0';
-      *env_value = __env_buffer;
-      break;
-    case EINVAL:
-      return "invalid arguments when reading environment variable";
-    case ERANGE:
-      return "insufficient buffer size to read environment variable";
-    default:
-      return "unknown error code reading environment variable";
-  }
-#else
   *env_value = getenv(env_name);
+  // Note: getenv is deprecated; consider using getenv_s instead
+
   if (NULL == *env_value) {
     *env_value = "";
   }
-#endif  // _WIN32
   return NULL;
 }
 
