@@ -22,7 +22,9 @@ extern "C"
 
 #include "rcutils/get_env.h"
 
+#ifdef _WIN32
 #pragma warning(disable : 4996)
+#endif
 
 const char *
 rcutils_get_env(const char * env_name, const char ** env_value)
@@ -33,8 +35,9 @@ rcutils_get_env(const char * env_name, const char ** env_value)
   if (NULL == env_value) {
     return "argument env_value is null";
   }
+
+  // TODO(Suyash458): getenv is deprecated on Windows; consider using getenv_s instead
   *env_value = getenv(env_name);
-  // Note: getenv is deprecated; consider using getenv_s instead
 
   if (NULL == *env_value) {
     *env_value = "";
