@@ -56,6 +56,7 @@ rcutils_char_array_init(
       char_array->buffer_capacity = 0lu;
       char_array->buffer_length = 0lu;
       return RCUTILS_RET_BAD_ALLOC);
+    char_array->buffer[0] = '\0';
   }
 
   return RCUTILS_RET_OK;

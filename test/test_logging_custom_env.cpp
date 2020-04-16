@@ -48,4 +48,7 @@ TEST(CLASSNAME(TestLoggingCustomEnv, RMW_IMPLEMENTATION), test_logging) {
   ret = rcutils_logging_format_message(
     NULL, RCUTILS_LOG_SEVERITY_FATAL, NULL, now, msg_buf.buffer, &output_buf);
   EXPECT_EQ(RCUTILS_RET_OK, ret);
+
+  EXPECT_EQ(RCUTILS_RET_OK, rcutils_char_array_fini(&output_buf));
+  EXPECT_EQ(RCUTILS_RET_OK, rcutils_char_array_fini(&msg_buf));
 }
