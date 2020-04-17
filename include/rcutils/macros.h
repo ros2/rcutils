@@ -92,6 +92,20 @@ extern "C"
   __attribute__ ((format(printf, format_string_index, first_to_check_index)))
 #endif  // !defined _WIN32 || defined __CYGWIN__
 
+/// Macro to declare deprecation in the platform appropriate manner.
+#ifndef _WIN32
+# define RCUTILS_DEPRECATED __attribute__((deprecated))
+#else
+# define RCUTILS_DEPRECATED __declspec(deprecated)
+#endif
+
+/// Macro to declare deprecation in the platform appropriate manner with a message.
+#ifndef _WIN32
+# define RCUTILS_DEPRECATED_WITH_MSG(msg) __attribute__((deprecated(msg)))
+#else
+# define RCUTILS_DEPRECATED_WITH_MSG(msg) __declspec(deprecated(msg))
+#endif
+
 #ifdef __cplusplus
 }
 #endif

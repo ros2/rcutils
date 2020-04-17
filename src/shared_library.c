@@ -19,6 +19,13 @@ extern "C"
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifndef _WIN32
+#include <dlfcn.h>
+#else
+#include <windows.h>
+C_ASSERT(sizeof(void *) == sizeof(HINSTANCE));
+#endif  // _WIN32
+
 #include "rcutils/error_handling.h"
 #include "rcutils/shared_library.h"
 #include "rcutils/strdup.h"
@@ -60,7 +67,7 @@ rcutils_load_shared_library(
   if (!lib->lib_pointer) {
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("LoadLibrary error: %s", dlerror());
 #else
-  lib->lib_pointer = LoadLibrary(lib->library_path);
+  lib->lib_pointer = (void *)(LoadLibrary(lib->library_path));
   if (!lib->lib_pointer) {
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("LoadLibrary error: %lu", GetLastError());
 #endif  // _WIN32
@@ -89,7 +96,7 @@ rcutils_get_symbol(const rcutils_shared_library_t * lib, const char * symbol_nam
     return NULL;
   }
 #else
-  void * lib_symbol = GetProcAddress(lib->lib_pointer, symbol_name);
+  void * lib_symbol = GetProcAddress((HINSTANCE)(lib->lib_pointer), symbol_name);
   if (lib_symbol == NULL) {
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
       "Error getting the symbol '%s'. Error '%d'",
@@ -121,8 +128,8 @@ rcutils_has_symbol(const rcutils_shared_library_t * lib, const char * symbol_nam
   void * lib_symbol = dlsym(lib->lib_pointer, symbol_name);
   return dlerror() == NULL && lib_symbol != 0;
 #else
-  void * lib_symbol = GetProcAddress(lib->lib_pointer, symbol_name);
-  return GetLastError() == 0 && lib_symbol != 0;
+  void * lib_symbol = GetProcAddress((HINSTANCE)(lib->lib_pointer), symbol_name);
+  return lib_symbol != NULL;
 #endif  // _WIN32
 }
 
@@ -142,7 +149,7 @@ rcutils_unload_shared_library(rcutils_shared_library_t * lib)
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("dlclose error: %s", dlerror());
 #else
   // If the function succeeds, the return value is nonzero.
-  int error_code = FreeLibrary(lib->lib_pointer);
+  int error_code = FreeLibrary((HINSTANCE)(lib->lib_pointer));
   if (!error_code) {
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("FreeLibrary error: %lu", GetLastError());
 #endif  // _WIN32
@@ -160,7 +167,8 @@ rcutils_ret_t
 rcutils_get_platform_library_name(
   const char * library_name,
   char * library_name_platform,
-  unsigned int buffer_size)
+  unsigned int buffer_size,
+  bool debug)
 {
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(library_name, RCUTILS_RET_INVALID_ARGUMENT);
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(library_name_platform, RCUTILS_RET_INVALID_ARGUMENT);
@@ -168,22 +176,43 @@ rcutils_get_platform_library_name(
   int written = 0;
 
 #ifdef __linux__
-  if (buffer_size >= (strlen(library_name) + 7)) {
-    written = rcutils_snprintf(
-      library_name_platform, strlen(library_name) + 7, "lib%s.so", library_name);
+  if (debug) {
+    if (buffer_size >= (strlen(library_name) + 8)) {
+      written = rcutils_snprintf(
+        library_name_platform, strlen(library_name) + 8, "lib%sd.so", library_name);
+    }
+  } else {
+    if (buffer_size >= (strlen(library_name) + 7)) {
+      written = rcutils_snprintf(
+        library_name_platform, strlen(library_name) + 7, "lib%s.so", library_name);
+    }
   }
 #elif __APPLE__
-  if (buffer_size >= (strlen(library_name) + 10)) {
-    written = rcutils_snprintf(
-      library_name_platform, strlen(library_name) + 10, "lib%s.dylib", library_name);
+  if (debug) {
+    if (buffer_size >= (strlen(library_name) + 11)) {
+      written = rcutils_snprintf(
+        library_name_platform, strlen(library_name) + 11, "lib%sd.dylib", library_name);
+    }
+  } else {
+    if (buffer_size >= (strlen(library_name) + 10)) {
+      written = rcutils_snprintf(
+        library_name_platform, strlen(library_name) + 10, "lib%s.dylib", library_name);
+    }
   }
 #elif _WIN32
-  if (buffer_size >= (strlen(library_name) + 7)) {
-    written = rcutils_snprintf(
-      library_name_platform, strlen(library_name) + 5, "%s.dll", library_name);
+  if (debug) {
+    if (buffer_size >= (strlen(library_name) + 6)) {
+      written = rcutils_snprintf(
+        library_name_platform, strlen(library_name) + 6, "%sd.dll", library_name);
+    }
+  } else {
+    if (buffer_size >= (strlen(library_name) + 5)) {
+      written = rcutils_snprintf(
+        library_name_platform, strlen(library_name) + 5, "%s.dll", library_name);
+    }
   }
 #endif
-  if (written < 0) {
+  if (written <= 0) {
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
       "failed to format library name: '%s'\n",
       library_name);

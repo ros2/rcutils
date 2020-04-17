@@ -22,14 +22,6 @@ extern "C"
 
 #include <string.h>
 
-#ifndef _WIN32
-#include <dlfcn.h>
-typedef void * rcutils_shared_library_handle_t;
-#else
-#include <windows.h>
-typedef HINSTANCE rcutils_shared_library_handle_t;
-#endif  // _WIN32
-
 #include "rcutils/allocator.h"
 #include "rcutils/types/rcutils_ret.h"
 #include "rcutils/macros.h"
@@ -38,8 +30,8 @@ typedef HINSTANCE rcutils_shared_library_handle_t;
 /// Handle to a loaded shared library.
 typedef struct RCUTILS_PUBLIC_TYPE rcutils_shared_library_t
 {
-  /// The pointer to the shared library
-  rcutils_shared_library_handle_t lib_pointer;
+  /// The platform-specific pointer to the shared library
+  void * lib_pointer;
   /// The path of the shared_library
   char * library_path;
   /// allocator
@@ -148,6 +140,8 @@ rcutils_is_shared_library_loaded(rcutils_shared_library_t * lib);
  * \param[in] library_name library base name (without prefix and extension)
  * \param[out] library_name_platform library name for the compiled platform
  * \param[in] buffer_size size of library_name_platform buffer
+ * \param[in] debug if true the library will return a debug library name, otherwise
+ * it returns a normal library path
  * \return `RCUTILS_RET_OK` if successful, or
  * \return `RCUTILS_RET_ERROR` if an unknown error occurs
  */
@@ -157,7 +151,8 @@ rcutils_ret_t
 rcutils_get_platform_library_name(
   const char * library_name,
   char * library_name_platform,
-  unsigned int buffer_size);
+  unsigned int buffer_size,
+  bool debug);
 
 #ifdef __cplusplus
 }
