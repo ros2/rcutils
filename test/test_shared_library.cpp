@@ -142,7 +142,7 @@ TEST_F(TestSharedLibrary, error_unload) {
 TEST_F(TestSharedLibrary, error_symbol) {
   rcutils_ret_t ret;
   bool is_symbol = rcutils_has_symbol(&lib, "symbol");
-  EXPECT_TRUE(is_symbol == false);
+  EXPECT_FALSE(is_symbol);
 
   void * symbol = rcutils_get_symbol(&lib, "print_name");
   EXPECT_TRUE(symbol == NULL);
@@ -152,7 +152,7 @@ TEST_F(TestSharedLibrary, error_symbol) {
   ret = rcutils_load_shared_library(&lib, library_path, rcutils_get_default_allocator());
   ASSERT_EQ(RCUTILS_RET_OK, ret);
   is_symbol = rcutils_has_symbol(&lib, "symbol");
-  EXPECT_TRUE(is_symbol == false);
+  EXPECT_FALSE(is_symbol);
 }
 
 TEST_F(TestSharedLibrary, basic_symbol) {
