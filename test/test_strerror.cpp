@@ -33,6 +33,8 @@ TEST(test_strerror, get_error) {
   rcutils_strerror(error_string, sizeof(error_string));
 #ifdef _WIN32
   ASSERT_STREQ(error_string, "No error");
+#elif __APPLE__
+  ASSERT_STREQ(error_string, "Undefined error: 0");
 #else
   ASSERT_STREQ(error_string, "Success");
 #endif
