@@ -31,8 +31,11 @@ TEST(test_strerror, get_error) {
 
   char error_string[1024];
   rcutils_strerror(error_string, sizeof(error_string));
+#ifdef _WIN32
+  ASSERT_STREQ(error_string, "No error");
+#else
   ASSERT_STREQ(error_string, "Success");
-
+#endif
   // Set the error "No such file or directory"
   errno = 2;
 
