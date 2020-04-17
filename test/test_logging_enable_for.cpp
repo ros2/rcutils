@@ -22,7 +22,7 @@ TEST(test_logging_logger_is_enabled_for, test_logging_logger_is_enabled_for) {
   bool ret;
   ret = rcutils_logging_logger_is_enabled_for(
     "rmw_fastrtps_cpp", RCUTILS_LOG_SEVERITY_DEBUG);
-  ASSERT_EQ(0, ret);
+  ASSERT_FALSE(ret);
 
   rcutils_ret_t ret_set_severity;
   ret_set_severity =
@@ -30,33 +30,33 @@ TEST(test_logging_logger_is_enabled_for, test_logging_logger_is_enabled_for) {
   ASSERT_EQ(RCUTILS_RET_OK, ret_set_severity);
   ret = rcutils_logging_logger_is_enabled_for(
     "rmw_fastrtps_cpp", RCUTILS_LOG_SEVERITY_DEBUG);
-  ASSERT_EQ(1, ret);
+  ASSERT_TRUE(ret);
 
   ret_set_severity =
     rcutils_logging_set_logger_level("rmw_fastrtps_cpp", RCUTILS_LOG_SEVERITY_INFO);
   ASSERT_EQ(RCUTILS_RET_OK, ret_set_severity);
   ret = rcutils_logging_logger_is_enabled_for(
     "rmw_fastrtps_cpp", RCUTILS_LOG_SEVERITY_INFO);
-  ASSERT_EQ(1, ret);
+  ASSERT_TRUE(ret);
 
   ret_set_severity =
     rcutils_logging_set_logger_level("rmw_fastrtps_cpp", RCUTILS_LOG_SEVERITY_WARN);
   ASSERT_EQ(RCUTILS_RET_OK, ret_set_severity);
   ret = rcutils_logging_logger_is_enabled_for(
     "rmw_fastrtps_cpp", RCUTILS_LOG_SEVERITY_WARN);
-  ASSERT_EQ(1, ret);
+  ASSERT_TRUE(ret);
 
   ret_set_severity =
     rcutils_logging_set_logger_level("rmw_fastrtps_cpp", RCUTILS_LOG_SEVERITY_ERROR);
   ASSERT_EQ(RCUTILS_RET_OK, ret_set_severity);
   ret = rcutils_logging_logger_is_enabled_for(
     "rmw_fastrtps_cpp", RCUTILS_LOG_SEVERITY_ERROR);
-  ASSERT_EQ(1, ret);
+  ASSERT_TRUE(ret);
 
   ret_set_severity =
     rcutils_logging_set_logger_level("rmw_fastrtps_cpp", RCUTILS_LOG_SEVERITY_FATAL);
   ASSERT_EQ(RCUTILS_RET_OK, ret_set_severity);
   ret = rcutils_logging_logger_is_enabled_for(
     "rmw_fastrtps_cpp", RCUTILS_LOG_SEVERITY_FATAL);
-  ASSERT_EQ(1, ret);
+  ASSERT_TRUE(ret);
 }
