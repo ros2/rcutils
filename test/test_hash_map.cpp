@@ -236,23 +236,22 @@ TEST_F(HashMapPreInitTest, set_data_success_returns_ok) {
 }
 
 TEST_F(HashMapPreInitTest, set_data_two_times_success_returns_ok) {
-  uint32_t key = 2, data = 22;
+  uint32_t key = 2, data = 22, ret_data = 0;
   rcutils_ret_t ret;
   ret = rcutils_hash_map_set(&map, &key, &data);
   EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
-  uint32_t data_get = 0;
-  ret = rcutils_hash_map_get(&map, &key, &data_get);
+  ret = rcutils_hash_map_get(&map, &key, &ret_data);
   EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
-  EXPECT_EQ(data_get, 22u);
+  EXPECT_EQ(ret_data, 22u);
 
   data = 23;
   ret = rcutils_hash_map_set(&map, &key, &data);
   EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
-  ret = rcutils_hash_map_get(&map, &key, &data_get);
+  ret = rcutils_hash_map_get(&map, &key, &ret_data);
   EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
-  EXPECT_EQ(data_get, 23u);
+  EXPECT_EQ(ret_data, 23u);
 }
 
 TEST_F(HashMapPreInitTest, unset_map_null_fails) {
