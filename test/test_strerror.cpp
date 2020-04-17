@@ -15,7 +15,11 @@
 #include <gtest/gtest.h>
 
 #include <sys/types.h>
+#ifdef _WIN32
+#include <windows.h>
+#else
 #include <dirent.h>
+#endif
 
 #include <string>
 
@@ -30,7 +34,13 @@ TEST(test_strerror, get_error) {
   ASSERT_STREQ(error_string, "Success");
 
   // Generating a error opening a non-existing directory
-  opendir("nulldir");
+  std::string path("nulldir");
+#ifdef _WIN32
+  WIN32_FIND_DATA data;
+  HANDLE handle = FindFirstFile(path.c_str(), &data);
+#else
+  opendir(path.c_str());
+#endif
 
   rcutils_strerror(error_string, sizeof(error_string));
   ASSERT_STREQ(error_string, "No such file or directory");
