@@ -65,7 +65,7 @@ TEST_F(TestSharedLibrary, basic_load) {
 
 TEST_F(TestSharedLibrary, bad_load) {
   rcutils_ret_t ret;
-  ret = rcutils_get_platform_library_name("non_existing_library", library_path, 1024);
+  ret = rcutils_get_platform_library_name("non_existing_library", library_path, 1024, false);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
   ret = rcutils_load_shared_library(&lib, library_path, rcutils_get_default_allocator());
@@ -74,7 +74,7 @@ TEST_F(TestSharedLibrary, bad_load) {
 
 TEST_F(TestSharedLibrary, fail_allocator) {
   rcutils_ret_t ret;
-  ret = rcutils_get_platform_library_name("dummy_shared_library", library_path, 1024);
+  ret = rcutils_get_platform_library_name("dummy_shared_library", library_path, 1024, false);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
   rcutils_allocator_t failing_allocator = get_failing_allocator();
@@ -147,7 +147,7 @@ TEST_F(TestSharedLibrary, error_symbol) {
   void * symbol = rcutils_get_symbol(&lib, "print_name");
   EXPECT_TRUE(symbol == NULL);
 
-  ret = rcutils_get_platform_library_name("dummy_shared_library", library_path, 1024);
+  ret = rcutils_get_platform_library_name("dummy_shared_library", library_path, 1024, false);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
   ret = rcutils_load_shared_library(&lib, library_path, rcutils_get_default_allocator());
   ASSERT_EQ(RCUTILS_RET_OK, ret);
