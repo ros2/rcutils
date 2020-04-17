@@ -60,6 +60,6 @@ TEST(test_repl_str, nominal) {
     std::string typical = "foo/{bar}/baz";
     rcutils_allocator_t failing_allocator = get_failing_allocator();
     char * out = rcutils_repl_str(typical.c_str(), "{bar}", "", &failing_allocator);
-    EXPECT_TRUE(out == NULL);
+    EXPECT_EQ(NULL, out);
   }
 }
