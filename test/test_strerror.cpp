@@ -33,14 +33,8 @@ TEST(test_strerror, get_error) {
   rcutils_strerror(error_string, sizeof(error_string));
   ASSERT_STREQ(error_string, "Success");
 
-  // Generating a error opening a non-existing directory
-  std::string path("nulldir");
-#ifdef _WIN32
-  WIN32_FIND_DATA data;
-  HANDLE handle = FindFirstFile(path.c_str(), &data);
-#else
-  opendir(path.c_str());
-#endif
+  // Set the error "No such file or directory"
+  errno = 2;
 
   rcutils_strerror(error_string, sizeof(error_string));
   ASSERT_STREQ(error_string, "No such file or directory");
