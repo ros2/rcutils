@@ -56,12 +56,13 @@ rcutils_vsnprintf(char * buffer, size_t buffer_size, const char * format, va_lis
 #ifndef _WIN32
   ret = vsnprintf(buffer, buffer_size, format, args);
 #else
-  errno_t errno_ret = _vsnprintf_s(buffer, buffer_size, _TRUNCATE, format, args);
-  if (-1 == errno_ret && 0 == errno) {
+  // errno isn't explicitly set to 0 when truncation occurs.
+  errno = 0;
+  ret = _vsnprintf_s(buffer, buffer_size, _TRUNCATE, format, args);
+  if (-1 == ret && 0 == errno) {
     // This is the case where truncation has occurred, return how long it would have been.
     return _vscprintf(format, args);
   }
-  ret = errno_ret;
 #endif
   return ret;
 }
