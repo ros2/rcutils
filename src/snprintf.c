@@ -19,8 +19,8 @@ extern "C"
 
 #include "rcutils/snprintf.h"
 
-#ifdef _WIN32
 #include <errno.h>
+#ifdef _WIN32
 #include <string.h>
 #endif
 #include <stdarg.h>
@@ -40,6 +40,7 @@ int
 rcutils_vsnprintf(char * buffer, size_t buffer_size, const char * format, va_list args)
 {
   if (NULL == format) {
+    errno = EINVAL;
     return -1;
   }
   if (NULL == buffer && 0 == buffer_size) {
@@ -50,6 +51,7 @@ rcutils_vsnprintf(char * buffer, size_t buffer_size, const char * format, va_lis
 #endif
   }
   if (NULL == buffer || 0 == buffer_size) {
+    errno = EINVAL;
     return -1;
   }
   int ret;
