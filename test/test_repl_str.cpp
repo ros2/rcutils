@@ -16,6 +16,7 @@
 
 #include <string>
 
+#include "./allocator_testing_utils.h"
 #include "rcutils/allocator.h"
 #include "rcutils/repl_str.h"
 
@@ -52,5 +53,13 @@ TEST(test_repl_str, nominal) {
     char * out = rcutils_repl_str(typical.c_str(), "{bar}", "", &allocator);
     EXPECT_STREQ("foo//baz", out);
     allocator.deallocate(out, allocator.state);
+  }
+
+  // bad allocator
+  {
+    std::string typical = "foo/{bar}/baz";
+    rcutils_allocator_t failing_allocator = get_failing_allocator();
+    char * out = rcutils_repl_str(typical.c_str(), "{bar}", "", &failing_allocator);
+    EXPECT_EQ(NULL, out);
   }
 }

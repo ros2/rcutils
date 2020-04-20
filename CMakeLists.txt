@@ -267,6 +267,13 @@ if(BUILD_TESTING)
     target_link_libraries(test_find ${PROJECT_NAME})
   endif()
 
+  rcutils_custom_add_gtest(test_strerror
+    test/test_strerror.cpp
+  )
+  if(TARGET test_strerror)
+    target_link_libraries(test_strerror ${PROJECT_NAME})
+  endif()
+
   rcutils_custom_add_gtest(test_string_array
     test/test_string_array.cpp
   )
@@ -404,6 +411,14 @@ if(BUILD_TESTING)
   if(TARGET test_logging_custom_env)
     target_link_libraries(test_logging_custom_env ${PROJECT_NAME} osrf_testing_tools_cpp::memory_tools)
   endif()
+
+  rcutils_custom_add_gtest(test_logging_enable_for
+    test/test_logging_enable_for.cpp
+  )
+  if(TARGET test_logging_enable_for)
+    target_link_libraries(test_logging_enable_for ${PROJECT_NAME})
+  endif()
+
 
 endif()
 

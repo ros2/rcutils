@@ -63,6 +63,25 @@ TEST_F(TestSharedLibrary, basic_load) {
   EXPECT_TRUE(lib.lib_pointer == NULL);
 }
 
+TEST_F(TestSharedLibrary, bad_load) {
+  rcutils_ret_t ret;
+  ret = rcutils_get_platform_library_name("non_existing_library", library_path, 1024, false);
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
+
+  ret = rcutils_load_shared_library(&lib, library_path, rcutils_get_default_allocator());
+  ASSERT_EQ(RCUTILS_RET_ERROR, ret);
+}
+
+TEST_F(TestSharedLibrary, fail_allocator) {
+  rcutils_ret_t ret;
+  ret = rcutils_get_platform_library_name("dummy_shared_library", library_path, 1024, false);
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
+
+  rcutils_allocator_t failing_allocator = get_failing_allocator();
+  ret = rcutils_load_shared_library(&lib, library_path, failing_allocator);
+  ASSERT_EQ(RCUTILS_RET_BAD_ALLOC, ret);
+}
+
 TEST_F(TestSharedLibrary, load_two_times) {
   rcutils_ret_t ret;
 
@@ -121,11 +140,19 @@ TEST_F(TestSharedLibrary, error_unload) {
 }
 
 TEST_F(TestSharedLibrary, error_symbol) {
+  rcutils_ret_t ret;
   bool is_symbol = rcutils_has_symbol(&lib, "symbol");
-  EXPECT_TRUE(is_symbol == false);
+  EXPECT_FALSE(is_symbol);
 
   void * symbol = rcutils_get_symbol(&lib, "print_name");
   EXPECT_TRUE(symbol == NULL);
+
+  ret = rcutils_get_platform_library_name("dummy_shared_library", library_path, 1024, false);
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
+  ret = rcutils_load_shared_library(&lib, library_path, rcutils_get_default_allocator());
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
+  is_symbol = rcutils_has_symbol(&lib, "symbol");
+  EXPECT_FALSE(is_symbol);
 }
 
 TEST_F(TestSharedLibrary, basic_symbol) {
