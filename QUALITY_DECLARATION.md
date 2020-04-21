@@ -110,11 +110,7 @@ TODO exclusions of parts of the code from perf testing listed here? or linked to
 
 ### Linters and Static Analysis
 
-TODO fix link
-
-`rcutils` uses and passes all the standard linters and static analysis tools for a C package as described in the [ROS 2 Developer Guide](https://index.ros.org/doc/ros2/Contributing/Developer-Guide/#linters-and-static-analysis).
-
-TODO any qualifications on what "passing" means for certain linters
+`rcutils` uses and passes all the ROS2 standard linters and static analysis tools for a C package as described in the [ROS 2 Developer Guide](https://index.ros.org/doc/ros2/Contributing/Developer-Guide/#linters-and-static-analysis). Passing implies there are no linter/static errors when testing against CI of supported platforms.
 
 ## Dependencies
 
