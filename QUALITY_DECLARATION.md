@@ -123,3 +123,50 @@ It also has several test dependencies, which do not affect the resulting quality
 
 `rcutils` supports all of the tier 1 platforms as described in [REP-2000](https://www.ros.org/reps/rep-2000.html#support-tiers), and tests each change against all of them.
 
+# Current status Summary
+
+The chart below compares the requirements in the REP-2004 with the current state of the rcutils package.
+|Number|  Requirement| Current state |
+|--|--|--|
+|1| **Version policy** |---|
+|1.i|Version Policy available | ✓ |
+|1.ii|Stable version |☓|
+|1.iii|Declared public API|✓|
+|1.iv|API stability policy|✓|
+|1.v|ABI stability policy|✓|
+|1.vi_|API/ABI stable within ros distribution|✓|
+|2| **Change control proces**s |---|
+|2.i| All changes occur on change request | ✓|
+|2.ii| Contributor origin (DCO, CLA, etc) | ✓|
+|2.iii| Peer review policy | ✓ |
+|2.iv| CI policy for change requests | ✓ |
+|2.v| Documentation policy for change requests | ☓ |
+|3| **Documentation** | --- |
+|3.i| Per feature documentation | ☓ |
+|3.ii| Per public API item documentation | ☓ |
+|3.iii| Declared License(s) | ✓ |
+|3.iv| Copyright in source files| ✓ |
+|3.v.a| Quality declaration linked to README | ✓ |
+|3.v.b| Centralized declaration available for peer review |✓|
+|4| Testing | --- |
+|4.i| Feature items tests | ☓ |
+|4.ii| Public API tests | ☓ |
+|4.iii.a| Using coverage |✓ |
+|4.iii.a| Coverage policy | ✓ |
+|4.iv.a| Performance tests (if applicable) | ? |
+|4.iv.b| Performance tests policy| ✓ |
+|4.v.a| Code style enforcement (linters)| ✓ |
+|4.v.b| Use of static analysis tools | ✓ |
+|5| Dependencies | --- |
+|5.i| Must not have ROS lower level dependencies | ✓ |
+|5.ii| Optional ROS lower level dependencies| ✓ |
+|5.iii| Justifies quality use of non-ROS dependencies |✓|
+|6| Platform support | --- |
+|6.i| Support targets Tier1 ROS platforms| ✓ |
+|7| Security | --- |
+|7.i| Vulnerability Disclosure Policy | ? |
+
+Comparing this table with the [Quality Level Comparison Chart of REP2004](https://github.com/ros-infrastructure/rep/blob/d1074e43f25f957d75f50dbfda94ab10d86bcbfd/rep-2004.rst#quality-level-comparison-chart) lead us to decide that this package qualifies to Quality Level 4. Missing to quality level 3:
+
+1.ii, Stable version
+7.i, Vulnerability Disclosure Policy (To be defined in Developer Guide for ROS2 Core packages)
