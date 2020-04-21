@@ -24,7 +24,7 @@ extern "C"
 
 #include "rcutils/visibility_control.h"
 
-/// Return if true if the option is defined in the command line arguments or false otherwise.
+/// Return `true` if the option is defined in the command line arguments or `false` otherwise.
 /**
 * \param[in] begin first element to check in the array
 * \param[in] end last element to check in the array

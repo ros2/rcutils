@@ -200,11 +200,11 @@ rcutils_logging_severity_level_from_string(
 
 /// The function signature to log messages.
 /**
- * \param[in] location The pointer to the location struct
- * \param[in] severity The severity level
- * \param[in] name The name of the logger
- * \param[in] timestamp The timestamp
- * \param[in] format The format string
+ * \param[in] location The location information about where the log came from
+ * \param[in] severity The severity of the log message expressed as an integer
+ * \param[in] name The name of the logger that this message came from
+ * \param[in] timestamp The time at which the log message was generated
+ * \param[in] format The list of arguments to insert into the formatted log message
  * \param[in] args The variable argument list
  */
 typedef void (* rcutils_logging_output_handler_t)(
@@ -271,7 +271,7 @@ void rcutils_logging_set_output_handler(rcutils_logging_output_handler_t functio
  * \param[in] name The name of the logger that this message came from
  * \param[in] timestamp The time at which the log message was generated
  * \param[in] msg The message being logged
- * \param[in] args The list of arguments to insert into the formatted log messgae
+ * \param[in] args The list of arguments to insert into the formatted log message
  * \param[out] logging_output An output buffer for the formatted message
  */
 RCUTILS_PUBLIC
