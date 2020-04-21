@@ -79,7 +79,7 @@ New features are required to have tests before being added.
 
 ### Public API Testing
 
-Each part of the public API have tests, and new additions or changes to the public API require tests before being added.
+Each part of the public API has tests, and new additions or changes to the public API require tests before being added.
 The tests aim to cover both typical usage and corner cases, but are quantified by contributing to code coverage.
 
 ### Coverage
