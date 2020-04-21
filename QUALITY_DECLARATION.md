@@ -32,15 +32,13 @@ The source templates for these generated headers are in the `resource` folder.
 
 ## Change Control Process
 
-TODO fix link
-
-`rcutils` follows the recommended guidelines for ROS Core packages in the [ROS 2 Developer Guide](https://index.ros.org/doc/ros2/Contributing/Developer-Guide/#change_control_process).
+`rcutils` follows the recommended guidelines for ROS Core packages in the [ROS 2 Developer Guide](https://index.ros.org/doc/ros2/Contributing/Developer-Guide/#change-control-process).
 
 This includes:
 
 - all changes occur through a pull request
-- all pull request have two peer reviews
-- all pull request must pass CI on all [tier 1 platforms](https://www.ros.org/reps/rep-2000.html#support-tiers)
+- all pull request will be peer-reviewed
+- all pull request must pass CI on all [tier 1 platforms](https://github.com/ros-infrastructure/rep/blob/master/rep-2000.rst)
 - all pull request must resolve related documentation changes before merging
 
 ## Documentation
