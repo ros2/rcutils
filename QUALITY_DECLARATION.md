@@ -60,7 +60,7 @@ There is documentation for all of the public API, and new additions to the publi
 
 ### License
 
-The license for `rcutils` is Apache 2.0, and a summary is in each source file, the type is declared in the `package.xml` manifest file, and a full copy of the license is in the `LICENSE` file.
+The license for `rcutils` is Apache 2.0, and a summary is in each source file, the type is declared in the [`package.xml`](https://github.com/ros2/rcutils/blob/master/package.xml) manifest file, and a full copy of the license is in the [`LICENSE`](https://github.com/ros2/rcutils/blob/master/LICENSE) file.
 
 There is an automated test which runs a linter that ensures each file has a license statement.
 
@@ -74,7 +74,7 @@ There is an automated test which runs a linter that ensures each file has at lea
 
 ### Feature Testing
 
-Each feature in `rcutils` has corresponding tests which simulate typical usage, and they are located in the `test` directory.
+Each feature in `rcutils` has corresponding tests which simulate typical usage, and they are located in the [`test`](https://github.com/ros2/rcutils/tree/master/test) directory.
 New features are required to have tests before being added.
 
 ### Public API Testing
