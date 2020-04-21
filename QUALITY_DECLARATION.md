@@ -10,8 +10,9 @@ Below are the rationales, notes, and caveats for this claim, organized by each r
 ## Version Policy
 
 ### Version Scheme
+(Missing part, bumping to version 1.0.0)
 
-`rcutils` uses `semver` according to the recommendation for ROS Core packages in the [ROS 2 Developer Guide](https://index.ros.org/doc/ros2/Contributing/Developer-Guide/#versioning), and is at or above a stable version, i.e. `>= 1.0.0`.
+`rcutils` uses `semver` according to the recommendation for ROS Core packages in the [ROS 2 Developer Guide](https://index.ros.org/doc/ros2/Contributing/Developer-Guide/#versioning), and it will be at a stable version, i.e. `>= 1.0.0`.
 
 ### API Stability Within a Released ROS Distribution
 
@@ -45,14 +46,14 @@ This includes:
 
 ### Feature Documentation
 
-TODO fix link
+TODO fix link (Missing part)
 
 `rcutils` has a [feature list](TODO) and each item in the list links to the corresponding feature documentation.
 There is documentation for all of the features, and new features require documentation before being added.
 
 ### Public API Documentation
 
-TODO fix link
+TODO fix link (Missing part)
 
 `rcutils` has embedded API documentation and it is generated using doxygen and is [hosted](TODO) along side the feature documentation.
 There is documentation for all of the public API, and new additions to the public API require documentation before being added.
@@ -101,7 +102,7 @@ TODO FIXME
 
 ### Performance
 
-TODO fix link
+TODO fix link (Missing part)
 
 `rcutils` follows the recommendations for performance testing of C code in the [ROS 2 Developer Guide](https://index.ros.org/doc/ros2/Contributing/Developer-Guide/#performance-c), and opts to do performance analysis on each release rather than each change.
 
