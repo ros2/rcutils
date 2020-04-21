@@ -18,7 +18,7 @@
 
 #include "rcutils/get_env.h"
 
-/* Tests the default allocator.
+/* Tests rcutils_get_env.
  *
  * Expected environment variables must be set by the calling code:
  *

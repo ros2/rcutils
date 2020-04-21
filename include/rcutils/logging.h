@@ -88,7 +88,7 @@ extern bool g_rcutils_logging_initialized;
  * Uses Atomics       | No
  * Lock-Free          | Yes
  *
- * \param allocator rcutils_allocator_t to be used.
+ * \param[in] allocator rcutils_allocator_t to be used.
  * \return `RCUTILS_RET_OK` if successful.
  * \return `RCUTILS_RET_INVALID_ARGUMENT` if the allocator is invalid, in which
  *   case initialization will fail.
@@ -200,12 +200,12 @@ rcutils_logging_severity_level_from_string(
 
 /// The function signature to log messages.
 /**
- * \param location The pointer to the location struct
- * \param severity The severity level
- * \param name The name of the logger
- * \param timestamp The timestamp
- * \param format The format string
- * \param args The variable argument list
+ * \param[in] location The location information about where the log came from
+ * \param[in] severity The severity of the log message expressed as an integer
+ * \param[in] name The name of the logger that this message came from
+ * \param[in] timestamp The time at which the log message was generated
+ * \param[in] format The list of arguments to insert into the formatted log message
+ * \param[in] args The variable argument list
  */
 typedef void (* rcutils_logging_output_handler_t)(
   const rcutils_log_location_t *,  // location
@@ -246,7 +246,7 @@ rcutils_logging_output_handler_t rcutils_logging_get_output_handler();
  * Uses Atomics       | No
  * Lock-Free          | Yes
  *
- * \param function The function pointer of the output handler to be used.
+ * \param[in] function The function pointer of the output handler to be used.
  */
 RCUTILS_PUBLIC
 void rcutils_logging_set_output_handler(rcutils_logging_output_handler_t function);
@@ -266,12 +266,12 @@ void rcutils_logging_set_output_handler(rcutils_logging_output_handler_t functio
  *
  * \return `RCUTILS_RET_OK` if successful.
  * \return `RCUTILS_RET_BAD_ALLOC` if memory allocation error occured
- * \param location The location information about where the log came from
- * \param severity The severity of the log message expressed as an integer
- * \param name The name of the logger that this message came from
- * \param timestamp The time at which the log message was generated
- * \param msg The message being logged
- * \param args The list of arguments to insert into the formatted log messgae
+ * \param[in] location The location information about where the log came from
+ * \param[in] severity The severity of the log message expressed as an integer
+ * \param[in] name The name of the logger that this message came from
+ * \param[in] timestamp The time at which the log message was generated
+ * \param[in] msg The message being logged
+ * \param[in] args The list of arguments to insert into the formatted log message
  * \param[out] logging_output An output buffer for the formatted message
  */
 RCUTILS_PUBLIC
@@ -321,7 +321,7 @@ int rcutils_logging_get_default_logger_level();
  * Uses Atomics       | No
  * Lock-Free          | Yes
  *
- * \param level The level to be used.
+ * \param[in] level The level to be used.
  */
 RCUTILS_PUBLIC
 void rcutils_logging_set_default_logger_level(int level);
@@ -340,7 +340,7 @@ void rcutils_logging_set_default_logger_level(int level);
  * Uses Atomics       | No
  * Lock-Free          | Yes
  *
- * \param name The name of the logger, must be null terminated c string
+ * \param[in] name The name of the logger, must be null terminated c string
  * \return The level of the logger if it has been set, or
  * \return `RCUTILS_LOG_SEVERITY_UNSET` if unset, or
  * \return `g_rcutils_logging_default_logger_level` for an empty name, or
@@ -364,8 +364,8 @@ int rcutils_logging_get_logger_level(const char * name);
  * Uses Atomics       | No
  * Lock-Free          | Yes
  *
- * \param name The name of the logger
- * \param name_length Logger name length
+ * \param[in] name The name of the logger
+ * \param[in] name_length Logger name length
  * \return The level of the logger if it has been set, or
  * \return `RCUTILS_LOG_SEVERITY_UNSET` if unset, or
  * \return `g_rcutils_logging_default_logger_level` for `name_length` of `0`, or
@@ -389,8 +389,8 @@ int rcutils_logging_get_logger_leveln(const char * name, size_t name_length);
  * Uses Atomics       | No
  * Lock-Free          | Yes
  *
- * \param name The name of the logger, must be null terminated c string.
- * \param level The level to be used.
+ * \param[in] name The name of the logger, must be null terminated c string.
+ * \param[in] level The level to be used.
  * \return `RCUTILS_RET_OK` if successful, or
  * \return `RCUTILS_RET_INVALID_ARGUMENT` on invalid arguments, or
  * \return `RCUTILS_RET_LOGGING_SEVERITY_MAP_INVALID` if severity map invalid, or
@@ -410,8 +410,8 @@ rcutils_ret_t rcutils_logging_set_logger_level(const char * name, int level);
  * Uses Atomics       | No
  * Lock-Free          | Yes
  *
- * \param name The name of the logger, must be null terminated c string or NULL.
- * \param severity The severity level.
+ * \param[in] name The name of the logger, must be null terminated c string or NULL.
+ * \param[in] severity The severity level.
  *
  * \return true if the logger is enabled for the level; false otherwise.
  */
@@ -438,7 +438,7 @@ bool rcutils_logging_logger_is_enabled_for(const char * name, int severity);
  * Uses Atomics       | No
  * Lock-Free          | Yes
  *
- * \param name The name of the logger, must be null terminated c string.
+ * \param[in] name The name of the logger, must be null terminated c string.
  *
  * \return The level, or
  * \return -1 on invalid arguments, or
@@ -462,11 +462,11 @@ int rcutils_logging_get_logger_effective_level(const char * name);
  * Uses Atomics       | No
  * Lock-Free          | Yes
  *
- * \param location The pointer to the location struct or NULL
- * \param severity The severity level
- * \param name The name of the logger, must be null terminated c string or NULL
- * \param format The format string
- * \param ... The variable arguments
+ * \param[in] location The pointer to the location struct or NULL
+ * \param[in] severity The severity level
+ * \param[in] name The name of the logger, must be null terminated c string or NULL
+ * \param[in] format The format string
+ * \param[in] ... The variable arguments
  */
 RCUTILS_PUBLIC
 void rcutils_log(
@@ -496,11 +496,11 @@ RCUTILS_ATTRIBUTE_PRINTF_FORMAT(4, 5);
  * Uses Atomics       | No
  * Lock-Free          | Yes
  *
- * \param location The pointer to the location struct or NULL
- * \param severity The severity level
- * \param name The name of the logger, must be null terminated c string
- * \param timestamp The timestamp for when the log message was made
- * \param log_str The string to be logged
+ * \param[in] location The pointer to the location struct or NULL
+ * \param[in] severity The severity level
+ * \param[in] name The name of the logger, must be null terminated c string
+ * \param[in] timestamp The timestamp for when the log message was made
+ * \param[in] log_str The string to be logged
  */
 RCUTILS_PUBLIC
 void rcutils_logging_console_output_handler(

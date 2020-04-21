@@ -31,6 +31,8 @@ The API is a combination of parts:
     - RCUTILS_LOG_ERROR_SKIPFIRST_NAMED()
   - rcutils/logging_macros.h
   - rcutils/logging.h
+- Some basic utilities to load, unload and get symbols from shared libraries at run-time.
+  - rcutils/shared_library.h
 - A string replacement function which takes an allocator, based on http://creativeandcritical.net/str-replace-c:
   - rcutils_repl_str()
   - rcutils/repl_str.h

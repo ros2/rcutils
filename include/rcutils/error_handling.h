@@ -130,6 +130,7 @@ static_assert(
  * If already initialized, the given allocator is ignored, even if it does not
  * match the allocator used originally to initialize the thread-local storage.
  *
+ * \param[in] allocator to be used to allocate and deallocate memory
  * \return `RCUTILS_RET_OK` if successful, or
  * \return `RCUTILS_RET_INVALID_ARGUMENT` if the allocator is invalid, or
  * \return `RCUTILS_RET_BAD_ALLOC` if allocating memory fails, or
