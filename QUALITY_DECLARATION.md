@@ -122,5 +122,3 @@ It also has several test dependencies, which do not affect the resulting quality
 ## Platform Support
 
 `rcutils` supports all of the tier 1 platforms as described in [REP-2000](https://www.ros.org/reps/rep-2000.html#support-tiers), and tests each change against all of them.
-
-TODO make additional statements about non-tier 1 platforms?
