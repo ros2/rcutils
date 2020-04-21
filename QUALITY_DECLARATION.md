@@ -102,7 +102,7 @@ TODO Add link to latest coverage results
 
 TODO fix link (Missing part)
 
-`rcutils` follows the recommendations for performance testing of C code in the [ROS 2 Developer Guide](https://index.ros.org/doc/ros2/Contributing/Developer-Guide/#performance-c), and opts to do performance analysis on each release rather than each change.
+`rcutils` follows the recommendations for performance testing of C code in the [ROS 2 Developer Guide](https://index.ros.org/doc/ros2/Contributing/Developer-Guide/#performance), and opts to do performance analysis on each release rather than each change.
 
 TODO how to run perf tests, where do they live, etc.
 
@@ -122,3 +122,4 @@ It also has several test dependencies, which do not affect the resulting quality
 ## Platform Support
 
 `rcutils` supports all of the tier 1 platforms as described in [REP-2000](https://www.ros.org/reps/rep-2000.html#support-tiers), and tests each change against all of them.
+
