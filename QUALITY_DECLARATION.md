@@ -84,21 +84,19 @@ The tests aim to cover both typical usage and corner cases, but are quantified b
 
 ### Coverage
 
-TODO fix link
-
-`rcutils` follows the recommendations for ROS Core packages in the [ROS 2 Developer Guide](https://index.ros.org/doc/ros2/Contributing/Developer-Guide/#coverage), and opts to use branch coverage instead of line coverage.
+`rcutils` follows the recommendations for ROS Core packages in the [ROS 2 Developer Guide](https://index.ros.org/doc/ros2/Contributing/Developer-Guide/#code-coverage), and opts to use line coverage instead of branch coverage.
 
 This includes:
 
-- tracking and reporting branch coverage statistics
-- achieving and maintaining branch coverage at or above 95%
+- tracking and reporting line coverage statistics
+- achieving and maintaining a reasonable branch line coverage (90-100%)
 - no lines are manually skipped in coverage calculations
 
 Changes are required to make a best effort to keep or increase coverage before being accepted, but decreases are allowed if properly justified and accepted by reviewers.
 
 Current coverage statistics can be viewed here:
 
-TODO FIXME
+TODO Add link to latest coverage results
 
 ### Performance
 
