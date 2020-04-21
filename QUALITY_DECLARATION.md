@@ -1,4 +1,5 @@
-This document is a declaration of software quality for the `rcutils` package, based on the guidelines in [REP-2004](https://www.ros.org/reps/rep-2004.html).
+
+This document is a declaration of software quality for the `rcutils` package, based on the guidelines in [REP-2004](https://github.com/ros-infrastructure/rep/blob/rep-2004/rep-2004.rst).
 
 # `rcutils` Quality Declaration
 
@@ -14,7 +15,7 @@ Below are the rationales, notes, and caveats for this claim, organized by each r
 
 ### API Stability Within a Released ROS Distribution
 
-`rcutils` will not break public API within a released ROS distribution, i.e. no major releases once the ROS distribution is released.
+`rcutils` will not break public API within a released ROS distribution, i.e. no major releases once the ROS distribution is released.
 
 ### ABI Stability Within a Released ROS Distribution
 
