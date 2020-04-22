@@ -1,4 +1,5 @@
 
+
 This document is a declaration of software quality for the `rcutils` package, based on the guidelines in [REP-2004](https://github.com/ros-infrastructure/rep/blob/rep-2004/rep-2004.rst).
 
 # `rcutils` Quality Declaration
@@ -7,23 +8,16 @@ The package `rcutils` claims to be in the **Quality Level 4** category.
 
 Below are the rationales, notes, and caveats for this claim, organized by each requirement listed in the [Package Requirements for Quality Level 1 in REP-2004 ](https://index.ros.org/doc/ros2/Contributing/Developer-Guide/#quality-level-1) of the ROS2 developer guide.
 
-## Version Policy
+## Version Policy [1]
 
-### Version Scheme
+### Version Scheme [1.i]
+`rcutils` uses `semver` according to the recommendation for ROS Core packages in the [ROS 2 Developer Guide](https://index.ros.org/doc/ros2/Contributing/Developer-Guide/#versioning)
+
+### Version Stability [1.ii]
 (Missing part, bumping to version 1.0.0)
+Currently this package version is 0.7.5, soon to be released as 1.0.0
 
-`rcutils` uses `semver` according to the recommendation for ROS Core packages in the [ROS 2 Developer Guide](https://index.ros.org/doc/ros2/Contributing/Developer-Guide/#versioning), and it will be at a stable version, i.e. `>= 1.0.0`.
-
-### API Stability Within a Released ROS Distribution
-
-`rcutils` will not break public API within a released ROS distribution, i.e. no major releases once the ROS distribution is released.
-
-### ABI Stability Within a Released ROS Distribution
-
-`rcutils` contains C code and therefore must be concerned with ABI stability, and will maintain ABI stability within a ROS distribution.
-
-### Public API Declaration
-
+### Public API Declaration [1.iii]
 All symbols in the installed headers are considered part of the public API.
 
 All installed headers are in the `include` directory of the package, headers in any other folders are not installed and considered private.
@@ -31,58 +25,73 @@ All installed headers are in the `include` directory of the package, headers in 
 Additionally, there are generated header files which are installed and therefore part of the public API.
 The source templates for these generated headers are in the `resource` folder.
 
-## Change Control Process
+
+### API Stability Policy [1.iv]
+
+`rcutils` will not break public API within a released ROS distribution, i.e. no major releases once the ROS distribution is released.
+
+### ABI Stability Policy [1.v]
+
+`rcutils` contains C code and therefore must be concerned with ABI stability, and will maintain ABI stability within a ROS distribution.
+
+### ABI and ABI Stability Within a Released ROS Distribution [1.vi]
+
+`rcutils` will not break API nor ABI within a released ROS distribution, i.e. no major releases once the ROS distribution is released.
+
+## Change Control Process [2]
 
 `rcutils` follows the recommended guidelines for ROS Core packages in the [ROS 2 Developer Guide](https://index.ros.org/doc/ros2/Contributing/Developer-Guide/#change-control-process).
 
-This includes:
+### Change Requests [2.i]
+All changes will occur through a pull request, check [ROS 2 Developer Guide](https://index.ros.org/doc/ros2/Contributing/Developer-Guide/#change-control-process) for additional information.
 
-- all changes occur through a pull request
-- all pull request will be peer-reviewed
-- all pull request must pass CI on all [tier 1 platforms](https://github.com/ros-infrastructure/rep/blob/master/rep-2000.rst)
-- all pull request must resolve related documentation changes before merging
+### Contributor Origin [2.ii]
+All pull requests must have confirmation of contributor origin. This repository uses DCO.
 
-## Documentation
+### Peer Review Policy [2.iii]
+All pull request will be peer-reviewed, check [ROS 2 Developer Guide](https://index.ros.org/doc/ros2/Contributing/Developer-Guide/#change-control-process) for additional information.
 
-### Feature Documentation
+## Documentation [3]
+
+### Feature Documentation [3.i]
 
 TODO fix link (Missing part)
 
 `rcutils` has a [feature list](TODO) and each item in the list links to the corresponding feature documentation.
 There is documentation for all of the features, and new features require documentation before being added.
 
-### Public API Documentation
+### Public API Documentation [3.ii]
 
 TODO fix link (Missing part)
 
 `rcutils` has embedded API documentation and it is generated using doxygen and is [hosted](TODO) along side the feature documentation.
 There is documentation for all of the public API, and new additions to the public API require documentation before being added.
 
-### License
+### License [3.iii]
 
 The license for `rcutils` is Apache 2.0, and a summary is in each source file, the type is declared in the [`package.xml`](./package.xml) manifest file, and a full copy of the license is in the [`LICENSE`](./LICENSE) file.
 
 There is an automated test which runs a linter that ensures each file has a license statement.
 
-### Copyright Statements
+### Copyright Statements [3.iv]
 
 The copyright holders each provide a statement of copyright in each source code file in `rcutils`.
 
 There is an automated test which runs a linter that ensures each file has at least one copyright statement.
 
-## Testing
+## Testing [4]
 
-### Feature Testing
+### Feature Testing [4.i]
 
 Each feature in `rcutils` has corresponding tests which simulate typical usage, and they are located in the [`test`](https://github.com/ros2/rcutils/tree/master/test) directory.
 New features are required to have tests before being added.
 
-### Public API Testing
+### Public API Testing [4.ii]
 
 Each part of the public API has tests, and new additions or changes to the public API require tests before being added.
 The tests aim to cover both typical usage and corner cases, but are quantified by contributing to code coverage.
 
-### Coverage
+### Coverage [4.iii]
 
 `rcutils` follows the recommendations for ROS Core packages in the [ROS 2 Developer Guide](https://index.ros.org/doc/ros2/Contributing/Developer-Guide/#code-coverage), and opts to use line coverage instead of branch coverage.
 
@@ -98,7 +107,7 @@ Current coverage statistics can be viewed here:
 
 TODO Add link to latest coverage results
 
-### Performance
+### Performance [4.iv]
 
 TODO fix link (Missing part)
 
@@ -108,18 +117,24 @@ TODO how to run perf tests, where do they live, etc.
 
 TODO exclusions of parts of the code from perf testing listed here? or linked to?
 
-### Linters and Static Analysis
+### Linters and Static Analysis [4.v]
 
 `rcutils` uses and passes all the ROS2 standard linters and static analysis tools for a C package as described in the [ROS 2 Developer Guide](https://index.ros.org/doc/ros2/Contributing/Developer-Guide/#linters-and-static-analysis). Passing implies there are no linter/static errors when testing against CI of supported platforms.
 
-## Dependencies
+## Dependencies [5]
 
+### Direct Runtime ROS Dependencies [5.i]
 `rcutils` has no run-time or build-time dependencies that need to be considered for this declaration.
 
 It has several "buildtool" dependencies, which do not affect the resulting quality of the package, because they do not contribute to the public library API.
-It also has several test dependencies, which do not affect the resulting quality of the package, because they are only used to build and run the test code.
 
-## Platform Support
+### Optional Direct Runtime ROS Dependencies [5.ii]
+`rcutils` has no run-time or build-time dependencies that need to be considered for this declaration.
+
+### Direct Runtime non-ROS Dependency [5.iii]
+`rcutils` has no run-time or build-time dependencies that need to be considered for this declaration.
+
+## Platform Support [6]
 
 `rcutils` supports all of the tier 1 platforms as described in [REP-2000](https://www.ros.org/reps/rep-2000.html#support-tiers), and tests each change against all of them.
 
