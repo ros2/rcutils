@@ -25,7 +25,6 @@ All installed headers are in the `include` directory of the package, headers in 
 Additionally, there are generated header files which are installed and therefore part of the public API.
 The source templates for these generated headers are in the `resource` folder.
 
-
 ### API Stability Policy [1.iv]
 
 `rcutils` will not break public API within a released ROS distribution, i.e. no major releases once the ROS distribution is released.
@@ -55,14 +54,10 @@ All pull request will be peer-reviewed, check [ROS 2 Developer Guide](https://in
 
 ### Feature Documentation [3.i]
 
-TODO fix link (Missing part)
-
 `rcutils` has a [feature list](TODO) and each item in the list links to the corresponding feature documentation.
 There is documentation for all of the features, and new features require documentation before being added.
 
 ### Public API Documentation [3.ii]
-
-TODO fix link (Missing part)
 
 `rcutils` has embedded API documentation and it is generated using doxygen and is [hosted](TODO) along side the feature documentation.
 There is documentation for all of the public API, and new additions to the public API require documentation before being added.
@@ -105,17 +100,9 @@ Changes are required to make a best effort to keep or increase coverage before b
 
 Current coverage statistics can be viewed here:
 
-TODO Add link to latest coverage results
-
 ### Performance [4.iv]
 
-TODO fix link (Missing part)
-
 `rcutils` follows the recommendations for performance testing of C code in the [ROS 2 Developer Guide](https://index.ros.org/doc/ros2/Contributing/Developer-Guide/#performance), and opts to do performance analysis on each release rather than each change.
-
-TODO how to run perf tests, where do they live, etc.
-
-TODO exclusions of parts of the code from perf testing listed here? or linked to?
 
 ### Linters and Static Analysis [4.v]
 
@@ -181,7 +168,26 @@ The chart below compares the requirements in the REP-2004 with the current state
 |7| Security | --- |
 |7.i| Vulnerability Disclosure Policy | ? |
 
-Comparing this table with the [Quality Level Comparison Chart of REP2004](https://github.com/ros-infrastructure/rep/blob/d1074e43f25f957d75f50dbfda94ab10d86bcbfd/rep-2004.rst#quality-level-comparison-chart) lead us to decide that this package qualifies to Quality Level 4. Missing to quality level 3:
+Comparing this table with the [Quality Level Comparison Chart of REP2004](https://github.com/ros-infrastructure/rep/blob/d1074e43f25f957d75f50dbfda94ab10d86bcbfd/rep-2004.rst#quality-level-comparison-chart) lead us to decide that this package qualifies to Quality Level 4.
+
+## Next steps
+Missing to quality level 3:
 
 1.ii, Stable version
 7.i, Vulnerability Disclosure Policy (To be defined in Developer Guide for ROS2 Core packages)
+
+## To-Do
+
+### Section [3.i]
+TODO fix link (Missing part)
+
+### Section [3.ii]
+TODO fix link (Missing part)
+
+### Section [4.iii]
+TODO Add link to latest coverage results
+
+### Section [4.iv]
+TODO fix link (Missing part)
+TODO how to run perf tests, where do they live, etc.
+TODO exclusions of parts of the code from perf testing listed here? or linked to?
