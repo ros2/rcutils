@@ -135,7 +135,7 @@ The chart below compares the requirements in the REP-2004 with the current state
 |1.iv|API stability policy|✓|
 |1.v|ABI stability policy|✓|
 |1.vi_|API/ABI stable within ros distribution|✓|
-|2| **Change control proces**s |---|
+|2| **Change control process** |---|
 |2.i| All changes occur on change request | ✓|
 |2.ii| Contributor origin (DCO, CLA, etc) | ✓|
 |2.iii| Peer review policy | ✓ |
