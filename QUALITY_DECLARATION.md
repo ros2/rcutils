@@ -14,7 +14,6 @@ Below are the rationales, notes, and caveats for this claim, organized by each r
 `rcutils` uses `semver` according to the recommendation for ROS Core packages in the [ROS 2 Developer Guide](https://index.ros.org/doc/ros2/Contributing/Developer-Guide/#versioning)
 
 ### Version Stability [1.ii]
-(Missing part, bumping to version 1.0.0)
 Currently this package version is 0.7.5, soon to be released as 1.0.0
 
 ### Public API Declaration [1.iii]
@@ -177,6 +176,8 @@ Missing to quality level 3:
 7.i, Vulnerability Disclosure Policy (To be defined in Developer Guide for ROS2 Core packages)
 
 ## To-Do
+### Section [1.ii]
+(Missing part, bumping to version 1.0.0)
 
 ### Section [3.i]
 TODO fix link (Missing part)
