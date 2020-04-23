@@ -1,6 +1,7 @@
 
 
 
+
 This document is a declaration of software quality for the `rcutils` package, based on the guidelines in [REP-2004](https://github.com/ros-infrastructure/rep/blob/rep-2004/rep-2004.rst).
 
 # `rcutils` Quality Declaration
@@ -15,7 +16,7 @@ Below are the rationales, notes, and caveats for this claim, organized by each r
 `rcutils` uses `semver` according to the recommendation for ROS Core packages in the [ROS 2 Developer Guide](https://index.ros.org/doc/ros2/Contributing/Developer-Guide/#versioning)
 
 ### Version Stability [1.ii]
-Currently this package version is 0.7.5, soon to be released as 1.0.0
+Currently this package version is 0.7.5.
 
 ### Public API Declaration [1.iii]
 All symbols in the installed headers are considered part of the public API.
@@ -54,11 +55,11 @@ All pull request will be peer-reviewed, check [ROS 2 Developer Guide](https://in
 
 ### Feature Documentation [3.i]
 
-`rcutils` does not have a documented feature list. Soon to be added.
+`rcutils` does not have a documented feature list.
 
 ### Public API Documentation [3.ii]
 
-`rcutils` does not cover a public API documentation. Soon to be added.
+`rcutils` does not cover a public API documentation.
 
 ### License [3.iii]
 
@@ -105,7 +106,7 @@ Current coverage statistics can be viewed [here](https://ci.ros2.org/job/ci_linu
 ### Performance [4.iv]
 
 `rcutils` follows the recommendations for performance testing of C code in the [ROS 2 Developer Guide](https://index.ros.org/doc/ros2/Contributing/Developer-Guide/#performance), and opts to do performance analysis on each release rather than each change.
-Soon to be defined if this package requires performance testing and how addresses this topic.
+It is not yet defined if this package requires performance testing and how addresses this topic.
 
 ### Linters and Static Analysis [4.v]
 
@@ -179,20 +180,3 @@ Missing to quality level 3:
 1.ii, Stable version
 7.i, Vulnerability Disclosure Policy (To be defined in Developer Guide for ROS2 Core packages)
 
-## To-Do
-### Section [1.ii]
-(Missing part, bumping to version 1.0.0)
-
-### Section [3.i]
-TODO add feature list (Missing part)
-
-### Section [3.ii]
-TODO fix link (Missing part)
-
-### Section [4.iv]
-TODO fix link (Missing part)
-TODO how to run perf tests, where do they live, etc.
-TODO exclusions of parts of the code from perf testing listed here? or linked to?
-
-### Section [7.i]
-TODO add Vulnerability Disclosure Policy section
