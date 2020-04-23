@@ -78,7 +78,11 @@ There is an automated test which runs a linter that ensures each file has at lea
 
 Each feature in `rcutils` has corresponding tests which simulate typical usage, and they are located in the [`test`](https://github.com/ros2/rcutils/tree/master/test) directory.
 New features are required to have tests before being added.
-
+Currently nightly results can be seen here:
+* [linux-aarch64_release](https://ci.ros2.org/view/nightly/job/nightly_linux-aarch64_release/lastBuild/testReport/rcutils/)
+* [linux-arm64_release](https://ci.ros2.org/view/nightly/job/nightly_linux_release/lastBuild/testReport/rcutils/)
+* [mac_osx_release](https://ci.ros2.org/view/nightly/job/nightly_osx_release/lastBuild/testReport/rcutils/)
+* [windows_release](https://ci.ros2.org/view/nightly/job/nightly_win_rel/lastBuild/testReport/rcutils/)
 ### Public API Testing [4.ii]
 
 Each part of the public API has tests, and new additions or changes to the public API require tests before being added.
