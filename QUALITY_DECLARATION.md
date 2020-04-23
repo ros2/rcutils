@@ -100,7 +100,7 @@ This includes:
 
 Changes are required to make a best effort to keep or increase coverage before being accepted, but decreases are allowed if properly justified and accepted by reviewers.
 
-Current coverage statistics can be viewed [here](https://ci.ros2.org/job/ci_linux_coverage/85/cobertura/src_ros2_rcutils_src/)
+Current coverage statistics can be viewed [here](https://ci.ros2.org/job/ci_linux_coverage/lastBuild/cobertura/src_ros2_rcutils_src/)
 
 ### Performance [4.iv]
 
