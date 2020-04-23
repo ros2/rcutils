@@ -1,5 +1,6 @@
 
 
+
 This document is a declaration of software quality for the `rcutils` package, based on the guidelines in [REP-2004](https://github.com/ros-infrastructure/rep/blob/rep-2004/rep-2004.rst).
 
 # `rcutils` Quality Declaration
@@ -53,13 +54,11 @@ All pull request will be peer-reviewed, check [ROS 2 Developer Guide](https://in
 
 ### Feature Documentation [3.i]
 
-`rcutils` has a [feature list](TODO) and each item in the list links to the corresponding feature documentation.
-There is documentation for all of the features, and new features require documentation before being added.
+`rcutils` does not have a documented feature list. Soon to be added.
 
 ### Public API Documentation [3.ii]
 
-`rcutils` has embedded API documentation and it is generated using doxygen and is [hosted](TODO) along side the feature documentation.
-There is documentation for all of the public API, and new additions to the public API require documentation before being added.
+`rcutils` does not cover a public API documentation. Soon to be added.
 
 ### License [3.iii]
 
@@ -97,11 +96,12 @@ This includes:
 
 Changes are required to make a best effort to keep or increase coverage before being accepted, but decreases are allowed if properly justified and accepted by reviewers.
 
-Current coverage statistics can be viewed here:
+Current coverage statistics can be viewed [here](https://ci.ros2.org/job/ci_linux_coverage/85/cobertura/src_ros2_rcutils_src/)
 
 ### Performance [4.iv]
 
 `rcutils` follows the recommendations for performance testing of C code in the [ROS 2 Developer Guide](https://index.ros.org/doc/ros2/Contributing/Developer-Guide/#performance), and opts to do performance analysis on each release rather than each change.
+Soon to be defined if this package requires performance testing and how addresses this topic.
 
 ### Linters and Static Analysis [4.v]
 
@@ -154,7 +154,7 @@ The chart below compares the requirements in the REP-2004 with the current state
 |4.ii| Public API tests | ☓ |
 |4.iii.a| Using coverage |✓ |
 |4.iii.a| Coverage policy | ✓ |
-|4.iv.a| Performance tests (if applicable) | ? |
+|4.iv.a| Performance tests (if applicable) | ☓ |
 |4.iv.b| Performance tests policy| ✓ |
 |4.v.a| Code style enforcement (linters)| ✓ |
 |4.v.b| Use of static analysis tools | ✓ |
@@ -165,7 +165,7 @@ The chart below compares the requirements in the REP-2004 with the current state
 |6| Platform support | --- |
 |6.i| Support targets Tier1 ROS platforms| ✓ |
 |7| Security | --- |
-|7.i| Vulnerability Disclosure Policy | ? |
+|7.i| Vulnerability Disclosure Policy | ☓ |
 
 Comparing this table with the [Quality Level Comparison Chart of REP2004](https://github.com/ros-infrastructure/rep/blob/d1074e43f25f957d75f50dbfda94ab10d86bcbfd/rep-2004.rst#quality-level-comparison-chart) lead us to decide that this package qualifies to Quality Level 4.
 
@@ -180,15 +180,15 @@ Missing to quality level 3:
 (Missing part, bumping to version 1.0.0)
 
 ### Section [3.i]
-TODO fix link (Missing part)
+TODO add feature list (Missing part)
 
 ### Section [3.ii]
 TODO fix link (Missing part)
-
-### Section [4.iii]
-TODO Add link to latest coverage results
 
 ### Section [4.iv]
 TODO fix link (Missing part)
 TODO how to run perf tests, where do they live, etc.
 TODO exclusions of parts of the code from perf testing listed here? or linked to?
+
+### Section [7.i]
+TODO add Vulnerability Disclosure Policy section
