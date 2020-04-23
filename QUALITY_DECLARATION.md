@@ -7,7 +7,7 @@ This document is a declaration of software quality for the `rcutils` package, ba
 
 The package `rcutils` claims to be in the **Quality Level 4** category.
 
-Below are the rationales, notes, and caveats for this claim, organized by each requirement listed in the [Package Requirements for Quality Level 1 in REP-2004 ](https://index.ros.org/doc/ros2/Contributing/Developer-Guide/#quality-level-1) of the ROS2 developer guide.
+Below are the rationales, notes, and caveats for this claim, organized by each requirement listed in the [Package Quality Categories in REP-2004](https://index.ros.org/doc/ros2/Contributing/Developer-Guide/#package-quality-categories) of the ROS2 developer guide.
 
 ## Version Policy [1]
 
