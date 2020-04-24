@@ -2,6 +2,12 @@
 
 `rcutils` is a C API consisting of macros, functions, and data structures used through out the ROS 2 code base.
 
+## Quality Declaration
+
+This package claims to be in the **Quality Level 1** category, see the [Quality Declaration](./QUALITY_DECLARATION.md) for more details.
+
+## API
+
 The API is a combination of parts:
 
 - Allocator concept, used to inject the allocating and deallocating methods into a function or type.
