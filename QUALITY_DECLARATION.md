@@ -71,7 +71,7 @@ There is an automated test which runs a linter that ensures each file has a lice
 
 The copyright holders each provide a statement of copyright in each source code file in `rcutils`.
 
-There is an automated test which runs a linter that ensures each file has at least one copyright statement.
+There is an automated test which runs a linter that ensures each file has at least one copyright statement. Latest linter result report can be seen [here](http://build.ros2.org/view/Epr/job/Epr__rcutils__ubuntu_bionic_amd64/lastBuild/testReport/rcutils/copyright/).
 
 ## Testing [4]
 
