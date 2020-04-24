@@ -65,7 +65,7 @@ All pull request will be peer-reviewed, check [ROS 2 Developer Guide](https://in
 
 The license for `rcutils` is Apache 2.0, and a summary is in each source file, the type is declared in the [`package.xml`](./package.xml) manifest file, and a full copy of the license is in the [`LICENSE`](./LICENSE) file.
 
-There is an automated test which runs a linter that ensures each file has a license statement.
+There is an automated test which runs a linter that ensures each file has a license statement. [Here](http://build.ros2.org/view/Epr/job/Epr__rcutils__ubuntu_bionic_amd64/lastBuild/testReport/rcutils/) can be found a list with the latest results of the various linters being run on the package.
 
 ### Copyright Statements [3.iv]
 
