@@ -46,7 +46,7 @@ The source templates for these generated headers are in the `resource` folder.
 All changes will occur through a pull request, check [ROS 2 Developer Guide](https://index.ros.org/doc/ros2/Contributing/Developer-Guide/#change-control-process) for additional information.
 
 ### Contributor Origin [2.ii]
-All pull requests must have confirmation of contributor origin. This repository uses DCO.
+This package uses DCO as its confirmation of contributor origin policy. More information can be found in [CONTRIBUTING](./CONTRIBUTING.md)
 
 ### Peer Review Policy [2.iii]
 All pull request will be peer-reviewed, check [ROS 2 Developer Guide](https://index.ros.org/doc/ros2/Contributing/Developer-Guide/#change-control-process) for additional information.
