@@ -173,7 +173,7 @@ The chart below compares the requirements in the REP-2004 with the current state
 |2.ii| Contributor origin (DCO, CLA, etc) | ✓|
 |2.iii| Peer review policy | ✓ |
 |2.iv| CI policy for change requests | ✓ |
-|2.v| Documentation policy for change requests | ☓ |
+|2.v| Documentation policy for change requests | ✓ |
 |3| **Documentation** | --- |
 |3.i| Per feature documentation | ☓ |
 |3.ii| Per public API item documentation | ☓ |
