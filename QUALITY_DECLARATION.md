@@ -51,6 +51,20 @@ This package uses DCO as its confirmation of contributor origin policy. More inf
 ### Peer Review Policy [2.iii]
 All pull request will be peer-reviewed, check [ROS 2 Developer Guide](https://index.ros.org/doc/ros2/Contributing/Developer-Guide/#change-control-process) for additional information.
 
+### Continuous Integration [2.iv]
+
+All pull request must pass CI on all [tier 1 platforms](https://www.ros.org/reps/rep-2000.html#support-tiers)
+
+Currently nightly results can be seen here:
+* [linux-aarch64_release](https://ci.ros2.org/view/nightly/job/nightly_linux-aarch64_release/lastBuild/testReport/rcutils/)
+* [linux_release](https://ci.ros2.org/view/nightly/job/nightly_linux_release/lastBuild/testReport/rcutils/)
+* [mac_osx_release](https://ci.ros2.org/view/nightly/job/nightly_osx_release/lastBuild/testReport/rcutils/)
+* [windows_release](https://ci.ros2.org/view/nightly/job/nightly_win_rel/lastBuild/testReport/rcutils/)
+
+###  Documentation Policy [2.v]
+
+All pull requests must resolve related documentation changes before merging
+
 ## Documentation [3]
 
 ### Feature Documentation [3.i]
@@ -159,7 +173,7 @@ The chart below compares the requirements in the REP-2004 with the current state
 |2.ii| Contributor origin (DCO, CLA, etc) | ✓|
 |2.iii| Peer review policy | ✓ |
 |2.iv| CI policy for change requests | ✓ |
-|2.v| Documentation policy for change requests | ☓ |
+|2.v| Documentation policy for change requests | ✓ |
 |3| **Documentation** | --- |
 |3.i| Per feature documentation | ☓ |
 |3.ii| Per public API item documentation | ☓ |
