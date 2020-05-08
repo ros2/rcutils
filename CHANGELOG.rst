@@ -2,8 +2,8 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.9.1 (2020-05-08)
+------------------
 * Blast545/fix qd missing section (`#243 <https://github.com/ros2/rcutils/issues/243>`_)
 * update rcutils_get_env to always use getenv (`#237 <https://github.com/ros2/rcutils/issues/237>`_)
 * Contributors: Jorge Perez, Suyash Behera
