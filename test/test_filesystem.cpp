@@ -360,3 +360,14 @@ TEST_F(TestFilesystemFixture, calculate_file_size) {
     g_allocator.deallocate(non_existing_path, g_allocator.state);
   });
 }
+
+TEST_F(TestFilesystemFixture, get_temp_name) {
+  char temp_name[L_tmpnam];
+
+  EXPECT_FALSE(rcutils_get_temp_name(NULL, sizeof(temp_name)));
+  EXPECT_FALSE(rcutils_get_temp_name(temp_name, 0));
+  EXPECT_FALSE(rcutils_get_temp_name(temp_name, 1));
+
+  EXPECT_TRUE(rcutils_get_temp_name(temp_name, sizeof(temp_name)));
+  EXPECT_FALSE(rcutils_exists(temp_name));
+}

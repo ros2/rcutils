@@ -187,6 +187,19 @@ RCUTILS_PUBLIC
 size_t
 rcutils_get_file_size(const char * file_path);
 
+/// Return a unique temporary filename.
+/**
+ * \param[in] buffer Allocated string to store the filename.
+ * \param[in] max_length maximum length to be stored in buffer
+ * \return `True` if success
+ * \return `False` if buffer is NULL
+ * \return `False` on failure
+ */
+RCUTILS_PUBLIC
+RCUTILS_WARN_UNUSED
+bool
+rcutils_get_temp_name(char * buffer, size_t max_length);
+
 #ifdef __cplusplus
 }
 #endif

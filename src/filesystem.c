@@ -275,6 +275,24 @@ rcutils_get_file_size(const char * file_path)
   return rc == 0 ? (size_t)(stat_buffer.st_size) : 0;
 }
 
+bool
+rcutils_get_temp_name(char * buffer, size_t max_length)
+{
+  if (NULL == buffer || max_length == 0) {
+    return false;
+  }
+#ifdef _WIN32
+  if (0 != tmpnam_s(buffer, max_length)) {
+    return false;
+  }
+#else
+  if (max_length < L_tmpnam || NULL == tmpnam_r(buffer)) {
+    return false;
+  }
+#endif  // _WIN32
+  return true;
+}
+
 #ifdef __cplusplus
 }
 #endif
