@@ -32,7 +32,9 @@ extern "C"
 #endif  // _WIN32
 
 #include "rcutils/format_string.h"
+#include "rcutils/logging_macros.h"
 #include "rcutils/repl_str.h"
+#include "rcutils/strdup.h"
 
 #ifdef _WIN32
 # define RCUTILS_PATH_DELIMITER "\\"
@@ -225,11 +227,11 @@ rcutils_calculate_directory_size(const char * directory_path, rcutils_allocator_
   char * path = rcutils_join_path(directory_path, "*", allocator);
   WIN32_FIND_DATA data;
   HANDLE handle = FindFirstFile(path, &data);
+  allocator.deallocate(path, allocator.state);
   if (INVALID_HANDLE_VALUE == handle) {
     fprintf(stderr, "Can't open directory %s. Error code: %lu\n", directory_path, GetLastError());
     return dir_size;
   }
-  allocator.deallocate(path, allocator.state);
   if (handle != INVALID_HANDLE_VALUE) {
     do {
       // Skip over local folder handle (`.`) and parent folder (`..`)
@@ -273,6 +275,91 @@ rcutils_get_file_size(const char * file_path)
   struct stat stat_buffer;
   int rc = stat(file_path, &stat_buffer);
   return rc == 0 ? (size_t)(stat_buffer.st_size) : 0;
+}
+
+rcutils_ret_t
+rcutils_list_directory(
+  const char * directory_path,
+  rcutils_allocator_t allocator,
+  rcutils_string_array_t * string_array)
+{
+  RCUTILS_CHECK_FOR_NULL_WITH_MSG(
+    directory_path, "directory_path is null", return RCUTILS_RET_INVALID_ARGUMENT);
+  RCUTILS_CHECK_FOR_NULL_WITH_MSG(
+    string_array, "string_array is null", return RCUTILS_RET_INVALID_ARGUMENT);
+
+  // Start with 8 entries
+  rcutils_ret_t ret = rcutils_string_array_init(string_array, 8, &allocator);
+  if (RCUTILS_RET_OK != ret) {
+    return ret;
+  }
+
+  size_t count = 0;
+
+#ifdef _WIN32
+  char * path = rcutils_join_path(directory_path, "*", allocator);
+  WIN32_FIND_DATA data;
+  HANDLE handle = FindFirstFile(path, &data);
+  allocator.deallocate(path, allocator.state);
+  if (INVALID_HANDLE_VALUE == handle) {
+    fprintf(stderr, "Can't open directory %s. Error code: %lu\n", directory_path, GetLastError());
+    ret = RCUTILS_RET_ERROR;
+    goto fail;
+  }
+  if (handle != INVALID_HANDLE_VALUE) {
+    do {
+      if (count >= string_array->size) {
+        ret = rcutils_string_array_resize(string_array, count * 2);
+        if (RCUTILS_RET_OK != ret) {
+          goto fail;
+        }
+      }
+
+      string_array->data[count] = rcutils_strdup(data.cFileName, allocator);
+      if (NULL == string_array->data[count]) {
+        goto fail;
+      }
+    } while (++count, FindNextFile(handle, &data));
+    FindClose(handle);
+  }
+#else
+  DIR * dir = opendir(directory_path);
+  if (NULL == dir) {
+    fprintf(stderr, "Can't open directory %s. Error code: %d\n", directory_path, errno);
+    ret = RCUTILS_RET_ERROR;
+    goto fail;
+  }
+  struct dirent * entry;
+  for (; NULL != (entry = readdir(dir)); ++count) {
+    if (count >= string_array->size) {
+      ret = rcutils_string_array_resize(string_array, count * 2);
+      if (RCUTILS_RET_OK != ret) {
+        goto fail;
+      }
+    }
+
+    string_array->data[count] = rcutils_strdup(entry->d_name, allocator);
+    if (NULL == string_array->data[count]) {
+      goto fail;
+    }
+  }
+  closedir(dir);
+#endif
+
+  // Shrink the array back down
+  if (count != string_array->size) {
+    ret = rcutils_string_array_resize(string_array, count);
+    if (RCUTILS_RET_OK == ret) {
+      return RCUTILS_RET_OK;
+    }
+  }
+
+fail:
+  if (RCUTILS_RET_OK != rcutils_string_array_fini(string_array)) {
+    RCUTILS_LOG_ERROR(
+      "failed to clean up on error (leaking memory): '%s'", rcutils_get_error_string().str);
+  }
+  return ret;
 }
 
 #ifdef __cplusplus
