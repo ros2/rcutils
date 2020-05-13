@@ -133,6 +133,37 @@ rcutils_string_array_cmp(
   return RCUTILS_RET_OK;
 }
 
+static int
+rcutils_string_array_sort_compare(const void * lhs, const void * rhs)
+{
+  const char * left = *(const char **)lhs;
+  const char * right = *(const char **)rhs;
+  if (NULL == left) {
+    return NULL == right ? 0 : 1;
+  } else if (NULL == right) {
+    return -1;
+  }
+  return strcmp(left, right);
+}
+
+rcutils_ret_t
+rcutils_string_array_sort(rcutils_string_array_t * string_array)
+{
+  RCUTILS_CHECK_FOR_NULL_WITH_MSG(
+    string_array, "string_array is null", return RCUTILS_RET_INVALID_ARGUMENT);
+
+  if (1 >= string_array->size) {
+    return RCUTILS_RET_OK;
+  }
+
+  RCUTILS_CHECK_FOR_NULL_WITH_MSG(
+    string_array->data, "string_array->data is null", return RCUTILS_RET_INVALID_ARGUMENT);
+
+  qsort(string_array->data, string_array->size, sizeof(char *), rcutils_string_array_sort_compare);
+
+  return RCUTILS_RET_OK;
+}
+
 #ifdef __cplusplus
 }
 #endif

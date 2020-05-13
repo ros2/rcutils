@@ -113,11 +113,11 @@ rcutils_string_array_fini(rcutils_string_array_t * string_array);
 
 /// Compare two string arrays.
 /**
- * The two string arrays are compared according to lexographical order.
+ * The two string arrays are compared according to lexicographical order.
  *
  * \param[in] sa0 The first string array.
  * \param[in] sa1 The second string array.
- * \param[out] res Negative value if `lhs` appears before `rhs` in lexographical order.
+ * \param[out] res Negative value if `lhs` appears before `rhs` in lexicographical order.
  *   Zero if `lhs` and `rhs` are equal.
  *   Positive value if `lhs` appears after `rhs in lexographical order.
  * \return `RCUTILS_RET_OK` if successful, or
@@ -132,6 +132,22 @@ rcutils_string_array_cmp(
   const rcutils_string_array_t * lhs,
   const rcutils_string_array_t * rhs,
   int * res);
+
+/// Sort a string array according to lexicographical order.
+/**
+ * This function changes the order of the entries in a string array so that
+ * they are in lexicographically ascending order. Empty entries are placed at the
+ * end of the array.
+ *
+ * \param[inout] string_array object whose elements should be sorted.
+ * \return `RCUTILS_RET_OK` if successful, or
+ * \return `RCUTILS_RET_INVALID_ARGUMENT` for invalid arguments, or
+ * \return `RCUTILS_RET_ERROR` if an unknown error occurs
+ */
+RCUTILS_PUBLIC
+RCUTILS_WARN_UNUSED
+rcutils_ret_t
+rcutils_string_array_sort(rcutils_string_array_t * string_array);
 
 #ifdef __cplusplus
 }
