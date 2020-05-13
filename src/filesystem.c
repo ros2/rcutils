@@ -45,6 +45,7 @@ extern "C"
 #include "rcutils/error_handling.h"
 #include "rcutils/format_string.h"
 #include "rcutils/get_env.h"
+#include "rcutils/logging_macros.h"
 #include "rcutils/repl_str.h"
 #include "rcutils/strdup.h"
 
@@ -537,6 +538,62 @@ rcutils_dir_iter_end(rcutils_dir_iter_t * iter)
   }
 
   allocator.deallocate(iter, allocator.state);
+}
+
+rcutils_ret_t
+rcutils_list_directory(
+  const char * directory_path,
+  rcutils_allocator_t allocator,
+  rcutils_string_array_t * string_array)
+{
+  RCUTILS_CHECK_FOR_NULL_WITH_MSG(
+    directory_path, "directory_path is null", return RCUTILS_RET_INVALID_ARGUMENT);
+  RCUTILS_CHECK_FOR_NULL_WITH_MSG(
+    string_array, "string_array is null", return RCUTILS_RET_INVALID_ARGUMENT);
+
+  // Start with 8 entries
+  rcutils_ret_t ret = rcutils_string_array_init(string_array, 8, &allocator);
+  if (RCUTILS_RET_OK != ret) {
+    return ret;
+  }
+
+  size_t count = 0;
+
+  rcutils_dir_iter_t * iter = rcutils_dir_iter_start(directory_path, allocator);
+  if (NULL == iter) {
+    return RCUTILS_RET_ERROR;
+  }
+
+  do {
+    if (count >= string_array->size) {
+      ret = rcutils_string_array_resize(string_array, count * 2);
+      if (RCUTILS_RET_OK != ret) {
+        goto fail;
+      }
+    }
+
+    string_array->data[count] = rcutils_strdup(iter->entry_name, allocator);
+    if (NULL == string_array->data[count]) {
+      goto fail;
+    }
+  } while (++count, rcutils_dir_iter_next(iter));
+
+  // Shrink the array back down
+  if (count != string_array->size) {
+    ret = rcutils_string_array_resize(string_array, count);
+    if (RCUTILS_RET_OK == ret) {
+      return RCUTILS_RET_OK;
+    }
+  }
+
+fail:
+  rcutils_dir_iter_end(iter);
+
+  if (RCUTILS_RET_OK != rcutils_string_array_fini(string_array)) {
+    RCUTILS_LOG_ERROR(
+      "failed to clean up on error (leaking memory): '%s'", rcutils_get_error_string().str);
+  }
+  return ret;
 }
 
 #ifdef __cplusplus

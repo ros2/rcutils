@@ -23,6 +23,10 @@
 
 #include "./mocking_utils/filesystem.hpp"
 
+#ifdef _WIN32
+  #define strdup _strdup
+#endif
+
 static rcutils_allocator_t g_allocator = rcutils_get_default_allocator();
 
 class TestFilesystemFixture : public ::testing::Test
@@ -607,4 +611,49 @@ TEST_F(TestFilesystemFixture, directory_iterator_on_file) {
 
   EXPECT_EQ(nullptr, rcutils_dir_iter_start(path, g_allocator));
   rcutils_reset_error();
+}
+
+TEST_F(TestFilesystemFixture, list_directory) {
+  char * path =
+    rcutils_join_path(this->test_path, "dummy_folder", g_allocator);
+  ASSERT_NE(nullptr, path);
+
+  rcutils_string_array_t actual_contents;
+  rcutils_ret_t ret = rcutils_list_directory(nullptr, g_allocator, &actual_contents);
+  EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret);
+  rcutils_reset_error();
+
+  ret = rcutils_list_directory(path, g_allocator, nullptr);
+  EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret);
+  rcutils_reset_error();
+
+  ret = rcutils_list_directory(path, g_allocator, &actual_contents);
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
+  OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
+  {
+    if (RCUTILS_RET_OK != rcutils_string_array_fini(&actual_contents)) {
+      FAIL();
+    }
+  });
+
+  ret = rcutils_string_array_sort(&actual_contents);
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
+
+  rcutils_string_array_t expected_contents;
+  ret = rcutils_string_array_init(&expected_contents, 3, &g_allocator);
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
+  OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
+  {
+    if (RCUTILS_RET_OK != rcutils_string_array_fini(&expected_contents)) {
+      FAIL();
+    }
+  });
+  expected_contents.data[0] = strdup(".");
+  expected_contents.data[1] = strdup("..");
+  expected_contents.data[2] = strdup("dummy.dummy");
+
+  int res;
+  ret = rcutils_string_array_cmp(&expected_contents, &actual_contents, &res);
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
+  EXPECT_EQ(0, res);
 }
