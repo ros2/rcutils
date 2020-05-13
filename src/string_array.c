@@ -84,6 +84,7 @@ rcutils_string_array_fini(rcutils_string_array_t * string_array)
   }
   allocator->deallocate(string_array->data, allocator->state);
   string_array->data = NULL;
+  string_array->size = 0;
 
   return RCUTILS_RET_OK;
 }
@@ -130,6 +131,47 @@ rcutils_string_array_cmp(
   } else if (lhs->size > rhs->size) {
     *res = 1;
   }
+  return RCUTILS_RET_OK;
+}
+
+rcutils_ret_t
+rcutils_string_array_resize(
+  rcutils_string_array_t * string_array,
+  size_t new_size)
+{
+  RCUTILS_CHECK_FOR_NULL_WITH_MSG(
+    string_array, "string_array is null", return RCUTILS_RET_INVALID_ARGUMENT);
+
+  if (string_array->size == new_size) {
+    return RCUTILS_RET_OK;
+  }
+
+  if (0 == new_size) {
+    return rcutils_string_array_fini(string_array);
+  }
+
+  // Reclaim entries being removed
+  rcutils_allocator_t * allocator = &string_array->allocator;
+  for (size_t i = new_size; i < string_array->size; ++i) {
+    allocator->deallocate(string_array->data[i], allocator->state);
+    string_array->data[i] = NULL;
+  }
+
+  char ** new_data = allocator->reallocate(
+    string_array->data, new_size * sizeof(char *), allocator->state);
+  if (NULL == new_data) {
+    RCUTILS_SET_ERROR_MSG("failed to allocator string array");
+    return RCUTILS_RET_BAD_ALLOC;
+  }
+  string_array->data = new_data;
+
+  // Zero-initialize new entries
+  for (size_t i = string_array->size; i < new_size; ++i) {
+    string_array->data[i] = NULL;
+  }
+
+  string_array->size = new_size;
+
   return RCUTILS_RET_OK;
 }
 

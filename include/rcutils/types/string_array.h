@@ -133,6 +133,27 @@ rcutils_string_array_cmp(
   const rcutils_string_array_t * rhs,
   int * res);
 
+/// Resize a string array, reclaiming removed resources.
+/**
+ * This function changes the size of an existing string array. If the new size
+ * is larger, new entries are added to the end of the array and are zero-
+ * initialized. If the new size is smaller, entries are removed from the end of
+ * the array and their resources reclaimed.
+ *
+ * \param[inout] string_array object to be resized.
+ * \param[in] new_size the size the array should be changed to.
+ * \return `RCUTILS_RET_OK` if successful, or
+ * \return `RCUTILS_RET_INVALID_ARGUMENT` for invalid arguments, or
+ * \return `RCUTILS_RET_BAD_ALLOC` if memory allocation fails, or
+ * \return `RCUTILS_RET_ERROR` if an unknown error occurs.
+ */
+RCUTILS_PUBLIC
+RCUTILS_WARN_UNUSED
+rcutils_ret_t
+rcutils_string_array_resize(
+  rcutils_string_array_t * string_array,
+  size_t new_size);
+
 #ifdef __cplusplus
 }
 #endif
