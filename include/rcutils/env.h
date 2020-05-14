@@ -30,7 +30,9 @@ extern "C"
 
 /// Set or un-set a process-scoped environment variable.
 /**
- * This function modifies the environment variables for the current process.
+ * This function modifies the environment variables for the current process by
+ * copying given string values into the process' global environment variable
+ * store.
  *
  * \par Thread Safety:
  * This function is not thread-safe, particularly when called concurrently with
