@@ -25,6 +25,9 @@ extern "C"
 #include "rcutils/macros.h"
 #include "rcutils/visibility_control.h"
 
+// TODO(cottsay): Deprecate get_env.h and eventually merge it here
+#include "rcutils/get_env.h"
+
 /// Set or un-set a process-scoped environment variable.
 /**
  * This function modifies the environment variables for the current process.
