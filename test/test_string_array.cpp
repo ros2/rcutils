@@ -134,6 +134,7 @@ TEST(test_string_array, string_array_cmp) {
 TEST(test_string_array, string_array_resize) {
   auto allocator = rcutils_get_default_allocator();
   auto failing_allocator = get_failing_allocator();
+  auto invalid_allocator = rcutils_get_zero_initialized_allocator();
   rcutils_ret_t ret;
 
   ret = rcutils_string_array_resize(nullptr, 8);
@@ -187,8 +188,15 @@ TEST(test_string_array, string_array_resize) {
   EXPECT_EQ(RCUTILS_RET_OK, ret);
   EXPECT_EQ(0u, sa0.size);
 
+  // Allocation failure
   sa0.allocator = failing_allocator;
   ret = rcutils_string_array_resize(&sa0, 8);
   EXPECT_EQ(RCUTILS_RET_BAD_ALLOC, ret);
+  EXPECT_EQ(0u, sa0.size);
+
+  // Invalid allocator
+  sa0.allocator = invalid_allocator;
+  ret = rcutils_string_array_resize(&sa0, 8);
+  EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret);
   EXPECT_EQ(0u, sa0.size);
 }
