@@ -17,6 +17,7 @@ extern "C"
 {
 #endif
 
+#include <errno.h>
 #include <stdlib.h>
 
 #include "rcutils/env.h"
