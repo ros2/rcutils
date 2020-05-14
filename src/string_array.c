@@ -152,6 +152,10 @@ rcutils_string_array_resize(
 
   // Reclaim entries being removed
   rcutils_allocator_t * allocator = &string_array->allocator;
+  if (!rcutils_allocator_is_valid(allocator)) {
+    RCUTILS_SET_ERROR_MSG("allocator is invalid");
+    return RCUTILS_RET_INVALID_ARGUMENT;
+  }
   for (size_t i = new_size; i < string_array->size; ++i) {
     allocator->deallocate(string_array->data[i], allocator->state);
     string_array->data[i] = NULL;
