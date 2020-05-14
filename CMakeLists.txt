@@ -293,9 +293,6 @@ if(BUILD_TESTING)
   endif()
 
   rcutils_custom_add_gtest(test_env test/test_env.cpp
-    ENV
-      EMPTY_TEST=
-      NORMAL_TEST=foo
     APPEND_LIBRARY_DIRS "$<TARGET_FILE_DIR:${PROJECT_NAME}>"
   )
   if(TARGET test_env)
