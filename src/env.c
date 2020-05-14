@@ -35,15 +35,18 @@ rcutils_set_env(const char * env_name, const char * env_value)
     env_value = "";
   }
   if (0 != _putenv_s(env_name, env_value)) {
+    RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("_putenv_s failed: %d", errno);
     return false;
   }
 #else
   if (NULL == env_value) {
     if (0 != unsetenv(env_name)) {
+      RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("unsetenv failed: %d", errno);
       return false;
     }
   } else {
     if (0 != setenv(env_name, env_value, 1)) {
+      RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("setenv failed: %d", errno);
       return false;
     }
   }
