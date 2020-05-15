@@ -17,7 +17,7 @@
 #include <string>
 
 #include "rcutils/env.h"
-#include "rcutils/error_handling"
+#include "rcutils/error_handling.h"
 #include "rcutils/get_env.h"
 
 TEST(TestEnv, test_set_env) {
