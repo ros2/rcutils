@@ -163,6 +163,7 @@ TEST(test_string_array, string_array_sort) {
   // Reverse order
   for (size_t i = 0; i < sa0.size; i++) {
     const char val[] = {static_cast<char>('a' + sa0.size - 1 - i), '\0'};
+    free(sa0.data[i]);
     sa0.data[i] = strdup(val);
   }
 
