@@ -124,7 +124,7 @@ char *
 rcutils_join_path(
   const char * left_hand_path,
   const char * right_hand_path,
-  rcutils_allocator_t allocator);
+  const rcutils_allocator_t allocator);
 
 /// Return newly allocated string with all argument's "/" replaced by platform specific separator.
 /**
@@ -142,7 +142,7 @@ RCUTILS_PUBLIC
 char *
 rcutils_to_native_path(
   const char * path,
-  rcutils_allocator_t allocator);
+  const rcutils_allocator_t allocator);
 
 /// Create the specified directory.
 /**
@@ -176,7 +176,9 @@ rcutils_mkdir(const char * abs_path);
  */
 RCUTILS_PUBLIC
 size_t
-rcutils_calculate_directory_size(const char * directory_path, rcutils_allocator_t allocator);
+rcutils_calculate_directory_size(
+  const char * directory_path,
+  const rcutils_allocator_t allocator);
 
 /// Calculate the size of the specifed file.
 /*

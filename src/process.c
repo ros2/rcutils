@@ -42,7 +42,7 @@ int rcutils_get_pid(void)
 #endif
 }
 
-char * rcutils_get_executable_name(rcutils_allocator_t allocator)
+char * rcutils_get_executable_name(const rcutils_allocator_t allocator)
 {
   RCUTILS_CHECK_ALLOCATOR_WITH_MSG(
     &allocator, "invalid allocator", return NULL);

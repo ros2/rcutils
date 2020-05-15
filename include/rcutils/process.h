@@ -49,7 +49,7 @@ int rcutils_get_pid(void);
  */
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
-char * rcutils_get_executable_name(rcutils_allocator_t allocator);
+char * rcutils_get_executable_name(const rcutils_allocator_t allocator);
 
 #ifdef __cplusplus
 }

@@ -153,7 +153,7 @@ char *
 rcutils_join_path(
   const char * left_hand_path,
   const char * right_hand_path,
-  rcutils_allocator_t allocator)
+  const rcutils_allocator_t allocator)
 {
   if (NULL == left_hand_path) {
     return NULL;
@@ -171,7 +171,7 @@ rcutils_join_path(
 char *
 rcutils_to_native_path(
   const char * path,
-  rcutils_allocator_t allocator)
+  const rcutils_allocator_t allocator)
 {
   if (NULL == path) {
     return NULL;
@@ -213,7 +213,9 @@ rcutils_mkdir(const char * abs_path)
 }
 
 size_t
-rcutils_calculate_directory_size(const char * directory_path, rcutils_allocator_t allocator)
+rcutils_calculate_directory_size(
+  const char * directory_path,
+  const rcutils_allocator_t allocator)
 {
   size_t dir_size = 0;
 
