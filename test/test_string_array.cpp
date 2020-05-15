@@ -15,8 +15,8 @@
 #include "gtest/gtest.h"
 
 #include "./allocator_testing_utils.h"
-#include "rcutils/types/string_array.h"
 #include "rcutils/error_handling.h"
+#include "rcutils/types/string_array.h"
 
 #ifdef _WIN32
   #define strdup _strdup
