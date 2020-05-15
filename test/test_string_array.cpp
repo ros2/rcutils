@@ -15,6 +15,7 @@
 #include "gtest/gtest.h"
 
 #include "./allocator_testing_utils.h"
+#include "rcutils/error_handling.h"
 #include "rcutils/types/string_array.h"
 
 #ifdef _WIN32
@@ -137,6 +138,7 @@ TEST(test_string_array, string_array_sort) {
 
   ret = rcutils_string_array_sort(nullptr);
   EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret);
+  rcutils_reset_error();
 
   rcutils_string_array_t sa0 = rcutils_get_zero_initialized_string_array();
   ret = rcutils_string_array_sort(&sa0);
@@ -186,4 +188,6 @@ TEST(test_string_array, string_array_sort) {
   for (size_t i = sa0.size / 2; i < sa0.size; i++) {
     EXPECT_STREQ(nullptr, sa0.data[i]);
   }
+
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_string_array_fini(&sa0));
 }
