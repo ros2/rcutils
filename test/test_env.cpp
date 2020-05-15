@@ -17,6 +17,7 @@
 #include <string>
 
 #include "rcutils/env.h"
+#include "rcutils/error_handling"
 #include "rcutils/get_env.h"
 
 TEST(TestEnv, test_set_env) {
@@ -24,8 +25,11 @@ TEST(TestEnv, test_set_env) {
 
   // Invalid cases
   EXPECT_FALSE(rcutils_set_env(nullptr, nullptr));
+  rcutils_reset_error();
   EXPECT_FALSE(rcutils_set_env("=INVALID_ENV_VAR=", nullptr));
+  rcutils_reset_error();
   EXPECT_FALSE(rcutils_set_env("=INVALID_ENV_VAR=", "InvalidEnvValue"));
+  rcutils_reset_error();
 
   // Ensure we're starting clean
   ASSERT_EQ(nullptr, rcutils_get_env("NEW_ENV_VAR", &res));
