@@ -16,6 +16,7 @@
 
 #include "./allocator_testing_utils.h"
 #include "rcutils/types/string_array.h"
+#include "rcutils/error_handling.h"
 
 #ifdef _WIN32
   #define strdup _strdup
@@ -139,6 +140,7 @@ TEST(test_string_array, string_array_resize) {
 
   ret = rcutils_string_array_resize(nullptr, 8);
   ASSERT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret);
+  rcutils_reset_error();
 
   // Start with 8 elements
   rcutils_string_array_t sa0;
@@ -193,10 +195,16 @@ TEST(test_string_array, string_array_resize) {
   ret = rcutils_string_array_resize(&sa0, 8);
   EXPECT_EQ(RCUTILS_RET_BAD_ALLOC, ret);
   EXPECT_EQ(0u, sa0.size);
+  rcutils_reset_error();
 
   // Invalid allocator
   sa0.allocator = invalid_allocator;
   ret = rcutils_string_array_resize(&sa0, 8);
   EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret);
   EXPECT_EQ(0u, sa0.size);
+  rcutils_reset_error();
+
+  sa0.allocator = allocator;
+  ret = rcutils_string_array_fini(&sa0);
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
 }
