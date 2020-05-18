@@ -15,6 +15,7 @@
 #include "gtest/gtest.h"
 
 #include "./allocator_testing_utils.h"
+#include "rcutils/error_handling.h"
 #include "rcutils/types/string_array.h"
 
 #ifdef _WIN32
@@ -35,7 +36,9 @@ TEST(test_string_array, boot_string_array) {
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
   EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, rcutils_string_array_init(&sa0, 2, NULL));
+  rcutils_reset_error();
   EXPECT_EQ(RCUTILS_RET_BAD_ALLOC, rcutils_string_array_init(&sa0, 2, &failing_allocator));
+  rcutils_reset_error();
 
   rcutils_string_array_t sa1 = rcutils_get_zero_initialized_string_array();
   ret = rcutils_string_array_init(&sa1, 3, &allocator);
@@ -55,6 +58,7 @@ TEST(test_string_array, boot_string_array) {
   ASSERT_EQ(RCUTILS_RET_OK, rcutils_string_array_init(&sa3, 3, &allocator));
   sa3.allocator.allocate = NULL;
   ASSERT_EQ(RCUTILS_RET_INVALID_ARGUMENT, rcutils_string_array_fini(&sa3));
+  rcutils_reset_error();
   sa3.allocator = allocator;
   ASSERT_EQ(RCUTILS_RET_OK, rcutils_string_array_fini(&sa3));
 }
@@ -98,9 +102,13 @@ TEST(test_string_array, string_array_cmp) {
 
   // Test failure cases
   EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, rcutils_string_array_cmp(NULL, &sa0, &res));
+  rcutils_reset_error();
   EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, rcutils_string_array_cmp(&sa0, NULL, &res));
+  rcutils_reset_error();
   EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, rcutils_string_array_cmp(&sa0, &sa1, NULL));
+  rcutils_reset_error();
   EXPECT_EQ(RCUTILS_RET_ERROR, rcutils_string_array_cmp(&sa0, &incomplete_string_array, &res));
+  rcutils_reset_error();
 
   // Test success cases
   EXPECT_EQ(RCUTILS_RET_OK, rcutils_string_array_cmp(&sa0, &sa1, &res));
