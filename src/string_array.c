@@ -146,24 +146,47 @@ rcutils_string_array_resize(
     return RCUTILS_RET_OK;
   }
 
-  // Reclaim entries being removed
   rcutils_allocator_t * allocator = &string_array->allocator;
   if (!rcutils_allocator_is_valid(allocator)) {
     RCUTILS_SET_ERROR_MSG("allocator is invalid");
     return RCUTILS_RET_INVALID_ARGUMENT;
   }
-  for (size_t i = new_size; i < string_array->size; ++i) {
-    allocator->deallocate(string_array->data[i], allocator->state);
-    string_array->data[i] = NULL;
+
+  // Stash entries being removed
+  rcutils_string_array_t to_reclaim = rcutils_get_zero_initialized_string_array();
+  if (new_size < string_array->size) {
+    size_t num_removed = string_array->size - new_size;
+    rcutils_ret_t ret = rcutils_string_array_init(&to_reclaim, num_removed, allocator);
+    if (RCUTILS_RET_OK != ret) {
+      // rcutils_string_array_init should have already set an error message
+      return ret;
+    }
+    for (size_t i = 0; i < to_reclaim.size; ++i) {
+      to_reclaim.data[i] = string_array->data[new_size + i];
+    }
   }
 
   char ** new_data = allocator->reallocate(
     string_array->data, new_size * sizeof(char *), allocator->state);
   if (NULL == new_data && 0 != new_size) {
     RCUTILS_SET_ERROR_MSG("failed to allocate string array");
+    for (size_t i = 0; i < to_reclaim.size; ++i) {
+      to_reclaim.data[i] = NULL;
+    }
+    rcutils_ret_t ret = rcutils_string_array_fini(&to_reclaim);
+    if (RCUTILS_RET_OK != ret) {
+      RCUTILS_SET_ERROR_MSG("memory was leaked during error handling");
+    }
     return RCUTILS_RET_BAD_ALLOC;
   }
   string_array->data = new_data;
+
+  // Reclaim removed entries
+  rcutils_ret_t ret = rcutils_string_array_fini(&to_reclaim);
+  if (RCUTILS_RET_OK != ret) {
+    // rcutils_string_array_fini should have already set an error message
+    return ret;
+  }
 
   // Zero-initialize new entries
   for (size_t i = string_array->size; i < new_size; ++i) {
