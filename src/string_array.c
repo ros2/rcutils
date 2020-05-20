@@ -52,7 +52,7 @@ rcutils_string_array_init(
   }
   string_array->size = size;
   string_array->data = allocator->zero_allocate(size, sizeof(char *), allocator->state);
-  if (NULL == string_array->data) {
+  if (NULL == string_array->data && 0 != size) {
     RCUTILS_SET_ERROR_MSG("failed to allocator string array");
     return RCUTILS_RET_BAD_ALLOC;
   }
