@@ -33,6 +33,7 @@ set(rcutils_sources
   src/array_list.c
   src/char_array.c
   src/cmdline_parser.c
+  src/env.c
   src/error_handling.c
   src/filesystem.c
   src/find.c
@@ -289,6 +290,13 @@ if(BUILD_TESTING)
   )
   if(TARGET test_get_env)
     target_link_libraries(test_get_env ${PROJECT_NAME})
+  endif()
+
+  rcutils_custom_add_gtest(test_env test/test_env.cpp
+    APPEND_LIBRARY_DIRS "$<TARGET_FILE_DIR:${PROJECT_NAME}>"
+  )
+  if(TARGET test_env)
+    target_link_libraries(test_env ${PROJECT_NAME})
   endif()
 
   rcutils_custom_add_gtest(test_filesystem
