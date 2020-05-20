@@ -135,10 +135,11 @@ rcutils_string_array_cmp(
 
 /// Resize a string array, reclaiming removed resources.
 /**
- * This function changes the size of an existing string array. If the new size
- * is larger, new entries are added to the end of the array and are zero-
- * initialized. If the new size is smaller, entries are removed from the end of
- * the array and their resources reclaimed.
+ * This function changes the size of an existing string array.
+ * If the new size is larger, new entries are added to the end of the array and
+ * are zero- initialized.
+ * If the new size is smaller, entries are removed from the end of the array
+ * and their resources reclaimed.
  *
  * \par Note:
  * Resizing to 0 is not a substitute for calling ::rcutils_string_array_fini.
