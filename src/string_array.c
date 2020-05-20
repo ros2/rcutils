@@ -159,7 +159,7 @@ rcutils_string_array_resize(
 
   char ** new_data = allocator->reallocate(
     string_array->data, new_size * sizeof(char *), allocator->state);
-  if (NULL == new_data && new_size != 0) {
+  if (NULL == new_data && 0 != new_size) {
     RCUTILS_SET_ERROR_MSG("failed to allocate string array");
     return RCUTILS_RET_BAD_ALLOC;
   }
