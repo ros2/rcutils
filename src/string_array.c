@@ -53,7 +53,7 @@ rcutils_string_array_init(
   string_array->size = size;
   string_array->data = allocator->zero_allocate(size, sizeof(char *), allocator->state);
   if (NULL == string_array->data) {
-    RCUTILS_SET_ERROR_MSG("failed to allocator string array");
+    RCUTILS_SET_ERROR_MSG("failed to allocate string array");
     return RCUTILS_RET_BAD_ALLOC;
   }
   string_array->allocator = *allocator;
@@ -146,10 +146,6 @@ rcutils_string_array_resize(
     return RCUTILS_RET_OK;
   }
 
-  if (0 == new_size) {
-    return rcutils_string_array_fini(string_array);
-  }
-
   // Reclaim entries being removed
   rcutils_allocator_t * allocator = &string_array->allocator;
   if (!rcutils_allocator_is_valid(allocator)) {
@@ -163,8 +159,8 @@ rcutils_string_array_resize(
 
   char ** new_data = allocator->reallocate(
     string_array->data, new_size * sizeof(char *), allocator->state);
-  if (NULL == new_data) {
-    RCUTILS_SET_ERROR_MSG("failed to allocator string array");
+  if (NULL == new_data && new_size != 0) {
+    RCUTILS_SET_ERROR_MSG("failed to allocate string array");
     return RCUTILS_RET_BAD_ALLOC;
   }
   string_array->data = new_data;

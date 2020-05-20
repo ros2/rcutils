@@ -140,6 +140,9 @@ rcutils_string_array_cmp(
  * initialized. If the new size is smaller, entries are removed from the end of
  * the array and their resources reclaimed.
  *
+ * \note
+ * Resizing to 0 is not a substitute for calling ::rcutils_string_array_fini.
+ *
  * \param[inout] string_array object to be resized.
  * \param[in] new_size the size the array should be changed to.
  * \return `RCUTILS_RET_OK` if successful, or
