@@ -1,7 +1,3 @@
-
-
-
-
 This document is a declaration of software quality for the `rcutils` package, based on the guidelines in [REP-2004](https://github.com/ros-infrastructure/rep/blob/master/rep-2004.rst).
 
 # `rcutils` Quality Declaration
@@ -156,6 +152,10 @@ Currently nightly build status can be seen here:
 * [mac_osx_release](https://ci.ros2.org/view/nightly/job/nightly_osx_release/lastBuild/rcutils/)
 * [windows_release](https://ci.ros2.org/view/nightly/job/nightly_win_rel/lastBuild/rcutils/)
 
+## Vulnerability Disclosure Policy [7.i]
+
+This package does not yet have a Vulnerability Disclosure Policy
+
 # Current status Summary
 
 The chart below compares the requirements in the REP-2004 with the current state of the rcutils package.
@@ -205,5 +205,3 @@ Comparing this table with the [Quality Level Comparison Chart of REP2004](https:
 Missing to quality level 3:
 
 1.ii, Stable version
-7.i, Vulnerability Disclosure Policy (To be defined in Developer Guide for ROS2 Core packages)
-
