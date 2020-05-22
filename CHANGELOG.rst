@@ -2,8 +2,8 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.9.2 (2020-05-22)
+------------------
 * Move likely/unlikely macros from logging.h to macros.h (`#253 <https://github.com/ros2/rcutils/issues/253>`_)
 * Add rcutils_set_env function (`#250 <https://github.com/ros2/rcutils/issues/250>`_)
 * Reset error state after testing expected errors (`#251 <https://github.com/ros2/rcutils/issues/251>`_)
