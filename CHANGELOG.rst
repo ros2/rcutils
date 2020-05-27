@@ -2,6 +2,11 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Improved implementation and testing for empty ``rcutils_string_array_t`` (`#246 <https://github.com/ros2/rcutils/issues/246>`_)
+* Contributors: Scott K Logan
+
 0.9.2 (2020-05-22)
 ------------------
 * Move likely/unlikely macros from logging.h to macros.h (`#253 <https://github.com/ros2/rcutils/issues/253>`_)
