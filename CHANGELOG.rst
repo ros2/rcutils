@@ -2,8 +2,8 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.0 (2020-05-26)
+------------------
 * Improved implementation and testing for empty ``rcutils_string_array_t`` (`#246 <https://github.com/ros2/rcutils/issues/246>`_)
 * Contributors: Scott K Logan
 
