@@ -39,7 +39,7 @@ rcutils_format_string_limit(
     return NULL;
   }
   RCUTILS_CHECK_ALLOCATOR(&allocator, return NULL);
-  // extract the variadic arguments twice, once for length calculatio and once for formatting.
+  // extract the variadic arguments twice, once for length calculation and once for formatting.
   va_list args1;
   va_start(args1, format_string);
   va_list args2;
