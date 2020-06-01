@@ -52,7 +52,7 @@ rcutils_string_array_init(
   }
   string_array->size = size;
   string_array->data = allocator->zero_allocate(size, sizeof(char *), allocator->state);
-  if (NULL == string_array->data) {
+  if (NULL == string_array->data && 0 != size) {
     RCUTILS_SET_ERROR_MSG("failed to allocate string array");
     return RCUTILS_RET_BAD_ALLOC;
   }
@@ -100,15 +100,18 @@ rcutils_string_array_cmp(
   RCUTILS_CHECK_FOR_NULL_WITH_MSG(
     rhs, "rhs string array is null", return RCUTILS_RET_INVALID_ARGUMENT);
   RCUTILS_CHECK_FOR_NULL_WITH_MSG(
-    lhs->data, "lhs->data is null", return RCUTILS_RET_INVALID_ARGUMENT);
-  RCUTILS_CHECK_FOR_NULL_WITH_MSG(
-    rhs->data, "rhs->data is null", return RCUTILS_RET_INVALID_ARGUMENT);
-  RCUTILS_CHECK_FOR_NULL_WITH_MSG(
     res, "res argument is null", return RCUTILS_RET_INVALID_ARGUMENT);
 
   size_t smallest_size = lhs->size;
   if (rhs->size < smallest_size) {
     smallest_size = rhs->size;
+  }
+
+  if (smallest_size > 0) {
+    RCUTILS_CHECK_FOR_NULL_WITH_MSG(
+      lhs->data, "lhs->data is null", return RCUTILS_RET_INVALID_ARGUMENT);
+    RCUTILS_CHECK_FOR_NULL_WITH_MSG(
+      rhs->data, "rhs->data is null", return RCUTILS_RET_INVALID_ARGUMENT);
   }
 
   for (size_t i = 0; i < smallest_size; ++i) {

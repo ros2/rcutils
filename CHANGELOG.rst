@@ -2,6 +2,19 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.0.0 (2020-05-26)
+------------------
+* Improved implementation and testing for empty ``rcutils_string_array_t`` (`#246 <https://github.com/ros2/rcutils/issues/246>`_)
+* Contributors: Scott K Logan
+
+0.9.2 (2020-05-22)
+------------------
+* Move likely/unlikely macros from logging.h to macros.h (`#253 <https://github.com/ros2/rcutils/issues/253>`_)
+* Add rcutils_set_env function (`#250 <https://github.com/ros2/rcutils/issues/250>`_)
+* Reset error state after testing expected errors (`#251 <https://github.com/ros2/rcutils/issues/251>`_)
+* Fix a link to REP-2004 (`#245 <https://github.com/ros2/rcutils/issues/245>`_)
+* Contributors: Ivan Santiago Paunovic, Scott K Logan, Shota Aoki
+
 0.9.1 (2020-05-08)
 ------------------
 * Blast545/fix qd missing section (`#243 <https://github.com/ros2/rcutils/issues/243>`_)
