@@ -180,13 +180,6 @@ rcutils_string_array_resize(
   }
   string_array->data = new_data;
 
-  // Reclaim removed entries
-  rcutils_ret_t ret = rcutils_string_array_fini(&to_reclaim);
-  if (RCUTILS_RET_OK != ret) {
-    // rcutils_string_array_fini should have already set an error message
-    return ret;
-  }
-
   // Zero-initialize new entries
   for (size_t i = string_array->size; i < new_size; ++i) {
     string_array->data[i] = NULL;
@@ -194,7 +187,8 @@ rcutils_string_array_resize(
 
   string_array->size = new_size;
 
-  return RCUTILS_RET_OK;
+  // Lastly, reclaim removed entries
+  return rcutils_string_array_fini(&to_reclaim);
 }
 
 #ifdef __cplusplus
