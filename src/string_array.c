@@ -162,7 +162,9 @@ rcutils_string_array_resize(
       // rcutils_string_array_init should have already set an error message
       return ret;
     }
-    memcpy(to_reclaim.data, &string_array->data[new_size], to_reclaim.size);
+    memcpy(
+      to_reclaim.data, &string_array->data[new_size],
+      to_reclaim.size * sizeof(char *));
   }
 
   char ** new_data = allocator->reallocate(
