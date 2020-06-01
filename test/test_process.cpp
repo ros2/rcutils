@@ -18,6 +18,7 @@
 #include "rcutils/allocator.h"
 #include "rcutils/error_handling.h"
 #include "rcutils/process.h"
+#include "rcutils/testing_utils/time_bomb_allocator_testing_utils.h"
 
 TEST(TestProcess, test_get_pid) {
   EXPECT_NE(rcutils_get_pid(), 0);
@@ -25,9 +26,20 @@ TEST(TestProcess, test_get_pid) {
 
 TEST(TestProcess, test_get_executable_name) {
   rcutils_allocator_t allocator = rcutils_get_default_allocator();
-  rcutils_allocator_t failing_allocator = get_failing_allocator();
+  rcutils_allocator_t time_bomb_allocator = get_time_bomb_allocator();
 
-  EXPECT_STREQ(NULL, rcutils_get_executable_name(failing_allocator));
+  // Allocating executable_name fails
+  set_time_bomb_allocator_malloc_count(time_bomb_allocator, 0);
+  EXPECT_STREQ(NULL, rcutils_get_executable_name(time_bomb_allocator));
+
+  // Allocating intermediate fails
+#if defined __APPLE__ || defined __FreeBSD__ || defined __GNUC__
+  set_time_bomb_allocator_malloc_count(time_bomb_allocator, 1);
+  EXPECT_STREQ(NULL, rcutils_get_executable_name(time_bomb_allocator));
+#elif defined _WIN32 || defined __CYGWIN__
+  // This allocation doesn't happen on windows
+#endif
+
   char * exec_name = rcutils_get_executable_name(allocator);
   EXPECT_STREQ("test_process", exec_name);
   allocator.deallocate(exec_name, allocator.state);

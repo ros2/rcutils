@@ -16,6 +16,7 @@
 
 #include <string>
 
+#include "rcutils/env.h"
 #include "rcutils/get_env.h"
 
 /* Tests rcutils_get_env.
@@ -49,4 +50,16 @@ TEST(TestGetEnv, test_get_env) {
 
 TEST(TestGetEnv, test_get_home) {
   EXPECT_STRNE(NULL, rcutils_get_home_dir());
+
+  const char * home = NULL;
+  const char * ret = rcutils_get_env("HOME", &home);
+  EXPECT_EQ(NULL, ret);
+
+#ifdef _WIN32
+  EXPECT_TRUE(rcutils_set_env("USERPROFILE", NULL));
+  EXPECT_EQ(NULL, rcutils_get_home_dir());
+#else
+  EXPECT_TRUE(rcutils_set_env("HOME", NULL));
+  EXPECT_EQ(NULL, rcutils_get_home_dir());
+#endif
 }

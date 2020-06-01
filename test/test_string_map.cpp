@@ -74,6 +74,17 @@ TEST(test_string_map, lifecycle) {
     EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
   }
 
+  // init and then fini with requested SIZE_MAX capacity
+  {
+    rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
+    ret = rcutils_string_map_init(&string_map, SIZE_MAX, allocator);
+    EXPECT_EQ(RCUTILS_RET_BAD_ALLOC, ret);
+    EXPECT_TRUE(rcutils_error_is_set());
+    rcutils_reset_error();
+    ret = rcutils_string_map_fini(&string_map);
+    EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
+  }
+
   // init on non-zero initialized
   {
     rcutils_string_map_t string_map;
@@ -372,6 +383,100 @@ TEST(test_string_map, reserve_and_clear) {
     }
   }
 
+  // initialize to 10, set, set, request reserve 0, should set capacity to size
+  {
+    rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
+    ret = rcutils_string_map_init(&string_map, 10, allocator);
+    ASSERT_EQ(RCUTILS_RET_OK, ret);
+
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
+    {
+      EXPECT_EQ(
+        RCUTILS_RET_OK,
+        rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
+
+    {
+      size_t expected = 10;
+      size_t capacity = 42;
+      ret = rcutils_string_map_get_capacity(&string_map, &capacity);
+      EXPECT_EQ(RCUTILS_RET_OK, ret);
+      EXPECT_EQ(expected, capacity);
+
+      expected = 0;
+      size_t size = 42;
+      ret = rcutils_string_map_get_size(&string_map, &size);
+      EXPECT_EQ(RCUTILS_RET_OK, ret);
+      EXPECT_EQ(expected, size);
+    }
+
+    ret = rcutils_string_map_set_no_resize(&string_map, "key1", "value1");
+    ASSERT_EQ(RCUTILS_RET_OK, ret);
+
+    {
+      size_t expected = 10;
+      size_t capacity = 42;
+      ret = rcutils_string_map_get_capacity(&string_map, &capacity);
+      EXPECT_EQ(RCUTILS_RET_OK, ret);
+      EXPECT_EQ(expected, capacity);
+
+      expected = 1;
+      size_t size = 42;
+      ret = rcutils_string_map_get_size(&string_map, &size);
+      EXPECT_EQ(RCUTILS_RET_OK, ret);
+      EXPECT_EQ(expected, size);
+    }
+
+    ret = rcutils_string_map_set_no_resize(&string_map, "key2", "value2");
+    ASSERT_EQ(RCUTILS_RET_OK, ret);
+
+    {
+      size_t expected = 10;
+      size_t capacity = 42;
+      ret = rcutils_string_map_get_capacity(&string_map, &capacity);
+      EXPECT_EQ(RCUTILS_RET_OK, ret);
+      EXPECT_EQ(expected, capacity);
+
+      expected = 2;
+      size_t size = 42;
+      ret = rcutils_string_map_get_size(&string_map, &size);
+      EXPECT_EQ(RCUTILS_RET_OK, ret);
+      EXPECT_EQ(expected, size);
+    }
+
+    {
+      size_t expected = 10;
+      size_t capacity = 42;
+      ret = rcutils_string_map_get_capacity(&string_map, &capacity);
+      EXPECT_EQ(RCUTILS_RET_OK, ret);
+      EXPECT_EQ(expected, capacity);
+
+      expected = 2;
+      size_t size = 42;
+      ret = rcutils_string_map_get_size(&string_map, &size);
+      EXPECT_EQ(RCUTILS_RET_OK, ret);
+      EXPECT_EQ(expected, size);
+    }
+
+    ret = rcutils_string_map_reserve(&string_map, 0);
+    ASSERT_EQ(RCUTILS_RET_OK, ret);
+
+    {
+      size_t expected = 2;
+      size_t capacity = 42;
+      ret = rcutils_string_map_get_capacity(&string_map, &capacity);
+      EXPECT_EQ(RCUTILS_RET_OK, ret);
+      EXPECT_EQ(expected, capacity);
+
+      expected = 2;
+      size_t size = 42;
+      ret = rcutils_string_map_get_size(&string_map, &size);
+      EXPECT_EQ(RCUTILS_RET_OK, ret);
+      EXPECT_EQ(expected, size);
+    }
+  }
+
   // initialize to 0, clear
   {
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
@@ -658,6 +763,31 @@ TEST(test_string_map, set_no_resize) {
     rcutils_reset_error();
   }
 
+  // use failing allocator, but key already exists
+  {
+    set_failing_allocator_is_failing(failing_allocator, false);
+    rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
+    ret = rcutils_string_map_init(&string_map, 1, failing_allocator);
+    ASSERT_EQ(RCUTILS_RET_OK, ret);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
+    {
+      set_failing_allocator_is_failing(failing_allocator, false);
+      EXPECT_EQ(
+        RCUTILS_RET_OK,
+        rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
+
+    ret = rcutils_string_map_set_no_resize(&string_map, "key1", "value1");
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
+
+
+    set_failing_allocator_is_failing(failing_allocator, true);
+    ret = rcutils_string_map_set_no_resize(&string_map, "key1", "value2");
+    EXPECT_EQ(RCUTILS_RET_BAD_ALLOC, ret) << rcutils_get_error_string().str;
+    rcutils_reset_error();
+  }
+
   // pass NULL for string_map
   {
     ret = rcutils_string_map_set_no_resize(NULL, "key1", "value1");
@@ -926,6 +1056,27 @@ TEST(test_string_map, set) {
   }
 
   // use failing allocator
+  {
+    set_failing_allocator_is_failing(failing_allocator, false);
+    rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();
+    ret = rcutils_string_map_init(&string_map, 1, failing_allocator);
+    ASSERT_EQ(RCUTILS_RET_OK, ret);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
+    {
+      set_failing_allocator_is_failing(failing_allocator, false);
+      EXPECT_EQ(
+        RCUTILS_RET_OK,
+        rcutils_string_map_fini(&string_map)) << rcutils_get_error_string().str;
+      rcutils_reset_error();
+    });
+
+    set_failing_allocator_is_failing(failing_allocator, true);
+    ret = rcutils_string_map_set(&string_map, "key1", "value1");
+    EXPECT_EQ(RCUTILS_RET_BAD_ALLOC, ret) << rcutils_get_error_string().str;
+    rcutils_reset_error();
+  }
+
+  // use failing allocator, but key already exists
   {
     set_failing_allocator_is_failing(failing_allocator, false);
     rcutils_string_map_t string_map = rcutils_get_zero_initialized_string_map();

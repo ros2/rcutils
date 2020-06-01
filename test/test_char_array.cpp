@@ -80,6 +80,12 @@ TEST_F(ArrayCharTest, resize) {
   EXPECT_EQ(11lu, char_array.buffer_capacity);
   EXPECT_EQ(5lu, char_array.buffer_length);
 
+  // Resize to same capacity, nothing to be done
+  ret = rcutils_char_array_resize(&char_array, 11);
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
+  EXPECT_EQ(11lu, char_array.buffer_capacity);
+  EXPECT_EQ(5lu, char_array.buffer_length);
+
   char_array.buffer_length = snprintf(
     char_array.buffer, char_array.buffer_capacity, "0987654321") + 1;
   EXPECT_STREQ("0987654321", char_array.buffer);
@@ -95,6 +101,18 @@ TEST_F(ArrayCharTest, resize) {
 
   // cleanup only 3 fields
   EXPECT_EQ(RCUTILS_RET_OK, rcutils_char_array_fini(&char_array));
+
+  allocator = get_failing_allocator();
+  ret = rcutils_char_array_init(&char_array, 0, &allocator);
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
+
+  // Force a failing allocation on resizing
+  char_array.owns_buffer = false;
+  ret = rcutils_char_array_resize(&char_array, 3);
+  ASSERT_EQ(RCUTILS_RET_BAD_ALLOC, ret);
+
+  // Nothing to cleanup, but it should be ok
+  EXPECT_EQ(RCUTILS_RET_OK, rcutils_char_array_fini(&char_array));
 }
 
 TEST_F(ArrayCharTest, vsprintf_fail) {
@@ -107,7 +125,6 @@ TEST_F(ArrayCharTest, vsprintf_fail) {
   EXPECT_EQ(RCUTILS_RET_BAD_ALLOC, ret);
   rcutils_reset_error();
 
-  char_array.allocator = allocator;
   EXPECT_EQ(RCUTILS_RET_OK, rcutils_char_array_fini(&char_array));
 }
 

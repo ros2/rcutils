@@ -16,7 +16,7 @@
 
 #include <string>
 
-#include "./allocator_testing_utils.h"
+#include "rcutils/testing_utils/time_bomb_allocator_testing_utils.h"
 #include "rcutils/allocator.h"
 #include "rcutils/error_handling.h"
 #include "rcutils/types/hash_map.h"
@@ -131,8 +131,17 @@ TEST_F(HashMapBaseTest, init_map_allocator_NULL_fails) {
 }
 
 TEST_F(HashMapBaseTest, init_map_failing_allocator) {
-  rcutils_allocator_t failing_allocator = get_failing_allocator();
+  rcutils_allocator_t failing_allocator = get_time_bomb_allocator();
+  // Check allocating hash_map->impl fails
+  set_time_bomb_allocator_malloc_count(failing_allocator, 0);
   rcutils_ret_t ret = rcutils_hash_map_init(
+    &map, 2, sizeof(uint32_t), sizeof(uint32_t),
+    test_hash_map_uint32_hash_func, test_uint32_cmp, &failing_allocator);
+  EXPECT_EQ(RCUTILS_RET_BAD_ALLOC, ret) << rcutils_get_error_string().str;
+
+  // Check allocate hash_map->impl fails
+  set_time_bomb_allocator_malloc_count(failing_allocator, 1);
+  ret = rcutils_hash_map_init(
     &map, 2, sizeof(uint32_t), sizeof(uint32_t),
     test_hash_map_uint32_hash_func, test_uint32_cmp, &failing_allocator);
   EXPECT_EQ(RCUTILS_RET_BAD_ALLOC, ret) << rcutils_get_error_string().str;

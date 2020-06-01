@@ -62,4 +62,31 @@ TEST(test_repl_str, nominal) {
     char * out = rcutils_repl_str(typical.c_str(), "{bar}", "", &failing_allocator);
     EXPECT_EQ(NULL, out);
   }
+
+  // no matches
+  {
+    std::string typical = "foo/{bar}/baz";
+    char * out = rcutils_repl_str(typical.c_str(), "no match", "n/a", &allocator);
+    EXPECT_STREQ(typical.c_str(), out);
+    allocator.deallocate(out, allocator.state);
+  }
+
+  // no matches and bad allocator
+  {
+    std::string typical = "foo/{bar}/baz";
+    rcutils_allocator_t failing_allocator = get_failing_allocator();
+    char * out = rcutils_repl_str(typical.c_str(), "no match", "n/a", &failing_allocator);
+    EXPECT_EQ(NULL, out);
+  }
+
+  // Force cache_sz_inc to exceed cache_sz_inc_max
+  {
+    std::stringstream ss;
+    for (size_t i = 0; i < 1048576; ++i) {
+      ss << "f";
+    }
+    char * out = rcutils_repl_str(ss.str().c_str(), "f", "longer replacementment", &allocator);
+    EXPECT_NE(nullptr, out);
+    allocator.deallocate(out, allocator.state);
+  }
 }
