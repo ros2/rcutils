@@ -147,10 +147,8 @@ rcutils_string_array_resize(
   }
 
   rcutils_allocator_t * allocator = &string_array->allocator;
-  if (!rcutils_allocator_is_valid(allocator)) {
-    RCUTILS_SET_ERROR_MSG("allocator is invalid");
-    return RCUTILS_RET_INVALID_ARGUMENT;
-  }
+  RCUTILS_CHECK_ALLOCATOR_WITH_MSG(
+    allocator, "allocator is invalid", return RCUTILS_RET_INVALID_ARGUMENT);
 
   // Stash entries being removed
   rcutils_string_array_t to_reclaim = rcutils_get_zero_initialized_string_array();
