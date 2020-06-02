@@ -139,7 +139,7 @@ TEST_F(HashMapBaseTest, init_map_failing_allocator) {
     test_hash_map_uint32_hash_func, test_uint32_cmp, &failing_allocator);
   EXPECT_EQ(RCUTILS_RET_BAD_ALLOC, ret) << rcutils_get_error_string().str;
 
-  // Check allocate hash_map->impl fails
+  // Check allocate hash_map->impl->map fails
   set_time_bomb_allocator_malloc_count(failing_allocator, 1);
   ret = rcutils_hash_map_init(
     &map, 2, sizeof(uint32_t), sizeof(uint32_t),

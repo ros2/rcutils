@@ -31,6 +31,8 @@ static void call_handler(
   va_end(args);
 }
 
+// There are no outputs of the handler function, and the only result are fprintf() calls.
+// This is just a smoke test to check that the code can handle simple inputs cleanly.
 TEST(TestLoggingConsoleOutputHandler, typical_inputs) {
   ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_initialize());
   OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
@@ -58,7 +60,8 @@ TEST(TestLoggingConsoleOutputHandler, typical_inputs) {
     &log_location, RCUTILS_LOG_SEVERITY_FATAL, log_name, timestamp, format, "part1", "part2");
 }
 
-// This handler function uses fprintf to print to stdout/stderr so there are no outputs to check
+// There are no outputs of the handler function, and the only result are fprintf() calls.
+// This is just a smoke test to check that the code can handle bad inputs cleanly.
 TEST(TestLoggingConsoleOutputHandler, bad_inputs) {
   rcutils_log_location_t log_location = {
     "test_function",

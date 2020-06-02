@@ -46,6 +46,8 @@ TEST_F(TestSharedLibrary, basic_load) {
   EXPECT_TRUE(lib.lib_pointer == NULL);
   EXPECT_FALSE(rcutils_is_shared_library_loaded(&lib));
 
+  // Check debug name works first because rcutils_load_shared_library should be called on
+  // non-debug symbol name
   ret = rcutils_get_platform_library_name("dummy_shared_library", library_path, 1024, true);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 

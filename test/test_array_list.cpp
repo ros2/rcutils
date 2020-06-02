@@ -379,18 +379,6 @@ TEST_F(ArrayListPreInitTest, init_list_twice_fails) {
   EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string().str;
 }
 
-TEST_F(ArrayListTest, init_list_bad_allocator_fail) {
-  // Allocating array-list->impl fails
-  set_time_bomb_allocator_malloc_count(time_bomb_allocator, 0);
-  rcutils_ret_t ret = rcutils_array_list_init(&list, 2, sizeof(uint32_t), &failing_allocator);
-  EXPECT_EQ(RCUTILS_RET_BAD_ALLOC, ret) << rcutils_get_error_string().str;
-
-  // Allocating array-list->impl->list fails
-  set_time_bomb_allocator_malloc_count(time_bomb_allocator, 1);
-  ret = rcutils_array_list_init(&list, 2, sizeof(uint32_t), &failing_allocator);
-  EXPECT_EQ(RCUTILS_RET_BAD_ALLOC, ret) << rcutils_get_error_string().str;
-}
-
 typedef struct allocator_state
 {
   bool is_failing;

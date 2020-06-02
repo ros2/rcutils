@@ -125,6 +125,7 @@ TEST_F(ArrayCharTest, vsprintf_fail) {
   EXPECT_EQ(RCUTILS_RET_BAD_ALLOC, ret);
   rcutils_reset_error();
 
+  char_array.allocator = allocator;
   EXPECT_EQ(RCUTILS_RET_OK, rcutils_char_array_fini(&char_array));
 }
 

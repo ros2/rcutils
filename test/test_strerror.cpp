@@ -49,6 +49,8 @@ TEST(test_strerror, get_error) {
   // Hopefully this does not become a valid errno.
   errno = 12345;
   rcutils_strerror(error_string, sizeof(error_string));
-  ASSERT_STREQ(error_string, "Failed to get error");
+  ASSERT_STREQ(error_string, "Failed to get error") <<
+    "Calling rcutils_strerror with an errno of '" << errno <<
+    "' did not cause the expected error message.";
 #endif
 }

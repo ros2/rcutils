@@ -85,7 +85,7 @@ TEST(test_repl_str, nominal) {
     for (size_t i = 0; i < 1048576; ++i) {
       ss << "f";
     }
-    char * out = rcutils_repl_str(ss.str().c_str(), "f", "longer replacementment", &allocator);
+    char * out = rcutils_repl_str(ss.str().c_str(), "f", "longer replacement", &allocator);
     EXPECT_NE(nullptr, out);
     allocator.deallocate(out, allocator.state);
   }
