@@ -45,14 +45,6 @@ extern "C"
 
 #define RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN (2048)
 
-#if defined(_WIN32)
-// Used with setvbuf, and size must be 2 <= size <= INT_MAX. For more info, see:
-// https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/setvbuf
-#define RCUTILS_LOGGING_STREAM_BUFFER_SIZE (4096)
-#else
-#define RCUTILS_LOGGING_STREAM_BUFFER_SIZE (0)
-#endif
-
 const char * const g_rcutils_log_severity_names[] = {
   [RCUTILS_LOG_SEVERITY_UNSET] = "UNSET",
   [RCUTILS_LOG_SEVERITY_DEBUG] = "DEBUG",
@@ -203,7 +195,7 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
     }
     if (RCUTILS_GET_ENV_ZERO == retval || RCUTILS_GET_ENV_ONE == retval) {
       int mode = retval == RCUTILS_GET_ENV_ZERO ? _IONBF : _IOLBF;
-      if (setvbuf(g_output_stream, NULL, mode, RCUTILS_LOGGING_STREAM_BUFFER_SIZE) != 0) {
+      if (setvbuf(g_output_stream, NULL, mode, BUFSIZ) != 0) {
         char error_string[1024];
         rcutils_strerror(error_string, sizeof(error_string));
         RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
