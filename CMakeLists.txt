@@ -430,9 +430,9 @@ if(BUILD_TESTING)
     ENV
       RCUTILS_CONSOLE_OUTPUT_FORMAT="${_output_format}"
       RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED=0
+      RCUTILS_LOGGING_BUFFERED_STREAM=0
       RCUTILS_LOGGING_USE_STDOUT=0
       RCUTILS_COLORIZED_OUTPUT=0
-      RCUTILS_LOGGING_BUFFERED_STREAM=0
   )
   if(TARGET test_logging_custom_env2)
     target_link_libraries(test_logging_custom_env2 ${PROJECT_NAME} osrf_testing_tools_cpp::memory_tools)

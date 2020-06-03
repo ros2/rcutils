@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef RCUTILS__TESTING_UTILS__TIME_BOMB_ALLOCATOR_TESTING_UTILS_H_
-#define RCUTILS__TESTING_UTILS__TIME_BOMB_ALLOCATOR_TESTING_UTILS_H_
+#ifndef TIME_BOMB_ALLOCATOR_TESTING_UTILS_H_
+#define TIME_BOMB_ALLOCATOR_TESTING_UTILS_H_
 
 #ifdef __cplusplus
 extern "C"
@@ -143,4 +143,4 @@ set_time_bomb_allocator_calloc_count(rcutils_allocator_t & time_bomb_allocator, 
 }
 #endif
 
-#endif  // RCUTILS__TESTING_UTILS__TIME_BOMB_ALLOCATOR_TESTING_UTILS_H_
+#endif  // TIME_BOMB_ALLOCATOR_TESTING_UTILS_H_

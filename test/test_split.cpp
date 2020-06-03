@@ -15,10 +15,10 @@
 #include "gtest/gtest.h"
 
 #include "./allocator_testing_utils.h"
+#include "./time_bomb_allocator_testing_utils.h"
 #include "rcutils/error_handling.h"
 #include "rcutils/split.h"
 #include "rcutils/types/string_array.h"
-#include "rcutils/testing_utils/time_bomb_allocator_testing_utils.h"
 
 #define ENABLE_LOGGING 1
 

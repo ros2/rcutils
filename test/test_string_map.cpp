@@ -1091,8 +1091,11 @@ TEST(test_string_map, set) {
       rcutils_reset_error();
     });
 
-    set_failing_allocator_is_failing(failing_allocator, true);
     ret = rcutils_string_map_set(&string_map, "key1", "value1");
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
+
+    set_failing_allocator_is_failing(failing_allocator, true);
+    ret = rcutils_string_map_set(&string_map, "key1", "value2");
     EXPECT_EQ(RCUTILS_RET_BAD_ALLOC, ret) << rcutils_get_error_string().str;
     rcutils_reset_error();
   }

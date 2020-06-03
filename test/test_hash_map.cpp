@@ -16,7 +16,7 @@
 
 #include <string>
 
-#include "rcutils/testing_utils/time_bomb_allocator_testing_utils.h"
+#include "./time_bomb_allocator_testing_utils.h"
 #include "rcutils/allocator.h"
 #include "rcutils/error_handling.h"
 #include "rcutils/types/hash_map.h"

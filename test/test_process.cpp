@@ -15,10 +15,10 @@
 #include <gtest/gtest.h>
 
 #include "./allocator_testing_utils.h"
+#include "./time_bomb_allocator_testing_utils.h"
 #include "rcutils/allocator.h"
 #include "rcutils/error_handling.h"
 #include "rcutils/process.h"
-#include "rcutils/testing_utils/time_bomb_allocator_testing_utils.h"
 
 TEST(TestProcess, test_get_pid) {
   EXPECT_NE(rcutils_get_pid(), 0);
@@ -32,12 +32,10 @@ TEST(TestProcess, test_get_executable_name) {
   set_time_bomb_allocator_malloc_count(time_bomb_allocator, 0);
   EXPECT_STREQ(NULL, rcutils_get_executable_name(time_bomb_allocator));
 
-  // Allocating intermediate fails
+  // Allocating intermediate fails. This allocation doesn't happen on windows
 #if defined __APPLE__ || defined __FreeBSD__ || defined __GNUC__
   set_time_bomb_allocator_malloc_count(time_bomb_allocator, 1);
   EXPECT_STREQ(NULL, rcutils_get_executable_name(time_bomb_allocator));
-#elif defined _WIN32 || defined __CYGWIN__
-  // This allocation doesn't happen on windows
 #endif
 
   char * exec_name = rcutils_get_executable_name(allocator);
