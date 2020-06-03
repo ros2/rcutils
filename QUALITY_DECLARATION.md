@@ -165,7 +165,7 @@ The chart below compares the requirements in the REP-2004 with the current state
 |--|--|--|
 |1| **Version policy** |---|
 |1.i|Version Policy available | ✓ |
-|1.ii|Stable version |☓|
+|1.ii|Stable version |✓||
 |1.iii|Declared public API|✓|
 |1.iv|API stability policy|✓|
 |1.v|ABI stability policy|✓|
