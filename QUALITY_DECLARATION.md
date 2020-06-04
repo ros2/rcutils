@@ -2,7 +2,7 @@ This document is a declaration of software quality for the `rcutils` package, ba
 
 # `rcutils` Quality Declaration
 
-The package `rcutils` claims to be in the **Quality Level 4** category.
+The package `rcutils` claims to be in the **Quality Level 3** category.
 
 Below are the rationales, notes, and caveats for this claim, organized by each requirement listed in the [Package Quality Categories in REP-2004](https://index.ros.org/doc/ros2/Contributing/Developer-Guide/#package-quality-categories) of the ROS2 developer guide.
 
@@ -12,7 +12,9 @@ Below are the rationales, notes, and caveats for this claim, organized by each r
 `rcutils` uses `semver` according to the recommendation for ROS Core packages in the [ROS 2 Developer Guide](https://index.ros.org/doc/ros2/Contributing/Developer-Guide/#versioning)
 
 ### Version Stability [1.ii]
-Currently this package version is 0.7.5.
+
+`rcutils` is at a stable version, i.e. `>= 1.0.0`.
+The current version can be found in its [package.xml](package.xml), and its change history can be found in its [CHANGELOG](CHANGELOG.rst).
 
 ### Public API Declaration [1.iii]
 All symbols in the installed headers are considered part of the public API.
@@ -163,7 +165,7 @@ The chart below compares the requirements in the REP-2004 with the current state
 |--|--|--|
 |1| **Version policy** |---|
 |1.i|Version Policy available | ✓ |
-|1.ii|Stable version |☓|
+|1.ii|Stable version |✓||
 |1.iii|Declared public API|✓|
 |1.iv|API stability policy|✓|
 |1.v|ABI stability policy|✓|
