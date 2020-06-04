@@ -158,6 +158,10 @@ TEST_F(TestSharedLibrary, error_symbol) {
   ASSERT_EQ(RCUTILS_RET_OK, ret);
   is_symbol = rcutils_has_symbol(&lib, "symbol");
   EXPECT_FALSE(is_symbol);
+
+  // unload shared_library
+  ret = rcutils_unload_shared_library(&lib);
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
 }
 
 TEST_F(TestSharedLibrary, basic_symbol) {
