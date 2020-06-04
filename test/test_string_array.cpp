@@ -69,6 +69,7 @@ TEST(test_string_array, boot_string_array) {
   rcutils_string_array_t sa4 = rcutils_get_zero_initialized_string_array();
   ASSERT_EQ(RCUTILS_RET_OK, rcutils_string_array_init(&sa4, 0, &allocator));
   ASSERT_EQ(0u, sa4.size);
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_string_array_fini(&sa4));
 }
 
 TEST(test_string_array, string_array_cmp) {
