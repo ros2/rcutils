@@ -2,7 +2,7 @@ This document is a declaration of software quality for the `rcutils` package, ba
 
 # `rcutils` Quality Declaration
 
-The package `rcutils` claims to be in the **Quality Level 3** category.
+The package `rcutils` claims to be in the **Quality Level 2** category.
 
 Below are the rationales, notes, and caveats for this claim, organized by each requirement listed in the [Package Quality Categories in REP-2004](https://index.ros.org/doc/ros2/Contributing/Developer-Guide/#package-quality-categories) of the ROS2 developer guide.
 
@@ -67,11 +67,11 @@ All pull requests must resolve related documentation changes before merging
 
 ### Feature Documentation [3.i]
 
-`rcutils` does not have a documented feature list.
+`rcutils` has a documented feature list and it is hosted [here](http://docs.ros2.org/latest/api/rcutils/index.html).
 
 ### Public API Documentation [3.ii]
 
-`rcutils` does not cover a public API documentation.
+`rcutils` has documentation of its public API and it is hosted [here](http://docs.ros2.org/latest/api/rcutils/index.html).
 
 ### License [3.iii]
 
@@ -177,15 +177,15 @@ The chart below compares the requirements in the REP-2004 with the current state
 |2.iv| CI policy for change requests | ✓ |
 |2.v| Documentation policy for change requests | ✓ |
 |3| **Documentation** | --- |
-|3.i| Per feature documentation | ☓ |
-|3.ii| Per public API item documentation | ☓ |
+|3.i| Per feature documentation | ✓ |
+|3.ii| Per public API item documentation | ✓ |
 |3.iii| Declared License(s) | ✓ |
 |3.iv| Copyright in source files| ✓ |
 |3.v.a| Quality declaration linked to README | ✓ |
 |3.v.b| Centralized declaration available for peer review |✓|
 |4| Testing | --- |
-|4.i| Feature items tests | ☓ |
-|4.ii| Public API tests | ☓ |
+|4.i| Feature items tests | ✓ |
+|4.ii| Public API tests | ✓ |
 |4.iii.a| Using coverage |✓ |
 |4.iii.a| Coverage policy | ✓ |
 |4.iv.a| Performance tests (if applicable) | ☓ |
