@@ -190,5 +190,16 @@ TEST(test_string_array, string_array_sort) {
     EXPECT_STREQ(nullptr, sa0.data[i]);
   }
 
+  // Already in order, with empty entries
+  ret = rcutils_string_array_sort(&sa0);
+  EXPECT_EQ(RCUTILS_RET_OK, ret);
+  for (size_t i = 0; i < sa0.size / 2; i++) {
+    const char val[] = {static_cast<char>('a' + i + (sa0.size / 2)), '\0'};
+    EXPECT_STREQ(val, sa0.data[i]);
+  }
+  for (size_t i = sa0.size / 2; i < sa0.size; i++) {
+    EXPECT_STREQ(nullptr, sa0.data[i]);
+  }
+
   ASSERT_EQ(RCUTILS_RET_OK, rcutils_string_array_fini(&sa0));
 }
