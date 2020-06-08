@@ -15,6 +15,7 @@
 #include "gtest/gtest.h"
 
 #include "./allocator_testing_utils.h"
+#include "./time_bomb_allocator_testing_utils.h"
 #include "rcutils/error_handling.h"
 #include "rcutils/types/string_array.h"
 
@@ -158,6 +159,7 @@ TEST(test_string_array, string_array_resize) {
   auto allocator = rcutils_get_default_allocator();
   auto failing_allocator = get_failing_allocator();
   auto invalid_allocator = rcutils_get_zero_initialized_allocator();
+  auto time_bomb_allocator = get_time_bomb_allocator();
   rcutils_ret_t ret;
 
   ret = rcutils_string_array_resize(nullptr, 8);
@@ -185,7 +187,7 @@ TEST(test_string_array, string_array_resize) {
   EXPECT_EQ(8u, sa0.size);
   rcutils_reset_error();
 
-  // Grow to 16 (witn invalid allocator)
+  // Grow to 16 (with invalid allocator)
   sa0.allocator = invalid_allocator;
   ret = rcutils_string_array_resize(&sa0, 16);
   EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret);
@@ -218,7 +220,15 @@ TEST(test_string_array, string_array_resize) {
   EXPECT_EQ(16u, sa0.size);
   rcutils_reset_error();
 
-  // Shrink to 4 (witn invalid allocator)
+  // Shrink to 4 (with delayed allocation failure)
+  set_time_bomb_allocator_realloc_count(time_bomb_allocator, 0);
+  sa0.allocator = time_bomb_allocator;
+  ret = rcutils_string_array_resize(&sa0, 4);
+  EXPECT_EQ(RCUTILS_RET_BAD_ALLOC, ret);
+  EXPECT_EQ(16u, sa0.size);
+  rcutils_reset_error();
+
+  // Shrink to 4 (with invalid allocator)
   sa0.allocator = invalid_allocator;
   ret = rcutils_string_array_resize(&sa0, 4);
   EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret);
