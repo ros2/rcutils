@@ -34,6 +34,9 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logging_initialization) {
   OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
   {
     EXPECT_EQ(RCUTILS_RET_OK, rcutils_logging_shutdown());
+
+    // Ok to shutdown after it's already been shutdown
+    EXPECT_EQ(RCUTILS_RET_OK, rcutils_logging_shutdown());
   });
   EXPECT_TRUE(g_rcutils_logging_initialized);
   ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_initialize());
@@ -237,6 +240,10 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logger_severities) {
   ASSERT_EQ(
     RCUTILS_RET_INVALID_ARGUMENT,
     rcutils_logging_set_logger_level("rcutils_test_loggers", -1));
+  rcutils_reset_error();
+  ASSERT_EQ(
+    RCUTILS_RET_INVALID_ARGUMENT,
+    rcutils_logging_set_logger_level("rcutils_test_loggers", 21));
   rcutils_reset_error();
   ASSERT_EQ(
     RCUTILS_RET_INVALID_ARGUMENT,
