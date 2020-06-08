@@ -2,7 +2,7 @@ This document is a declaration of software quality for the `rcutils` package, ba
 
 # `rcutils` Quality Declaration
 
-The package `rcutils` claims to be in the **Quality Level 4** category.
+The package `rcutils` claims to be in the **Quality Level 2** category.
 
 Below are the rationales, notes, and caveats for this claim, organized by each requirement listed in the [Package Quality Categories in REP-2004](https://index.ros.org/doc/ros2/Contributing/Developer-Guide/#package-quality-categories) of the ROS2 developer guide.
 
@@ -12,7 +12,9 @@ Below are the rationales, notes, and caveats for this claim, organized by each r
 `rcutils` uses `semver` according to the recommendation for ROS Core packages in the [ROS 2 Developer Guide](https://index.ros.org/doc/ros2/Contributing/Developer-Guide/#versioning)
 
 ### Version Stability [1.ii]
-Currently this package version is 0.7.5.
+
+`rcutils` is at a stable version, i.e. `>= 1.0.0`.
+The current version can be found in its [package.xml](package.xml), and its change history can be found in its [CHANGELOG](CHANGELOG.rst).
 
 ### Public API Declaration [1.iii]
 All symbols in the installed headers are considered part of the public API.
@@ -65,11 +67,11 @@ All pull requests must resolve related documentation changes before merging
 
 ### Feature Documentation [3.i]
 
-`rcutils` does not have a documented feature list.
+`rcutils` has a documented feature list and it is hosted [here](http://docs.ros2.org/latest/api/rcutils/index.html).
 
 ### Public API Documentation [3.ii]
 
-`rcutils` does not cover a public API documentation.
+`rcutils` has documentation of its public API and it is hosted [here](http://docs.ros2.org/latest/api/rcutils/index.html).
 
 ### License [3.iii]
 
@@ -112,7 +114,8 @@ This includes:
 
 Changes are required to make a best effort to keep or increase coverage before being accepted, but decreases are allowed if properly justified and accepted by reviewers.
 
-Current coverage statistics can be viewed [here](https://ci.ros2.org/job/ci_linux_coverage/lastBuild/cobertura/src_ros2_rcutils_src/)
+Current coverage statistics can be viewed [here](https://ci.ros2.org/job/ci_linux_coverage/lastSuccessfulBuild/cobertura/src_ros2_rcutils_src/).
+A description of how coverage statistics are summarized from this page, can be found in the ["ROS 2 Onboarding Guide"](https://index.ros.org/doc/ros2/Contributing/ROS-2-On-boarding-Guide/#note-on-coverage-runs).
 
 ### Performance [4.iv]
 
@@ -163,7 +166,7 @@ The chart below compares the requirements in the REP-2004 with the current state
 |--|--|--|
 |1| **Version policy** |---|
 |1.i|Version Policy available | ✓ |
-|1.ii|Stable version |☓|
+|1.ii|Stable version |✓||
 |1.iii|Declared public API|✓|
 |1.iv|API stability policy|✓|
 |1.v|ABI stability policy|✓|
@@ -175,15 +178,15 @@ The chart below compares the requirements in the REP-2004 with the current state
 |2.iv| CI policy for change requests | ✓ |
 |2.v| Documentation policy for change requests | ✓ |
 |3| **Documentation** | --- |
-|3.i| Per feature documentation | ☓ |
-|3.ii| Per public API item documentation | ☓ |
+|3.i| Per feature documentation | ✓ |
+|3.ii| Per public API item documentation | ✓ |
 |3.iii| Declared License(s) | ✓ |
 |3.iv| Copyright in source files| ✓ |
 |3.v.a| Quality declaration linked to README | ✓ |
 |3.v.b| Centralized declaration available for peer review |✓|
 |4| Testing | --- |
-|4.i| Feature items tests | ☓ |
-|4.ii| Public API tests | ☓ |
+|4.i| Feature items tests | ✓ |
+|4.ii| Public API tests | ✓ |
 |4.iii.a| Using coverage |✓ |
 |4.iii.a| Coverage policy | ✓ |
 |4.iv.a| Performance tests (if applicable) | ☓ |
