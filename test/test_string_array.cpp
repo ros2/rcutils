@@ -252,20 +252,6 @@ TEST(test_string_array, string_array_resize) {
   EXPECT_EQ(RCUTILS_RET_OK, ret);
   EXPECT_EQ(0u, sa0.size);
 
-  // Allocation failure
-  sa0.allocator = failing_allocator;
-  ret = rcutils_string_array_resize(&sa0, 8);
-  EXPECT_EQ(RCUTILS_RET_BAD_ALLOC, ret);
-  EXPECT_EQ(0u, sa0.size);
-  rcutils_reset_error();
-
-  // Invalid allocator
-  sa0.allocator = invalid_allocator;
-  ret = rcutils_string_array_resize(&sa0, 8);
-  EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret);
-  EXPECT_EQ(0u, sa0.size);
-  rcutils_reset_error();
-
   sa0.allocator = allocator;
   ret = rcutils_string_array_fini(&sa0);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
