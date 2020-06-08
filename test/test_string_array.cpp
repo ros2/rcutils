@@ -134,7 +134,7 @@ TEST(test_string_array, string_array_cmp) {
 
 TEST(test_string_array, string_array_sort) {
   auto allocator = rcutils_get_default_allocator();
-  rcutils_ret_t ret;
+  rcutils_ret_t ret = RCUTILS_RET_OK;
 
   ret = rcutils_string_array_sort(nullptr);
   EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret);
@@ -163,7 +163,7 @@ TEST(test_string_array, string_array_sort) {
   // Reverse order
   for (size_t i = 0; i < sa0.size; i++) {
     const char val[] = {static_cast<char>('a' + sa0.size - 1 - i), '\0'};
-    free(sa0.data[i]);
+    sa0.allocator.deallocate(sa0.data[i], sa0.allocator.state);
     sa0.data[i] = strdup(val);
   }
 
