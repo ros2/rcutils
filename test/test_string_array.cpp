@@ -173,7 +173,22 @@ TEST(test_string_array, string_array_resize) {
   ret = rcutils_string_array_resize(&sa0, sa0.size);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
+  // Grow to 16 (with allocation failure)
+  sa0.allocator = failing_allocator;
+  ret = rcutils_string_array_resize(&sa0, 16);
+  EXPECT_EQ(RCUTILS_RET_BAD_ALLOC, ret);
+  EXPECT_EQ(8u, sa0.size);
+  rcutils_reset_error();
+
+  // Grow to 16 (witn invalid allocator)
+  sa0.allocator = invalid_allocator;
+  ret = rcutils_string_array_resize(&sa0, 16);
+  EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret);
+  EXPECT_EQ(8u, sa0.size);
+  rcutils_reset_error();
+
   // Grow to 16
+  sa0.allocator = allocator;
   ret = rcutils_string_array_resize(&sa0, 16);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
   ASSERT_EQ(16u, sa0.size);
@@ -191,7 +206,22 @@ TEST(test_string_array, string_array_resize) {
     sa0.data[i] = strdup(val);
   }
 
+  // Shrink to 4 (with allocation failure)
+  sa0.allocator = failing_allocator;
+  ret = rcutils_string_array_resize(&sa0, 4);
+  EXPECT_EQ(RCUTILS_RET_BAD_ALLOC, ret);
+  EXPECT_EQ(16u, sa0.size);
+  rcutils_reset_error();
+
+  // Shrink to 4 (witn invalid allocator)
+  sa0.allocator = invalid_allocator;
+  ret = rcutils_string_array_resize(&sa0, 4);
+  EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret);
+  EXPECT_EQ(16u, sa0.size);
+  rcutils_reset_error();
+
   // Shrink to 4
+  sa0.allocator = allocator;
   ret = rcutils_string_array_resize(&sa0, 4);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
   ASSERT_EQ(4u, sa0.size);
