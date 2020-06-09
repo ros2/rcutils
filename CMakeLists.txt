@@ -41,6 +41,7 @@ set(rcutils_sources
   src/hash_map.c
   src/logging.c
   src/process.c
+  src/qsort.c
   src/repl_str.c
   src/shared_library.c
   src/snprintf.c
