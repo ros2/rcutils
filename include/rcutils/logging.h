@@ -21,6 +21,7 @@
 
 #include "rcutils/allocator.h"
 #include "rcutils/error_handling.h"
+#include "rcutils/macros.h"
 #include "rcutils/time.h"
 #include "rcutils/types/rcutils_ret.h"
 #include "rcutils/visibility_control.h"
@@ -507,31 +508,6 @@ void rcutils_logging_console_output_handler(
   const rcutils_log_location_t * location,
   int severity, const char * name, rcutils_time_point_value_t timestamp,
   const char * format, va_list * args);
-
-// Provide the compiler with branch prediction information
-#ifndef _WIN32
-/**
- * \def RCUTILS_LIKELY
- * Instruct the compiler to optimize for the case where the argument equals 1.
- */
-# define RCUTILS_LIKELY(x) __builtin_expect((x), 1)
-/**
- * \def RCUTILS_UNLIKELY
- * Instruct the compiler to optimize for the case where the argument equals 0.
- */
-# define RCUTILS_UNLIKELY(x) __builtin_expect((x), 0)
-#else
-/**
- * \def RCUTILS_LIKELY
- * No op since Windows doesn't support providing branch prediction information.
- */
-# define RCUTILS_LIKELY(x) (x)
-/**
- * \def RCUTILS_UNLIKELY
- * No op since Windows doesn't support providing branch prediction information.
- */
-# define RCUTILS_UNLIKELY(x) (x)
-#endif  // _WIN32
 
 /**
  * \def RCUTILS_LOGGING_AUTOINIT

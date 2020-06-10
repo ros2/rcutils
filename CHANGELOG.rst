@@ -2,6 +2,26 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.0.1 (2020-06-03)
+------------------
+* Set appropriate size for buffered logging on Windows (logging.c) (`#259 <https://github.com/ros2/rcutils/issues/259>`_)
+* Add Security Vulnerability Policy pointing to REP-2006
+* Updates to QD to be more like other ones
+* Contributors: Chris Lalancette, Stephen Brawner
+
+1.0.0 (2020-05-26)
+------------------
+* Improved implementation and testing for empty ``rcutils_string_array_t`` (`#246 <https://github.com/ros2/rcutils/issues/246>`_)
+* Contributors: Scott K Logan
+
+0.9.2 (2020-05-22)
+------------------
+* Move likely/unlikely macros from logging.h to macros.h (`#253 <https://github.com/ros2/rcutils/issues/253>`_)
+* Add rcutils_set_env function (`#250 <https://github.com/ros2/rcutils/issues/250>`_)
+* Reset error state after testing expected errors (`#251 <https://github.com/ros2/rcutils/issues/251>`_)
+* Fix a link to REP-2004 (`#245 <https://github.com/ros2/rcutils/issues/245>`_)
+* Contributors: Ivan Santiago Paunovic, Scott K Logan, Shota Aoki
+
 0.9.1 (2020-05-08)
 ------------------
 * Blast545/fix qd missing section (`#243 <https://github.com/ros2/rcutils/issues/243>`_)

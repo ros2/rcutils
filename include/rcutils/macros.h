@@ -106,6 +106,31 @@ extern "C"
 # define RCUTILS_DEPRECATED_WITH_MSG(msg) __declspec(deprecated(msg))
 #endif
 
+// Provide the compiler with branch prediction information
+#ifndef _WIN32
+/**
+ * \def RCUTILS_LIKELY
+ * Instruct the compiler to optimize for the case where the argument equals 1.
+ */
+# define RCUTILS_LIKELY(x) __builtin_expect((x), 1)
+/**
+ * \def RCUTILS_UNLIKELY
+ * Instruct the compiler to optimize for the case where the argument equals 0.
+ */
+# define RCUTILS_UNLIKELY(x) __builtin_expect((x), 0)
+#else
+/**
+ * \def RCUTILS_LIKELY
+ * No op since Windows doesn't support providing branch prediction information.
+ */
+# define RCUTILS_LIKELY(x) (x)
+/**
+ * \def RCUTILS_UNLIKELY
+ * No op since Windows doesn't support providing branch prediction information.
+ */
+# define RCUTILS_UNLIKELY(x) (x)
+#endif  // _WIN32
+
 #ifdef __cplusplus
 }
 #endif

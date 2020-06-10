@@ -4,7 +4,7 @@
 
 ## Quality Declaration
 
-This package claims to be in the **Quality Level 4** category, see the [Quality Declaration](./QUALITY_DECLARATION.md) for more details.
+This package claims to be in the **Quality Level 2** category, see the [Quality Declaration](./QUALITY_DECLARATION.md) for more details.
 
 ## API
 
@@ -26,8 +26,11 @@ The API is a combination of parts:
 - A convenient string formatting function, which takes a custom allocator:
   - rcutils_format_string()
   - rcutils/format_string.h
-- A function to get an environment variable's value:
+- Functions for interfacing with process environment variables:
   - rcutils_get_env()
+  - rcutils_get_home_dir()
+  - rcutils_set_env()
+  - rcutils/env.h
   - rcutils/get_env.h
 - Extensible logging macros:
   - Some examples (not exhaustive):

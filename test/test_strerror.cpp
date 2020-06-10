@@ -43,4 +43,14 @@ TEST(test_strerror, get_error) {
 
   rcutils_strerror(error_string, sizeof(error_string));
   ASSERT_STREQ(error_string, "No such file or directory");
+
+#if (!defined(_WIN32)) && (!( \
+    defined(_GNU_SOURCE) && (!defined(ANDROID) || __ANDROID_API__ >= 23)))
+  // Hopefully this does not become a valid errno.
+  errno = 12345;
+  rcutils_strerror(error_string, sizeof(error_string));
+  ASSERT_STREQ(error_string, "Failed to get error") <<
+    "Calling rcutils_strerror with an errno of '" << errno <<
+    "' did not cause the expected error message.";
+#endif
 }

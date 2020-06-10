@@ -38,6 +38,15 @@ TEST(test_format_string_limit, nominal) {
       allocator.deallocate(formatted, allocator.state);
     }
   }
+
+  {
+    auto allocator = rcutils_get_default_allocator();
+    char * formatted = rcutils_format_string_limit(allocator, 3, "string is too long %s", "test");
+    EXPECT_STREQ("st", formatted);
+    if (formatted) {
+      allocator.deallocate(formatted, allocator.state);
+    }
+  }
 }
 
 TEST(test_format_string_limit, invalid_arguments) {
