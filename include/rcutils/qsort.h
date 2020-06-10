@@ -20,7 +20,6 @@ extern "C"
 {
 #endif
 
-#include "rcutils/allocator.h"
 #include "rcutils/macros.h"
 #include "rcutils/types/rcutils_ret.h"
 #include "rcutils/visibility_control.h"
