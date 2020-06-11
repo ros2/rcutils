@@ -256,3 +256,75 @@ TEST(test_string_array, string_array_resize) {
   ret = rcutils_string_array_fini(&sa0);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 }
+
+TEST(test_string_array, string_array_sort) {
+  auto allocator = rcutils_get_default_allocator();
+  rcutils_ret_t ret = RCUTILS_RET_OK;
+
+  ret = rcutils_string_array_sort(nullptr);
+  EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret);
+  rcutils_reset_error();
+
+  rcutils_string_array_t sa0 = rcutils_get_zero_initialized_string_array();
+  ret = rcutils_string_array_sort(&sa0);
+  EXPECT_EQ(RCUTILS_RET_OK, ret);
+
+  ret = rcutils_string_array_init(&sa0, 8, &allocator);
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
+
+  // Already in order
+  for (size_t i = 0; i < sa0.size; i++) {
+    const char val[] = {static_cast<char>('a' + i), '\0'};
+    sa0.data[i] = strdup(val);
+  }
+
+  ret = rcutils_string_array_sort(&sa0);
+  EXPECT_EQ(RCUTILS_RET_OK, ret);
+  for (size_t i = 0; i < sa0.size; i++) {
+    const char val[] = {static_cast<char>('a' + i), '\0'};
+    EXPECT_STREQ(val, sa0.data[i]);
+  }
+
+  // Reverse order
+  for (size_t i = 0; i < sa0.size; i++) {
+    const char val[] = {static_cast<char>('a' + sa0.size - 1 - i), '\0'};
+    sa0.allocator.deallocate(sa0.data[i], sa0.allocator.state);
+    sa0.data[i] = strdup(val);
+  }
+
+  ret = rcutils_string_array_sort(&sa0);
+  EXPECT_EQ(RCUTILS_RET_OK, ret);
+  for (size_t i = 0; i < sa0.size; i++) {
+    const char val[] = {static_cast<char>('a' + i), '\0'};
+    EXPECT_STREQ(val, sa0.data[i]);
+  }
+
+  // Make some entries empty
+  for (size_t i = 0; i < sa0.size / 2; i++) {
+    sa0.allocator.deallocate(sa0.data[i], sa0.allocator.state);
+    sa0.data[i] = nullptr;
+  }
+
+  ret = rcutils_string_array_sort(&sa0);
+  EXPECT_EQ(RCUTILS_RET_OK, ret);
+  for (size_t i = 0; i < sa0.size / 2; i++) {
+    const char val[] = {static_cast<char>('a' + i + (sa0.size / 2)), '\0'};
+    EXPECT_STREQ(val, sa0.data[i]);
+  }
+  for (size_t i = sa0.size / 2; i < sa0.size; i++) {
+    EXPECT_STREQ(nullptr, sa0.data[i]);
+  }
+
+  // Already in order, with empty entries
+  ret = rcutils_string_array_sort(&sa0);
+  EXPECT_EQ(RCUTILS_RET_OK, ret);
+  for (size_t i = 0; i < sa0.size / 2; i++) {
+    const char val[] = {static_cast<char>('a' + i + (sa0.size / 2)), '\0'};
+    EXPECT_STREQ(val, sa0.data[i]);
+  }
+  for (size_t i = sa0.size / 2; i < sa0.size; i++) {
+    EXPECT_STREQ(nullptr, sa0.data[i]);
+  }
+
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_string_array_fini(&sa0));
+}

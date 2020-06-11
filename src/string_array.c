@@ -193,6 +193,19 @@ rcutils_string_array_resize(
   return rcutils_string_array_fini(&to_reclaim);
 }
 
+int
+rcutils_string_array_sort_compare(const void * lhs, const void * rhs)
+{
+  const char * left = *(const char **)lhs;
+  const char * right = *(const char **)rhs;
+  if (NULL == left) {
+    return NULL == right ? 0 : 1;
+  } else if (NULL == right) {
+    return -1;
+  }
+  return strcmp(left, right);
+}
+
 #ifdef __cplusplus
 }
 #endif
