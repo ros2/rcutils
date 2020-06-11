@@ -117,8 +117,8 @@ rcutils_string_array_fini(rcutils_string_array_t * string_array);
 /**
  * The two string arrays are compared according to lexicographical order.
  *
- * \param[in] sa0 The first string array.
- * \param[in] sa1 The second string array.
+ * \param[in] lhs The first string array.
+ * \param[in] rhs The second string array.
  * \param[out] res Negative value if `lhs` appears before `rhs` in lexicographical order.
  *   Zero if `lhs` and `rhs` are equal.
  *   Positive value if `lhs` appears after `rhs in lexographical order.
@@ -183,8 +183,8 @@ rcutils_string_array_sort_compare(const void * lhs, const void * rhs);
 /// Sort a string array according to lexicographical order.
 /**
  * This function changes the order of the entries in a string array so that
- * they are in lexicographically ascending order. Empty entries are placed at the
- * end of the array.
+ * they are in lexicographically ascending order.
+ * Empty entries are placed at the end of the array.
  *
  * \param[inout] string_array object whose elements should be sorted.
  * \return `RCUTILS_RET_OK` if successful, or
