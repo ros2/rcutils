@@ -64,6 +64,9 @@ extern "C"
 #define RCUTILS_STRINGIFY(x) RCUTILS_STRINGIFY_IMPL(x)
 #define RCUTILS_UNUSED(x) (void)(x)
 
+#define RCUTILS_JOIN_IMPL(arg1, arg2) arg1 ## arg2
+#define RCUTILS_JOIN(arg1, arg2) RCUTILS_JOIN_IMPL(arg1, arg2)
+
 #if defined _WIN32 || defined __CYGWIN__
 /// Macro to annotate printf-like functions on Linux. Disabled on Windows.
 #define RCUTILS_ATTRIBUTE_PRINTF_FORMAT(format_string_index, first_to_check_index)
