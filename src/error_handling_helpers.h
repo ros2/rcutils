@@ -122,7 +122,7 @@ __rcutils_convert_uint64_t_into_c_str(uint64_t number, char * buffer, size_t buf
 
   // add the modulo 10 to the string and then integer divide by 10 until 0
   while (number != 0) {
-    buffer[i++] = number % 10 + '0';
+    buffer[i++] = (char)(number % 10 + '0');
     number = number / 10;
   }
 

@@ -45,8 +45,12 @@ rcutils_format_string_limit(
   va_list args2;
   va_copy(args2, args1);
   // first calculate the output string
-  size_t bytes_to_be_written = rcutils_vsnprintf(NULL, 0, format_string, args1);
+  size_t bytes_to_be_written = (size_t)rcutils_vsnprintf(NULL, 0, format_string, args1);
   va_end(args1);
+  if (bytes_to_be_written == (size_t)-1) {
+    va_end(args2);
+    return NULL;
+  }
   // allocate space for the return string
   if (bytes_to_be_written + 1 > limit) {
     bytes_to_be_written = limit - 1;

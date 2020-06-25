@@ -19,7 +19,7 @@ find_package(ament_cmake_ros REQUIRED)
 ament_python_install_package(${PROJECT_NAME})
 
 if(NOT WIN32)
-  add_compile_options(-Wall -Wextra -Wpedantic)
+  add_compile_options(-Wall -Wextra -Wpedantic -Wconversion)
 endif()
 
 if(WIN32)

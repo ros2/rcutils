@@ -60,8 +60,8 @@ size_t rcutils_hash_map_string_hash_func(const void * key_str)
   size_t hash = 5381;
 
   while ('\0' != *ckey_str) {
-    int c = *(ckey_str++);
-    hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+    const char c = *(ckey_str++);
+    hash = ((hash << 5) + hash) + (size_t)c; /* hash * 33 + c */
   }
 
   return hash;
@@ -177,7 +177,7 @@ static rcutils_ret_t hash_map_insert_entry(
 static rcutils_ret_t hash_map_check_and_grow_map(rcutils_hash_map_t * hash_map)
 {
   rcutils_ret_t ret = RCUTILS_RET_OK;
-  if (hash_map->impl->size >= (LOAD_FACTOR * hash_map->impl->capacity)) {
+  if (hash_map->impl->size >= (size_t)(LOAD_FACTOR * (double)hash_map->impl->capacity)) {
     size_t new_capacity = 2 * hash_map->impl->capacity;
     rcutils_array_list_t * new_map = NULL;
 
