@@ -52,40 +52,50 @@ public:
 
 // Tests the rcutils time unit conversion macros.
 TEST_F(TestTimeFixture, test_rcutils_time_conversion_macros) {
-  int64_t ns = 0;
-
   // Note: 9007199254740993 or higher cannot be represented anymore by intermediate type double
   // without a loss of precision.
 
   // seconds to nanoseconds
-  EXPECT_EQ(ns = RCUTILS_S_TO_NS(1), 1000000000ll);  // int
-  EXPECT_EQ(ns = RCUTILS_S_TO_NS(0.2), 200000000ll);  // double
-  EXPECT_EQ(ns = RCUTILS_S_TO_NS(1 + 1), 2000000000ll);  // sum of ints
+  EXPECT_EQ(static_cast<int64_t>(RCUTILS_S_TO_NS(1)), 1000000000ll);  // int
+  EXPECT_EQ(static_cast<int64_t>(RCUTILS_S_TO_NS(0.2)), 200000000ll);  // double
+  EXPECT_EQ(static_cast<int64_t>(RCUTILS_S_TO_NS(1 + 1)), 2000000000ll);  // sum of ints
   EXPECT_EQ(
-    ns = RCUTILS_S_TO_NS(9007199.254740992),
+    static_cast<int64_t>(RCUTILS_S_TO_NS(9007199.254740992)),
     9007199254740992ll);  // maximum precision double (53 bits)
-  EXPECT_NE(ns = RCUTILS_S_TO_NS(9007199.254740993), 9007199254740993ll);
-  EXPECT_EQ(ns = RCUTILS_S_TO_NS(9007199.254740993), 9007199254740992ll);  // value is truncated!
+  EXPECT_NE(
+    static_cast<int64_t>(RCUTILS_S_TO_NS(9007199.254740993)),
+    9007199254740993ll);
+  EXPECT_EQ(
+    static_cast<int64_t>(RCUTILS_S_TO_NS(9007199.254740993)),
+    9007199254740992ll);  // value is truncated!
 
   // milliseconds to nanoseconds
-  EXPECT_EQ(ns = RCUTILS_MS_TO_NS(1), 1000000ll);  // int
-  EXPECT_EQ(ns = RCUTILS_MS_TO_NS(0.2), 200000ll);  // double
-  EXPECT_EQ(ns = RCUTILS_MS_TO_NS(1 + 1), 2000000ll);  // sum of ints
+  EXPECT_EQ(static_cast<int64_t>(RCUTILS_MS_TO_NS(1)), 1000000ll);  // int
+  EXPECT_EQ(static_cast<int64_t>(RCUTILS_MS_TO_NS(0.2)), 200000ll);  // double
+  EXPECT_EQ(static_cast<int64_t>(RCUTILS_MS_TO_NS(1 + 1)), 2000000ll);  // sum of ints
   EXPECT_EQ(
-    ns = RCUTILS_MS_TO_NS(9007199254.740992),
+    static_cast<int64_t>(RCUTILS_MS_TO_NS(9007199254.740992)),
     9007199254740992ll);  // maximum precision double (53 bits)
-  EXPECT_NE(ns = RCUTILS_MS_TO_NS(9007199254.740993), 9007199254740993ll);
-  EXPECT_EQ(ns = RCUTILS_MS_TO_NS(9007199254.740993), 9007199254740994ll);  // value is truncated!
+  EXPECT_NE(
+    static_cast<int64_t>(RCUTILS_MS_TO_NS(9007199254.740993)),
+    9007199254740993ll);
+  EXPECT_EQ(
+    static_cast<int64_t>(RCUTILS_MS_TO_NS(9007199254.740993)),
+    9007199254740994ll);  // value is truncated!
 
   // microseconds to nanoseconds
-  EXPECT_EQ(ns = RCUTILS_US_TO_NS(1), 1000ll);  // int
-  EXPECT_EQ(ns = RCUTILS_US_TO_NS(0.2), 200ll);  // double
-  EXPECT_EQ(ns = RCUTILS_US_TO_NS(1 + 1), 2000ll);  // sum of ints
+  EXPECT_EQ(static_cast<int64_t>(RCUTILS_US_TO_NS(1)), 1000ll);  // int
+  EXPECT_EQ(static_cast<int64_t>(RCUTILS_US_TO_NS(0.2)), 200ll);  // double
+  EXPECT_EQ(static_cast<int64_t>(RCUTILS_US_TO_NS(1 + 1)), 2000ll);  // sum of ints
   EXPECT_EQ(
-    ns = RCUTILS_US_TO_NS(9007199254740.992),
+    static_cast<int64_t>(RCUTILS_US_TO_NS(9007199254740.992)),
     9007199254740992ll);  // maximum precision double (53 bits)
-  EXPECT_NE(ns = RCUTILS_US_TO_NS(9007199254740.993), 9007199254740993ll);
-  EXPECT_EQ(ns = RCUTILS_US_TO_NS(9007199254740.993), 9007199254740992ll);  // value is truncated!
+  EXPECT_NE(
+    static_cast<int64_t>(RCUTILS_US_TO_NS(9007199254740.993)),
+    9007199254740993ll);
+  EXPECT_EQ(
+    static_cast<int64_t>(RCUTILS_US_TO_NS(9007199254740.993)),
+    9007199254740992ll);  // value is truncated!
 
   // nanoseconds to seconds
   EXPECT_EQ(RCUTILS_NS_TO_S(1000000000ll), 1ll);  // int64_t
