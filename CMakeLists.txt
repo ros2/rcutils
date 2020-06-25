@@ -477,6 +477,12 @@ if(BUILD_TESTING)
     target_link_libraries(test_logging_console_output_handler ${PROJECT_NAME} osrf_testing_tools_cpp::memory_tools)
   endif()
 
+  rcutils_custom_add_gtest(test_macros
+    test/test_macros.cpp
+  )
+  if(TARGET test_macros)
+    target_link_libraries(test_macros ${PROJECT_NAME})
+  endif()
 endif()
 
 ament_export_dependencies(ament_cmake)
