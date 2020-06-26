@@ -2,8 +2,8 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.0 (2020-06-26)
+------------------
 * Add token join macros (`#262 <https://github.com/ros2/rcutils/issues/262>`_)
 * Add rcutils_string_array_sort function (`#248 <https://github.com/ros2/rcutils/issues/248>`_)
 * Add rcutils_string_array_resize function (`#247 <https://github.com/ros2/rcutils/issues/247>`_)
