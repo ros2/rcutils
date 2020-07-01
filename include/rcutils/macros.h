@@ -131,6 +131,55 @@ extern "C"
 # define RCUTILS_UNLIKELY(x) (x)
 #endif  // _WIN32
 
+#if defined RCUTILS_ENABLE_FAULT_INJECTION
+#include "rcutils/testing/fault_injection.h"
+
+/**
+ * \def RCUTILS_CAN_RETURN_WITH_ERROR_OF
+ * Indicating macro that the function intends to return possible error value.
+ *
+ * Put this macro as the first line in the function. For example:
+ *
+ * int rcutils_function_that_can_fail() {
+ *   RCUTILS_CAN_RETURN_WITH_ERROR_OF(RCUTILS_RET_INVALID_ARGUMENT);
+ *   ...  // rest of function
+ * }
+ *
+ * For now, this macro just simply calls `RCUTILS_MAYBE_RETURN_ERROR` if fault injection is
+ * enabled. However, for source code, the macro annotation `RCUTILS_CAN_RETURN_WITH_ERROR_OF` helps
+ * clarify that a function may return a value signifying an error and what those are.
+ *
+ * In general, you should only include a return value that originates in the function you're
+ * annotating instead of one that is merely passed on from a called function already annotated with
+ *`RCUTILS_CAN_RETURN_WITH_ERROR_OF`. If you are passing on return values from a called function,
+ * but that function is not annotated with `RCUTILS_CAN_RETURN_WITH_ERROR_OF`, then you might
+ * consider annotating that function first. If for some reason that is not desired or possible,
+ * then annotate your function as if the return values you are passing on originated from your
+ * function.
+ *
+ * If the function can return multiple return values indicating separate failure types, each one
+ * should go on a separate line.
+ *
+ * If in your function, there are expected effects on output parameters that occur during
+ * the failure case, then it will introduce a discrepency between fault injection testing and
+ * production operation. This is because the fault injection will cause the function to return
+ * where this macro is used, not at the location the error values are typically returned. To help
+ * protect against this scenario you may consider adding unit tests that checks your function does
+ * not modify output parameters when it actually returns a failing error code.
+ *
+ * If your function is void, this macro can be used without parameters. However, for the above
+ * reasoning, there should be no side effects on output parameters for all possible early returns.
+ *
+ * \param error_return_value the value returned as a result of an error. It does not need to be
+ * a rcutils_ret_t type. It could also be NULL, -1, a string error message, etc
+ */
+# define RCUTILS_CAN_RETURN_WITH_ERROR_OF(error_return_value) \
+  RCUTILS_MAYBE_RETURN_ERROR(error_return_value);
+
+#else
+# define RCUTILS_CAN_RETURN_WITH_ERROR_OF(error_return_value)
+#endif  // defined RCUTILS_ENABLE_FAULT_INJECTION
+
 #ifdef __cplusplus
 }
 #endif

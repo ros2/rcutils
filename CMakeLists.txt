@@ -51,6 +51,7 @@ set(rcutils_sources
   src/strerror.c
   src/string_array.c
   src/string_map.c
+  src/testing/fault_injection.c
   src/time.c
   ${time_impl_c}
   src/uint8_array.c
