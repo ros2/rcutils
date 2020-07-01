@@ -39,6 +39,8 @@ rcutils_snprintf(char * buffer, size_t buffer_size, const char * format, ...)
 int
 rcutils_vsnprintf(char * buffer, size_t buffer_size, const char * format, va_list args)
 {
+  RCUTILS_CAN_RETURN_WITH_ERROR_OF(-1);
+
   if (NULL == format) {
     errno = EINVAL;
     return -1;
