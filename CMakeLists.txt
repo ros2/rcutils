@@ -168,6 +168,8 @@ if(BUILD_TESTING)
       "${CMAKE_CURRENT_BINARY_DIR}/include/rcutils/logging_macros.h")
   endif()
 
+  find_package(mimick_vendor REQUIRED)
+
   find_package(osrf_testing_tools_cpp REQUIRED)
   get_target_property(memory_tools_test_env_vars
     osrf_testing_tools_cpp::memory_tools LIBRARY_PRELOAD_ENVIRONMENT_VARIABLE)

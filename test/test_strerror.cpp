@@ -24,6 +24,7 @@
 #include <string>
 
 #include "rcutils/strerror.h"
+#include "mimick_vendor/mimic.h"
 
 TEST(test_strerror, get_error) {
   // cleaning possible errors
@@ -53,4 +54,35 @@ TEST(test_strerror, get_error) {
     "Calling rcutils_strerror with an errno of '" << errno <<
     "' did not cause the expected error message.";
 #endif
+}
+
+/*
+   Define the blueprint of a mock identified by `strerror_r_proto`
+   strerror_r signature:
+   int strerror_r(int errnum, char *buf, size_t buflen);
+*/
+mmk_mock_define (strerror_r_mock, int, char *, size_t);
+
+/* Mocking test example */
+TEST(test_strerror, get_error) {
+  /* Mock the strerror_r function in the current module using
+     the `strerror_r_mock` blueprint. */
+  mmk_mock("strerror_r@self", strerror_r_mock);
+
+  /* Tell the mock to return NULL and set errno to ENOMEM
+     whatever the given parameter is. */
+  mmk_when(strerror_r(mmk_any(int, char *, size_t)),
+	   .then_return = EINVAL);
+
+  // Now normal usage of the function returning unexpected EINVAL
+  // error for the internal strerror_r
+  // This works only for POSIX
+
+  // Set the error "No such file or directory"
+  errno = 2;
+  char error_string[1024];
+  rcutils_strerror(error_string, sizeof(error_string));
+  ASSERT_STREQ(error_string, "Failed to get error");
+
+  mmk_reset(strerror_r);
 }
