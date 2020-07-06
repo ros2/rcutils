@@ -24,7 +24,7 @@
 #include <string>
 
 #include "rcutils/strerror.h"
-#include "mimick_vendor/mimic.h"
+#include "mimick_vendor/mimick.h"
 
 TEST(test_strerror, get_error) {
   // cleaning possible errors
