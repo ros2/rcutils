@@ -14,18 +14,16 @@
 
 #include "rcutils/testing/fault_injection.h"
 
-#include "rcutils/stdatomic_helper.h"
-
 static atomic_int_least64_t g_rcutils_fault_injection_count = -1;
 
 int _rcutils_maybe_fail()
 {
   bool set_atomic_success = false;
-  int_least64_t current_count = -1;
+  int_least64_t current_count = RCUTILS_FAULT_INJECTION_NEVER_FAIL;
   rcutils_atomic_load(&g_rcutils_fault_injection_count, current_count);
   do {
     // A fault_injection_count less than 0 means that maybe_fail doesn't fail, so just return.
-    if (current_count < 0) {
+    if (current_count <= RCUTILS_FAULT_INJECTION_NEVER_FAIL) {
       return current_count;
     }
 
@@ -41,4 +39,11 @@ int _rcutils_maybe_fail()
 void _rcutils_set_fault_injection_count(int count)
 {
   rcutils_atomic_store(&g_rcutils_fault_injection_count, count);
+}
+
+int_least64_t _rcutils_get_fault_injection_count()
+{
+  int_least64_t count = 0;
+  rcutils_atomic_load(&g_rcutils_fault_injection_count, count);
+  return count;
 }
