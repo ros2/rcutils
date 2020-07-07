@@ -14,6 +14,8 @@
 
 #include "rcutils/testing/fault_injection.h"
 
+#include "rcutils/stdatomic_helper.h"
+
 static atomic_int_least64_t g_rcutils_fault_injection_count = -1;
 
 int _rcutils_maybe_fail()

@@ -15,9 +15,7 @@
 #ifndef RCUTILS__TESTING_MACROS_H_
 #define RCUTILS__TESTING_MACROS_H_
 #include <stdio.h>
-
-#include "rcutils/stdatomic_helper.h"
-
+#include <stdint.h>
 #ifdef __cplusplus
 extern "C"
 {
@@ -94,7 +92,7 @@ int _rcutils_maybe_fail();
  *
  * Use this macro after running the code under test to check whether the counter reached a negative
  * value. This is helpful so you can verify that you ran the fault injection test in a loop a
- * sufficient number of times. Likewise, if the code under test returned with an error, but the 
+ * sufficient number of times. Likewise, if the code under test returned with an error, but the
  * count value was greater or equal to 0, then the failure was not caused by the fault injection
  * counter.
  */
