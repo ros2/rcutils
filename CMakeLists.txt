@@ -285,7 +285,7 @@ if(BUILD_TESTING)
     test/test_strerror.cpp
   )
   if(TARGET test_strerror)
-    target_link_libraries(test_strerror ${PROJECT_NAME})
+    target_link_libraries(test_strerror ${PROJECT_NAME} mimick)
   endif()
 
   rcutils_custom_add_gtest(test_string_array
