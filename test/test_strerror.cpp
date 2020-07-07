@@ -24,7 +24,10 @@
 #include <string>
 
 #include "rcutils/strerror.h"
-#include "mimick_vendor/mimick.h"
+
+extern "C" {
+#include "mimick.h"
+}
 
 TEST(test_strerror, get_error) {
   // cleaning possible errors
@@ -71,7 +74,7 @@ TEST(test_strerror, get_error) {
 
   /* Tell the mock to return NULL and set errno to ENOMEM
      whatever the given parameter is. */
-  mmk_when(strerror_r(mmk_any(int, char *, size_t)),
+  mmk_when(strerror_r(mmk_any(int), mmk_any(char *), mmk_any(size_t) ),
 	   .then_return = EINVAL);
 
   // Now normal usage of the function returning unexpected EINVAL
