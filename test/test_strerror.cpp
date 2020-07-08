@@ -12,6 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#ifdef _GNU_SOURCE
+#undef _GNU_SOURCE
+#include <string>
+#else
+#include <string>
+#endif
+
 #include <gtest/gtest.h>
 
 #include <sys/types.h>
@@ -21,13 +28,9 @@
 #include <dirent.h>
 #endif
 
-#include <string>
-
 #include "rcutils/strerror.h"
 
-extern "C" {
-#include "mimick.h"
-}
+#include "./mimick.h"
 
 TEST(test_strerror, get_error) {
   // cleaning possible errors
@@ -64,18 +67,22 @@ TEST(test_strerror, get_error) {
    strerror_r signature:
    int strerror_r(int errnum, char *buf, size_t buflen);
 */
-mmk_mock_define (strerror_r_mock, int, char *, size_t);
+mmk_mock_define(strerror_r_mock, int, char *, size_t);
 
 /* Mocking test example */
-TEST(test_strerror, get_error) {
+TEST(test_strerror, test_mock) {
   /* Mock the strerror_r function in the current module using
      the `strerror_r_mock` blueprint. */
-  mmk_mock("strerror_r@self", strerror_r_mock);
+  // mmk_mock("strerror_r@rcutils", strerror_r_mock);
+  // mmk_mock("__xpg_strerror_r@self", strerror_r_mock);
+  // mmk_mock("strerror_r@self", strerror_r_mock);
+  mmk_mock("__xpg_strerror_r@lib:rcutils", strerror_r_mock);
 
   /* Tell the mock to return NULL and set errno to ENOMEM
      whatever the given parameter is. */
-  mmk_when(strerror_r(mmk_any(int), mmk_any(char *), mmk_any(size_t) ),
-	   .then_return = EINVAL);
+  mmk_when(
+    strerror_r(mmk_any(int), mmk_any(char *), mmk_any(size_t) ),
+    .then_return = mmk_val(int, EINVAL));
 
   // Now normal usage of the function returning unexpected EINVAL
   // error for the internal strerror_r
