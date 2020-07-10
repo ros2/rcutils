@@ -115,8 +115,8 @@ rcutils_string_array_fini(rcutils_string_array_t * string_array);
 /**
  * The two string arrays are compared according to lexographical order.
  *
- * \param[in] sa0 The first string array.
- * \param[in] sa1 The second string array.
+ * \param[in] lhs The first string array.
+ * \param[in] rhs The second string array.
  * \param[out] res Negative value if `lhs` appears before `rhs` in lexographical order.
  *   Zero if `lhs` and `rhs` are equal.
  *   Positive value if `lhs` appears after `rhs in lexographical order.

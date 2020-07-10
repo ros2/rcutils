@@ -272,7 +272,6 @@ void rcutils_logging_set_output_handler(rcutils_logging_output_handler_t functio
  * \param[in] name The name of the logger that this message came from
  * \param[in] timestamp The time at which the log message was generated
  * \param[in] msg The message being logged
- * \param[in] args The list of arguments to insert into the formatted log message
  * \param[out] logging_output An output buffer for the formatted message
  */
 RCUTILS_PUBLIC
@@ -501,7 +500,8 @@ RCUTILS_ATTRIBUTE_PRINTF_FORMAT(4, 5);
  * \param[in] severity The severity level
  * \param[in] name The name of the logger, must be null terminated c string
  * \param[in] timestamp The timestamp for when the log message was made
- * \param[in] log_str The string to be logged
+ * \param[in] format The format string
+ * \param[in] args the `va_list` used by the logger
  */
 RCUTILS_PUBLIC
 void rcutils_logging_console_output_handler(
