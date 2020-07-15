@@ -73,9 +73,6 @@ mmk_mock_define(strerror_r_mock, int, char *, size_t);
 TEST(test_strerror, test_mock) {
   /* Mock the strerror_r function in the current module using
      the `strerror_r_mock` blueprint. */
-  // mmk_mock("strerror_r@rcutils", strerror_r_mock);
-  // mmk_mock("__xpg_strerror_r@self", strerror_r_mock);
-  // mmk_mock("strerror_r@self", strerror_r_mock);
   mmk_mock("__xpg_strerror_r@lib:rcutils", strerror_r_mock);
 
   /* Tell the mock to return NULL and set errno to ENOMEM
