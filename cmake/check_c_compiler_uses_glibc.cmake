@@ -17,7 +17,7 @@
 #
 # @private
 #
-function(rcutils_check_c_compiler_uses_glibc result_variable)
+function(check_c_compiler_uses_glibc result_variable)
   include(CheckCSourceCompiles)
 
   set(GLIBC_TEST_CODE [====[
