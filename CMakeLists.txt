@@ -18,6 +18,16 @@ find_package(ament_cmake_ros REQUIRED)
 
 ament_python_install_package(${PROJECT_NAME})
 
+if(UNIX AND NOT APPLE)
+  include(cmake/check_c_compiler_uses_glibc.cmake)
+  check_c_compiler_uses_glibc(USES_GLIBC)
+  if(USES_GLIBC)
+    # Ensure GNU extended libc API is used, as C++ test code will.
+    # See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=2082.
+    add_definitions(-D_GNU_SOURCE)
+  endif()
+endif()
+
 if(NOT WIN32)
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
