@@ -18,7 +18,7 @@ find_package(ament_cmake_ros REQUIRED)
 
 ament_python_install_package(${PROJECT_NAME})
 
-if(UNIX)
+if(UNIX AND NOT APPLE)
   include(cmake/check_c_compiler_uses_glibc.cmake)
   check_c_compiler_uses_glibc(USES_GLIBC)
   if(USES_GLIBC)
