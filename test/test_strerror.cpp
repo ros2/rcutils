@@ -12,13 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifdef _GNU_SOURCE
-#undef _GNU_SOURCE
-#include <string>
-#else
-#include <string>
-#endif
-
 #include <gtest/gtest.h>
 
 #include <sys/types.h>
@@ -28,6 +21,7 @@
 #include <dirent.h>
 #endif
 
+#include "rcutils/macros.h"
 #include "rcutils/strerror.h"
 
 #include "./mimick.h"
@@ -64,22 +58,74 @@ TEST(test_strerror, get_error) {
 
 /*
    Define the blueprint of a mock identified by `strerror_r_proto`
-   strerror_r signature:
-   int strerror_r(int errnum, char *buf, size_t buflen);
+   strerror_r possible signatures:
+
+   * int strerror_r(int errnum, char *buf, size_t buflen); (Case 1)
+   * char *strerror_r(int errnum, char *buf, size_t buflen); (Case 2)
+   * errno_t strerror_s( char *buf, rsize_t bufsz, errno_t errnum ); (Case 3)
 */
-mmk_mock_define(strerror_r_mock, int, char *, size_t);
+
+#if defined(_WIN32)
+mmk_mock_define(strerror_s_mock, errno_t, char *, rsize_t, errno_t);
+#elif defined(_GNU_SOURCE) && (!defined(ANDROID) || __ANDROID_API__ >= 23)
+mmk_mock_define(strerror_r_mock, char *, int, char *, size_t);
+#else
+mmk_mock_define(strerror_r_mock, int, int, char *, size_t);
+#endif
+
+const char expected_error_msg[] = "Failed to get error";
+#if defined(_WIN32)
+// Function to be called for (Case 3)
+errno_t mocked_windows_strerror(char * buf, rsize_t bufsz, errno_t errnum)
+{
+  (void) errnum;
+  unsigned char index_err = 0;
+
+  while (buf && bufsz--) {
+    buf[index_err] = expected_error_msg[index_err];
+    index_err++;
+  }
+  return errnum;
+}
+#else
+// Function to be called for (Case 1)
+char * mocked_gnu_strerror(int errnum, char * buf, size_t buflen)
+{
+  (void) errnum;
+  const char error_msg[] = "Failed to get error";
+  unsigned char index_err = 0;
+  while (buf && buflen--) {
+    buf[index_err] = error_msg[index_err];
+    index_err++;
+  }
+  return buf;
+}
+#endif
 
 /* Mocking test example */
 TEST(test_strerror, test_mock) {
   /* Mock the strerror_r function in the current module using
      the `strerror_r_mock` blueprint. */
-  mmk_mock("__xpg_strerror_r@lib:rcutils", strerror_r_mock);
-
+#if defined(_WIN32)
+  mmk_mock(RCUTILS_STRINGIFY(strerror_s) "@lib:rcutils", strerror_s_mock);
+#else
+  mmk_mock(RCUTILS_STRINGIFY(strerror_r) "@lib:rcutils", strerror_r_mock);
+#endif
   /* Tell the mock to return NULL and set errno to ENOMEM
      whatever the given parameter is. */
+#if defined(_WIN32)
+  mmk_when(
+    strerror_s(mmk_any(errno_t), mmk_any(char *), mmk_any(rsize_t), mmk_any(errno_t)),
+    .then_call = (mmk_fn) mocked_windows_strerror);
+#elif defined(_GNU_SOURCE) && (!defined(ANDROID) || __ANDROID_API__ >= 23)
+  mmk_when(
+    strerror_r(mmk_any(int), mmk_any(char *), mmk_any(size_t) ),
+    .then_call = (mmk_fn) mocked_gnu_strerror);
+#else
   mmk_when(
     strerror_r(mmk_any(int), mmk_any(char *), mmk_any(size_t) ),
     .then_return = mmk_val(int, EINVAL));
+#endif
 
   // Now normal usage of the function returning unexpected EINVAL
   // error for the internal strerror_r
@@ -90,6 +136,9 @@ TEST(test_strerror, test_mock) {
   char error_string[1024];
   rcutils_strerror(error_string, sizeof(error_string));
   ASSERT_STREQ(error_string, "Failed to get error");
-
+#if defined(_WIN32)
+  mmk_reset(strerror_s);
+#else
   mmk_reset(strerror_r);
+#endif
 }
