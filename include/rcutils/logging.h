@@ -501,7 +501,7 @@ RCUTILS_ATTRIBUTE_PRINTF_FORMAT(4, 5);
  * \param[in] name The name of the logger, must be null terminated c string
  * \param[in] timestamp The timestamp for when the log message was made
  * \param[in] format The format string
- * \param[in] args the `va_list` used by the logger
+ * \param[in] args The `va_list` used by the logger
  */
 RCUTILS_PUBLIC
 void rcutils_logging_console_output_handler(

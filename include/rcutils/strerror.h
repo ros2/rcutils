@@ -32,7 +32,7 @@ extern "C"
  *
  * This function is thread-safe.
  *
- * \param[inout] buffer the buffer in which to store the data
+ * \param[inout] buffer The buffer in which to store the data
  * \param[in] buffer_length the maximum length of the buffer
  */
 RCUTILS_PUBLIC
