@@ -18,6 +18,16 @@ find_package(ament_cmake_ros REQUIRED)
 
 ament_python_install_package(${PROJECT_NAME})
 
+if(UNIX AND NOT APPLE)
+  include(cmake/check_c_compiler_uses_glibc.cmake)
+  check_c_compiler_uses_glibc(USES_GLIBC)
+  if(USES_GLIBC)
+    # Ensure GNU extended libc API is used, as C++ test code will.
+    # See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=2082.
+    add_definitions(-D_GNU_SOURCE)
+  endif()
+endif()
+
 if(NOT WIN32)
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
@@ -42,6 +52,7 @@ set(rcutils_sources
   src/hash_map.c
   src/logging.c
   src/process.c
+  src/qsort.c
   src/repl_str.c
   src/shared_library.c
   src/snprintf.c
@@ -415,31 +426,73 @@ if(BUILD_TESTING)
       RCUTILS_CONSOLE_OUTPUT_FORMAT="[{severity}] [{time},{time_as_nanoseconds}] [{name},{function_name},{file_name}]: {line_number}-{message}"
       RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED=1
       RCUTILS_LOGGING_BUFFERED_STREAM=1
+      RCUTILS_LOGGING_USE_STDOUT=1
       RCUTILS_COLORIZED_OUTPUT=1
   )
   if(TARGET test_logging_custom_env)
     target_link_libraries(test_logging_custom_env ${PROJECT_NAME} osrf_testing_tools_cpp::memory_tools)
   endif()
 
+  # RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN is defined as 2048, truncation should occur
+  foreach(i RANGE 0 100)
+    set(_output_format "${_output_format} [{severity}] [{time},{time_as_nanoseconds}] [{name},{function_name},{file_name}]: {line_number}-{message}")
+  endforeach(i)
   rcutils_custom_add_gtest(test_logging_custom_env2 test/test_logging_custom_env.cpp
     ENV
-      RCUTILS_CONSOLE_OUTPUT_FORMAT="[{severity}] [{time},{time_as_nanoseconds}] [{name},{function_name},{file_name}]: {line_number}-{message}"
+      RCUTILS_CONSOLE_OUTPUT_FORMAT="${_output_format}"
       RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED=0
       RCUTILS_LOGGING_BUFFERED_STREAM=0
+      RCUTILS_LOGGING_USE_STDOUT=0
       RCUTILS_COLORIZED_OUTPUT=0
   )
   if(TARGET test_logging_custom_env2)
     target_link_libraries(test_logging_custom_env2 ${PROJECT_NAME} osrf_testing_tools_cpp::memory_tools)
   endif()
 
+  rcutils_custom_add_gtest(test_logging_bad_env test/test_logging_bad_env.cpp
+    ENV
+      RCUTILS_LOGGING_USE_STDOUT=42
+  )
+  if(TARGET test_logging_bad_env)
+    target_link_libraries(test_logging_bad_env ${PROJECT_NAME})
+  endif()
+
+  rcutils_custom_add_gtest(test_logging_bad_env2 test/test_logging_bad_env.cpp
+    ENV
+      RCUTILS_COLORIZED_OUTPUT=42
+  )
+  if(TARGET test_logging_bad_env2)
+    target_link_libraries(test_logging_bad_env2 ${PROJECT_NAME})
+  endif()
+
+  rcutils_custom_add_gtest(test_logging_bad_env3 test/test_logging_bad_env.cpp
+    ENV
+      RCUTILS_LOGGING_BUFFERED_STREAM=42
+  )
+  if(TARGET test_logging_bad_env3)
+    target_link_libraries(test_logging_bad_env3 ${PROJECT_NAME})
+  endif()
+
   rcutils_custom_add_gtest(test_logging_enable_for
     test/test_logging_enable_for.cpp
   )
   if(TARGET test_logging_enable_for)
-    target_link_libraries(test_logging_enable_for ${PROJECT_NAME})
+    target_link_libraries(test_logging_enable_for ${PROJECT_NAME} osrf_testing_tools_cpp::memory_tools)
   endif()
 
+  rcutils_custom_add_gtest(test_logging_console_output_handler
+    test/test_logging_console_output_handler.cpp
+  )
+  if(TARGET test_logging_console_output_handler)
+    target_link_libraries(test_logging_console_output_handler ${PROJECT_NAME} osrf_testing_tools_cpp::memory_tools)
+  endif()
 
+  rcutils_custom_add_gtest(test_macros
+    test/test_macros.cpp
+  )
+  if(TARGET test_macros)
+    target_link_libraries(test_macros ${PROJECT_NAME})
+  endif()
 endif()
 
 ament_export_dependencies(ament_cmake)

@@ -2,6 +2,16 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.0 (2020-06-26)
+------------------
+* Add token join macros (`#262 <https://github.com/ros2/rcutils/issues/262>`_)
+* Add rcutils_string_array_sort function (`#248 <https://github.com/ros2/rcutils/issues/248>`_)
+* Add rcutils_string_array_resize function (`#247 <https://github.com/ros2/rcutils/issues/247>`_)
+* Increase testing coverage of rcutils to 95% (`#258 <https://github.com/ros2/rcutils/issues/258>`_)
+* Update QUALITY_DECLARATION to reflect QL 2 status (`#260 <https://github.com/ros2/rcutils/issues/260>`_)
+* Update version stability section of quality declaration for 1.0 (`#256 <https://github.com/ros2/rcutils/issues/256>`_)
+* Contributors: Alejandro Hernández Cordero, Jorge Perez, Karsten Knese, Michel Hidalgo, Scott K Logan, Steven! Ragnarök, Stephen Brawner
+
 1.0.1 (2020-06-03)
 ------------------
 * Set appropriate size for buffered logging on Windows (logging.c) (`#259 <https://github.com/ros2/rcutils/issues/259>`_)

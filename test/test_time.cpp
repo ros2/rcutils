@@ -50,6 +50,75 @@ public:
   }
 };
 
+// Tests the rcutils time unit conversion macros.
+TEST_F(TestTimeFixture, test_rcutils_time_conversion_macros) {
+  // Note: 9007199254740993 or higher cannot be represented anymore by intermediate type double
+  // without a loss of precision.
+
+  // seconds to nanoseconds
+  EXPECT_EQ(RCUTILS_S_TO_NS(1), 1000000000ll);  // int
+  EXPECT_EQ(RCUTILS_S_TO_NS(0.2), 200000000.);  // double
+  EXPECT_EQ(RCUTILS_S_TO_NS(1 + 1), 2000000000ll);  // sum of ints
+  EXPECT_EQ(
+    RCUTILS_S_TO_NS(9007199.254740992),
+    9007199254740992.);  // maximum precision double (53 bits)
+  EXPECT_EQ(
+    RCUTILS_S_TO_NS(9007199.254740993),
+    9007199254740992.);  // value is truncated!
+
+  // milliseconds to nanoseconds
+  EXPECT_EQ(RCUTILS_MS_TO_NS(1), 1000000ll);  // int
+  EXPECT_EQ(RCUTILS_MS_TO_NS(0.2), 200000.);  // double
+  EXPECT_EQ(RCUTILS_MS_TO_NS(1 + 1), 2000000ll);  // sum of ints
+  EXPECT_EQ(
+    RCUTILS_MS_TO_NS(9007199254.740992),
+    9007199254740992.);  // maximum precision double (53 bits)
+  EXPECT_EQ(
+    RCUTILS_MS_TO_NS(9007199254.740993),
+    9007199254740994.);  // value is truncated!
+
+  // microseconds to nanoseconds
+  EXPECT_EQ(RCUTILS_US_TO_NS(1), 1000ll);  // int
+  EXPECT_EQ(RCUTILS_US_TO_NS(0.2), 200.);  // double
+  EXPECT_EQ(RCUTILS_US_TO_NS(1 + 1), 2000ll);  // sum of ints
+  EXPECT_EQ(
+    RCUTILS_US_TO_NS(9007199254740.992),
+    9007199254740992.);  // maximum precision double (53 bits)
+  EXPECT_EQ(
+    RCUTILS_US_TO_NS(9007199254740.993),
+    9007199254740992.);  // value is truncated!
+
+  // nanoseconds to seconds
+  EXPECT_EQ(RCUTILS_NS_TO_S(1000000000ll), 1ll);  // int64_t
+  EXPECT_EQ(RCUTILS_NS_TO_S(1000000042ll), 1ll);  // int64_t (truncated)
+  EXPECT_EQ(RCUTILS_NS_TO_S(-1999999999ll), -1ll);  // int64_t (truncated)
+  EXPECT_EQ(RCUTILS_NS_TO_S(200000000.), 0.2);  // double
+  EXPECT_EQ(RCUTILS_NS_TO_S(1.0 + 1.0), 0.000000002);  // sum of doubles
+  EXPECT_EQ(
+    RCUTILS_NS_TO_S(9007199254740992.),
+    9007199.254740992);  // maximum precision double (53 bits)
+
+  // nanoseconds to milliseconds
+  EXPECT_EQ(RCUTILS_NS_TO_MS(1000000ll), 1ll);  // int64_t
+  EXPECT_EQ(RCUTILS_NS_TO_MS(1000042ll), 1ll);  // int64_t (truncated)
+  EXPECT_EQ(RCUTILS_NS_TO_MS(-1999999ll), -1ll);  // int64_t (truncated)
+  EXPECT_EQ(RCUTILS_NS_TO_MS(200000.), 0.2);  // double
+  EXPECT_EQ(RCUTILS_NS_TO_MS(1.0 + 1.0), 0.000002);  // sum of doubles
+  EXPECT_EQ(
+    RCUTILS_NS_TO_MS(9007199254740992.),
+    9007199254.740992);  // maximum precision double (53 bits)
+
+  // nanoseconds to microseconds
+  EXPECT_EQ(RCUTILS_NS_TO_US(1000ll), 1ll);  // int64_t
+  EXPECT_EQ(RCUTILS_NS_TO_US(1042ll), 1ll);  // int64_t (truncated)
+  EXPECT_EQ(RCUTILS_NS_TO_US(-1999ll), -1ll);  // int64_t (truncated)
+  EXPECT_EQ(RCUTILS_NS_TO_US(200.), 0.2);  // double
+  EXPECT_EQ(RCUTILS_NS_TO_US(1.0 + 1.0), 0.002);  // sum of doubles
+  EXPECT_EQ(
+    RCUTILS_NS_TO_US(9007199254740992.),
+    9007199254740.992);  // maximum precision double (53 bits)
+}
+
 // Tests the rcutils_system_time_now() function.
 TEST_F(TestTimeFixture, test_rcutils_system_time_now) {
   rcutils_ret_t ret;

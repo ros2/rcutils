@@ -16,6 +16,7 @@
 
 #include <string>
 
+#include "osrf_testing_tools_cpp/scope_exit.hpp"
 #include "rcutils/logging.h"
 
 TEST(test_logging_logger_is_enabled_for, test_logging_logger_is_enabled_for) {
@@ -59,4 +60,48 @@ TEST(test_logging_logger_is_enabled_for, test_logging_logger_is_enabled_for) {
   ret = rcutils_logging_logger_is_enabled_for(
     "rmw_fastrtps_cpp", RCUTILS_LOG_SEVERITY_FATAL);
   ASSERT_TRUE(ret);
+}
+
+TEST(test_logging_logger_is_enabled_for, test_logger_is_enabled_for) {
+  EXPECT_FALSE(
+    rcutils_logging_logger_is_enabled_for("rcutils_test_loggers", RCUTILS_LOG_SEVERITY_DEBUG));
+  EXPECT_TRUE(
+    rcutils_logging_logger_is_enabled_for("rcutils_test_loggers", RCUTILS_LOG_SEVERITY_FATAL));
+
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_initialize());
+  OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
+  {
+    EXPECT_EQ(RCUTILS_RET_OK, rcutils_logging_shutdown());
+  });
+
+  EXPECT_TRUE(
+    rcutils_logging_logger_is_enabled_for("rcutils_test_loggers", RCUTILS_LOG_SEVERITY_INFO));
+
+  ASSERT_EQ(
+    RCUTILS_RET_OK,
+    rcutils_logging_set_logger_level(
+      "rcutils_test_loggers", RCUTILS_LOG_SEVERITY_WARN));
+
+  EXPECT_FALSE(
+    rcutils_logging_logger_is_enabled_for("rcutils_test_loggers", RCUTILS_LOG_SEVERITY_INFO));
+
+  EXPECT_FALSE(rcutils_logging_logger_is_enabled_for("rcutils_test_loggers", -1));
+  EXPECT_TRUE(rcutils_logging_logger_is_enabled_for("rcutils_test_loggers", 1000));
+
+  // These should all resort to default logging severity
+  EXPECT_FALSE(rcutils_logging_logger_is_enabled_for("", RCUTILS_LOG_SEVERITY_DEBUG));
+  EXPECT_TRUE(rcutils_logging_logger_is_enabled_for("", RCUTILS_LOG_SEVERITY_FATAL));
+
+  EXPECT_FALSE(rcutils_logging_logger_is_enabled_for(NULL, RCUTILS_LOG_SEVERITY_DEBUG));
+  EXPECT_TRUE(rcutils_logging_logger_is_enabled_for(NULL, RCUTILS_LOG_SEVERITY_FATAL));
+
+  EXPECT_TRUE(
+    rcutils_logging_logger_is_enabled_for("name_that_doesn't_exist", RCUTILS_LOG_SEVERITY_FATAL));
+  EXPECT_FALSE(
+    rcutils_logging_logger_is_enabled_for("name_that_doesn't_exist", RCUTILS_LOG_SEVERITY_DEBUG));
+
+  EXPECT_TRUE(
+    rcutils_logging_logger_is_enabled_for("name.that.doesn't.exist", RCUTILS_LOG_SEVERITY_FATAL));
+  EXPECT_FALSE(
+    rcutils_logging_logger_is_enabled_for("name.that.doesn't.exist", RCUTILS_LOG_SEVERITY_DEBUG));
 }

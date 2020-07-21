@@ -44,6 +44,9 @@ public:
 TEST_F(TestFilesystemFixture, get_cwd_nullptr) {
   EXPECT_FALSE(rcutils_get_cwd(NULL, sizeof(this->cwd)));
   EXPECT_FALSE(rcutils_get_cwd(this->cwd, 0));
+
+  // ERANGE, including a null terminating character, cwd should always be longer than 1 char
+  EXPECT_FALSE(rcutils_get_cwd(this->cwd, 1));
 }
 
 TEST_F(TestFilesystemFixture, join_path) {
@@ -234,6 +237,16 @@ TEST_F(TestFilesystemFixture, is_writable) {
 TEST_F(TestFilesystemFixture, is_readable_and_writable) {
   {
     char * path = rcutils_join_path(this->test_path, "dummy_folder", g_allocator);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
+    {
+      g_allocator.deallocate(path, g_allocator.state);
+    });
+    ASSERT_FALSE(nullptr == path);
+    EXPECT_TRUE(rcutils_is_readable_and_writable(path));
+  }
+  {
+    char * path =
+      rcutils_join_path(this->test_path, "dummy_readable_file.txt", g_allocator);
     OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
     {
       g_allocator.deallocate(path, g_allocator.state);
