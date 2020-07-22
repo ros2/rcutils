@@ -72,12 +72,7 @@ mmk_mock_define(strerror_s_mock, errno_t, char *, rsize_t, errno_t);
 errno_t mocked_windows_strerror(char * buf, rsize_t bufsz, errno_t errnum)
 {
   (void) errnum;
-  unsigned char index_err = 0;
-
-  while (buf && bufsz--) {
-    buf[index_err] = expected_error_msg[index_err];
-    index_err++;
-  }
+  strncpy(buf, expected_error_msg, (size_t) bufsz);
   return errnum;
 }
 
@@ -105,11 +100,7 @@ mmk_mock_define(strerror_r_mock, char *, int, char *, size_t);
 char * mocked_gnu_strerror(int errnum, char * buf, size_t buflen)
 {
   (void) errnum;
-  unsigned char index_err = 0;
-  while (buf && buflen--) {
-    buf[index_err] = expected_error_msg[index_err];
-    index_err++;
-  }
+  strncpy(buf, expected_error_msg, buflen);
   return buf;
 }
 
