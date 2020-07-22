@@ -76,12 +76,12 @@ errno_t mocked_windows_strerror(char * buf, rsize_t bufsz, errno_t errnum)
   return errnum;
 }
 
-/* Mocking test example */
+// Mocking test example
 TEST(test_strerror, test_mock) {
-  /* Mock the strerror_s function in the current module using
-     the `strerror_s_mock` blueprint. */
+  // Mock the strerror_s function in the current module using
+  // the `strerror_s_mock` blueprint.
   mmk_mock(RCUTILS_STRINGIFY(strerror_s) "@lib:rcutils", strerror_s_mock);
-  /* Tell the mock to call mocked_windows_strerror instead*/
+  // Tell the mock to call mocked_windows_strerror instead
   mmk_when(
     strerror_s(mmk_any(errno_t), mmk_any(char *), mmk_any(rsize_t), mmk_any(errno_t)),
     .then_call = (mmk_fn) mocked_windows_strerror);
@@ -104,12 +104,12 @@ char * mocked_gnu_strerror(int errnum, char * buf, size_t buflen)
   return buf;
 }
 
-/* Mocking test example */
+// Mocking test example
 TEST(test_strerror, test_mock) {
-  /* Mock the strerror_r function in the current module using
-     the `strerror_r_mock` blueprint. */
+  // Mock the strerror_r function in the current module using
+  // the `strerror_r_mock` blueprint.
   mmk_mock(RCUTILS_STRINGIFY(strerror_r) "@lib:rcutils", strerror_r_mock);
-  /* Tell the mock to call mocked_gnu_strerror instead */
+  // Tell the mock to call mocked_gnu_strerror instead
   mmk_when(
     strerror_r(mmk_any(int), mmk_any(char *), mmk_any(size_t) ),
     .then_call = (mmk_fn) mocked_gnu_strerror);
@@ -124,13 +124,14 @@ TEST(test_strerror, test_mock) {
 
 #else
 mmk_mock_define(strerror_r_mock, int, int, char *, size_t);
-/* Mocking test example */
+
+// Mocking test example
 TEST(test_strerror, test_mock) {
-  /* Mock the strerror_r function in the current module using
-     the `strerror_r_mock` blueprint. */
+  // Mock the strerror_r function in the current module using
+  // the `strerror_r_mock` blueprint.
   mmk_mock(RCUTILS_STRINGIFY(strerror_r) "@lib:rcutils", strerror_r_mock);
-  /* Tell the mock to return NULL and set errno to EINVAL
-     whatever the given parameter is. */
+  // Tell the mock to return NULL and set errno to EINVAL
+  // whatever the given parameter is.
   mmk_when(
     strerror_r(mmk_any(int), mmk_any(char *), mmk_any(size_t) ),
     .then_return = mmk_val(int, EINVAL));
@@ -142,5 +143,4 @@ TEST(test_strerror, test_mock) {
   ASSERT_STREQ(error_string, "Failed to get error");
   mmk_reset(strerror_r);
 }
-
 #endif
