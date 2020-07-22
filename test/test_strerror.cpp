@@ -56,6 +56,7 @@ TEST(test_strerror, get_error) {
 #endif
 }
 
+const char expected_error_msg[] = "Failed to get error";
 /*
    Define the blueprint of a mock identified by `strerror_r_proto`
    strerror_r possible signatures:
@@ -67,15 +68,7 @@ TEST(test_strerror, get_error) {
 
 #if defined(_WIN32)
 mmk_mock_define(strerror_s_mock, errno_t, char *, rsize_t, errno_t);
-#elif defined(_GNU_SOURCE) && (!defined(ANDROID) || __ANDROID_API__ >= 23)
-mmk_mock_define(strerror_r_mock, char *, int, char *, size_t);
-#else
-mmk_mock_define(strerror_r_mock, int, int, char *, size_t);
-#endif
 
-const char expected_error_msg[] = "Failed to get error";
-#if defined(_WIN32)
-// Function to be called for (Case 3)
 errno_t mocked_windows_strerror(char * buf, rsize_t bufsz, errno_t errnum)
 {
   (void) errnum;
@@ -87,8 +80,28 @@ errno_t mocked_windows_strerror(char * buf, rsize_t bufsz, errno_t errnum)
   }
   return errnum;
 }
-#else
-// Function to be called for (Case 1)
+
+/* Mocking test example */
+TEST(test_strerror, test_mock) {
+  /* Mock the strerror_s function in the current module using
+     the `strerror_s_mock` blueprint. */
+  mmk_mock(RCUTILS_STRINGIFY(strerror_s) "@lib:rcutils", strerror_s_mock);
+  /* Tell the mock to call mocked_windows_strerror instead*/
+  mmk_when(
+    strerror_s(mmk_any(errno_t), mmk_any(char *), mmk_any(rsize_t), mmk_any(errno_t)),
+    .then_call = (mmk_fn) mocked_windows_strerror);
+
+  // Set the error (not used by the mock)
+  errno = 2;
+  char error_string[1024];
+  rcutils_strerror(error_string, sizeof(error_string));
+  ASSERT_STREQ(error_string, "Failed to get error");
+  mmk_reset(strerror_s);
+}
+
+#elif defined(_GNU_SOURCE) && (!defined(ANDROID) || __ANDROID_API__ >= 23)
+mmk_mock_define(strerror_r_mock, char *, int, char *, size_t);
+
 char * mocked_gnu_strerror(int errnum, char * buf, size_t buflen)
 {
   (void) errnum;
@@ -100,45 +113,44 @@ char * mocked_gnu_strerror(int errnum, char * buf, size_t buflen)
   }
   return buf;
 }
-#endif
 
 /* Mocking test example */
 TEST(test_strerror, test_mock) {
   /* Mock the strerror_r function in the current module using
      the `strerror_r_mock` blueprint. */
-#if defined(_WIN32)
-  mmk_mock(RCUTILS_STRINGIFY(strerror_s) "@lib:rcutils", strerror_s_mock);
-#else
   mmk_mock(RCUTILS_STRINGIFY(strerror_r) "@lib:rcutils", strerror_r_mock);
-#endif
-  /* Tell the mock to return NULL and set errno to ENOMEM
-     whatever the given parameter is. */
-#if defined(_WIN32)
-  mmk_when(
-    strerror_s(mmk_any(errno_t), mmk_any(char *), mmk_any(rsize_t), mmk_any(errno_t)),
-    .then_call = (mmk_fn) mocked_windows_strerror);
-#elif defined(_GNU_SOURCE) && (!defined(ANDROID) || __ANDROID_API__ >= 23)
+  /* Tell the mock to call mocked_gnu_strerror instead */
   mmk_when(
     strerror_r(mmk_any(int), mmk_any(char *), mmk_any(size_t) ),
     .then_call = (mmk_fn) mocked_gnu_strerror);
-#else
-  mmk_when(
-    strerror_r(mmk_any(int), mmk_any(char *), mmk_any(size_t) ),
-    .then_return = mmk_val(int, EINVAL));
-#endif
 
-  // Now normal usage of the function returning unexpected EINVAL
-  // error for the internal strerror_r
-  // This works only for POSIX
-
-  // Set the error "No such file or directory"
+  // Set the error (not used by the mock)
   errno = 2;
   char error_string[1024];
   rcutils_strerror(error_string, sizeof(error_string));
   ASSERT_STREQ(error_string, "Failed to get error");
-#if defined(_WIN32)
-  mmk_reset(strerror_s);
-#else
   mmk_reset(strerror_r);
-#endif
 }
+
+#else
+mmk_mock_define(strerror_r_mock, int, int, char *, size_t);
+/* Mocking test example */
+TEST(test_strerror, test_mock) {
+  /* Mock the strerror_r function in the current module using
+     the `strerror_r_mock` blueprint. */
+  mmk_mock(RCUTILS_STRINGIFY(strerror_r) "@lib:rcutils", strerror_r_mock);
+  /* Tell the mock to return NULL and set errno to EINVAL
+     whatever the given parameter is. */
+  mmk_when(
+    strerror_r(mmk_any(int), mmk_any(char *), mmk_any(size_t) ),
+    .then_return = mmk_val(int, EINVAL));
+
+  // Set the error "No such file or directory" (not used by the mock)
+  errno = 2;
+  char error_string[1024];
+  rcutils_strerror(error_string, sizeof(error_string));
+  ASSERT_STREQ(error_string, "Failed to get error");
+  mmk_reset(strerror_r);
+}
+
+#endif
