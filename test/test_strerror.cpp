@@ -105,10 +105,9 @@ mmk_mock_define(strerror_r_mock, char *, int, char *, size_t);
 char * mocked_gnu_strerror(int errnum, char * buf, size_t buflen)
 {
   (void) errnum;
-  const char error_msg[] = "Failed to get error";
   unsigned char index_err = 0;
   while (buf && buflen--) {
-    buf[index_err] = error_msg[index_err];
+    buf[index_err] = expected_error_msg[index_err];
     index_err++;
   }
   return buf;
