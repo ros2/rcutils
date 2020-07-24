@@ -56,7 +56,6 @@ TEST(test_strerror, get_error) {
 #endif
 }
 
-const char expected_error_msg[] = "Failed to get error";
 /*
    Define the blueprint of a mock identified by `strerror_r_proto`
    strerror_r possible signatures:
@@ -67,6 +66,7 @@ const char expected_error_msg[] = "Failed to get error";
 */
 
 #if defined(_WIN32)
+const char expected_error_msg[] = "Failed to get error";
 mmk_mock_define(strerror_s_mock, errno_t, char *, rsize_t, errno_t);
 
 errno_t mocked_windows_strerror(char * buf, rsize_t bufsz, errno_t errnum)
@@ -95,6 +95,7 @@ TEST(test_strerror, test_mock) {
 }
 
 #elif defined(_GNU_SOURCE) && (!defined(ANDROID) || __ANDROID_API__ >= 23)
+const char expected_error_msg[] = "Failed to get error";
 mmk_mock_define(strerror_r_mock, char *, int, char *, size_t);
 
 char * mocked_gnu_strerror(int errnum, char * buf, size_t buflen)
