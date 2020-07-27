@@ -55,12 +55,12 @@ TEST(test_uint8_array, resize) {
   EXPECT_EQ(5u, uint8_array.buffer_length);
 
   for (uint8_t i = 0; i < 10; ++i) {
-    uint8_t u = 0xFF - i;
+    uint8_t u = static_cast<uint8_t>(0xFF - i);
     memcpy(uint8_array.buffer + i, &u, 1);
   }
   uint8_array.buffer_length = 10lu;
   for (size_t i = 0; i < uint8_array.buffer_length; ++i) {
-    uint8_t u = 0xFF - static_cast<uint8_t>(i);
+    uint8_t u = static_cast<uint8_t>(0xFF - i);
     EXPECT_EQ(u, uint8_array.buffer[i]);
   }
 

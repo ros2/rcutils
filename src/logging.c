@@ -322,7 +322,7 @@ rcutils_logging_severity_level_from_string(
     return RCUTILS_RET_BAD_ALLOC;
   }
   for (int i = 0; severity_string_upper[i]; ++i) {
-    severity_string_upper[i] = toupper(severity_string_upper[i]);
+    severity_string_upper[i] = (char)toupper(severity_string_upper[i]);
   }
 
   // Determine the severity value matching the severity name.

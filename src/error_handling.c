@@ -96,40 +96,40 @@ __format_overwriting_error_state_message(
   assert(SIZE_MAX > buffer_size);
   assert(NULL != new_error_state);
 
-  int64_t bytes_left = buffer_size;
+  int64_t bytes_left = (int64_t)buffer_size;
   do {
     char * offset = buffer;
     size_t written = 0;
 
     // write the first static part of the error message
     written = __rcutils_copy_string(
-      offset, bytes_left,
+      offset, (size_t)bytes_left,
       "\n"
       ">>> [rcutils|error_handling.c:" RCUTILS_STRINGIFY(__LINE__) "] rcutils_set_error_state()\n"
       "This error state is being overwritten:\n"
       "\n"
       "  '");
     offset += written;
-    bytes_left -= written;
+    bytes_left -= (int64_t)written;
     if (0 >= bytes_left) {break;}
 
     // write the old error string
     rcutils_error_string_t old_error_string = rcutils_get_error_string();
     written = __rcutils_copy_string(offset, sizeof(old_error_string.str), old_error_string.str);
     offset += written;
-    bytes_left -= written;
+    bytes_left -= (int64_t)written;
     if (0 >= bytes_left) {break;}
 
     // write the middle part of the state error message
     written = __rcutils_copy_string(
-      offset, bytes_left,
+      offset, (size_t)bytes_left,
       "'\n"
       "\n"
       "with this new error message:\n"
       "\n"
       "  '");
     offset += written;
-    bytes_left -= written;
+    bytes_left -= (int64_t)written;
     if (0 >= bytes_left) {break;}
 
     // format error string for new error state and write it in
@@ -139,17 +139,17 @@ __format_overwriting_error_state_message(
     __rcutils_format_error_string(&new_error_string, new_error_state);
     written = __rcutils_copy_string(offset, sizeof(new_error_string.str), new_error_string.str);
     offset += written;
-    bytes_left -= written;
+    bytes_left -= (int64_t)written;
     if (0 >= bytes_left) {break;}
 
     // write the last part of the state error message
     written = __rcutils_copy_string(
-      offset, bytes_left,
+      offset, (size_t)bytes_left,
       "'\n"
       "\n"
       "rcutils_reset_error() should be called after error handling to avoid this.\n"
       "<<<\n");
-    bytes_left -= written;
+    bytes_left -= (int64_t)written;
   } while (0);
 
 #if RCUTILS_REPORT_ERROR_HANDLING_ERRORS

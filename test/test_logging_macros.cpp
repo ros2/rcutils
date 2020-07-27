@@ -139,7 +139,7 @@ TEST_F(TestLoggingMacros, test_logging_function) {
 }
 
 TEST_F(TestLoggingMacros, test_logging_skipfirst) {
-  for (uint32_t i : {1, 2, 3, 4, 5}) {
+  for (uint32_t i : {1u, 2u, 3u, 4u, 5u}) {
     RCUTILS_LOG_WARN_SKIPFIRST("message %u", i);
     EXPECT_EQ(i - 1, g_log_calls);
   }

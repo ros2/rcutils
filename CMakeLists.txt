@@ -29,7 +29,11 @@ if(UNIX AND NOT APPLE)
 endif()
 
 if(NOT WIN32)
-  add_compile_options(-Wall -Wextra -Wpedantic)
+  # About -Wno-sign-conversion: With Clang, -Wconversion implies -Wsign-conversion. There are a number of
+  # implicit sign conversions in gtest.cc, see https://ci.ros2.org/job/ci_osx/9381/clang/.
+  # Hence disabling -Wsign-conversion for now until all those have eventually been fixed.
+  # (from https://github.com/ros2/rcutils/pull/263#issuecomment-663252537)
+  add_compile_options(-Wall -Wextra -Wconversion -Wno-sign-conversion -Wpedantic)
 endif()
 
 if(WIN32)
