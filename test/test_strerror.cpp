@@ -80,7 +80,7 @@ errno_t mocked_windows_strerror(char * buf, rsize_t bufsz, errno_t errnum)
 TEST(test_strerror, test_mock) {
   // Mock the strerror_s function in the current module using
   // the `strerror_s_mock` blueprint.
-  malloc_mock mock = mmk_mock(RCUTILS_STRINGIFY(strerror_s) "@lib:rcutils", strerror_s_mock);
+  strerror_s_mock mock = mmk_mock(RCUTILS_STRINGIFY(strerror_s) "@lib:rcutils", strerror_s_mock);
   // Tell the mock to call mocked_windows_strerror instead
   mmk_when(
     strerror_s(mmk_any(char *), mmk_any(rsize_t), mmk_any(errno_t)),
