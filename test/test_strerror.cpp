@@ -83,7 +83,7 @@ TEST(test_strerror, test_mock) {
   mmk_mock(RCUTILS_STRINGIFY(strerror_s) "@lib:rcutils", strerror_s_mock);
   // Tell the mock to call mocked_windows_strerror instead
   mmk_when(
-    strerror_s(mmk_any(errno_t), mmk_any(char *), mmk_any(rsize_t), mmk_any(errno_t)),
+    strerror_s(mmk_any(char *), mmk_any(rsize_t), mmk_any(errno_t)),
     .then_call = (mmk_fn) mocked_windows_strerror);
 
   // Set the error (not used by the mock)
