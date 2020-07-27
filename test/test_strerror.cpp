@@ -72,7 +72,7 @@ mmk_mock_define(strerror_s_mock, errno_t, char *, rsize_t, errno_t);
 errno_t mocked_windows_strerror(char * buf, rsize_t bufsz, errno_t errnum)
 {
   (void) errnum;
-  strncpy_s(buf, expected_error_msg, (size_t) bufsz);
+  strncpy_s(buf, (size_t) bufsz, expected_error_msg, (size_t) bufsz);
   return errnum;
 }
 
