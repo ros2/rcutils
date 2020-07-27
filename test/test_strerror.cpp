@@ -80,7 +80,7 @@ errno_t mocked_windows_strerror(char * buf, rsize_t bufsz, errno_t errnum)
 TEST(test_strerror, test_mock) {
   // Mock the strerror_s function in the current module using
   // the `strerror_s_mock` blueprint.
-  mmk_mock(RCUTILS_STRINGIFY(strerror_s) "@lib:rcutils", strerror_s_mock);
+  malloc_mock mock = mmk_mock(RCUTILS_STRINGIFY(strerror_s) "@lib:rcutils", strerror_s_mock);
   // Tell the mock to call mocked_windows_strerror instead
   mmk_when(
     strerror_s(mmk_any(char *), mmk_any(rsize_t), mmk_any(errno_t)),
@@ -91,7 +91,7 @@ TEST(test_strerror, test_mock) {
   char error_string[1024];
   rcutils_strerror(error_string, sizeof(error_string));
   ASSERT_STREQ(error_string, "Failed to get error");
-  mmk_reset(strerror_s_mock);
+  mmk_reset(mock);
 }
 
 #elif defined(_GNU_SOURCE) && (!defined(ANDROID) || __ANDROID_API__ >= 23)
