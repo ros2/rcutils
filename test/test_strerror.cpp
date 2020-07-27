@@ -91,7 +91,7 @@ TEST(test_strerror, test_mock) {
   char error_string[1024];
   rcutils_strerror(error_string, sizeof(error_string));
   ASSERT_STREQ(error_string, "Failed to get error");
-  mmk_reset(strerror_s);
+  mmk_reset(reinterpret_cast<mmk_fn>strerror_s);
 }
 
 #elif defined(_GNU_SOURCE) && (!defined(ANDROID) || __ANDROID_API__ >= 23)
