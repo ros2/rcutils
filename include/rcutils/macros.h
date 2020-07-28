@@ -145,9 +145,10 @@ extern "C"
  *   ...  // rest of function
  * }
  *
- * For now, this macro just simply calls `RCUTILS_MAYBE_RETURN_ERROR` if fault injection is
- * enabled. However, for source code, the macro annotation `RCUTILS_CAN_RETURN_WITH_ERROR_OF` helps
- * clarify that a function may return a value signifying an error and what those are.
+ * For now, this macro just simply calls `RCUTILS_FAULT_INJECTION_MAYBE_RETURN_ERROR` if fault
+ * injection is enabled. However, for source code, the macro annotation
+ * `RCUTILS_CAN_RETURN_WITH_ERROR_OF` helps clarify that a function may return a value signifying
+ * an error and what those are.
  *
  * In general, you should only include a return value that originates in the function you're
  * annotating instead of one that is merely passed on from a called function already annotated with
@@ -174,7 +175,7 @@ extern "C"
  * a rcutils_ret_t type. It could also be NULL, -1, a string error message, etc
  */
 # define RCUTILS_CAN_RETURN_WITH_ERROR_OF(error_return_value) \
-  RCUTILS_MAYBE_RETURN_ERROR(error_return_value);
+  RCUTILS_FAULT_INJECTION_MAYBE_RETURN_ERROR(error_return_value);
 
 #else
 # define RCUTILS_CAN_RETURN_WITH_ERROR_OF(error_return_value)

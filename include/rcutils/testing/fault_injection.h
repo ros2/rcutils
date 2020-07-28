@@ -28,71 +28,71 @@ extern "C"
 
 bool rcutils_fault_injection_is_test_complete();
 
-void _rcutils_set_fault_injection_count(int count);
+void _rcutils_fault_injection_set_count(int count);
 
-int_least64_t _rcutils_get_fault_injection_count();
+int_least64_t _rcutils_fault_injection_get_count();
 
-int _rcutils_maybe_fail();
+int _rcutils_fault_injection_maybe_fail();
 
 #if defined RCUTILS_ENABLE_FAULT_INJECTION
 
 /**
- * \def RCUTILS_MAYBE_RETURN_ERROR
+ * \def RCUTILS_FAULT_INJECTION_MAYBE_RETURN_ERROR
  * \brief This macro checks and decrements a static global variable atomic counter and returns
  * `return_value_on_error` if 0.
  *
  * This macro is not a function itself, so when this macro returns it will cause the calling
  * function to return with the return value.
  *
- * Set the counter with `RCUTILS_SET_FAULT_INJECTION_COUNT`. If the count is less than 0, then
- * `RCUTILS_MAYBE_RETURN_ERROR` will not cause an early return.
+ * Set the counter with `RCUTILS_FAULT_INJECTION_SET_COUNT`. If the count is less than 0, then
+ * `RCUTILS_FAULT_INJECTION_MAYBE_RETURN_ERROR` will not cause an early return.
  *
  * This macro is thread-safe, and ensures that at most one invocation results in a failure for each
- * time the fault injection counter is set with `RCUTILS_SET_FAULT_INJECTION_COUNT`
+ * time the fault injection counter is set with `RCUTILS_FAULT_INJECTION_SET_COUNT`
  *
  * \param return_value_on_error the value to return in the case of fault injected failure.
  */
-#define RCUTILS_MAYBE_RETURN_ERROR(return_value_on_error) \
-  if (RCUTILS_FAULT_INJECTION_FAIL_NOW == _rcutils_maybe_fail()) { \
+#define RCUTILS_FAULT_INJECTION_MAYBE_RETURN_ERROR(return_value_on_error) \
+  if (RCUTILS_FAULT_INJECTION_FAIL_NOW == _rcutils_fault_injection_maybe_fail()) { \
     printf( \
       "%s:%d Injecting fault and returning " #return_value_on_error "\n", __FILE__, __LINE__); \
     return return_value_on_error; \
   }
 
 /**
- * \def RCUTILS_SET_FAULT_INJECTION_COUNT
+ * \def RCUTILS_FAULT_INJECTION_SET_COUNT
  * \brief Atomically set the fault injection counter.
  *
- * There will be at most one fault injected failure per call to RCUTILS_SET_FAULT_INJECTION_COUNT.
+ * There will be at most one fault injected failure per call to RCUTILS_FAULT_INJECTION_SET_COUNT.
  * To test all reachable fault injection locations, call this macro inside a loop and set the count
  * to an incrementing count variable.
  *
  *  for (int i = 0; i < SUFFICIENTLY_LARGE_ITERATION_COUNT; ++i) {
- *    RCUTILS_SET_FAULT_INJECTION_COUNT(i);
+ *    RCUTILS_FAULT_INJECTION_SET_COUNT(i);
  *    ... // Call function under test
  *  }
- * ASSERT_LT(RCUTILS_FAULT_INJECTION_NEVER_FAIL, RCUTILS_GET_FAULT_INJECTION_COUNT());
+ * ASSERT_LT(RCUTILS_FAULT_INJECTION_NEVER_FAIL, RCUTILS_FAULT_INJECTION_GET_COUNT());
  *
  * Where SUFFICIENTLY_LARGE_ITERATION_COUNT is a value larger than the maximum expected calls to
- * `RCUTILS_MAYBE_RETURN_ERROR`. This last assertion just insures that your choice for
+ * `RCUTILS_FAULT_INJECTION_MAYBE_RETURN_ERROR`. This last assertion just insures that your choice for
  * SUFFICIENTLY_LARGE_ITERATION_COUNT was large enough. To avoid having to choose this count
  * yourself, you can use a do-while loop.
  *
  * int i = 0;
  * do {
- *   RCUTILS_SET_FAULT_INJECTION_COUNT(i++);
+ *   RCUTILS_FAULT_INJECTION_SET_COUNT(i++);
  *    ... // Call function under test
- * } while (RCUTILS_GET_FAULT_INJECTION_COUNT() <= RCUTILS_FAULT_INJECTION_NEVER_FAIL);
+ * } while (RCUTILS_FAULT_INJECTION_GET_COUNT() <= RCUTILS_FAULT_INJECTION_NEVER_FAIL);
  *
  * \param count The count to set the fault injection counter to. If count is negative, then fault
  * injection errors will be disabled. The counter is globally initialized to
  * RCUTILS_FAULT_INJECTION_NEVER_FAIL.
  */
-#define RCUTILS_SET_FAULT_INJECTION_COUNT(count) \
-  _rcutils_set_fault_injection_count(count);
+#define RCUTILS_FAULT_INJECTION_SET_COUNT(count) \
+  _rcutils_fault_injection_set_count(count);
 
 /**
- * \def RCUTILS_GET_FAULT_INJECTION_COUNT
+ * \def RCUTILS_FAULT_INJECTION_GET_COUNT
  * \brief Atomically get the fault injection counter value
  *
  * Use this macro after running the code under test to check whether the counter reached a negative
@@ -101,17 +101,38 @@ int _rcutils_maybe_fail();
  * count value was greater or equal to 0, then the failure was not caused by the fault injection
  * counter.
  */
-#define RCUTILS_GET_FAULT_INJECTION_COUNT() \
-  _rcutils_get_fault_injection_count();
+#define RCUTILS_FAULT_INJECTION_GET_COUNT() \
+  _rcutils_fault_injection_get_count();
+
+#define RCUTILS_FAULT_INJECTION_INIT() \
+  RCUTILS_FAULT_INJECTION_SET_COUNT(RCUTILS_FAULT_INJECTION_NEVER_FAIL)
+
+#define RCUTILS_FAULT_INJECTION_FINI() \
+  RCUTILS_FAULT_INJECTION_SET_COUNT(RCUTILS_FAULT_INJECTION_NEVER_FAIL)
+
+#define RCUTILS_FAULT_INJECTION_TEST(code) \
+  do { \
+    int fault_injection_count = 0; \
+    do { \
+      RCUTILS_FAULT_INJECTION_SET_COUNT(fault_injection_count++); \
+      code; \
+    } while (!rcutils_fault_injection_is_test_complete()); \
+  } while(0)
 
 #else  // RCUTILS_ENABLE_FAULT_INJECTION
 
-#define RCUTILS_SET_FAULT_INJECTION_COUNT(count)
+#define RCUTILS_FAULT_INJECTION_SET_COUNT(count)
 
 // This needs to be set to an int for compatibility
-#define RCUTILS_GET_FAULT_INJECTION_COUNT() RCUTILS_FAULT_INJECTION_NEVER_FAIL
+#define RCUTILS_FAULT_INJECTION_GET_COUNT() RCUTILS_FAULT_INJECTION_NEVER_FAIL
 
-#define RCUTILS_MAYBE_RETURN_ERROR(msg, error_statement)
+#define RCUTILS_FAULT_INJECTION_MAYBE_RETURN_ERROR(msg, error_statement)
+
+#define RCUTILS_FAULT_INJECTION_INIT() \
+  printf("Fault injection is disabled, skipping\n"); \
+  return;
+
+#define RCUTILS_FAULT_INJECTION_FINI()
 
 #endif  // defined RCUTILS_ENABLE_FAULT_INJECTION
 

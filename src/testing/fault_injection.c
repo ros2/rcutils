@@ -24,10 +24,10 @@ bool rcutils_fault_injection_is_test_complete()
   return true;
 #endif  // RCUTILS_ENABLE_FAULT_INJECTION
 
-  return _rcutils_get_fault_injection_count() > RCUTILS_FAULT_INJECTION_NEVER_FAIL;
+  return _rcutils_fault_injection_get_count() > RCUTILS_FAULT_INJECTION_NEVER_FAIL;
 }
 
-int _rcutils_maybe_fail()
+int _rcutils_fault_injection_maybe_fail()
 {
   bool set_atomic_success = false;
   int_least64_t current_count = RCUTILS_FAULT_INJECTION_NEVER_FAIL;
@@ -47,12 +47,12 @@ int _rcutils_maybe_fail()
   return current_count;
 }
 
-void _rcutils_set_fault_injection_count(int count)
+void _rcutils_fault_injection_set_count(int count)
 {
   rcutils_atomic_store(&g_rcutils_fault_injection_count, count);
 }
 
-int_least64_t _rcutils_get_fault_injection_count()
+int_least64_t _rcutils_fault_injection_get_count()
 {
   int_least64_t count = 0;
   rcutils_atomic_load(&g_rcutils_fault_injection_count, count);
