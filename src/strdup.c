@@ -17,16 +17,19 @@ extern "C"
 {
 #endif
 
-#include "rcutils/strdup.h"
-
 #include <stddef.h>
 #include <string.h>
 
 #include "./common.h"
+#include "rcutils/macros.h"
+#include "rcutils/strdup.h"
+
 
 char *
 rcutils_strdup(const char * str, rcutils_allocator_t allocator)
 {
+  RCUTILS_CAN_RETURN_WITH_ERROR_OF(NULL);
+
   if (NULL == str) {
     return NULL;
   }
@@ -36,6 +39,8 @@ rcutils_strdup(const char * str, rcutils_allocator_t allocator)
 char *
 rcutils_strndup(const char * str, size_t string_length, rcutils_allocator_t allocator)
 {
+  RCUTILS_CAN_RETURN_WITH_ERROR_OF(NULL);
+
   if (NULL == str) {
     return NULL;
   }

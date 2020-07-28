@@ -18,6 +18,15 @@
 
 static atomic_int_least64_t g_rcutils_fault_injection_count = -1;
 
+bool rcutils_fault_injection_is_test_complete()
+{
+#ifndef RCUTILS_ENABLE_FAULT_INJECTION
+  return true;
+#endif  // RCUTILS_ENABLE_FAULT_INJECTION
+
+  return _rcutils_get_fault_injection_count() > RCUTILS_FAULT_INJECTION_NEVER_FAIL;
+}
+
 int _rcutils_maybe_fail()
 {
   bool set_atomic_success = false;

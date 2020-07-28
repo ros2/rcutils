@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef RCUTILS__TESTING_MACROS_H_
-#define RCUTILS__TESTING_MACROS_H_
+#ifndef RCUTILS__TESTING__FAULT_INJECTION_H_
+#define RCUTILS__TESTING__FAULT_INJECTION_H_
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdint.h>
 #ifdef __cplusplus
@@ -24,6 +25,8 @@ extern "C"
 #define RCUTILS_FAULT_INJECTION_NEVER_FAIL -1
 
 #define RCUTILS_FAULT_INJECTION_FAIL_NOW 0
+
+bool rcutils_fault_injection_is_test_complete();
 
 void _rcutils_set_fault_injection_count(int count);
 
@@ -51,6 +54,8 @@ int _rcutils_maybe_fail();
  */
 #define RCUTILS_MAYBE_RETURN_ERROR(return_value_on_error) \
   if (RCUTILS_FAULT_INJECTION_FAIL_NOW == _rcutils_maybe_fail()) { \
+    printf( \
+      "%s:%d Injecting fault and returning " #return_value_on_error "\n", __FILE__, __LINE__); \
     return return_value_on_error; \
   }
 
@@ -114,4 +119,4 @@ int _rcutils_maybe_fail();
 }
 #endif
 
-#endif  // RCUTILS__TESTING_MACROS_H_
+#endif  // RCUTILS__TESTING__FAULT_INJECTION_H_
