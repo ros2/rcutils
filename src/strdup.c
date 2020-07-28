@@ -17,12 +17,13 @@ extern "C"
 {
 #endif
 
+#include "rcutils/strdup.h"
+
 #include <stddef.h>
 #include <string.h>
 
 #include "./common.h"
 #include "rcutils/macros.h"
-#include "rcutils/strdup.h"
 
 
 char *
