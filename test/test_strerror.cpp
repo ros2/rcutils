@@ -21,9 +21,10 @@
 #include <dirent.h>
 #endif
 
-#include <string>
-
+#include "rcutils/macros.h"
 #include "rcutils/strerror.h"
+
+#include "./mimick.h"
 
 TEST(test_strerror, get_error) {
   // cleaning possible errors
@@ -54,3 +55,93 @@ TEST(test_strerror, get_error) {
     "' did not cause the expected error message.";
 #endif
 }
+
+/*
+   Define the blueprint of a mock identified by `strerror_r_proto`
+   strerror_r possible signatures:
+
+   * int strerror_r(int errnum, char *buf, size_t buflen); (Case 1)
+   * char *strerror_r(int errnum, char *buf, size_t buflen); (Case 2)
+   * errno_t strerror_s( char *buf, rsize_t bufsz, errno_t errnum ); (Case 3)
+*/
+
+#if defined(_WIN32)
+const char expected_error_msg[] = "Failed to get error";
+mmk_mock_define(strerror_s_mock, errno_t, char *, rsize_t, errno_t);
+
+errno_t mocked_windows_strerror(char * buf, rsize_t bufsz, errno_t errnum)
+{
+  (void) errnum;
+  strncpy_s(buf, (size_t) bufsz, expected_error_msg, (size_t) bufsz);
+  return errnum;
+}
+
+// Mocking test example
+TEST(test_strerror, test_mock) {
+  // Mock the strerror_s function in the current module using
+  // the `strerror_s_mock` blueprint.
+  strerror_s_mock mock = mmk_mock(RCUTILS_STRINGIFY(strerror_s) "@lib:rcutils", strerror_s_mock);
+  // Tell the mock to call mocked_windows_strerror instead
+  mmk_when(
+    strerror_s(mmk_any(char *), mmk_any(rsize_t), mmk_any(errno_t)),
+    .then_call = (mmk_fn) mocked_windows_strerror);
+
+  // Set the error (not used by the mock)
+  errno = 2;
+  char error_string[1024];
+  rcutils_strerror(error_string, sizeof(error_string));
+  ASSERT_STREQ(error_string, "Failed to get error");
+  mmk_reset(mock);
+}
+
+#elif defined(_GNU_SOURCE) && (!defined(ANDROID) || __ANDROID_API__ >= 23)
+const char expected_error_msg[] = "Failed to get error";
+mmk_mock_define(strerror_r_mock, char *, int, char *, size_t);
+
+char * mocked_gnu_strerror(int errnum, char * buf, size_t buflen)
+{
+  (void) errnum;
+  strncpy(buf, expected_error_msg, buflen);
+  return buf;
+}
+
+// Mocking test example
+TEST(test_strerror, test_mock) {
+  // Mock the strerror_r function in the current module using
+  // the `strerror_r_mock` blueprint.
+  mmk_mock(RCUTILS_STRINGIFY(strerror_r) "@lib:rcutils", strerror_r_mock);
+  // Tell the mock to call mocked_gnu_strerror instead
+  mmk_when(
+    strerror_r(mmk_any(int), mmk_any(char *), mmk_any(size_t) ),
+    .then_call = (mmk_fn) mocked_gnu_strerror);
+
+  // Set the error (not used by the mock)
+  errno = 2;
+  char error_string[1024];
+  rcutils_strerror(error_string, sizeof(error_string));
+  ASSERT_STREQ(error_string, "Failed to get error");
+  mmk_reset(strerror_r);
+}
+
+#else
+mmk_mock_define(strerror_r_mock, int, int, char *, size_t);
+
+// Mocking test example
+TEST(test_strerror, test_mock) {
+  // Mock the strerror_r function in the current module using
+  // the `strerror_r_mock` blueprint.
+  mmk_mock(RCUTILS_STRINGIFY(strerror_r) "@lib:rcutils", strerror_r_mock);
+  // Tell the mock to return NULL and set errno to EINVAL
+  // whatever the given parameter is.
+  mmk_when(
+    strerror_r(mmk_any(int), mmk_any(char *), mmk_any(size_t) ),
+    .then_return = mmk_val(int, EINVAL));
+
+  // Set the error "No such file or directory" (not used by the mock)
+  errno = 2;
+  char error_string[1024];
+  rcutils_strerror(error_string, sizeof(error_string));
+  ASSERT_STREQ(error_string, "Failed to get error");
+  mmk_reset(strerror_r);
+}
+#endif
