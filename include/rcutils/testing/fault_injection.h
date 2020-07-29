@@ -112,7 +112,7 @@ int _rcutils_fault_injection_maybe_fail();
       code; \
     } while (!rcutils_fault_injection_is_test_complete()); \
     RCUTILS_FAULT_INJECTION_SET_COUNT(RCUTILS_FAULT_INJECTION_NEVER_FAIL); \
-  } while(0)
+  } while (0)
 
 #else  // RCUTILS_ENABLE_FAULT_INJECTION
 
