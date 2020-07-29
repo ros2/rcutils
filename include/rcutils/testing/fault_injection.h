@@ -104,12 +104,6 @@ int _rcutils_fault_injection_maybe_fail();
 #define RCUTILS_FAULT_INJECTION_GET_COUNT() \
   _rcutils_fault_injection_get_count();
 
-#define RCUTILS_FAULT_INJECTION_INIT() \
-  RCUTILS_FAULT_INJECTION_SET_COUNT(RCUTILS_FAULT_INJECTION_NEVER_FAIL)
-
-#define RCUTILS_FAULT_INJECTION_FINI() \
-  RCUTILS_FAULT_INJECTION_SET_COUNT(RCUTILS_FAULT_INJECTION_NEVER_FAIL)
-
 #define RCUTILS_FAULT_INJECTION_TEST(code) \
   do { \
     int fault_injection_count = 0; \
@@ -117,6 +111,7 @@ int _rcutils_fault_injection_maybe_fail();
       RCUTILS_FAULT_INJECTION_SET_COUNT(fault_injection_count++); \
       code; \
     } while (!rcutils_fault_injection_is_test_complete()); \
+    RCUTILS_FAULT_INJECTION_SET_COUNT(RCUTILS_FAULT_INJECTION_NEVER_FAIL); \
   } while(0)
 
 #else  // RCUTILS_ENABLE_FAULT_INJECTION
@@ -128,11 +123,7 @@ int _rcutils_fault_injection_maybe_fail();
 
 #define RCUTILS_FAULT_INJECTION_MAYBE_RETURN_ERROR(msg, error_statement)
 
-#define RCUTILS_FAULT_INJECTION_INIT() \
-  printf("Fault injection is disabled, skipping\n"); \
-  return;
-
-#define RCUTILS_FAULT_INJECTION_FINI()
+#define RCUTILS_FAULT_INJECTION_TEST(code) return;
 
 #endif  // defined RCUTILS_ENABLE_FAULT_INJECTION
 
