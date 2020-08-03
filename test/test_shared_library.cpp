@@ -24,6 +24,8 @@
 
 #include "rcutils/get_env.h"
 
+#include "./mocking_utils/patch.hpp"
+
 class TestSharedLibrary : public ::testing::Test
 {
 protected:
@@ -46,6 +48,27 @@ TEST_F(TestSharedLibrary, basic_load) {
   EXPECT_TRUE(lib.lib_pointer == NULL);
   EXPECT_FALSE(rcutils_is_shared_library_loaded(&lib));
 
+  {
+#ifdef _WIN32
+#define vsnprintf _vsnprintf_s
+#endif
+    // Check internal errors are handled correctly
+    auto mock = mocking_utils::patch(
+      "lib:rcutils", vsnprintf,
+      [&](char * buffer, auto...) {
+        if (nullptr == buffer) {
+          return 1;
+        }
+        errno = EINVAL;
+        return -1;
+      });
+#ifdef _WIN32
+#undef vsnprintf
+#endif
+
+    ret = rcutils_get_platform_library_name("dummy_shared_library", library_path, 1024, false);
+    ASSERT_EQ(RCUTILS_RET_ERROR, ret);
+  }
   // Check debug name works first because rcutils_load_shared_library should be called on
   // non-debug symbol name
   ret = rcutils_get_platform_library_name("dummy_shared_library", library_path, 1024, true);

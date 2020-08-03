@@ -18,6 +18,7 @@
 #include <vector>
 
 #include "./allocator_testing_utils.h"
+#include "./mocking_utils/patch.hpp"
 #include "osrf_testing_tools_cpp/scope_exit.hpp"
 #include "rcutils/logging.h"
 
@@ -51,4 +52,11 @@ TEST(CLASSNAME(TestLoggingCustomEnv, RMW_IMPLEMENTATION), test_logging) {
 
   EXPECT_EQ(RCUTILS_RET_OK, rcutils_char_array_fini(&output_buf));
   EXPECT_EQ(RCUTILS_RET_OK, rcutils_char_array_fini(&msg_buf));
+}
+
+TEST(CLASSNAME(TestLoggingCustomEnv, RMW_IMPLEMENTATION), test_logging_with_buffering_issues) {
+  auto mock = mocking_utils::patch("lib:rcutils", setvbuf, [](auto && ...) {return -1;});
+  EXPECT_FALSE(g_rcutils_logging_initialized);
+  EXPECT_EQ(RCUTILS_RET_ERROR, rcutils_logging_initialize());
+  EXPECT_FALSE(g_rcutils_logging_initialized);
 }

@@ -19,6 +19,7 @@
 #include "rcutils/error_handling.h"
 #include "rcutils/split.h"
 #include "rcutils/types/string_array.h"
+#include "rcutils/types/char_array.h"
 
 #define ENABLE_LOGGING 1
 
@@ -76,7 +77,6 @@ TEST(test_split, split) {
   EXPECT_EQ(
     RCUTILS_RET_ERROR,
     rcutils_split("hello/world", '/', time_bomb_allocator, &tokens_fail));
-
 
   rcutils_string_array_t tokens0 = test_split("", '/', 0);
   ret = rcutils_string_array_fini(&tokens0);

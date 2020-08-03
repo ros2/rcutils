@@ -24,7 +24,7 @@
 #include "rcutils/macros.h"
 #include "rcutils/strerror.h"
 
-#include "./mimick.h"
+#include "mimick/mimick.h"
 
 TEST(test_strerror, get_error) {
   // cleaning possible errors

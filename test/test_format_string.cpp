@@ -17,6 +17,8 @@
 #include <string>
 
 #include "./allocator_testing_utils.h"
+#include "./mocking_utils/patch.hpp"
+
 #include "rcutils/allocator.h"
 #include "rcutils/format_string.h"
 
@@ -57,5 +59,27 @@ TEST(test_format_string_limit, invalid_arguments) {
   EXPECT_STREQ(NULL, formatted);
 
   formatted = rcutils_format_string_limit(failing_allocator, 10, "%s", "test");
+  EXPECT_STREQ(NULL, formatted);
+}
+
+TEST(test_format_string_limit, on_internal_error) {
+#ifdef _WIN32
+#define vsnprintf _vsnprintf_s
+#endif
+  auto mock = mocking_utils::patch(
+    "lib:rcutils", vsnprintf,
+    [](char * buffer, auto...) {
+      if (nullptr == buffer) {
+        return 1;  // provide a dummy value if buffer required size is queried
+      }
+      errno = EINVAL;
+      return -1;
+    });
+#ifdef _WIN32
+#undef vsnprintf
+#endif
+
+  rcutils_allocator_t allocator = rcutils_get_default_allocator();
+  char * formatted = rcutils_format_string_limit(allocator, 10, "%s", "test");
   EXPECT_STREQ(NULL, formatted);
 }

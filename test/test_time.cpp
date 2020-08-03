@@ -23,6 +23,13 @@
 #include "rcutils/error_handling.h"
 #include "rcutils/time.h"
 
+#include "./mocking_utils/patch.hpp"
+
+// For mocking purposes
+#ifdef _WIN32
+#define vsnprintf _vsnprintf_s
+#endif
+
 using osrf_testing_tools_cpp::memory_tools::disable_monitoring_in_all_threads;
 using osrf_testing_tools_cpp::memory_tools::enable_monitoring_in_all_threads;
 using osrf_testing_tools_cpp::memory_tools::on_unexpected_calloc;
@@ -188,6 +195,59 @@ TEST_F(TestTimeFixture, test_rcutils_steady_time_now) {
     llabs(steady_diff - sc_diff), RCUTILS_MS_TO_NS(k_tolerance_ms)) << "steady_clock differs";
 }
 
+#if !defined(_WIN32)
+// For mocking purposes
+#if defined(__MACH__)
+#define clock_gettime clock_get_time
+#endif
+
+// Tests rcutils_system_time_now() and rcutils_steady_time_now() functions
+// when system clocks misbehave.
+TEST_F(TestTimeFixture, test_rcutils_with_bad_system_clocks) {
+  {
+    auto mock = mocking_utils::patch(
+      "lib:rcutils", clock_gettime,
+      [](auto, auto * ts) {
+        ts->tv_sec = -1;
+        ts->tv_nsec = 0;
+        return 0;
+      });
+
+    rcutils_time_point_value_t now = 0;
+    rcutils_ret_t ret = rcutils_system_time_now(&now);
+    EXPECT_EQ(RCUTILS_RET_ERROR, ret);
+    rcutils_reset_error();
+
+    ret = rcutils_steady_time_now(&now);
+    EXPECT_EQ(RCUTILS_RET_ERROR, ret);
+    rcutils_reset_error();
+  }
+
+  {
+    auto mock = mocking_utils::patch(
+      "lib:rcutils", clock_gettime,
+      [](auto, auto * ts) {
+        ts->tv_sec = 0;
+        ts->tv_nsec = -1;
+        return 0;
+      });
+
+    rcutils_time_point_value_t now = 0;
+    rcutils_ret_t ret = rcutils_system_time_now(&now);
+    EXPECT_EQ(RCUTILS_RET_ERROR, ret);
+    rcutils_reset_error();
+
+    ret = rcutils_steady_time_now(&now);
+    EXPECT_EQ(RCUTILS_RET_ERROR, ret);
+    rcutils_reset_error();
+  }
+}
+
+#if defined(__MACH__)
+#undef clock_gettime
+#endif
+#endif  // !defined(_WIN32)
+
 // Tests the rcutils_time_point_value_as_nanoseconds_string() function.
 TEST_F(TestTimeFixture, test_rcutils_time_point_value_as_nanoseconds_string) {
   rcutils_ret_t ret;
@@ -239,6 +299,26 @@ TEST_F(TestTimeFixture, test_rcutils_time_point_value_as_nanoseconds_string) {
   ret = rcutils_time_point_value_as_nanoseconds_string(&timepoint, buffer, sizeof(buffer));
   EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
   EXPECT_STREQ("-0000000000000000100", buffer);
+
+#ifdef _WIN32
+#define vsnprintf _vsnprintf_s
+#endif
+  auto mock = mocking_utils::patch(
+    "lib:rcutils", vsnprintf,
+    [](char * buffer, auto...) {
+      if (nullptr == buffer) {
+        return 1;  // provide a dummy value if buffer required size is queried
+      }
+      errno = EINVAL;
+      return -1;
+    });
+#ifdef _WIN32
+#undef vsnprintf
+#endif
+  timepoint = 100;
+  ret = rcutils_time_point_value_as_nanoseconds_string(&timepoint, buffer, sizeof(buffer));
+  EXPECT_EQ(RCUTILS_RET_ERROR, ret);
+  rcutils_reset_error();
 }
 
 // Tests the rcutils_time_point_value_as_seconds_string() function.
@@ -292,4 +372,23 @@ TEST_F(TestTimeFixture, test_rcutils_time_point_value_as_seconds_string) {
   ret = rcutils_time_point_value_as_seconds_string(&timepoint, buffer, sizeof(buffer));
   EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
   EXPECT_STREQ("-0000000000.000000100", buffer);
+
+#ifdef _WIN32
+#define vsnprintf _vsnprintf_s
+#endif
+  auto mock = mocking_utils::patch(
+    "lib:rcutils", vsnprintf, [](char * buffer, auto...) {
+      if (nullptr == buffer) {
+        return 1;  // provide a dummy value if buffer required size is queried
+      }
+      errno = EINVAL;
+      return -1;
+    });
+#ifdef _WIN32
+#undef vsnprintf
+#endif
+  timepoint = 100;
+  ret = rcutils_time_point_value_as_seconds_string(&timepoint, buffer, sizeof(buffer));
+  EXPECT_EQ(RCUTILS_RET_ERROR, ret);
+  rcutils_reset_error();
 }
