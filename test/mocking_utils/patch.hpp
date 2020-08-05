@@ -290,7 +290,7 @@ auto make_patch(const std::string & target, std::function<SignatureT> proxy)
  * Useful to enable patching functions that take arguments whose types
  * do not define basic comparison operators, as required by Mimick.
 */
-#define MOCKING_UTILS_DEFINE_DUMMY_OPERATOR(type_, op) \
+#define MOCKING_UTILS_BOOL_OPERATOR_RETURNS_FALSE(type_, op) \
   template<typename T> \
   typename std::enable_if<std::is_same<T, type_>::value, bool>::type \
   operator op(const T &, const T &) { \
@@ -326,10 +326,10 @@ auto make_patch(const std::string & target, std::function<SignatureT> proxy)
 
 }  // namespace mocking_utils
 
-// Define dummy operators for C standard va_list type
-MOCKING_UTILS_DEFINE_DUMMY_OPERATOR(va_list, ==)
-MOCKING_UTILS_DEFINE_DUMMY_OPERATOR(va_list, !=)
-MOCKING_UTILS_DEFINE_DUMMY_OPERATOR(va_list, <)
-MOCKING_UTILS_DEFINE_DUMMY_OPERATOR(va_list, >)
+// Define dummy comparison operators for C standard va_list type
+MOCKING_UTILS_BOOL_OPERATOR_RETURNS_FALSE(va_list, ==)
+MOCKING_UTILS_BOOL_OPERATOR_RETURNS_FALSE(va_list, !=)
+MOCKING_UTILS_BOOL_OPERATOR_RETURNS_FALSE(va_list, <)
+MOCKING_UTILS_BOOL_OPERATOR_RETURNS_FALSE(va_list, >)
 
 #endif  // MOCKING_UTILS__PATCH_HPP_

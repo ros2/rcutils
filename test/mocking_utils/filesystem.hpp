@@ -58,6 +58,8 @@ struct Permissions
 #endif
 };
 
+#if !defined(_WIN32)
+
 /// Helper class for patching the filesystem API.
 /**
  * \tparam ID Numerical identifier for this patches. Ought to be unique.
@@ -72,13 +74,8 @@ public:
    *   \see mocking_utils::Patch documentation for further reference.
    */
   explicit FileSystem(const std::string & scope)
-#ifndef _WIN32
   : opendir_mock_(MOCKING_UTILS_PATCH_TARGET(scope, opendir),
       MOCKING_UTILS_PATCH_PROXY(opendir)),
-#else
-  : find_first_file_mock_(MOCKING_UTILS_PATCH_TARGET(scope, FindFirstFile),
-      MOCKING_UTILS_PATCH_PROXY(FindFirstFile)),
-#endif
 #ifndef _GNU_SOURCE
     stat_mock_(MOCKING_UTILS_PATCH_TARGET(scope, stat),
       MOCKING_UTILS_PATCH_PROXY(stat))
@@ -87,14 +84,7 @@ public:
       MOCKING_UTILS_PATCH_PROXY(__xstat))
 #endif
   {
-#ifndef _WIN32
     opendir_mock_.then_call(std::bind(&FileSystem::do_opendir, this, std::placeholders::_1));
-#else
-    find_first_file_mock_.then_call(
-      std::bind(
-        &FileSystem::do_FindFirstFile, this,
-        std::placeholders::_1, std::placeholders::_2))
-#endif
 #ifndef _GNU_SOURCE
     stat_mock_.then_call(
       std::bind(
@@ -111,11 +101,7 @@ public:
   /// Force APIs that return file descriptors or handles to fail as if these had been exhausted.
   void exhaust_file_descriptors()
   {
-#ifdef _WIN32
-    forced_errno_ = ERROR_NO_MORE_SEARCH_HANDLES;
-#else
     forced_errno_ = EMFILE;
-#endif
   }
 
   /// Get information from file in the mocked filesystem.
@@ -130,7 +116,6 @@ public:
   }
 
 private:
-#ifndef _WIN32
   DIR * do_opendir(const char *)
   {
     if (forced_errno_ != 0) {
@@ -141,19 +126,6 @@ private:
     return NULL;
   }
   MOCKING_UTILS_PATCH_TYPE(ID, opendir) opendir_mock_;
-#else
-  HANDLE do_FindFirstFile(LPCSTR, LPWIN32_FIND_DATAA)
-  {
-    if (forced_errno_ != 0) {
-      SetLastError(forced_errno_);
-      return INVALID_HANDLE_VALUE;
-    }
-    SetLastError(ERROR_FILE_NOT_FOUND);
-    return INVALID_HANDLE_VALUE;
-  }
-
-  MOCKING_UTILS_PATCH_TYPE(ID, FindFirstFile) find_first_file_mock_;
-#endif
 
 #ifndef _GNU_SOURCE
   int do_stat(const char * path, struct stat * info)
@@ -179,6 +151,85 @@ private:
   int forced_errno_{0};
   std::map<std::string, struct stat> files_info_;
 };
+
+#else  // !defined(_WIN32)
+
+/// Helper class for patching the filesystem API.
+/**
+ * \tparam ID Numerical identifier for this patches. Ought to be unique.
+ */
+template<size_t ID>
+class FileSystem
+{
+public:
+  /// Construct mocked filesystem.
+  /**
+   * \param[in] scope Scope target string, using Mimick syntax.
+   *   \see mocking_utils::Patch documentation for further reference.
+   */
+  explicit FileSystem(const std::string & scope)
+  : find_first_file_mock_(MOCKING_UTILS_PATCH_TARGET(scope, FindFirstFile),
+      MOCKING_UTILS_PATCH_PROXY(FindFirstFile)),
+    stat_mock_(MOCKING_UTILS_PATCH_TARGET(scope, stat),
+      MOCKING_UTILS_PATCH_PROXY(stat))
+  {
+    find_first_file_mock_.then_call(
+      std::bind(
+        &FileSystem::do_FindFirstFile, this,
+        std::placeholders::_1, std::placeholders::_2))
+    stat_mock_.then_call(
+      std::bind(
+        &FileSystem::do_stat, this,
+        std::placeholders::_1, std::placeholders::_2));
+  }
+
+  /// Force APIs that return file descriptors or handles to fail as if these had been exhausted.
+  void exhaust_file_descriptors()
+  {
+    forced_errno_ = ERROR_NO_MORE_SEARCH_HANDLES;
+  }
+
+  /// Get information from file in the mocked filesystem.
+  /**
+   * \param[in] path Path to the file whose information is to be retrieved.
+   *   If file is not found, one will be added.
+   * \return mutable reference to file information.
+   */
+  struct stat & file_info(const std::string & path)
+  {
+    return files_info_[path];
+  }
+
+private:
+  HANDLE do_FindFirstFile(LPCSTR, LPWIN32_FIND_DATAA)
+  {
+    if (forced_errno_ != 0) {
+      SetLastError(forced_errno_);
+      return INVALID_HANDLE_VALUE;
+    }
+    SetLastError(ERROR_FILE_NOT_FOUND);
+    return INVALID_HANDLE_VALUE;
+  }
+
+  MOCKING_UTILS_PATCH_TYPE(ID, FindFirstFile) find_first_file_mock_;
+
+  int do_stat(const char * path, struct stat * info)
+  {
+    if (files_info_.count(path) == 0) {
+      errno = ENOENT;
+      return -1;
+    }
+    *info = files_info_[path];
+    return 0;
+  }
+
+  MOCKING_UTILS_PATCH_TYPE(ID, stat) stat_mock_;
+
+  int forced_errno_{0};
+  std::map<std::string, struct stat> files_info_;
+};
+
+#endif  // else !defined(_WIN32)
 
 }  // namespace filesystem
 
