@@ -19,7 +19,6 @@
 #include "rcutils/error_handling.h"
 #include "rcutils/split.h"
 #include "rcutils/types/string_array.h"
-#include "rcutils/types/char_array.h"
 
 #define ENABLE_LOGGING 1
 
