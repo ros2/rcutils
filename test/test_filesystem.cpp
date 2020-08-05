@@ -195,7 +195,7 @@ TEST_F(TestFilesystemFixture, is_readable) {
     EXPECT_TRUE(rcutils_is_readable(path));
   }
   {
-    char * path = rcutils_join_path(this->test_path, "dummy_nonexisting_file.txt", g_allocator);
+    char * path = rcutils_join_path(this->test_path, "dummy_nonexistent_file.txt", g_allocator);
     OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
     {
       g_allocator.deallocate(path, g_allocator.state);
@@ -204,7 +204,7 @@ TEST_F(TestFilesystemFixture, is_readable) {
     EXPECT_FALSE(rcutils_is_readable(path));
   }
   {
-    char * path = rcutils_join_path(this->test_path, "dummy_nonexisting_file.txt", g_allocator);
+    char * path = rcutils_join_path(this->test_path, "dummy_nonexistent_file.txt", g_allocator);
     OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
     {
       g_allocator.deallocate(path, g_allocator.state);
@@ -214,7 +214,7 @@ TEST_F(TestFilesystemFixture, is_readable) {
   }
   {
     auto fs = mocking_utils::patch_filesystem("lib:rcutils");
-    const char * path = "dummy_non_readable_file.txt";
+    const char * path = "fake_unreadable_file.txt";
     fs.file_info(path).st_mode &= ~mocking_utils::filesystem::Permissions::USER_READABLE;
     EXPECT_FALSE(rcutils_is_readable(path));
   }
@@ -241,7 +241,7 @@ TEST_F(TestFilesystemFixture, is_writable) {
     EXPECT_TRUE(rcutils_is_writable(path));
   }
   {
-    char * path = rcutils_join_path(this->test_path, "dummy_nonexisting_file.txt", g_allocator);
+    char * path = rcutils_join_path(this->test_path, "dummy_nonexistent_file.txt", g_allocator);
     OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
     {
       g_allocator.deallocate(path, g_allocator.state);
@@ -251,7 +251,7 @@ TEST_F(TestFilesystemFixture, is_writable) {
   }
   {
     auto fs = mocking_utils::patch_filesystem("lib:rcutils");
-    const char * path = "dummy_non_writable_file.txt";
+    const char * path = "fake_unwritable_file.txt";
     fs.file_info(path).st_mode &= ~mocking_utils::filesystem::Permissions::USER_WRITABLE;
     EXPECT_FALSE(rcutils_is_writable(path));
   }
@@ -279,7 +279,7 @@ TEST_F(TestFilesystemFixture, is_readable_and_writable) {
   }
   {
     auto fs = mocking_utils::patch_filesystem("lib:rcutils");
-    const char * path = "fake_writable_but_non_readable_file.txt";
+    const char * path = "fake_writable_but_unreadable_file.txt";
     fs.file_info(path).st_mode |= mocking_utils::filesystem::Permissions::USER_READABLE;
     fs.file_info(path).st_mode &= ~mocking_utils::filesystem::Permissions::USER_WRITABLE;
     EXPECT_FALSE(rcutils_is_readable_and_writable(path));

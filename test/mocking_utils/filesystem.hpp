@@ -79,23 +79,22 @@ public:
 #ifndef _GNU_SOURCE
     stat_mock_(MOCKING_UTILS_PATCH_TARGET(scope, stat),
       MOCKING_UTILS_PATCH_PROXY(stat))
-#else
-    __xstat_mock_(MOCKING_UTILS_PATCH_TARGET(scope, __xstat),
-      MOCKING_UTILS_PATCH_PROXY(__xstat))
-#endif
   {
-    opendir_mock_.then_call(std::bind(&FileSystem::do_opendir, this, std::placeholders::_1));
-#ifndef _GNU_SOURCE
     stat_mock_.then_call(
       std::bind(
         &FileSystem::do_stat, this,
         std::placeholders::_1, std::placeholders::_2));
 #else
+    __xstat_mock_(
+      MOCKING_UTILS_PATCH_TARGET(scope, __xstat),
+      MOCKING_UTILS_PATCH_PROXY(__xstat))
+  {
     __xstat_mock_.then_call(
       std::bind(
         &FileSystem::do___xstat, this, std::placeholders::_1,
         std::placeholders::_2, std::placeholders::_3));
 #endif
+    opendir_mock_.then_call(std::bind(&FileSystem::do_opendir, this, std::placeholders::_1));
   }
 
   /// Force APIs that return file descriptors or handles to fail as if these had been exhausted.
