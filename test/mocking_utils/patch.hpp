@@ -16,7 +16,7 @@
 #define MOCKING_UTILS__PATCH_HPP_
 
 #define MOCKING_UTILS_SUPPORT_VA_LIST
-#if defined(__arm__) || defined(_M_ARM) || defined(__thumb__)
+#if (defined(__aarch64__) || defined(__arm__) || defined(_M_ARM) || defined(__thumb__))
 // In ARM machines, va_list does not define comparison operators
 // nor the compiler allows defining them via operator overloads.
 // Thus, Mimick argument matching code will not compile.
