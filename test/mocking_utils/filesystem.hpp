@@ -39,12 +39,14 @@ namespace mocking_utils
 namespace filesystem
 {
 
+/// Platform-independent set of file type constants.
 struct FileTypes
 {
   static constexpr mode_t REGULAR_FILE = S_IFREG;
   static constexpr mode_t DIRECTORY = S_IFDIR;
 };
 
+/// Platform-independent set of file permission constants.
 struct Permissions
 {
 #ifndef _WIN32
@@ -56,23 +58,32 @@ struct Permissions
 #endif
 };
 
-template<size_t N>
+/// Helper class for patching the filesystem API.
+/**
+ * \tparam ID Numerical identifier for this patches. Ought to be unique.
+ */
+template<size_t ID>
 class FileSystem
 {
 public:
-  explicit FileSystem(const std::string & target)
+  /// Construct mocked filesystem.
+  /**
+   * \param[in] scope Scope target string, using Mimick syntax.
+   *   \see mocking_utils::Patch documentation for further reference.
+   */
+  explicit FileSystem(const std::string & scope)
 #ifndef _WIN32
-  : opendir_mock_(MOCKING_UTILS_PATCH_TARGET(target, opendir),
+  : opendir_mock_(MOCKING_UTILS_PATCH_TARGET(scope, opendir),
       MOCKING_UTILS_PATCH_PROXY(opendir)),
 #else
-  : find_first_file_mock_(MOCKING_UTILS_PATCH_TARGET(target, FindFirstFile),
+  : find_first_file_mock_(MOCKING_UTILS_PATCH_TARGET(scope, FindFirstFile),
       MOCKING_UTILS_PATCH_PROXY(FindFirstFile)),
 #endif
 #ifndef _GNU_SOURCE
-    stat_mock_(MOCKING_UTILS_PATCH_TARGET(target, stat),
+    stat_mock_(MOCKING_UTILS_PATCH_TARGET(scope, stat),
       MOCKING_UTILS_PATCH_PROXY(stat))
 #else
-    __xstat_mock_(MOCKING_UTILS_PATCH_TARGET(target, __xstat),
+    __xstat_mock_(MOCKING_UTILS_PATCH_TARGET(scope, __xstat),
       MOCKING_UTILS_PATCH_PROXY(__xstat))
 #endif
   {
@@ -97,6 +108,7 @@ public:
 #endif
   }
 
+  /// Force APIs that return file descriptors or handles to fail as if these had been exhausted.
   void exhaust_file_descriptors()
   {
 #ifdef _WIN32
@@ -106,6 +118,12 @@ public:
 #endif
   }
 
+  /// Get information from file in the mocked filesystem.
+  /**
+   * \param[in] path Path to the file whose information is to be retrieved.
+   *   If file is not found, one will be added.
+   * \return mutable reference to file information.
+   */
   struct stat & file_info(const std::string & path)
   {
     return files_info_[path];
@@ -122,7 +140,7 @@ private:
     errno = ENOENT;
     return NULL;
   }
-  MOCKING_UTILS_PATCH_TYPE(N, opendir) opendir_mock_;
+  MOCKING_UTILS_PATCH_TYPE(ID, opendir) opendir_mock_;
 #else
   HANDLE do_FindFirstFile(LPCSTR, LPWIN32_FIND_DATAA)
   {
@@ -134,7 +152,7 @@ private:
     return INVALID_HANDLE_VALUE;
   }
 
-  MOCKING_UTILS_PATCH_TYPE(N, FindFirstFile) find_first_file_mock_;
+  MOCKING_UTILS_PATCH_TYPE(ID, FindFirstFile) find_first_file_mock_;
 #endif
 
 #ifndef _GNU_SOURCE
@@ -153,9 +171,9 @@ private:
   }
 
 #ifndef _GNU_SOURCE
-  MOCKING_UTILS_PATCH_TYPE(N, stat) stat_mock_;
+  MOCKING_UTILS_PATCH_TYPE(ID, stat) stat_mock_;
 #else
-  MOCKING_UTILS_PATCH_TYPE(N, __xstat) __xstat_mock_;
+  MOCKING_UTILS_PATCH_TYPE(ID, __xstat) __xstat_mock_;
 #endif
 
   int forced_errno_{0};
@@ -164,8 +182,8 @@ private:
 
 }  // namespace filesystem
 
-/// Patch filesystem API, based on `what` binary object should be affected.
-#define patch_filesystem(what) filesystem::FileSystem<__COUNTER__>(what)
+/// Patch filesystem API in a given `scope`.
+#define patch_filesystem(scope) filesystem::FileSystem<__COUNTER__>(scope)
 
 }  // namespace mocking_utils
 

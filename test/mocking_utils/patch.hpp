@@ -26,66 +26,120 @@
 namespace mocking_utils
 {
 
-template<size_t N, typename SignatureT>
+/// Mimick specific traits for each mocking_utils::Patch instance.
+/**
+ * \tparam ID Numerical identifier of the patch. Ought to be unique.
+ * \tparam SignatureT Type of the symbol to be patched.
+*/
+template<size_t ID, typename SignatureT>
 struct PatchTraits;
 
-template<size_t N, typename ReturnType>
-struct PatchTraits<N, ReturnType(void)>
+/// Traits specialization for ReturnT(void) free functions.
+/**
+ * \tparam ID Numerical identifier of the patch. Ought to be unique.
+ * \tparam ReturnT Return value type.
+ */
+template<size_t ID, typename ReturnT>
+struct PatchTraits<ID, ReturnT(void)>
 {
-  mmk_mock_define(mock_type, ReturnType);
+  mmk_mock_define(mock_type, ReturnT);
 };
 
-template<size_t N, typename ReturnType, typename ArgType0>
-struct PatchTraits<N, ReturnType(ArgType0)>
+/// Traits specialization for ReturnT(ArgT0) free functions.
+/**
+ * \tparam ID Numerical identifier of the patch. Ought to be unique.
+ * \tparam ReturnT Return value type.
+ * \tparam ArgT0 Argument type.
+ */
+template<size_t ID, typename ReturnT, typename ArgT0>
+struct PatchTraits<ID, ReturnT(ArgT0)>
 {
-  mmk_mock_define(mock_type, ReturnType, ArgType0);
+  mmk_mock_define(mock_type, ReturnT, ArgT0);
 };
 
-template<size_t N, typename ReturnType,
-  typename ArgType0, typename ArgType1>
-struct PatchTraits<N, ReturnType(ArgType0, ArgType1)>
+/// Traits specialization for ReturnT(ArgT0, ArgT1) free functions.
+/**
+ * \tparam ID Numerical identifier of the patch. Ought to be unique.
+ * \tparam ReturnT Return value type.
+ * \tparam ArgTx Argument types.
+ */
+template<size_t ID, typename ReturnT,
+  typename ArgT0, typename ArgT1>
+struct PatchTraits<ID, ReturnT(ArgT0, ArgT1)>
 {
-  mmk_mock_define(mock_type, ReturnType, ArgType0, ArgType1);
+  mmk_mock_define(mock_type, ReturnT, ArgT0, ArgT1);
 };
 
-template<size_t N, typename ReturnType,
-  typename ArgType0, typename ArgType1, typename ArgType2>
-struct PatchTraits<N, ReturnType(ArgType0, ArgType1, ArgType2)>
+/// Traits specialization for ReturnT(ArgT0, ArgT1, ArgT2) free functions.
+/**
+ * \tparam ID Numerical identifier of the patch. Ought to be unique.
+ * \tparam ReturnT Return value type.
+ * \tparam ArgTx Argument types.
+ */
+template<size_t ID, typename ReturnT,
+  typename ArgT0, typename ArgT1, typename ArgT2>
+struct PatchTraits<ID, ReturnT(ArgT0, ArgT1, ArgT2)>
 {
-  mmk_mock_define(mock_type, ReturnType, ArgType0, ArgType1, ArgType2);
+  mmk_mock_define(mock_type, ReturnT, ArgT0, ArgT1, ArgT2);
 };
 
-template<size_t N, typename ReturnType,
-  typename ArgType0, typename ArgType1,
-  typename ArgType2, typename ArgType3>
-struct PatchTraits<N, ReturnType(ArgType0, ArgType1, ArgType2, ArgType3)>
+/// Traits specialization for ReturnT(ArgT0, ArgT1, ArgT2, ArgT3) free functions.
+/**
+ * \tparam ID Numerical identifier of the patch. Ought to be unique.
+ * \tparam ReturnT Return value type.
+ * \tparam ArgTx Argument types.
+ */
+template<size_t ID, typename ReturnT,
+  typename ArgT0, typename ArgT1,
+  typename ArgT2, typename ArgT3>
+struct PatchTraits<ID, ReturnT(ArgT0, ArgT1, ArgT2, ArgT3)>
 {
-  mmk_mock_define(mock_type, ReturnType, ArgType0, ArgType1, ArgType2, ArgType3);
+  mmk_mock_define(mock_type, ReturnT, ArgT0, ArgT1, ArgT2, ArgT3);
 };
 
-template<size_t N, typename ReturnType,
-  typename ArgType0, typename ArgType1,
-  typename ArgType2, typename ArgType3, typename ArgType4>
-struct PatchTraits<N, ReturnType(ArgType0, ArgType1, ArgType2, ArgType3, ArgType4)>
+/// Traits specialization for ReturnT(ArgT0, ArgT1, ArgT2, ArgT3, ArgT4)
+/// free functions.
+/**
+ * \tparam ID Numerical identifier of the patch. Ought to be unique.
+ * \tparam ReturnT Return value type.
+ * \tparam ArgTx Argument types.
+ */
+template<size_t ID, typename ReturnT,
+  typename ArgT0, typename ArgT1,
+  typename ArgT2, typename ArgT3, typename ArgT4>
+struct PatchTraits<ID, ReturnT(ArgT0, ArgT1, ArgT2, ArgT3, ArgT4)>
 {
-  mmk_mock_define(mock_type, ReturnType, ArgType0, ArgType1, ArgType2, ArgType3, ArgType4);
+  mmk_mock_define(mock_type, ReturnT, ArgT0, ArgT1, ArgT2, ArgT3, ArgT4);
 };
 
-template<size_t N, typename ReturnType,
-  typename ArgType0, typename ArgType1,
-  typename ArgType2, typename ArgType3,
-  typename ArgType4, typename ArgType5>
-struct PatchTraits<N, ReturnType(ArgType0, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5)>
+/// Traits specialization for ReturnT(ArgT0, ArgT1, ArgT2, ArgT3, ArgT4, ArgT5)
+/// free functions.
+/**
+ * \tparam ID Numerical identifier of the patch. Ought to be unique.
+ * \tparam ReturnT Return value type.
+ * \tparam ArgTx Argument types.
+ */
+template<size_t ID, typename ReturnT,
+  typename ArgT0, typename ArgT1,
+  typename ArgT2, typename ArgT3,
+  typename ArgT4, typename ArgT5>
+struct PatchTraits<ID, ReturnT(ArgT0, ArgT1, ArgT2, ArgT3, ArgT4, ArgT5)>
 {
   mmk_mock_define(
-    mock_type, ReturnType, ArgType0, ArgType1, ArgType2, ArgType3, ArgType4, ArgType5);
+    mock_type, ReturnT, ArgT0, ArgT1, ArgT2, ArgT3, ArgT4, ArgT5);
 };
 
-template<size_t N, typename SignatureT>
+/// Generic trampoline to wrap generalized callables in plain functions.
+/**
+ * \tparam ID Numerical identifier of this trampoline. Ought to be unique.
+ * \tparam SignatureT Type of the symbol this trampoline replaces.
+ */
+template<size_t ID, typename SignatureT>
 struct Trampoline;
 
-template<size_t N, typename ReturnT, typename ... ArgTs>
-struct Trampoline<N, ReturnT(ArgTs...)>
+/// Trampoline specialization for free functions.
+template<size_t ID, typename ReturnT, typename ... ArgTs>
+struct Trampoline<ID, ReturnT(ArgTs...)>
 {
   static ReturnT base(ArgTs... args)
   {
@@ -95,34 +149,69 @@ struct Trampoline<N, ReturnT(ArgTs...)>
   static std::function<ReturnT(ArgTs...)> target;
 };
 
-template<size_t N, typename ReturnT, typename ... ArgTs>
+template<size_t ID, typename ReturnT, typename ... ArgTs>
 std::function<ReturnT(ArgTs...)>
-Trampoline<N, ReturnT(ArgTs...)>::target;
+Trampoline<ID, ReturnT(ArgTs...)>::target;
 
-template<size_t N, typename SignatureT>
+/// Setup trampoline with the given @p target.
+/**
+ * \param[in] target Callable that this trampoline will target.
+ * \return the plain base function of this trampoline.
+ *
+ * \tparam ID Numerical identifier of this trampoline. Ought to be unique.
+ * \tparam SignatureT Type of the symbol this trampoline replaces.
+ */
+template<size_t ID, typename SignatureT>
 auto prepare_trampoline(std::function<SignatureT> target)
 {
-  Trampoline<N, SignatureT>::target = target;
-  return Trampoline<N, SignatureT>::base;
+  Trampoline<ID, SignatureT>::target = target;
+  return Trampoline<ID, SignatureT>::base;
 }
 
-template<size_t N, typename SignatureT>
+/// Patch class for binary API mocking
+/**
+ * Built on top of Mimick, to enable symbol mocking on a per dynamically
+ * linked binary object basis.
+ *
+ * \tparam ID Numerical identifier for this patch. Ought to be unique.
+ * \tparam SignatureT Type of the symbol to be patched.
+ */
+template<size_t ID, typename SignatureT>
 class Patch;
 
-template<size_t N, typename ReturnT, typename ... ArgTs>
-class Patch<N, ReturnT(ArgTs...)>
+/// Patch specialization for ReturnT(ArgTs...) free functions.
+/**
+ * \tparam ID Numerical identifier for this patch. Ought to be unique.
+ * \tparam ReturnT Return value type.
+ * \tparam ArgTs Argument types.
+ */
+template<size_t ID, typename ReturnT, typename ... ArgTs>
+class Patch<ID, ReturnT(ArgTs...)>
 {
 public:
-  using mock_type = typename PatchTraits<N, ReturnT(ArgTs...)>::mock_type;
+  using mock_type = typename PatchTraits<ID, ReturnT(ArgTs...)>::mock_type;
 
-  Patch(const std::string & target, std::function<ReturnT(ArgTs...)> proxy)
+  /// Construct a patch.
+  /**
+   * \param[in] target Symbol target string, using Mimick syntax
+   *   i.e. "symbol(@scope)?", where scope may be "self" to target the current
+   *   binary, "lib:library_name" to target a given library, "file:path/to/library"
+   *   to target a given file, or "sym:other_symbol" to target the first library
+   *   that defines said symbol.
+   * \param[in] proxy An indirection to call the target function.
+   *   This indirection must ensure this call goes through the function's
+   *   trampoline, as setup by the dynamic linker.
+   * \return a mocking_utils::Patch instance.
+   */
+  explicit Patch(const std::string & target, std::function<ReturnT(ArgTs...)> proxy)
   : proxy_(proxy)
   {
     auto MMK_MANGLE(mock_type, create) =
-      PatchTraits<N, ReturnT(ArgTs...)>::MMK_MANGLE(mock_type, create);
+      PatchTraits<ID, ReturnT(ArgTs...)>::MMK_MANGLE(mock_type, create);
     mock_ = mmk_mock(target.c_str(), mock_type);
   }
 
+  // Copy construction and assignment are disabled.
   Patch(const Patch &) = delete;
   Patch & operator=(const Patch &) = delete;
 
@@ -148,23 +237,27 @@ public:
     }
   }
 
+  /// Inject a @p replacement for the patched function.
   Patch & then_call(std::function<ReturnT(ArgTs...)> replacement) &
   {
     auto type_erased_trampoline =
-      reinterpret_cast<mmk_fn>(prepare_trampoline<N>(replacement));
+      reinterpret_cast<mmk_fn>(prepare_trampoline<ID>(replacement));
     mmk_when(proxy_(any<ArgTs>()...), .then_call = type_erased_trampoline);
     return *this;
   }
 
+  /// Inject a @p replacement for the patched function.
   Patch && then_call(std::function<ReturnT(ArgTs...)> replacement) &&
   {
     auto type_erased_trampoline =
-      reinterpret_cast<mmk_fn>(prepare_trampoline<N>(replacement));
+      reinterpret_cast<mmk_fn>(prepare_trampoline<ID>(replacement));
     mmk_when(proxy_(any<ArgTs>()...), .then_call = type_erased_trampoline);
     return std::move(*this);
   }
 
 private:
+  // Helper for template parameter pack expansion using `mmk_any`
+  // macro as pattern.
   template<typename T>
   T any() {return mmk_any(T);}
 
@@ -172,46 +265,61 @@ private:
   std::function<ReturnT(ArgTs...)> proxy_;
 };
 
-template<size_t N, typename SignatureT>
+/// Make a patch for a `target` function.
+/**
+ * Useful for type deduction during \ref mocking_utils::Patch construction.
+ *
+ * \param[in] target Symbol target string, using Mimick syntax.
+ * \param[in] proxy An indirection to call the target function.
+ * \return a mocking_utils::Patch instance.
+ *
+ * \tparam ID Numerical identifier for this patch. Ought to be unique.
+ * \tparam SignatureT Type of the function to be patched.
+ *
+ * \sa mocking_utils::Patch for further reference.
+ */
+template<size_t ID, typename SignatureT>
 auto make_patch(const std::string & target, std::function<SignatureT> proxy)
 {
-  return Patch<N, SignatureT>(target, proxy);
+  return Patch<ID, SignatureT>(target, proxy);
 }
 
 /// Define a dummy operator `op` for a given `type`.
-///
-/// Useful to enable patching functions that take arguments whose types
-/// do not define basic comparison operators required by Mimick.
+/**
+ * Useful to enable patching functions that take arguments whose types
+ * do not define basic comparison operators, as required by Mimick.
+ */
 #define MOCKING_UTILS_DEFINE_DUMMY_OPERATOR(type, op) \
   bool operator op(const type &, const type &) { \
     return false; \
   }
 
-/// Get the exact mocking_utils::Patch type for a given id and function.
-///
-/// Useful to avoid ignored attribute warnings when using the \b decltype operator.
+/// Get the exact \ref mocking_utils::Patch type for a given `id` and `function`.
+/**
+ * Useful to avoid ignored attribute warnings when using the \b decltype operator.
+ */
 #define MOCKING_UTILS_PATCH_TYPE(id, function) \
   decltype(mocking_utils::make_patch<id, decltype(function)>("", nullptr))
 
 /// A transparent forwarding proxy to a given `function`.
-///
-/// Useful to ensure a call to `function` goes through its trampoline.
+/**
+ * Useful to ensure a call to `function` goes through its trampoline.
+ */
 #define MOCKING_UTILS_PATCH_PROXY(function) \
   [] (auto && ... args)->decltype(auto) { \
     return function(std::forward<decltype(args)>(args)...); \
   }
 
-/// Compute a Mimick-compliant, symbol target string based on `what` binary
-/// object and `which` symbol should be targeted.
-#define MOCKING_UTILS_PATCH_TARGET(what, which) \
-  (std::string(RCUTILS_STRINGIFY(where)) + "@" + (what))
+/// Compute a Mimick symbol target string based on which `function` is to be patched
+/// in which `scope`.
+#define MOCKING_UTILS_PATCH_TARGET(scope, function) \
+  (std::string(RCUTILS_STRINGIFY(function)) + "@" + (scope))
 
-/// Patch a function `with` a used-provided replacement, based on `what` binary
-/// object and `which` symbol should be patched.
-#define patch(what, which, with) \
-  make_patch<__COUNTER__, decltype(which)>( \
-    MOCKING_UTILS_PATCH_TARGET(what, which), MOCKING_UTILS_PATCH_PROXY(where) \
-  ).then_call(with)
+/// Patch a `function` with a used-provided `replacement` in a given `scope`.
+#define patch(scope, function, replacement) \
+  make_patch<__COUNTER__, decltype(function)>( \
+    MOCKING_UTILS_PATCH_TARGET(scope, function), MOCKING_UTILS_PATCH_PROXY(function) \
+  ).then_call(replacement)
 
 }  // namespace mocking_utils
 
