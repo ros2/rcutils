@@ -283,8 +283,8 @@ TEST_F(TestFilesystemFixture, is_readable_and_writable) {
     fs.file_info(path).st_mode |= mocking_utils::filesystem::Permissions::USER_READABLE;
     fs.file_info(path).st_mode &= ~mocking_utils::filesystem::Permissions::USER_WRITABLE;
     EXPECT_FALSE(rcutils_is_readable_and_writable(path));
-    EXPECT_TRUE(rcutils_is_writable(path));
-    EXPECT_FALSE(rcutils_is_readable(path));
+    EXPECT_FALSE(rcutils_is_writable(path));
+    EXPECT_TRUE(rcutils_is_readable(path));
   }
   {
     char * path =
