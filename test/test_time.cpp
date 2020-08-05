@@ -191,8 +191,11 @@ TEST_F(TestTimeFixture, test_rcutils_steady_time_now) {
 }
 
 #if !defined(_WIN32)
+
 // For mocking purposes
 #if defined(__MACH__)
+#include <mach/clock.h>
+#include <mach/mach.h>
 #define clock_gettime clock_get_time
 #endif
 
