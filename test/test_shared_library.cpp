@@ -48,8 +48,8 @@ TEST_F(TestSharedLibrary, basic_load) {
   EXPECT_TRUE(lib.lib_pointer == NULL);
   EXPECT_FALSE(rcutils_is_shared_library_loaded(&lib));
 
-  {
 #ifdef MOCKING_UTILS_SUPPORT_VA_LIST
+  {
 #ifdef _WIN32
 #define vsnprintf _vsnprintf_s
 #endif
@@ -66,11 +66,11 @@ TEST_F(TestSharedLibrary, basic_load) {
 #ifdef _WIN32
 #undef vsnprintf
 #endif
-#endif  // MOCKING_UTILS_SUPPORT_VA_LIST
-
     ret = rcutils_get_platform_library_name("dummy_shared_library", library_path, 1024, false);
     ASSERT_EQ(RCUTILS_RET_ERROR, ret);
   }
+#endif  // MOCKING_UTILS_SUPPORT_VA_LIST
+
   // Check debug name works first because rcutils_load_shared_library should be called on
   // non-debug symbol name
   ret = rcutils_get_platform_library_name("dummy_shared_library", library_path, 1024, true);
