@@ -25,11 +25,6 @@
 
 #include "./mocking_utils/patch.hpp"
 
-// For mocking purposes
-#ifdef _WIN32
-#define vsnprintf _vsnprintf_s
-#endif
-
 using osrf_testing_tools_cpp::memory_tools::disable_monitoring_in_all_threads;
 using osrf_testing_tools_cpp::memory_tools::enable_monitoring_in_all_threads;
 using osrf_testing_tools_cpp::memory_tools::on_unexpected_calloc;
