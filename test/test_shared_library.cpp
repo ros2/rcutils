@@ -49,6 +49,7 @@ TEST_F(TestSharedLibrary, basic_load) {
   EXPECT_FALSE(rcutils_is_shared_library_loaded(&lib));
 
   {
+#ifdef MOCKING_UTILS_SUPPORT_VA_LIST
 #ifdef _WIN32
 #define vsnprintf _vsnprintf_s
 #endif
@@ -65,6 +66,7 @@ TEST_F(TestSharedLibrary, basic_load) {
 #ifdef _WIN32
 #undef vsnprintf
 #endif
+#endif  // MOCKING_UTILS_SUPPORT_VA_LIST
 
     ret = rcutils_get_platform_library_name("dummy_shared_library", library_path, 1024, false);
     ASSERT_EQ(RCUTILS_RET_ERROR, ret);

@@ -129,6 +129,7 @@ TEST_F(ArrayCharTest, vsprintf_fail) {
   rcutils_reset_error();
   char_array.allocator = allocator;
 
+#ifdef MOCKING_UTILS_SUPPORT_VA_LIST
 #ifdef _WIN32
 #define vsnprintf _vsnprintf_s
 #endif
@@ -157,6 +158,7 @@ TEST_F(ArrayCharTest, vsprintf_fail) {
   ret = example_logger(&char_array, "Long string for the case %d", 2);
   EXPECT_EQ(RCUTILS_RET_ERROR, ret);
   rcutils_reset_error();
+#endif  // MOCKING_UTILS_SUPPORT_VA_LIST
 
   EXPECT_EQ(RCUTILS_RET_OK, rcutils_char_array_fini(&char_array));
 }

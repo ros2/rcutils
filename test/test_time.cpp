@@ -298,6 +298,7 @@ TEST_F(TestTimeFixture, test_rcutils_time_point_value_as_nanoseconds_string) {
   EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
   EXPECT_STREQ("-0000000000000000100", buffer);
 
+#ifdef MOCKING_UTILS_SUPPORT_VA_LIST
 #ifdef _WIN32
 #define vsnprintf _vsnprintf_s
 #endif
@@ -317,6 +318,7 @@ TEST_F(TestTimeFixture, test_rcutils_time_point_value_as_nanoseconds_string) {
   ret = rcutils_time_point_value_as_nanoseconds_string(&timepoint, buffer, sizeof(buffer));
   EXPECT_EQ(RCUTILS_RET_ERROR, ret);
   rcutils_reset_error();
+#endif  // MOCKING_UTILS_SUPPORT_VA_LIST
 }
 
 // Tests the rcutils_time_point_value_as_seconds_string() function.
@@ -371,6 +373,7 @@ TEST_F(TestTimeFixture, test_rcutils_time_point_value_as_seconds_string) {
   EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
   EXPECT_STREQ("-0000000000.000000100", buffer);
 
+#ifdef MOCKING_UTILS_SUPPORT_VA_LIST
 #ifdef _WIN32
 #define vsnprintf _vsnprintf_s
 #endif
@@ -389,4 +392,5 @@ TEST_F(TestTimeFixture, test_rcutils_time_point_value_as_seconds_string) {
   ret = rcutils_time_point_value_as_seconds_string(&timepoint, buffer, sizeof(buffer));
   EXPECT_EQ(RCUTILS_RET_ERROR, ret);
   rcutils_reset_error();
+#endif  // MOCKING_UTILS_SUPPORT_VA_LIST
 }

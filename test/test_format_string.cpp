@@ -62,6 +62,7 @@ TEST(test_format_string_limit, invalid_arguments) {
   EXPECT_STREQ(NULL, formatted);
 }
 
+#ifdef MOCKING_UTILS_SUPPORT_VA_LIST
 TEST(test_format_string_limit, on_internal_error) {
 #ifdef _WIN32
 #define vsnprintf _vsnprintf_s
@@ -83,3 +84,4 @@ TEST(test_format_string_limit, on_internal_error) {
   char * formatted = rcutils_format_string_limit(allocator, 10, "%s", "test");
   EXPECT_STREQ(NULL, formatted);
 }
+#endif  // MOCKING_UTILS_SUPPORT_VA_LIST
