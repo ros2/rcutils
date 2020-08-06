@@ -180,7 +180,7 @@ public:
   explicit FileSystem(const std::string & scope)
   : find_first_file_mock_(MOCKING_UTILS_FILESYSTEM_PATCH_TARGET(scope, FindFirstFileA),
       MOCKING_UTILS_PATCH_PROXY(FindFirstFileA)),
-    stat_mock_(MOCKING_UTILS_FILESYSTEM_PATCH_TARGET(scope, _stat),
+    _stat_mock_(MOCKING_UTILS_FILESYSTEM_PATCH_TARGET(scope, _stat),
       MOCKING_UTILS_PATCH_PROXY(_stat))
   {
     find_first_file_mock_.then_call(
