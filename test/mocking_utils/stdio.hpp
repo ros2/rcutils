@@ -29,7 +29,7 @@ namespace mocking_utils
 #undef MOCKING_UTILS_CAN_PATCH_VSNPRINTF
 #endif
 
-#if !defined(__MACH__)  // as vsnprintf binary API differs between C and C++ in MacOS
+#if defined(__MACH__)  // as vsnprintf binary API differs between C and C++ in MacOS
 #undef MOCKING_UTILS_CAN_PATCH_VSNPRINTF
 #endif
 
@@ -39,11 +39,11 @@ using _vsnprintf_s_type =
   int (char *, size_t, size_t, const char *, va_list);  // NOLINT(readability/casting)
 
 /// Patch _vsnprintf_s with the given `replacement` in the given `scope`.
+// Signature must be explicitly provided to avoid ambiguity with template overloads.
 #define patch__vsnprintf_s(scope, replacement) \
-  // Signature must be explicitly provided to avoid ambiguity with template overloads.
-make_patch<__COUNTER__, _vsnprintf_s_type>( \
-  MOCKING_UTILS_PATCH_TARGET(scope, _vsnprintf_s), MOCKING_UTILS_PATCH_PROXY(_vsnprintf_s) \
-).then_call(replacement)
+  make_patch<__COUNTER__, _vsnprintf_s_type>( \
+    MOCKING_UTILS_PATCH_TARGET(scope, _vsnprintf_s), MOCKING_UTILS_PATCH_PROXY(_vsnprintf_s) \
+  ).then_call(replacement)
 
 /// Patch _vscprintf with the given `replacement` in the given `scope`.
 #define patch__vscprintf(scope, replacement) patch(scope, _vscprintf, replacement)

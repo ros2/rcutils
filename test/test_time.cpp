@@ -203,6 +203,7 @@ TEST_F(TestTimeFixture, test_rcutils_steady_time_now) {
 // Tests rcutils_system_time_now() and rcutils_steady_time_now() functions
 // when system clocks misbehave.
 TEST_F(TestTimeFixture, test_rcutils_with_bad_system_clocks) {
+#if !defined (__MACH__)  // as tv_sec is an unsigned integer there
   {
     auto mock = mocking_utils::patch(
       "lib:rcutils", clock_gettime,
@@ -221,7 +222,7 @@ TEST_F(TestTimeFixture, test_rcutils_with_bad_system_clocks) {
     EXPECT_EQ(RCUTILS_RET_ERROR, ret);
     rcutils_reset_error();
   }
-
+#endif
   {
     auto mock = mocking_utils::patch(
       "lib:rcutils", clock_gettime,
