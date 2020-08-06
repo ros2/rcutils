@@ -62,9 +62,10 @@ struct Permissions
 
 // Deal with binary API quirks in 64 bit MacOS.
 #if defined(__MACH__) && defined(_DARWIN_FEATURE_64_BIT_INODE)
-#define MOCKING_UTILS_FILESYSTEM_SYMBOL(sym) sym ## $INODE64
+#define MOCKING_UTILS_FILESYSTEM_PATCH_TARGET(scope, function) \
+  (std::string(RCUTILS_STRINGIFY(function) "$INODE64") + "@" + (scope))
 #else
-#define MOCKING_UTILS_FILESYSTEM_SYMBOL(sym) sym
+#define MOCKING_UTILS_FILESYSTEM_PATCH_TARGET MOCKING_UTILS_PATCH_TARGET
 #endif
 
 /// Helper class for patching the filesystem API.
@@ -82,11 +83,11 @@ public:
    */
   explicit FileSystem(const std::string & scope)
   : opendir_mock_(
-      MOCKING_UTILS_PATCH_TARGET(scope, MOCKING_UTILS_FILESYSTEM_SYMBOL(opendir)),
+      MOCKING_UTILS_FILESYSTEM_PATCH_TARGET(scope, opendir),
       MOCKING_UTILS_PATCH_PROXY(opendir)),
 #ifndef _GNU_SOURCE
     stat_mock_(
-      MOCKING_UTILS_PATCH_TARGET(scope, MOCKING_UTILS_FILESYSTEM_SYMBOL(stat)),
+      MOCKING_UTILS_FILESYSTEM_PATCH_TARGET(scope, stat),
       MOCKING_UTILS_PATCH_PROXY(stat))
   {
     stat_mock_.then_call(
@@ -96,7 +97,7 @@ public:
 #else
     // Deal with binary API quirks in GNU Linux.
     __xstat_mock_(
-      MOCKING_UTILS_PATCH_TARGET(scope, MOCKING_UTILS_FILESYSTEM_SYMBOL(__xstat)),
+      MOCKING_UTILS_FILESYSTEM_PATCH_TARGET(scope, __xstat),
       MOCKING_UTILS_PATCH_PROXY(__xstat))
   {
     __xstat_mock_.then_call(
