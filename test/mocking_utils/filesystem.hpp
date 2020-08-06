@@ -58,8 +58,6 @@ constexpr auto USER_WRITABLE = _S_IWRITE;
 #endif
 }  // namespace permissions
 
-#if !defined(_WIN32)
-
 // Deal with binary API quirks in 64 bit MacOS.
 #if defined(__MACH__) && defined(_DARWIN_FEATURE_64_BIT_INODE)
 #define MOCKING_UTILS_FILESYSTEM_PATCH_TARGET(scope, function) \
@@ -67,6 +65,8 @@ constexpr auto USER_WRITABLE = _S_IWRITE;
 #else
 #define MOCKING_UTILS_FILESYSTEM_PATCH_TARGET MOCKING_UTILS_PATCH_TARGET
 #endif
+
+#if !defined(_WIN32)
 
 /// Helper class for patching the filesystem API.
 /**
@@ -186,7 +186,7 @@ public:
     find_first_file_mock_.then_call(
       std::bind(
         &FileSystem::do_FindFirstFile, this,
-        std::placeholders::_1, std::placeholders::_2))
+        std::placeholders::_1, std::placeholders::_2));
     stat_mock_.then_call(
       std::bind(
         &FileSystem::do_stat, this,

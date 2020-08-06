@@ -33,6 +33,10 @@ namespace mocking_utils
 #undef MOCKING_UTILS_CAN_PATCH_VSNPRINTF
 #endif
 
+#if defined(_WIN32)  // as vsnprintf binary APIs are undocumented in Windows
+#undef MOCKING_UTILS_CAN_PATCH_VSNPRINTF
+#endif
+
 #if defined(_WIN32)
 
 using _vsnprintf_s_type =
@@ -41,7 +45,7 @@ using _vsnprintf_s_type =
 /// Patch _vsnprintf_s with the given `replacement` in the given `scope`.
 // Signature must be explicitly provided to avoid ambiguity with template overloads.
 #define patch__vsnprintf_s(scope, replacement) \
-  make_patch<__COUNTER__, mocking_utils::_vsnprintf_s_type>(            \
+  make_patch<__COUNTER__, mocking_utils::_vsnprintf_s_type>( \
     MOCKING_UTILS_PATCH_TARGET(scope, _vsnprintf_s), MOCKING_UTILS_PATCH_PROXY(_vsnprintf_s) \
   ).then_call(replacement)
 
