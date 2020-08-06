@@ -187,7 +187,7 @@ public:
       std::bind(
         &FileSystem::do_FindFirstFileA, this,
         std::placeholders::_1, std::placeholders::_2));
-    stat_mock_.then_call(
+    _stat_mock_.then_call(
       std::bind(
         &FileSystem::do__stat, this,
         std::placeholders::_1, std::placeholders::_2));
