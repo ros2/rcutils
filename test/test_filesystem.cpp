@@ -215,7 +215,7 @@ TEST_F(TestFilesystemFixture, is_readable) {
   {
     auto fs = mocking_utils::patch_filesystem("lib:rcutils");
     const char * path = "fake_unreadable_file.txt";
-    fs.file_info(path).st_mode &= ~mocking_utils::filesystem::Permissions::USER_READABLE;
+    fs.file_info(path).st_mode &= ~mocking_utils::filesystem::permissions::USER_READABLE;
     EXPECT_FALSE(rcutils_is_readable(path));
   }
 }
@@ -252,7 +252,7 @@ TEST_F(TestFilesystemFixture, is_writable) {
   {
     auto fs = mocking_utils::patch_filesystem("lib:rcutils");
     const char * path = "fake_unwritable_file.txt";
-    fs.file_info(path).st_mode &= ~mocking_utils::filesystem::Permissions::USER_WRITABLE;
+    fs.file_info(path).st_mode &= ~mocking_utils::filesystem::permissions::USER_WRITABLE;
     EXPECT_FALSE(rcutils_is_writable(path));
   }
 }
@@ -280,8 +280,8 @@ TEST_F(TestFilesystemFixture, is_readable_and_writable) {
   {
     auto fs = mocking_utils::patch_filesystem("lib:rcutils");
     const char * path = "fake_writable_but_unreadable_file.txt";
-    fs.file_info(path).st_mode |= mocking_utils::filesystem::Permissions::USER_READABLE;
-    fs.file_info(path).st_mode &= ~mocking_utils::filesystem::Permissions::USER_WRITABLE;
+    fs.file_info(path).st_mode |= mocking_utils::filesystem::permissions::USER_READABLE;
+    fs.file_info(path).st_mode &= ~mocking_utils::filesystem::permissions::USER_WRITABLE;
     EXPECT_FALSE(rcutils_is_readable_and_writable(path));
     EXPECT_FALSE(rcutils_is_writable(path));
     EXPECT_TRUE(rcutils_is_readable(path));
@@ -376,7 +376,7 @@ TEST_F(TestFilesystemFixture, calculate_directory_size) {
   {
     auto fs = mocking_utils::patch_filesystem("lib:rcutils");
     const char * path = "some_fake_directory/some_fake_folder";
-    fs.file_info(path).st_mode |= mocking_utils::filesystem::FileTypes::DIRECTORY;
+    fs.file_info(path).st_mode |= mocking_utils::filesystem::file_types::DIRECTORY;
     fs.exhaust_file_descriptors();
     size = rcutils_calculate_directory_size(path, g_allocator);
     EXPECT_EQ(0u, size);

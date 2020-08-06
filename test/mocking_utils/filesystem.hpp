@@ -40,23 +40,23 @@ namespace filesystem
 {
 
 /// Platform-independent set of file type constants.
-struct FileTypes
+namespace file_types
 {
-  static constexpr mode_t REGULAR_FILE = S_IFREG;
-  static constexpr mode_t DIRECTORY = S_IFDIR;
-};
+constexpr auto REGULAR_FILE = S_IFREG;
+constexpr auto DIRECTORY = S_IFDIR;
+}  // namespace file_types
 
 /// Platform-independent set of file permission constants.
-struct Permissions
+namespace permissions
 {
 #ifndef _WIN32
-  static constexpr mode_t USER_READABLE = S_IRUSR;
-  static constexpr mode_t USER_WRITABLE = S_IWUSR;
+constexpr auto USER_READABLE = S_IRUSR;
+constexpr auto USER_WRITABLE = S_IWUSR;
 #else
-  static constexpr mode_t USER_READABLE = _S_IREAD;
-  static constexpr mode_t USER_WRITABLE = _S_IWRITE;
+constexpr auto USER_READABLE = _S_IREAD;
+constexpr auto USER_WRITABLE = _S_IWRITE;
 #endif
-};
+}  // namespace permissions
 
 #if !defined(_WIN32)
 
@@ -178,9 +178,9 @@ public:
    *   \see mocking_utils::Patch documentation for further reference.
    */
   explicit FileSystem(const std::string & scope)
-  : find_first_file_mock_(MOCKING_UTILS_PATCH_TARGET(scope, FindFirstFile),
+  : find_first_file_mock_(MOCKING_UTILS_FILESYSTEM_PATCH_TARGET(scope, FindFirstFile),
       MOCKING_UTILS_PATCH_PROXY(FindFirstFile)),
-    stat_mock_(MOCKING_UTILS_PATCH_TARGET(scope, stat),
+    stat_mock_(MOCKING_UTILS_FILESYSTEM_PATCH_TARGET(scope, stat),
       MOCKING_UTILS_PATCH_PROXY(stat))
   {
     find_first_file_mock_.then_call(
