@@ -178,18 +178,18 @@ public:
    *   \see mocking_utils::Patch documentation for further reference.
    */
   explicit FileSystem(const std::string & scope)
-  : find_first_file_mock_(MOCKING_UTILS_FILESYSTEM_PATCH_TARGET(scope, FindFirstFile),
-      MOCKING_UTILS_PATCH_PROXY(FindFirstFile)),
-    stat_mock_(MOCKING_UTILS_FILESYSTEM_PATCH_TARGET(scope, stat),
-      MOCKING_UTILS_PATCH_PROXY(stat))
+  : find_first_file_mock_(MOCKING_UTILS_FILESYSTEM_PATCH_TARGET(scope, FindFirstFileA),
+      MOCKING_UTILS_PATCH_PROXY(FindFirstFileA)),
+    stat_mock_(MOCKING_UTILS_FILESYSTEM_PATCH_TARGET(scope, _stat),
+      MOCKING_UTILS_PATCH_PROXY(_stat))
   {
     find_first_file_mock_.then_call(
       std::bind(
-        &FileSystem::do_FindFirstFile, this,
+        &FileSystem::do_FindFirstFileA, this,
         std::placeholders::_1, std::placeholders::_2));
     stat_mock_.then_call(
       std::bind(
-        &FileSystem::do_stat, this,
+        &FileSystem::do__stat, this,
         std::placeholders::_1, std::placeholders::_2));
   }
 
@@ -205,13 +205,13 @@ public:
    *   If file is not found, one will be added.
    * \return mutable reference to file information.
    */
-  struct stat & file_info(const std::string & path)
+  struct _stat & file_info(const std::string & path)
   {
     return files_info_[path];
   }
 
 private:
-  HANDLE do_FindFirstFile(LPCSTR, LPWIN32_FIND_DATAA)
+  HANDLE do_FindFirstFileA(LPCSTR, LPWIN32_FIND_DATAA)
   {
     if (forced_errno_ != 0) {
       SetLastError(forced_errno_);
@@ -221,9 +221,9 @@ private:
     return INVALID_HANDLE_VALUE;
   }
 
-  MOCKING_UTILS_PATCH_TYPE(ID, FindFirstFile) find_first_file_mock_;
+  MOCKING_UTILS_PATCH_TYPE(ID, FindFirstFileA) find_first_file_mock_;
 
-  int do_stat(const char * path, struct stat * info)
+  int do__stat(const char * path, struct _stat * info)
   {
     if (files_info_.count(path) == 0) {
       errno = ENOENT;
@@ -233,10 +233,10 @@ private:
     return 0;
   }
 
-  MOCKING_UTILS_PATCH_TYPE(ID, stat) stat_mock_;
+  MOCKING_UTILS_PATCH_TYPE(ID, _stat) _stat_mock_;
 
   int forced_errno_{0};
-  std::map<std::string, struct stat> files_info_;
+  std::map<std::string, struct _stat> files_info_;
 };
 
 #endif  // else !defined(_WIN32)
