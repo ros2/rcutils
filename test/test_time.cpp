@@ -24,6 +24,7 @@
 #include "rcutils/time.h"
 
 #include "./mocking_utils/patch.hpp"
+#include "./mocking_utils/stdio.hpp"
 
 using osrf_testing_tools_cpp::memory_tools::disable_monitoring_in_all_threads;
 using osrf_testing_tools_cpp::memory_tools::enable_monitoring_in_all_threads;
@@ -298,27 +299,32 @@ TEST_F(TestTimeFixture, test_rcutils_time_point_value_as_nanoseconds_string) {
   EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
   EXPECT_STREQ("-0000000000000000100", buffer);
 
-#ifdef MOCKING_UTILS_SUPPORT_VA_LIST
+#ifdef MOCKING_UTILS_CAN_PATCH_VSNPRINTF
 #ifdef _WIN32
-#define vsnprintf _vsnprintf_s
-#endif
+  auto _vscprintf_mock = mocking_utils::patch__vscprintf(
+    "lib:rcutils", [](auto && ...) {return 1;});
+
+  auto _vsnprintf_s_mock = mocking_utils::patch__vsnprintf_s(
+    "lib:rcutils", [](auto && ...) {
+      errno = EINVAL;
+      return -1;
+    });
+#else
   auto mock = mocking_utils::patch(
-    "lib:rcutils", vsnprintf,
-    [](char * buffer, auto...) {
+    "lib:rcutils", vsnprintf, [](char * buffer, auto && ...) {
       if (nullptr == buffer) {
-        return 1;  // provide a dummy value if buffer required size is queried
+        return 1;    // provide a dummy value if buffer required size is queried
       }
       errno = EINVAL;
       return -1;
     });
-#ifdef _WIN32
-#undef vsnprintf
 #endif
+
   timepoint = 100;
   ret = rcutils_time_point_value_as_nanoseconds_string(&timepoint, buffer, sizeof(buffer));
   EXPECT_EQ(RCUTILS_RET_ERROR, ret);
   rcutils_reset_error();
-#endif  // MOCKING_UTILS_SUPPORT_VA_LIST
+#endif  // MOCKING_UTILS_CAN_PATCH_VSNPRINTF
 }
 
 // Tests the rcutils_time_point_value_as_seconds_string() function.
@@ -373,24 +379,30 @@ TEST_F(TestTimeFixture, test_rcutils_time_point_value_as_seconds_string) {
   EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
   EXPECT_STREQ("-0000000000.000000100", buffer);
 
-#ifdef MOCKING_UTILS_SUPPORT_VA_LIST
+#ifdef MOCKING_UTILS_CAN_PATCH_VSNPRINTF
 #ifdef _WIN32
-#define vsnprintf _vsnprintf_s
-#endif
+  auto _vscprintf_mock = mocking_utils::patch__vscprintf(
+    "lib:rcutils", [](auto && ...) {return 1;});
+
+  auto _vsnprintf_s_mock = mocking_utils::patch__vsnprintf_s(
+    "lib:rcutils", [](auto && ...) {
+      errno = EINVAL;
+      return -1;
+    });
+#else
   auto mock = mocking_utils::patch(
-    "lib:rcutils", vsnprintf, [](char * buffer, auto...) {
+    "lib:rcutils", vsnprintf, [](char * buffer, auto && ...) {
       if (nullptr == buffer) {
-        return 1;  // provide a dummy value if buffer required size is queried
+        return 1;    // provide a dummy value if buffer required size is queried
       }
       errno = EINVAL;
       return -1;
     });
-#ifdef _WIN32
-#undef vsnprintf
 #endif
+
   timepoint = 100;
   ret = rcutils_time_point_value_as_seconds_string(&timepoint, buffer, sizeof(buffer));
   EXPECT_EQ(RCUTILS_RET_ERROR, ret);
   rcutils_reset_error();
-#endif  // MOCKING_UTILS_SUPPORT_VA_LIST
+#endif  // MOCKING_UTILS_CAN_PATCH_VSNPRINTF
 }

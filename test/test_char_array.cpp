@@ -21,6 +21,7 @@
 #include "rcutils/types/char_array.h"
 
 #include "./mocking_utils/patch.hpp"
+#include "./mocking_utils/stdio.hpp"
 
 class ArrayCharTest : public ::testing::Test
 {
@@ -129,24 +130,29 @@ TEST_F(ArrayCharTest, vsprintf_fail) {
   rcutils_reset_error();
   char_array.allocator = allocator;
 
-#ifdef MOCKING_UTILS_SUPPORT_VA_LIST
-#ifdef _WIN32
-#define vsnprintf _vsnprintf_s
-#endif
+#ifdef MOCKING_UTILS_CAN_PATCH_VSNPRINTF
   size_t buffer_threshold = 0;
+#ifdef _WIN32
+  auto vscprintf_mock = mocking_utils::patch__vscprintf(
+    "lib:rcutils", [&](auto && ...) {
+      return static_cast<int>(buffer_threshold);
+    });
+
+  auto vsnprintf_mock = mocking_utils::patch__vsnprintf_s(
+    "lib:rcutils", [&](auto && ...) {
+      errno = EINVAL;
+      return -1;
+    });
+#else
   auto mock = mocking_utils::patch(
-    "lib:rcutils", vsnprintf,
-    [&](char * buffer, size_t buffer_size, auto...) -> int {
+    "lib:rcutils", vsnprintf, [&](char * buffer, size_t buffer_size, auto...) {
       if (nullptr == buffer || buffer_size < buffer_threshold) {
         return static_cast<int>(buffer_threshold);
       }
       errno = EINVAL;
       return -1;
     });
-#ifdef _WIN32
-#undef vsnprintf
 #endif
-
   // Do not force char array resize.
   buffer_threshold = 5;
   ret = example_logger(&char_array, "Long string for the case %d", 2);
@@ -158,7 +164,7 @@ TEST_F(ArrayCharTest, vsprintf_fail) {
   ret = example_logger(&char_array, "Long string for the case %d", 2);
   EXPECT_EQ(RCUTILS_RET_ERROR, ret);
   rcutils_reset_error();
-#endif  // MOCKING_UTILS_SUPPORT_VA_LIST
+#endif  // MOCKING_UTILS_CAN_PATCH_VSNPRINTF
 
   EXPECT_EQ(RCUTILS_RET_OK, rcutils_char_array_fini(&char_array));
 }
