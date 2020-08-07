@@ -17,6 +17,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdint.h>
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -33,8 +34,6 @@ void _rcutils_fault_injection_set_count(int count);
 int_least64_t _rcutils_fault_injection_get_count();
 
 int _rcutils_fault_injection_maybe_fail();
-
-#if defined RCUTILS_ENABLE_FAULT_INJECTION
 
 /**
  * \def RCUTILS_FAULT_INJECTION_MAYBE_RETURN_ERROR
@@ -113,19 +112,6 @@ int _rcutils_fault_injection_maybe_fail();
     } while (!rcutils_fault_injection_is_test_complete()); \
     RCUTILS_FAULT_INJECTION_SET_COUNT(RCUTILS_FAULT_INJECTION_NEVER_FAIL); \
   } while (0)
-
-#else  // RCUTILS_ENABLE_FAULT_INJECTION
-
-#define RCUTILS_FAULT_INJECTION_SET_COUNT(count)
-
-// This needs to be set to an int for compatibility
-#define RCUTILS_FAULT_INJECTION_GET_COUNT() RCUTILS_FAULT_INJECTION_NEVER_FAIL
-
-#define RCUTILS_FAULT_INJECTION_MAYBE_RETURN_ERROR(msg, error_statement)
-
-#define RCUTILS_FAULT_INJECTION_TEST(code) return;
-
-#endif  // defined RCUTILS_ENABLE_FAULT_INJECTION
 
 #ifdef __cplusplus
 }

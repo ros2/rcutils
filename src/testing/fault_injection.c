@@ -22,9 +22,9 @@ bool rcutils_fault_injection_is_test_complete()
 {
 #ifndef RCUTILS_ENABLE_FAULT_INJECTION
   return true;
-#endif  // RCUTILS_ENABLE_FAULT_INJECTION
-
+#else  // RCUTILS_ENABLE_FAULT_INJECTION
   return _rcutils_fault_injection_get_count() > RCUTILS_FAULT_INJECTION_NEVER_FAIL;
+#endif  // RCUTILS_ENABLE_FAULT_INJECTION
 }
 
 int _rcutils_fault_injection_maybe_fail()

@@ -106,6 +106,10 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 # which is appropriate when building the dll but not consuming it.
 target_compile_definitions(${PROJECT_NAME} PRIVATE "RCUTILS_BUILDING_DLL")
 
+if(BUILD_TESTING AND NOT RCUTILS_DISABLE_FAULT_INJECTION)
+  target_compile_definitions(${PROJECT_NAME} PUBLIC RCUTILS_ENABLE_FAULT_INJECTION)
+endif()
+
 target_link_libraries(${PROJECT_NAME} ${CMAKE_DL_LIBS})
 
 # Needed if pthread is used for thread local storage.
