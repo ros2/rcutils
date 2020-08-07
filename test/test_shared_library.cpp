@@ -17,6 +17,8 @@
 #include <string>
 
 #include "./allocator_testing_utils.h"
+#include "./mocking_utils/patch.hpp"
+#include "./mocking_utils/stdio.hpp"
 
 #include "rcutils/allocator.h"
 #include "rcutils/error_handling.h"
@@ -45,6 +47,34 @@ TEST_F(TestSharedLibrary, basic_load) {
   ASSERT_STRNE(lib.library_path, "");
   EXPECT_TRUE(lib.lib_pointer == NULL);
   EXPECT_FALSE(rcutils_is_shared_library_loaded(&lib));
+
+#ifdef MOCKING_UTILS_CAN_PATCH_VSNPRINTF
+  {
+    // Check internal errors are handled correctly
+#ifdef _WIN32
+    auto _vscprintf_mock = mocking_utils::patch__vscprintf(
+      "lib:rcutils", [](auto && ...) {return 1;});
+
+    auto _vsnprintf_s_mock = mocking_utils::patch__vsnprintf_s(
+      "lib:rcutils", [](auto && ...) {
+        errno = EINVAL;
+        return -1;
+      });
+#else
+    auto mock = mocking_utils::patch(
+      "lib:rcutils", vsnprintf, [](char * buffer, auto && ...) {
+        if (nullptr == buffer) {
+          return 1;  // provide a dummy value if buffer required size is queried
+        }
+        errno = EINVAL;
+        return -1;
+      });
+#endif
+
+    ret = rcutils_get_platform_library_name("dummy_shared_library", library_path, 1024, false);
+    ASSERT_EQ(RCUTILS_RET_ERROR, ret);
+  }
+#endif  // MOCKING_UTILS_CAN_PATCH_VSNPRINTF
 
   // Check debug name works first because rcutils_load_shared_library should be called on
   // non-debug symbol name

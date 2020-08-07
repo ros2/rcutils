@@ -77,7 +77,6 @@ TEST(test_split, split) {
     RCUTILS_RET_ERROR,
     rcutils_split("hello/world", '/', time_bomb_allocator, &tokens_fail));
 
-
   rcutils_string_array_t tokens0 = test_split("", '/', 0);
   ret = rcutils_string_array_fini(&tokens0);
   ASSERT_EQ(RCUTILS_RET_OK, ret);

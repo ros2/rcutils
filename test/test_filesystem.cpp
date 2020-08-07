@@ -19,6 +19,8 @@
 
 #include "osrf_testing_tools_cpp/scope_exit.hpp"
 
+#include "./mocking_utils/filesystem.hpp"
+
 static rcutils_allocator_t g_allocator = rcutils_get_default_allocator();
 
 class TestFilesystemFixture : public ::testing::Test
@@ -193,12 +195,27 @@ TEST_F(TestFilesystemFixture, is_readable) {
     EXPECT_TRUE(rcutils_is_readable(path));
   }
   {
-    char * path = rcutils_join_path(this->test_path, "dummy_nonexisting_file.txt", g_allocator);
+    char * path = rcutils_join_path(this->test_path, "dummy_nonexistent_file.txt", g_allocator);
     OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
     {
       g_allocator.deallocate(path, g_allocator.state);
     });
     ASSERT_FALSE(nullptr == path);
+    EXPECT_FALSE(rcutils_is_readable(path));
+  }
+  {
+    char * path = rcutils_join_path(this->test_path, "dummy_nonexistent_file.txt", g_allocator);
+    OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
+    {
+      g_allocator.deallocate(path, g_allocator.state);
+    });
+    ASSERT_FALSE(nullptr == path);
+    EXPECT_FALSE(rcutils_is_readable(path));
+  }
+  {
+    auto fs = mocking_utils::patch_filesystem("lib:rcutils");
+    const char * path = "fake_unreadable_file.txt";
+    fs.file_info(path).st_mode &= ~mocking_utils::filesystem::permissions::USER_READABLE;
     EXPECT_FALSE(rcutils_is_readable(path));
   }
 }
@@ -224,12 +241,18 @@ TEST_F(TestFilesystemFixture, is_writable) {
     EXPECT_TRUE(rcutils_is_writable(path));
   }
   {
-    char * path = rcutils_join_path(this->test_path, "dummy_nonexisting_file.txt", g_allocator);
+    char * path = rcutils_join_path(this->test_path, "dummy_nonexistent_file.txt", g_allocator);
     OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
     {
       g_allocator.deallocate(path, g_allocator.state);
     });
     ASSERT_FALSE(nullptr == path);
+    EXPECT_FALSE(rcutils_is_writable(path));
+  }
+  {
+    auto fs = mocking_utils::patch_filesystem("lib:rcutils");
+    const char * path = "fake_unwritable_file.txt";
+    fs.file_info(path).st_mode &= ~mocking_utils::filesystem::permissions::USER_WRITABLE;
     EXPECT_FALSE(rcutils_is_writable(path));
   }
 }
@@ -253,6 +276,15 @@ TEST_F(TestFilesystemFixture, is_readable_and_writable) {
     });
     ASSERT_FALSE(nullptr == path);
     EXPECT_TRUE(rcutils_is_readable_and_writable(path));
+  }
+  {
+    auto fs = mocking_utils::patch_filesystem("lib:rcutils");
+    const char * path = "fake_writable_but_unreadable_file.txt";
+    fs.file_info(path).st_mode |= mocking_utils::filesystem::permissions::USER_READABLE;
+    fs.file_info(path).st_mode &= ~mocking_utils::filesystem::permissions::USER_WRITABLE;
+    EXPECT_FALSE(rcutils_is_readable_and_writable(path));
+    EXPECT_FALSE(rcutils_is_writable(path));
+    EXPECT_TRUE(rcutils_is_readable(path));
   }
   {
     char * path =
@@ -330,22 +362,25 @@ TEST_F(TestFilesystemFixture, calculate_directory_size) {
 #ifdef WIN32
   // Due to different line breaks on windows, we have one more byte in the file.
   // See https://github.com/ros2/rcutils/issues/198
-  ASSERT_EQ(6u, size);
+  EXPECT_EQ(6u, size);
 #else
-  ASSERT_EQ(5u, size);
+  EXPECT_EQ(5u, size);
 #endif
-  OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
-  {
-    g_allocator.deallocate(path, g_allocator.state);
-  });
+  g_allocator.deallocate(path, g_allocator.state);
 
   char * non_existing_path = rcutils_join_path(this->test_path, "non_existing_folder", g_allocator);
   size = rcutils_calculate_directory_size(non_existing_path, g_allocator);
-  ASSERT_EQ(0u, size);
-  OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
+  EXPECT_EQ(0u, size);
+  g_allocator.deallocate(non_existing_path, g_allocator.state);
+
   {
-    g_allocator.deallocate(non_existing_path, g_allocator.state);
-  });
+    auto fs = mocking_utils::patch_filesystem("lib:rcutils");
+    const char * path = "some_fake_directory/some_fake_folder";
+    fs.file_info(path).st_mode |= mocking_utils::filesystem::file_types::DIRECTORY;
+    fs.exhaust_file_descriptors();
+    size = rcutils_calculate_directory_size(path, g_allocator);
+    EXPECT_EQ(0u, size);
+  }
 }
 
 TEST_F(TestFilesystemFixture, calculate_file_size) {
