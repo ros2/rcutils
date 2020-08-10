@@ -144,8 +144,8 @@ TEST_F(ArrayCharTest, vsprintf_fail) {
       return -1;
     });
 #else
-  auto mock = mocking_utils::patch(
-    "lib:rcutils", vsnprintf, [&](char * buffer, size_t buffer_size, auto...) {
+  auto mock = mocking_utils::patch_vsnprintf(
+    "lib:rcutils", [&](char * buffer, size_t buffer_size, auto...) {
       if (nullptr == buffer || buffer_size < buffer_threshold) {
         return static_cast<int>(buffer_threshold);
       }

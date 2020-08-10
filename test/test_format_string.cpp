@@ -75,8 +75,8 @@ TEST(test_format_string_limit, on_internal_error) {
       return -1;
     });
 #else
-  auto mock = mocking_utils::patch(
-    "lib:rcutils", vsnprintf, [](char * buffer, auto && ...) {
+  auto mock = mocking_utils::patch_vsnprintf(
+    "lib:rcutils", [](char * buffer, auto && ...) {
       if (nullptr == buffer) {
         return 1;  // provide a dummy value if buffer required size is queried
       }
