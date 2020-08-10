@@ -61,8 +61,8 @@ TEST_F(TestSharedLibrary, basic_load) {
         return -1;
       });
 #else
-    auto mock = mocking_utils::patch(
-      "lib:rcutils", vsnprintf, [](char * buffer, auto && ...) {
+    auto mock = mocking_utils::patch_vsnprintf(
+      "lib:rcutils", [](char * buffer, auto && ...) {
         if (nullptr == buffer) {
           return 1;  // provide a dummy value if buffer required size is queried
         }

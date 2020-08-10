@@ -52,7 +52,26 @@ using _vsnprintf_s_type =
 /// Patch _vscprintf with the given `replacement` in the given `scope`.
 #define patch__vscprintf(scope, replacement) patch(scope, _vscprintf, replacement)
 
-#endif  // defined(_WIN32)
+#else  // defined(_WIN32)
+
+// Deal with binary API nuances
+#ifndef NDEBUG
+
+/// Patch vsnprintf with the given `replacement` in the given `scope`.
+#define patch_vsnprintf(scope, replacement) patch(scope, vsnprintf, replacement)
+
+#else
+
+/// Patch vsnprintf with the given `replacement` in the given `scope`.
+#define patch_vsnprintf(scope, replacement) patch( \
+    scope, __vsnprintf_chk, [&](char * __str, size_t, int, size_t __size, \
+    const char * __fmt, va_list __ap) { \
+      auto f = replacement; \
+      return f(__str, __size, __fmt, __ap); \
+    })
+
+#endif
+#endif
 
 }  // namespace mocking_utils
 
