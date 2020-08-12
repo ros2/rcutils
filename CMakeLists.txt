@@ -28,6 +28,10 @@ if(UNIX AND NOT APPLE)
   endif()
 endif()
 
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  # enables building a static library but later link it into a dynamic library
+  add_compile_options(-fPIC)
+endif()
 if(NOT WIN32)
   # About -Wno-sign-conversion: With Clang, -Wconversion implies -Wsign-conversion. There are a number of
   # implicit sign conversions in gtest.cc, see https://ci.ros2.org/job/ci_osx/9381/clang/.
