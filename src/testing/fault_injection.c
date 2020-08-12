@@ -27,7 +27,7 @@ bool rcutils_fault_injection_is_test_complete()
 #endif  // RCUTILS_ENABLE_FAULT_INJECTION
 }
 
-int _rcutils_fault_injection_maybe_fail()
+int_least64_t _rcutils_fault_injection_maybe_fail()
 {
   bool set_atomic_success = false;
   int_least64_t current_count = RCUTILS_FAULT_INJECTION_NEVER_FAIL;

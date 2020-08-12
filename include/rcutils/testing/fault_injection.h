@@ -33,7 +33,7 @@ void _rcutils_fault_injection_set_count(int count);
 
 int_least64_t _rcutils_fault_injection_get_count();
 
-int _rcutils_fault_injection_maybe_fail();
+int_least64_t _rcutils_fault_injection_maybe_fail();
 
 /**
  * \def RCUTILS_FAULT_INJECTION_MAYBE_RETURN_ERROR
