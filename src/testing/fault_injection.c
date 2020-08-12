@@ -16,7 +16,7 @@
 
 #include "rcutils/stdatomic_helper.h"
 
-static atomic_int_least64_t g_rcutils_fault_injection_count = -1;
+static atomic_int_least64_t g_rcutils_fault_injection_count = ATOMIC_VAR_INIT(-1);
 
 bool rcutils_fault_injection_is_test_complete()
 {
