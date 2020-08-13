@@ -18,20 +18,31 @@
 
 static atomic_int_least64_t g_rcutils_fault_injection_count = ATOMIC_VAR_INIT(-1);
 
+void rcutils_fault_injection_set_count(int count)
+{
+  rcutils_atomic_store(&g_rcutils_fault_injection_count, count);
+}
+
+int_least64_t rcutils_fault_injection_get_count()
+{
+  int_least64_t count = 0;
+  rcutils_atomic_load(&g_rcutils_fault_injection_count, count);
+  return count;
+}
+
 bool rcutils_fault_injection_is_test_complete()
 {
 #ifndef RCUTILS_ENABLE_FAULT_INJECTION
   return true;
 #else  // RCUTILS_ENABLE_FAULT_INJECTION
-  return _rcutils_fault_injection_get_count() > RCUTILS_FAULT_INJECTION_NEVER_FAIL;
+  return rcutils_fault_injection_get_count() > RCUTILS_FAULT_INJECTION_NEVER_FAIL;
 #endif  // RCUTILS_ENABLE_FAULT_INJECTION
 }
 
 int_least64_t _rcutils_fault_injection_maybe_fail()
 {
   bool set_atomic_success = false;
-  int_least64_t current_count = RCUTILS_FAULT_INJECTION_NEVER_FAIL;
-  rcutils_atomic_load(&g_rcutils_fault_injection_count, current_count);
+  int_least64_t current_count = rcutils_fault_injection_get_count();
   do {
     // A fault_injection_count less than 0 means that maybe_fail doesn't fail, so just return.
     if (current_count <= RCUTILS_FAULT_INJECTION_NEVER_FAIL) {
@@ -45,16 +56,4 @@ int_least64_t _rcutils_fault_injection_maybe_fail()
       &g_rcutils_fault_injection_count, set_atomic_success, &current_count, desired_count);
   } while (!set_atomic_success);
   return current_count;
-}
-
-void _rcutils_fault_injection_set_count(int count)
-{
-  rcutils_atomic_store(&g_rcutils_fault_injection_count, count);
-}
-
-int_least64_t _rcutils_fault_injection_get_count()
-{
-  int_least64_t count = 0;
-  rcutils_atomic_load(&g_rcutils_fault_injection_count, count);
-  return count;
 }
