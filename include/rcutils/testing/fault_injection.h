@@ -50,7 +50,7 @@ rcutils_fault_injection_is_test_complete(void);
  * ASSERT_LT(RCUTILS_FAULT_INJECTION_NEVER_FAIL, RCUTILS_FAULT_INJECTION_GET_COUNT());
  *
  * Where SUFFICIENTLY_LARGE_ITERATION_COUNT is a value larger than the maximum expected calls to
- * `RCUTILS_FAULT_INJECTION_MAYBE_RETURN_ERROR`. This last assertion just insures that your choice for
+ * `RCUTILS_FAULT_INJECTION_MAYBE_RETURN_ERROR`. This last assertion just ensures that your choice for
  * SUFFICIENTLY_LARGE_ITERATION_COUNT was large enough. To avoid having to choose this count
  * yourself, you can use a do-while loop.
  *
@@ -109,6 +109,30 @@ _rcutils_fault_injection_maybe_fail(void);
     printf( \
       "%s:%d Injecting fault and returning " #return_value_on_error "\n", __FILE__, __LINE__); \
     return return_value_on_error; \
+  }
+
+/**
+ * \def RCUTILS_FAULT_INJECTION_MAYBE_FAIL
+ * \brief This macro checks and decrements a static global variable atomic counter and executes
+ * `failure_code` if the counter is 0 inside a scoped block (any variables declared in failure_code)
+ * will not be avaliable outside of this scoped block.
+ *
+ * This macro is not a function itself, so it will cause the calling function to execute the code
+ * from within an if loop.
+ *
+ * Set the counter with `RCUTILS_FAULT_INJECTION_SET_COUNT`. If the count is less than 0, then
+ * `RCUTILS_FAULT_INJECTION_MAYBE_FAIL` will not execute the failure code.
+ *
+ * This macro is thread-safe, and ensures that at most one invocation results in a failure for each
+ * time the fault injection counter is set with `RCUTILS_FAULT_INJECTION_SET_COUNT`
+ *
+ * \param failure_code the code to execute in the case of fault injected failure.
+ */
+#define RCUTILS_FAULT_INJECTION_MAYBE_FAIL(failure_code) \
+  if (RCUTILS_FAULT_INJECTION_FAIL_NOW == _rcutils_fault_injection_maybe_fail()) { \
+    printf( \
+      "%s:%d Injecting fault and executing " #failure_code "\n", __FILE__, __LINE__); \
+    failure_code; \
   }
 
 #define RCUTILS_FAULT_INJECTION_TEST(code) \

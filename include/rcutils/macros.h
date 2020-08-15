@@ -162,11 +162,12 @@ extern "C"
  * should go on a separate line.
  *
  * If in your function, there are expected effects on output parameters that occur during
- * the failure case, then it will introduce a discrepency between fault injection testing and
+ * the failure case, then it will introduce a discrepancy between fault injection testing and
  * production operation. This is because the fault injection will cause the function to return
  * where this macro is used, not at the location the error values are typically returned. To help
- * protect against this scenario you may consider adding unit tests that checks your function does
- * not modify output parameters when it actually returns a failing error code.
+ * protect against this scenario you may consider adding unit tests that check your function does
+ * not modify output parameters when it actually returns a failing error code if it's possible for
+ * your code.
  *
  * If your function is void, this macro can be used without parameters. However, for the above
  * reasoning, there should be no side effects on output parameters for all possible early returns.
@@ -177,8 +178,26 @@ extern "C"
 # define RCUTILS_CAN_RETURN_WITH_ERROR_OF(error_return_value) \
   RCUTILS_FAULT_INJECTION_MAYBE_RETURN_ERROR(error_return_value);
 
+/**
+ * \def RCUTILS_CAN_FAIL_WITH
+ * Indicating macro similar to RCUTILS_CAN_RETURN_WITH_ERROR_OF but for use with more complicated
+ * statements.
+ *
+ * The `failure_code` will be executed inside a scoped if block, so any variables declared within
+ * will not be available outside of the macro.
+ *
+ * One example where you might need this version, is if a side-effect may occur within a function.
+ * For example, in snprintf, rcutils_snprintf needs to set both errno and return -1 on failure.
+ * This macro is used to capture both effects.
+ *
+ * \param failure_code Code that is representative of the failure case in this function.
+ */
+# define RCUTILS_CAN_FAIL_WITH(failure_code) \
+  RCUTILS_FAULT_INJECTION_MAYBE_FAIL(failure_code);
+
 #else
 # define RCUTILS_CAN_RETURN_WITH_ERROR_OF(error_return_value)
+# define RCUTILS_CAN_FAIL_WITH(failure_code)
 #endif  // defined RCUTILS_ENABLE_FAULT_INJECTION
 
 #ifdef __cplusplus
