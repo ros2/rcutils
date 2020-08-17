@@ -36,29 +36,22 @@ bool
 rcutils_fault_injection_is_test_complete(void);
 
 /**
- * \def RCUTILS_FAULT_INJECTION_SET_COUNT
  * \brief Atomically set the fault injection counter.
  *
- * There will be at most one fault injected failure per call to RCUTILS_FAULT_INJECTION_SET_COUNT.
- * To test all reachable fault injection locations, call this macro inside a loop and set the count
- * to an incrementing count variable.
+ * This is typically not the preferred method of interacting directly with the fault injection
+ * logic, instead use `RCUTILS_FAULT_INJECTION_TEST` instead.
  *
- *  for (int i = 0; i < SUFFICIENTLY_LARGE_ITERATION_COUNT; ++i) {
- *    RCUTILS_FAULT_INJECTION_SET_COUNT(i);
- *    ... // Call function under test
- *  }
- * ASSERT_LT(RCUTILS_FAULT_INJECTION_NEVER_FAIL, RCUTILS_FAULT_INJECTION_GET_COUNT());
+ * This function may also be used for pausing code inside of a `RCUTILS_FAULT_INJECTION_TEST` with
+ * something like the following:
  *
- * Where SUFFICIENTLY_LARGE_ITERATION_COUNT is a value larger than the maximum expected calls to
- * `RCUTILS_FAULT_INJECTION_MAYBE_RETURN_ERROR`. This last assertion just ensures that your choice for
- * SUFFICIENTLY_LARGE_ITERATION_COUNT was large enough. To avoid having to choose this count
- * yourself, you can use a do-while loop.
- *
- * int i = 0;
- * do {
- *   RCUTILS_FAULT_INJECTION_SET_COUNT(i++);
- *    ... // Call function under test
- * } while (RCUTILS_FAULT_INJECTION_GET_COUNT() <= RCUTILS_FAULT_INJECTION_NEVER_FAIL);
+ * RCUTILS_FAULT_INJECTION_TEST({
+ *     ...  // code to run with fault injection
+ *     int64_t count = rcutils_fault_injection_get_count();
+ *     rcutils_fault_injection_set_count(RCUTILS_FAULT_INJECTION_NEVER_FAIL);
+ *     ...  // code to run without fault injection
+ *     rcutils_fault_injection_set_count(count);
+ *     ...  // code to run with fault injection
+ * });
  *
  * \param count The count to set the fault injection counter to. If count is negative, then fault
  * injection errors will be disabled. The counter is globally initialized to
@@ -69,20 +62,22 @@ void
 rcutils_fault_injection_set_count(int count);
 
 /**
- * \def RCUTILS_FAULT_INJECTION_GET_COUNT
  * \brief Atomically get the fault injection counter value
  *
- * Use this macro after running the code under test to check whether the counter reached a negative
- * value. This is helpful so you can verify that you ran the fault injection test in a loop a
- * sufficient number of times. Likewise, if the code under test returned with an error, but the
- * count value was greater or equal to 0, then the failure was not caused by the fault injection
- * counter.
+ * This function is typically not used directly but instead indirectly inside an
+ * `RCUTILS_FAULT_INJECTION_TEST`
  */
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
 int_least64_t
 rcutils_fault_injection_get_count(void);
 
+/**
+ * \brief Implementation of fault injection decrementer
+ *
+ * This is included inside of macros, so it needs to be exported as a public function, but it
+ * should not be used directly.
+ */
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
 int_least64_t
@@ -114,8 +109,8 @@ _rcutils_fault_injection_maybe_fail(void);
 /**
  * \def RCUTILS_FAULT_INJECTION_MAYBE_FAIL
  * \brief This macro checks and decrements a static global variable atomic counter and executes
- * `failure_code` if the counter is 0 inside a scoped block (any variables declared in failure_code)
- * will not be avaliable outside of this scoped block.
+ * `failure_code` if the counter is 0 inside a scoped block (any variables declared in
+ * failure_code) will not be avaliable outside of this scoped block.
  *
  * This macro is not a function itself, so it will cause the calling function to execute the code
  * from within an if loop.
@@ -135,6 +130,33 @@ _rcutils_fault_injection_maybe_fail(void);
     failure_code; \
   }
 
+/**
+ * \def RCUTILS_FAULT_INJECTION_TEST
+ *
+ * The fault injection macro for use with unit tests to check that `code` can tolerate injected
+ * failures at all points along the execution path where the indicating macros
+ * `RCUTILS_CAN_RETURN_WITH_ERROR_OF` and `RCUTILS_CAN_FAIL_WITH` are located.
+ *
+ * This macro is intended to be used within a gtest function macro like 'TEST', 'TEST_F', etc.
+ *
+ * `code` is executed within a do-while loop and therefore any variables declared within are in
+ * their own scope block.
+ *
+ * Here's a simple example:
+ *  RCUTILS_FAULT_INJECTION_TEST(
+ *    rcl_ret_t ret = rcl_init(argc, argv, options, context);
+ *    if (RCL_RET_OK == ret)
+ *    {
+ *        ret = rcl_shutdown(context);
+ *    }
+ * });
+ *
+ * In this example, you will need have conditional execution based on the return value of
+ * `rcl_init`. If it failed, then it wouldn't make sense to call rcl_shutdown. In your own test,
+ * there might be similar logic that requires conditional checks. The goal of writing this test
+ * is less about checking the behavior is consistent, but instead that failures do not cause
+ * program crashes, memory errors, or unnecessary memory leaks.
+ */
 #define RCUTILS_FAULT_INJECTION_TEST(code) \
   do { \
     int fault_injection_count = 0; \
