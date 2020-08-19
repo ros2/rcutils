@@ -42,6 +42,9 @@ rcutils_string_array_init(
   size_t size,
   const rcutils_allocator_t * allocator)
 {
+  RCUTILS_CAN_RETURN_WITH_ERROR_OF(RCUTILS_RET_INVALID_ARGUMENT);
+  RCUTILS_CAN_RETURN_WITH_ERROR_OF(RCUTILS_RET_BAD_ALLOC);
+
   if (NULL == allocator) {
     RCUTILS_SET_ERROR_MSG("allocator is null");
     return RCUTILS_RET_INVALID_ARGUMENT;
@@ -63,6 +66,8 @@ rcutils_string_array_init(
 rcutils_ret_t
 rcutils_string_array_fini(rcutils_string_array_t * string_array)
 {
+  RCUTILS_CAN_RETURN_WITH_ERROR_OF(RCUTILS_RET_INVALID_ARGUMENT);
+
   if (NULL == string_array) {
     RCUTILS_SET_ERROR_MSG("string_array is null");
     return RCUTILS_RET_INVALID_ARGUMENT;

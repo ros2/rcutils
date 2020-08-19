@@ -24,6 +24,7 @@ EXPAND_ONLY_PREDEF     = YES
 PREDEFINED             += RCUTILS_PUBLIC=
 PREDEFINED             += RCUTILS_PUBLIC_TYPE=
 PREDEFINED             += RCUTILS_WARN_UNUSED=
+PREDEFINED             += RCUTILS_ENABLE_FAULT_INJECTION=
 
 # Tag files that do not exist will produce a warning and cross-project linking will not work.
 TAGFILES += "../../../doxygen_tag_files/cppreference-doxygen-web.tag.xml=http://en.cppreference.com/w/"
