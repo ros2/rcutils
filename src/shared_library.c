@@ -27,6 +27,7 @@ C_ASSERT(sizeof(void *) == sizeof(HINSTANCE));
 #endif  // _WIN32
 
 #include "rcutils/error_handling.h"
+#include "rcutils/macros.h"
 #include "rcutils/shared_library.h"
 #include "rcutils/strdup.h"
 
@@ -46,6 +47,10 @@ rcutils_load_shared_library(
   const char * library_path,
   rcutils_allocator_t allocator)
 {
+  RCUTILS_CAN_RETURN_WITH_ERROR_OF(RCUTILS_RET_INVALID_ARGUMENT);
+  RCUTILS_CAN_RETURN_WITH_ERROR_OF(RCUTILS_RET_BAD_ALLOC);
+  RCUTILS_CAN_RETURN_WITH_ERROR_OF(RCUTILS_RET_ERROR);
+
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(lib, RCUTILS_RET_INVALID_ARGUMENT);
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(library_path, RCUTILS_RET_INVALID_ARGUMENT);
   RCUTILS_CHECK_ALLOCATOR(&allocator, return RCUTILS_RET_INVALID_ARGUMENT);
