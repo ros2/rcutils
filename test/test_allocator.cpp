@@ -16,8 +16,10 @@
 
 #include "./allocator_testing_utils.h"
 #include "rcutils/allocator.h"
+#include "rcutils/testing/fault_injection.h"
 
 #include "osrf_testing_tools_cpp/memory_tools/memory_tools.hpp"
+#include "osrf_testing_tools_cpp/scope_exit.hpp"
 
 #ifdef RMW_IMPLEMENTATION
 # define CLASSNAME_(NAME, SUFFIX) NAME ## __ ## SUFFIX
@@ -109,4 +111,30 @@ TEST(test_allocator, realloc_failing_allocators) {
 
   auto failing_allocator = get_failing_allocator();
   EXPECT_EQ(nullptr, rcutils_reallocf(allocated_memory, 1024, &failing_allocator));
+}
+
+TEST(test_allocator, default_allocator_maybe_fail) {
+  rcutils_allocator_t allocator = rcutils_get_default_allocator();
+
+  // Check allocate
+  rcutils_fault_injection_set_count(0);
+  EXPECT_EQ(nullptr, allocator.allocate(1u, allocator.state));
+  EXPECT_EQ(RCUTILS_FAULT_INJECTION_NEVER_FAIL, rcutils_fault_injection_get_count());
+
+  void * pointer = allocator.allocate(1u, allocator.state);
+  ASSERT_NE(nullptr, pointer);
+  OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
+  {
+    allocator.deallocate(pointer, allocator.state);
+  });
+
+  // Check reallocate
+  rcutils_fault_injection_set_count(0);
+  EXPECT_EQ(nullptr, allocator.reallocate(pointer, 1u, allocator.state));
+  EXPECT_EQ(RCUTILS_FAULT_INJECTION_NEVER_FAIL, rcutils_fault_injection_get_count());
+
+  // Check zero_allocate
+  rcutils_fault_injection_set_count(0);
+  EXPECT_EQ(nullptr, allocator.zero_allocate(1u, 1u, allocator.state));
+  EXPECT_EQ(RCUTILS_FAULT_INJECTION_NEVER_FAIL, rcutils_fault_injection_get_count());
 }
