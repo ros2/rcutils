@@ -117,7 +117,7 @@ TEST(test_allocator, default_allocator_maybe_fail) {
   rcutils_allocator_t allocator = rcutils_get_default_allocator();
 
   // Check allocate
-  rcutils_fault_injection_set_count(0);
+  rcutils_fault_injection_set_count(RCUTILS_FAULT_INJECTION_FAIL_NOW);
   EXPECT_EQ(nullptr, allocator.allocate(1u, allocator.state));
   EXPECT_EQ(RCUTILS_FAULT_INJECTION_NEVER_FAIL, rcutils_fault_injection_get_count());
 
@@ -129,12 +129,12 @@ TEST(test_allocator, default_allocator_maybe_fail) {
   });
 
   // Check reallocate
-  rcutils_fault_injection_set_count(0);
+  rcutils_fault_injection_set_count(RCUTILS_FAULT_INJECTION_FAIL_NOW);
   EXPECT_EQ(nullptr, allocator.reallocate(pointer, 1u, allocator.state));
   EXPECT_EQ(RCUTILS_FAULT_INJECTION_NEVER_FAIL, rcutils_fault_injection_get_count());
 
   // Check zero_allocate
-  rcutils_fault_injection_set_count(0);
+  rcutils_fault_injection_set_count(RCUTILS_FAULT_INJECTION_FAIL_NOW);
   EXPECT_EQ(nullptr, allocator.zero_allocate(1u, 1u, allocator.state));
   EXPECT_EQ(RCUTILS_FAULT_INJECTION_NEVER_FAIL, rcutils_fault_injection_get_count());
 }
