@@ -31,6 +31,8 @@
 static void *
 __default_allocate(size_t size, void * state)
 {
+  RCUTILS_CAN_RETURN_WITH_ERROR_OF(NULL);
+
   RCUTILS_UNUSED(state);
   return malloc(size);
 }
@@ -45,6 +47,8 @@ __default_deallocate(void * pointer, void * state)
 static void *
 __default_reallocate(void * pointer, size_t size, void * state)
 {
+  RCUTILS_CAN_RETURN_WITH_ERROR_OF(NULL);
+
   RCUTILS_UNUSED(state);
   return realloc(pointer, size);
 }
@@ -52,6 +56,8 @@ __default_reallocate(void * pointer, size_t size, void * state)
 static void *
 __default_zero_allocate(size_t number_of_elements, size_t size_of_element, void * state)
 {
+  RCUTILS_CAN_RETURN_WITH_ERROR_OF(NULL);
+
   RCUTILS_UNUSED(state);
   return calloc(number_of_elements, size_of_element);
 }
