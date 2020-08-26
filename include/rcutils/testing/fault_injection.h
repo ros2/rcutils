@@ -59,7 +59,7 @@ rcutils_fault_injection_is_test_complete(void);
  */
 RCUTILS_PUBLIC
 void
-rcutils_fault_injection_set_count(int count);
+rcutils_fault_injection_set_count(int_least64_t count);
 
 /**
  * \brief Atomically get the fault injection counter value
