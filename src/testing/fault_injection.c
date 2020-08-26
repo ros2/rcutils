@@ -18,7 +18,7 @@
 
 static atomic_int_least64_t g_rcutils_fault_injection_count = ATOMIC_VAR_INIT(-1);
 
-void rcutils_fault_injection_set_count(int count)
+void rcutils_fault_injection_set_count(int_least64_t count)
 {
   rcutils_atomic_store(&g_rcutils_fault_injection_count, count);
 }
