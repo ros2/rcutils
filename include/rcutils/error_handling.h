@@ -235,7 +235,8 @@ rcutils_set_error_state(const char * error_string, const char * file, size_t lin
  * \param error_return_value the value returned as a result of a given error.
  */
 #define RCUTILS_CAN_SET_MSG_AND_RETURN_WITH_ERROR_OF(error_return_value) \
-  RCUTILS_CAN_FAIL_WITH({ \
+  RCUTILS_CAN_FAIL_WITH( \
+  { \
     RCUTILS_SET_ERROR_MSG("Injecting " RCUTILS_STRINGIFY(error_return_value)); \
     return error_return_value; \
   })
