@@ -225,13 +225,16 @@ rcutils_set_error_state(const char * error_string, const char * file, size_t lin
 
 /// Indicate that the function intends to set an error message and return an error value.
 /**
- * \def RCUTILS_CAN_SET_ERROR_MSG_AND_RETURN_WITH_ERROR_OF
+ * \def RCUTILS_CAN_SET_MSG_AND_RETURN_WITH_ERROR_OF
  * Indicating macro similar to RCUTILS_CAN_RETURN_WITH_ERROR_OF, that also sets an error
  * message.
  *
+ * For now, this macro simply relies on `RCUTILS_CAN_FAIL_WITH` to set a generic error
+ * message and return the given `error_return_value` if fault injection is enabled.
+ *
  * \param error_return_value the value returned as a result of a given error.
  */
-#define RCUTILS_CAN_SET_ERROR_MSG_AND_RETURN_WITH_ERROR_OF(error_return_value) \
+#define RCUTILS_CAN_SET_MSG_AND_RETURN_WITH_ERROR_OF(error_return_value) \
   RCUTILS_CAN_FAIL_WITH({ \
     RCUTILS_SET_ERROR_MSG("Injecting " RCUTILS_STRINGIFY(error_return_value)); \
     return error_return_value; \
