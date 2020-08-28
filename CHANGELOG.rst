@@ -2,6 +2,29 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add RCUTILS_CAN_SET_ERROR_MSG_AND_RETURN_WITH_ERROR_OF() macro. (`#284 <https://github.com/ros2/rcutils/issues/284>`_)
+  To fault inject error messages as well as return codes.
+* Change rcutils_fault_injection_set_count to use int64_t (`#283 <https://github.com/ros2/rcutils/issues/283>`_)
+* adds QNX support for rcutils_get_executable_name (`#282 <https://github.com/ros2/rcutils/issues/282>`_)
+* Add fault injection hooks to default allocator (`#277 <https://github.com/ros2/rcutils/issues/277>`_)
+* Fault injection macros and functionality (plus example) (`#264 <https://github.com/ros2/rcutils/issues/264>`_)
+* ensure -fPIC is used when building a static lib (`#276 <https://github.com/ros2/rcutils/issues/276>`_)
+* Drop vsnprintf mocks entirely. (`#275 <https://github.com/ros2/rcutils/issues/275>`_)
+  Binary API is not portable across platforms and compilation config.
+* Fix vsnprintf mocks for Release builds. (`#274 <https://github.com/ros2/rcutils/issues/274>`_)
+* Improve test coverage mocking system calls (`#272 <https://github.com/ros2/rcutils/issues/272>`_)
+* Use mimick/mimick.h header (`#273 <https://github.com/ros2/rcutils/issues/273>`_)
+* Add mock test for rcutils/strerror (`#265 <https://github.com/ros2/rcutils/issues/265>`_)
+* Add compiler option -Wconversion and add explicit casts for conversions that may alter the value or change the sign (`#263 <https://github.com/ros2/rcutils/issues/263>`_)
+  See https://github.com/ros2/rcutils/pull/263#issuecomment-663252537.
+* Removed doxygen warnings (`#266 <https://github.com/ros2/rcutils/issues/266>`_) (`#268 <https://github.com/ros2/rcutils/issues/268>`_)
+* Removed doxygen warnings (`#266 <https://github.com/ros2/rcutils/issues/266>`_)
+* Force _GNU_SOURCE if glibc is used. (`#267 <https://github.com/ros2/rcutils/issues/267>`_)
+* Add parenthesis around the argument in time conversion macros defined in time.h (`#261 <https://github.com/ros2/rcutils/issues/261>`_)
+* Contributors: Ahmed Sobhy, Alejandro Hernández Cordero, Dirk Thomas, Johannes Meyer, Jorge Perez, Michel Hidalgo, brawner
+
 1.1.0 (2020-06-26)
 ------------------
 * Add token join macros (`#262 <https://github.com/ros2/rcutils/issues/262>`_)
