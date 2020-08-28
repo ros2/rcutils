@@ -20,8 +20,6 @@ extern "C"
 {
 #endif
 
-#include <string.h>
-
 #include "rcutils/macros.h"
 #include "rcutils/visibility_control.h"
 
@@ -41,6 +39,25 @@ RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
 int
 rcutils_strcasecmp(const char * s1, const char * s2);
+
+/// Case insensitive string compare up to count characters.
+/**
+ * This function compares two strings ignoring case which just wraps strncasecmp()
+ * or strnicmp() in a portable way. This performs a byte-by-byte comparison of the
+ * strings s1 and s2 up to count characters of s1 and s2, ignoring the case of the
+ * characters.
+ *
+ * \param[in] s1 String with null terminated to compare.
+ * \param[in] s2 String with null terminated to compare.
+ * \param[in] n Count characters to compare.
+ * \return An integer less than, equal to, or greater than zero if s1 is, after
+ *   ignoring case, found to be less than, to match, or be greater than s2,
+ *   respectively.
+ */
+RCUTILS_PUBLIC
+RCUTILS_WARN_UNUSED
+int
+rcutils_strncasecmp(const char * s1, const char * s2, size_t n);
 
 #ifdef __cplusplus
 }

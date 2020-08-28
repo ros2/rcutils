@@ -17,15 +17,40 @@ extern "C"
 {
 #endif
 
+#include <errno.h>
+#include <string.h>
+
 #include "rcutils/strcasecmp.h"
 
 int
 rcutils_strcasecmp(const char * s1, const char * s2)
 {
+  RCUTILS_CAN_FAIL_WITH({errno = EINVAL; return -1;});
+
+  if (s1 == NULL || s2 == NULL) {
+    errno = EINVAL;
+    return -1;
+  }
 #ifndef _WIN32
   return strcasecmp(s1, s2);
 #else
   return stricmp(s1, s2);
+#endif
+}
+
+int
+rcutils_strncasecmp(const char * s1, const char * s2, size_t n)
+{
+  RCUTILS_CAN_FAIL_WITH({errno = EINVAL; return -1;});
+
+  if (s1 == NULL || s2 == NULL) {
+    errno = EINVAL;
+    return -1;
+  }
+#ifndef _WIN32
+  return strncasecmp(s1, s2, n);
+#else
+  return strnicmp(s1, s2, n);
 #endif
 }
 

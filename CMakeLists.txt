@@ -64,8 +64,8 @@ set(rcutils_sources
   src/repl_str.c
   src/shared_library.c
   src/snprintf.c
-  src/strcasecmp.c
   src/split.c
+  src/strcasecmp.c
   src/strdup.c
   src/strerror.c
   src/string_array.c

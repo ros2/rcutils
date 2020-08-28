@@ -18,6 +18,10 @@
 
 // Tests the rcutils_strcasecmp() function.
 TEST(TestStrcasecmp, test_strcasecmp) {
+  EXPECT_EQ(-1, rcutils_strcasecmp(NULL, NULL));
+  EXPECT_EQ(-1, rcutils_strcasecmp(NULL, ""));
+  EXPECT_EQ(-1, rcutils_strcasecmp("", NULL));
+
   EXPECT_EQ(0, rcutils_strcasecmp("", ""));
   EXPECT_EQ(0, rcutils_strcasecmp("abc", "abc"));
   EXPECT_EQ(0, rcutils_strcasecmp("ABC", "ABC"));
@@ -55,4 +59,52 @@ TEST(TestStrcasecmp, test_strcasecmp) {
   EXPECT_NE(0, rcutils_strcasecmp("abc", "a1Bc"));
   EXPECT_NE(0, rcutils_strcasecmp("ab1C", "abc"));
   EXPECT_NE(0, rcutils_strcasecmp("abc", "ab1C"));
+}
+
+// Tests the rcutils_strncasecmp() function.
+TEST(TestStrcasecmp, test_strncasecmp) {
+  EXPECT_EQ(-1, rcutils_strncasecmp(NULL, NULL, 0));
+  EXPECT_EQ(-1, rcutils_strncasecmp(NULL, "", 1));
+  EXPECT_EQ(-1, rcutils_strncasecmp("", NULL, 1));
+
+  EXPECT_EQ(0, rcutils_strncasecmp("", "", 0));
+  EXPECT_EQ(0, rcutils_strncasecmp("", "", 1));
+  EXPECT_EQ(0, rcutils_strncasecmp("abc", "", 0));
+  EXPECT_EQ(0, rcutils_strncasecmp("", "abc", 0));
+  EXPECT_EQ(0, rcutils_strncasecmp("abc", "abc", 3));
+  EXPECT_EQ(0, rcutils_strncasecmp("ABC", "ABC", 3));
+  EXPECT_EQ(0, rcutils_strncasecmp("1abc", "1abc", 4));
+  EXPECT_EQ(0, rcutils_strncasecmp("abc1", "abc1", 4));
+  EXPECT_EQ(0, rcutils_strncasecmp("1ABC", "1ABC", 4));
+  EXPECT_EQ(0, rcutils_strncasecmp("ABC1", "ABC1", 4));
+  EXPECT_EQ(0, rcutils_strncasecmp("ABC", "abc", 1));
+  EXPECT_EQ(0, rcutils_strncasecmp("abc", "ABC", 1));
+  EXPECT_EQ(0, rcutils_strncasecmp("Abc", "abc", 2));
+  EXPECT_EQ(0, rcutils_strncasecmp("abc", "Abc", 2));
+  EXPECT_EQ(0, rcutils_strncasecmp("Abc", "Abc", 2));
+  EXPECT_EQ(0, rcutils_strncasecmp("aBc", "abc", 3));
+  EXPECT_EQ(0, rcutils_strncasecmp("abc", "aBc", 3));
+  EXPECT_EQ(0, rcutils_strncasecmp("aBc", "aBc", 3));
+  EXPECT_EQ(0, rcutils_strncasecmp("abC", "abc", 4));
+  EXPECT_EQ(0, rcutils_strncasecmp("abc", "abC", 4));
+  EXPECT_EQ(0, rcutils_strncasecmp("abC", "abC", 4));
+
+  EXPECT_NE(0, rcutils_strncasecmp("", "abc", 1));
+  EXPECT_NE(0, rcutils_strncasecmp("abc", "", 1));
+  EXPECT_NE(0, rcutils_strncasecmp("abcd", "abc", 4));
+  EXPECT_NE(0, rcutils_strncasecmp("abc", "abcd", 4));
+  EXPECT_NE(0, rcutils_strncasecmp("abcD", "abc", 4));
+  EXPECT_NE(0, rcutils_strncasecmp("abc", "abcD", 4));
+  EXPECT_NE(0, rcutils_strncasecmp("1abc", "abc", 4));
+  EXPECT_NE(0, rcutils_strncasecmp("abc", "1abc", 4));
+  EXPECT_NE(0, rcutils_strncasecmp("abc1", "abc", 4));
+  EXPECT_NE(0, rcutils_strncasecmp("abc", "abc1", 4));
+  EXPECT_NE(0, rcutils_strncasecmp("ABCd", "abc", 4));
+  EXPECT_NE(0, rcutils_strncasecmp("abc", "ABCd", 4));
+  EXPECT_NE(0, rcutils_strncasecmp("1Abc", "abc", 4));
+  EXPECT_NE(0, rcutils_strncasecmp("abc", "1Abc", 4));
+  EXPECT_NE(0, rcutils_strncasecmp("a1Bc", "abc", 4));
+  EXPECT_NE(0, rcutils_strncasecmp("abc", "a1Bc", 4));
+  EXPECT_NE(0, rcutils_strncasecmp("ab1C", "abc", 4));
+  EXPECT_NE(0, rcutils_strncasecmp("abc", "ab1C", 4));
 }
