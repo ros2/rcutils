@@ -2,8 +2,8 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.0.0 (2020-08-28)
+------------------
 * Add RCUTILS_CAN_SET_ERROR_MSG_AND_RETURN_WITH_ERROR_OF() macro. (`#284 <https://github.com/ros2/rcutils/issues/284>`_)
   To fault inject error messages as well as return codes.
 * Change rcutils_fault_injection_set_count to use int64_t (`#283 <https://github.com/ros2/rcutils/issues/283>`_)
