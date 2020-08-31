@@ -10,6 +10,7 @@
   <buildtool_depend>ament_cmake_ros</buildtool_depend>
   <buildtool_depend>python3-empy</buildtool_depend>
 
+  <test_depend>ament_cmake_google_benchmark</test_depend>
   <test_depend>ament_cmake_gmock</test_depend>
   <test_depend>ament_cmake_gtest</test_depend>
   <test_depend>ament_cmake_pytest</test_depend>
@@ -20,6 +21,7 @@
   <test_depend>launch_testing</test_depend>
   <test_depend>launch_testing_ament_cmake</test_depend>
   <test_depend>osrf_testing_tools_cpp</test_depend>
+  <test_depend>performance_test_fixture</test_depend>
 
   <export>
     <build_type>ament_cmake</build_type>

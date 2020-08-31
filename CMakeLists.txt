@@ -145,6 +145,12 @@ if(BUILD_TESTING)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
   endif()
 
+  # BENCHMARK_F seems to break cppcheck 2.1
+  # set(ament_cmake_cppcheck_FOUND TRUE)
+
+  find_package(ament_cmake_google_benchmark REQUIRED)
+  find_package(performance_test_fixture REQUIRED)
+
   find_package(ament_cmake_gmock REQUIRED)
   find_package(ament_cmake_gtest REQUIRED)
   find_package(ament_cmake_pytest REQUIRED)
@@ -505,6 +511,13 @@ if(BUILD_TESTING)
   rcutils_custom_add_gtest(test_macros
     test/test_macros.cpp
   )
+
+add_performance_test(simple_benchmark_test test/test_benchmark_logging.cpp)
+target_link_libraries(simple_benchmark_test ${PROJECT_NAME})
+target_include_directories(simple_benchmark_test PUBLIC include)
+#ament_target_dependencies(simple_benchmark_test "rcutils")
+  #ament_add_google_benchmark(simple_benchmark_test test/test_benchmark_logging.cpp)
+
   if(TARGET test_macros)
     target_link_libraries(test_macros ${PROJECT_NAME})
   endif()
