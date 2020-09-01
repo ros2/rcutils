@@ -67,7 +67,7 @@ static void simple_benchmark(benchmark::State & state) {
     rcutils_logging_output_handler_t original_function = rcutils_logging_get_output_handler();
     rcutils_logging_set_output_handler(rcutils_logging_console_output_handler);
     int original_level = rcutils_logging_get_default_logger_level();
-    
+
     // check all attributes for a debug log message
     rcutils_log_location_t location = {"func", "file", 42u};
     rcutils_log(&location, RCUTILS_LOG_SEVERITY_DEBUG, "name1", "message %d", 11);
@@ -78,7 +78,7 @@ static void simple_benchmark(benchmark::State & state) {
     rcutils_log(NULL, RCUTILS_LOG_SEVERITY_WARN, "", "%s", "");
     rcutils_log(NULL, RCUTILS_LOG_SEVERITY_ERROR, "", "%s", "");
     rcutils_log(NULL, RCUTILS_LOG_SEVERITY_FATAL, NULL, "%s", "");
-    
+
     // restore original state
     rcutils_logging_set_default_logger_level(original_level);
     rcutils_logging_set_output_handler(original_function);
