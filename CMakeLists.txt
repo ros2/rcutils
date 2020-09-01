@@ -512,11 +512,13 @@ if(BUILD_TESTING)
     test/test_macros.cpp
   )
 
-add_performance_test(simple_benchmark_test test/test_benchmark_logging.cpp)
-target_link_libraries(simple_benchmark_test ${PROJECT_NAME})
-target_include_directories(simple_benchmark_test PUBLIC include)
-#ament_target_dependencies(simple_benchmark_test "rcutils")
-  #ament_add_google_benchmark(simple_benchmark_test test/test_benchmark_logging.cpp)
+add_performance_test(benchmark_test_logging test/test_benchmark_logging.cpp)
+target_link_libraries(benchmark_test_logging ${PROJECT_NAME})
+target_include_directories(benchmark_test_logging PUBLIC include)
+
+add_performance_test(benchmark_test_err_handle test/test_benchmark_error_handling.cpp)
+target_link_libraries(benchmark_test_err_handle ${PROJECT_NAME})
+target_include_directories(benchmark_test_err_handle PUBLIC include)
 
   if(TARGET test_macros)
     target_link_libraries(test_macros ${PROJECT_NAME})
