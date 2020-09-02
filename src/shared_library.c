@@ -180,7 +180,7 @@ rcutils_get_platform_library_name(
 
   int written = 0;
 
-#ifdef __linux__
+#if defined(__linux__) || defined(__QNXNTO__)
   if (debug) {
     if (buffer_size >= (strlen(library_name) + 8)) {
       written = rcutils_snprintf(
