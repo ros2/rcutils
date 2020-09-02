@@ -23,35 +23,46 @@ extern "C"
 #include "rcutils/strcasecmp.h"
 
 int
-rcutils_strcasecmp(const char * s1, const char * s2)
+rcutils_strcasecmp(
+  const char * s1,
+  const char * s2,
+  int * value)
 {
-  RCUTILS_CAN_FAIL_WITH({errno = EINVAL; return -1;});
-
-  if (s1 == NULL || s2 == NULL) {
-    errno = EINVAL;
+  if (s1 == NULL || s2 == NULL || value == NULL) {
     return -1;
   }
 #ifndef _WIN32
-  return strcasecmp(s1, s2);
+  *value = strcasecmp(s1, s2);
 #else
-  return stricmp(s1, s2);
+  *value = stricmp(s1, s2);
 #endif
+  if (*value == 0) {
+    return 0;
+  } else {
+    return -1;
+  }
 }
 
 int
-rcutils_strncasecmp(const char * s1, const char * s2, size_t n)
+rcutils_strncasecmp(
+  const char * s1,
+  const char * s2,
+  size_t n,
+  int * value)
 {
-  RCUTILS_CAN_FAIL_WITH({errno = EINVAL; return -1;});
-
-  if (s1 == NULL || s2 == NULL) {
-    errno = EINVAL;
+  if (s1 == NULL || s2 == NULL || value == NULL) {
     return -1;
   }
 #ifndef _WIN32
-  return strncasecmp(s1, s2, n);
+  *value = strncasecmp(s1, s2, n);
 #else
-  return strnicmp(s1, s2, n);
+  *value = strnicmp(s1, s2, n);
 #endif
+  if (*value == 0) {
+    return 0;
+  } else {
+    return -1;
+  }
 }
 
 #ifdef __cplusplus

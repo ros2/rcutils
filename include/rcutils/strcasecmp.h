@@ -25,39 +25,49 @@ extern "C"
 
 /// Case insensitive string compare.
 /**
- * This function compares two strings ignoring case which just wraps strcasecmp()
- * or stricmp() in a portable way. This performs a byte-by-byte comparison of the
- * strings s1 and s2, ignoring the case of the characters.
+ * This function compares two strings ignoring case in a portable way.
+ * This performs a byte-by-byte comparison of the strings s1 and s2,
+ * ignoring the case of the characters.
  *
- * \param[in] s1 String with null terminated to compare.
- * \param[in] s2 String with null terminated to compare.
- * \return An integer less than, equal to, or greater than zero if s1 is, after
+ * \param[in] s1 Null terminated string to compare.
+ * \param[in] s2 Null terminated string to compare.
+ * \param[out] value Pointer to camparison result.
+ *   An integer less than, equal to, or greater than zero if s1 is, after
  *   ignoring case, found to be less than, to match, or be greater than s2,
  *   respectively.
+ * \return 0 if s1 and s2 match, -1 if don't.
  */
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
 int
-rcutils_strcasecmp(const char * s1, const char * s2);
+rcutils_strcasecmp(
+  const char * s1,
+  const char * s2,
+  int * value);
 
 /// Case insensitive string compare up to count characters.
 /**
- * This function compares two strings ignoring case which just wraps strncasecmp()
- * or strnicmp() in a portable way. This performs a byte-by-byte comparison of the
- * strings s1 and s2 up to count characters of s1 and s2, ignoring the case of the
- * characters.
+ * This function compares two strings ignoring case in a portable way.
+ * This performs a byte-by-byte comparison of the strings s1 and s2 up to count
+ * characters of s1 and s2, ignoring the case of the characters.
  *
- * \param[in] s1 String with null terminated to compare.
- * \param[in] s2 String with null terminated to compare.
- * \param[in] n Count characters to compare.
- * \return An integer less than, equal to, or greater than zero if s1 is, after
+ * \param[in] s1 First string to compare.
+ * \param[in] s2 Second string to compare.
+ * \param[in] n Count of characters to compare.
+ * \param[out] value Pointer to camparison result.
+ *   An integer less than, equal to, or greater than zero if s1 is, after
  *   ignoring case, found to be less than, to match, or be greater than s2,
  *   respectively.
+ * \return 0 if s1 and s2 match, -1 if don't.
  */
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
 int
-rcutils_strncasecmp(const char * s1, const char * s2, size_t n);
+rcutils_strncasecmp(
+  const char * s1,
+  const char * s2,
+  size_t n,
+  int * value);
 
 #ifdef __cplusplus
 }
