@@ -31,6 +31,7 @@ extern "C"
 #include <direct.h>
 #endif  // _WIN32
 
+#include "rcutils/error_handling.h"
 #include "rcutils/format_string.h"
 #include "rcutils/repl_str.h"
 
@@ -218,7 +219,8 @@ rcutils_calculate_directory_size(const char * directory_path, rcutils_allocator_
   size_t dir_size = 0;
 
   if (!rcutils_is_directory(directory_path)) {
-    fprintf(stderr, "Path is not a directory: %s\n", directory_path);
+    RCUTILS_SAFE_FWRITE_TO_STDERR_WITH_FORMAT_STRING(
+      "Path is not a directory: %s\n", directory_path);
     return dir_size;
   }
 #ifdef _WIN32
@@ -226,7 +228,8 @@ rcutils_calculate_directory_size(const char * directory_path, rcutils_allocator_
   WIN32_FIND_DATA data;
   HANDLE handle = FindFirstFile(path, &data);
   if (INVALID_HANDLE_VALUE == handle) {
-    fprintf(stderr, "Can't open directory %s. Error code: %lu\n", directory_path, GetLastError());
+    RCUTILS_SAFE_FWRITE_TO_STDERR_WITH_FORMAT_STRING(
+      "Can't open directory %s. Error code: %lu\n", directory_path, GetLastError());
     return dir_size;
   }
   allocator.deallocate(path, allocator.state);
@@ -245,7 +248,8 @@ rcutils_calculate_directory_size(const char * directory_path, rcutils_allocator_
 #else
   DIR * dir = opendir(directory_path);
   if (NULL == dir) {
-    fprintf(stderr, "Can't open directory %s. Error code: %d\n", directory_path, errno);
+    RCUTILS_SAFE_FWRITE_TO_STDERR_WITH_FORMAT_STRING(
+      "Can't open directory %s. Error code: %d\n", directory_path, errno);
     return dir_size;
   }
   struct dirent * entry;
@@ -266,7 +270,8 @@ size_t
 rcutils_get_file_size(const char * file_path)
 {
   if (!rcutils_is_file(file_path)) {
-    fprintf(stderr, "Path is not a file: %s\n", file_path);
+    RCUTILS_SAFE_FWRITE_TO_STDERR_WITH_FORMAT_STRING(
+      "Path is not a file: %s\n", file_path);
     return 0;
   }
 
