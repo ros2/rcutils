@@ -36,11 +36,7 @@ rcutils_strcasecmp(
 #else
   *value = stricmp(s1, s2);
 #endif
-  if (*value == 0) {
-    return 0;
-  } else {
-    return -1;
-  }
+  return 0;
 }
 
 int
@@ -58,11 +54,7 @@ rcutils_strncasecmp(
 #else
   *value = strnicmp(s1, s2, n);
 #endif
-  if (*value == 0) {
-    return 0;
-  } else {
-    return -1;
-  }
+  return 0;
 }
 
 #ifdef __cplusplus

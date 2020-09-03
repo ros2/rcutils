@@ -31,11 +31,11 @@ extern "C"
  *
  * \param[in] s1 Null terminated string to compare.
  * \param[in] s2 Null terminated string to compare.
- * \param[out] value Pointer to camparison result.
+ * \param[out] value Pointer to comparison result.
  *   An integer less than, equal to, or greater than zero if s1 is, after
  *   ignoring case, found to be less than, to match, or be greater than s2,
  *   respectively.
- * \return 0 if s1 and s2 match, -1 if don't.
+ * \return 0 if method succeeded , -1 if failed.
  */
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
@@ -54,11 +54,11 @@ rcutils_strcasecmp(
  * \param[in] s1 First string to compare.
  * \param[in] s2 Second string to compare.
  * \param[in] n Count of characters to compare.
- * \param[out] value Pointer to camparison result.
+ * \param[out] value Pointer to comparison result.
  *   An integer less than, equal to, or greater than zero if s1 is, after
  *   ignoring case, found to be less than, to match, or be greater than s2,
  *   respectively.
- * \return 0 if s1 and s2 match, -1 if don't.
+ * \return 0 if method succeeded , -1 if failed.
  */
 RCUTILS_PUBLIC
 RCUTILS_WARN_UNUSED
