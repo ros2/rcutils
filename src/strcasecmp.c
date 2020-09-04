@@ -34,7 +34,7 @@ rcutils_strcasecmp(
 #ifndef _WIN32
   *value = strcasecmp(s1, s2);
 #else
-  *value = stricmp(s1, s2);
+  *value = _stricmp(s1, s2);
 #endif
   return 0;
 }
@@ -52,7 +52,7 @@ rcutils_strncasecmp(
 #ifndef _WIN32
   *value = strncasecmp(s1, s2, n);
 #else
-  *value = strnicmp(s1, s2, n);
+  *value = _strnicmp(s1, s2, n);
 #endif
   return 0;
 }
