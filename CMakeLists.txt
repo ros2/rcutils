@@ -65,6 +65,7 @@ set(rcutils_sources
   src/shared_library.c
   src/snprintf.c
   src/split.c
+  src/strcasecmp.c
   src/strdup.c
   src/strerror.c
   src/string_array.c
@@ -399,6 +400,13 @@ if(BUILD_TESTING)
   )
   if(TARGET test_snprintf)
     target_link_libraries(test_snprintf ${PROJECT_NAME})
+  endif()
+
+  rcutils_custom_add_gtest(test_strcasecmp
+    test/test_strcasecmp.cpp
+  )
+  if(TARGET test_strcasecmp)
+    target_link_libraries(test_strcasecmp ${PROJECT_NAME})
   endif()
 
   rcutils_custom_add_gtest(test_uint8_array
