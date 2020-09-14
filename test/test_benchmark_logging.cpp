@@ -40,7 +40,7 @@ struct LogEvent
 };
 LogEvent g_last_log_event;
 
-static void simple_benchmark(benchmark::State & state) {
+static void benchmark_logging(benchmark::State & state) {
   for (auto _ : state) {
     rcutils_logging_initialize();
     OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
@@ -85,4 +85,4 @@ static void simple_benchmark(benchmark::State & state) {
   }
 }
 
-BENCHMARK(simple_benchmark);
+BENCHMARK(benchmark_logging);
