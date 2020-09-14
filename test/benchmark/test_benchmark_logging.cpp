@@ -12,15 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <benchmark/benchmark.h>
+#include <cassert>
 #include <string>
 #include <vector>
 
-#include "./allocator_testing_utils.h"
+#include "../allocator_testing_utils.h"
 #include "osrf_testing_tools_cpp/scope_exit.hpp"
 #include "rcutils/logging.h"
-
-#include <benchmark/benchmark.h>
-#include <cassert>
 
 #ifdef RMW_IMPLEMENTATION
 # define CLASSNAME_(NAME, SUFFIX) NAME ## __ ## SUFFIX
@@ -40,12 +39,15 @@ struct LogEvent
 };
 LogEvent g_last_log_event;
 
-static void benchmark_logging(benchmark::State & state) {
+static void benchmark_logging(benchmark::State & state)
+{
   for (auto _ : state) {
-    rcutils_logging_initialize();
+    auto ret_value = rcutils_logging_initialize();
+    (void) ret_value;
     OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
     {
-      rcutils_logging_shutdown();
+      ret_value = rcutils_logging_shutdown();
+      (void) ret_value;
     });
     g_rcutils_logging_default_logger_level = RCUTILS_LOG_SEVERITY_DEBUG;
 
@@ -54,14 +56,14 @@ static void benchmark_logging(benchmark::State & state) {
       int level, const char * name, rcutils_time_point_value_t timestamp,
       const char * format, va_list * args) -> void
       {
-	g_log_calls += 1;
-	g_last_log_event.location = location;
-	g_last_log_event.level = level;
-	g_last_log_event.name = name ? name : "";
-	g_last_log_event.timestamp = timestamp;
-	char buffer[1024];
-	vsnprintf(buffer, sizeof(buffer), format, *args);
-	g_last_log_event.message = buffer;
+        g_log_calls += 1;
+        g_last_log_event.location = location;
+        g_last_log_event.level = level;
+        g_last_log_event.name = name ? name : "";
+        g_last_log_event.timestamp = timestamp;
+        char buffer[1024];
+        vsnprintf(buffer, sizeof(buffer), format, *args);
+        g_last_log_event.message = buffer;
       };
 
     rcutils_logging_output_handler_t original_function = rcutils_logging_get_output_handler();

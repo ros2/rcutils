@@ -145,9 +145,6 @@ if(BUILD_TESTING)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
   endif()
 
-  # BENCHMARK_F seems to break cppcheck 2.1
-  # set(ament_cmake_cppcheck_FOUND TRUE)
-
   find_package(ament_cmake_google_benchmark REQUIRED)
   find_package(performance_test_fixture REQUIRED)
 

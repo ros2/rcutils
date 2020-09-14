@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <benchmark/benchmark.h>
+#include <cassert>
 #include <string>
 
 #include "rcutils/error_handling.h"
 
-#include <benchmark/benchmark.h>
-#include <cassert>
-
-static void benchmark_err_handling(benchmark::State & state) {
+static void benchmark_err_handling(benchmark::State & state)
+{
   for (auto _ : state) {
     rcutils_ret_t ret =
       rcutils_initialize_error_handling_thread_local_storage(rcutils_get_default_allocator());
