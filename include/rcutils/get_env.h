@@ -47,8 +47,8 @@ extern "C"
  * printf("Valued of 'SOME_ENV_VAR': %s\n", env_value);
  * ```
  *
- * This function cannot be thread-safely called together with rcutils_set_env
- * (or any platform specific equivalent), but multiple calls to this function are thread safe.
+ * This function cannot be concurrently called together with rcutils_set_env (or any platform specific equivalent)
+ * on different threads, but multiple concurrent calls to this function are thread safe.
  *
  * \param[in] env_name the name of the environment variable
  * \param[out] env_value pointer to the value cstring, or "" if unset
