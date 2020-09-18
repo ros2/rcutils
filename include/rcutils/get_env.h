@@ -73,9 +73,8 @@ rcutils_get_env(const char * env_name, const char ** env_value);
  * If neither exists, NULL will be returned.
  * The above algorithm is portable across both Unix and Windows.
  *
- * The home directory will be truncated at 2048 characters on Windows.
- *
- * This function is not thread-safe.
+ * This function cannot be thread-safely called together with rcutils_set_env
+ * (or any platform specific equivalent), but multiple calls to this function are thread safe.
  *
  * \return The home directory on success, NULL on failure.
  */
