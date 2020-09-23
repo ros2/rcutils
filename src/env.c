@@ -28,6 +28,8 @@ extern "C"
 bool
 rcutils_set_env(const char * env_name, const char * env_value)
 {
+  RCUTILS_CAN_RETURN_WITH_ERROR_OF(false);
+
   RCUTILS_CHECK_FOR_NULL_WITH_MSG(
     env_name, "env_name is null", return false);
 
