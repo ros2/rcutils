@@ -29,6 +29,8 @@ extern "C"
 const char *
 rcutils_get_env(const char * env_name, const char ** env_value)
 {
+  RCUTILS_CAN_RETURN_WITH_ERROR_OF("some string error");
+
   if (NULL == env_name) {
     return "argument env_name is null";
   }
