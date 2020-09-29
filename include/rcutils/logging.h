@@ -527,7 +527,7 @@ void rcutils_logging_console_output_handler(
         rcutils_reset_error(); \
       } \
     } \
-  } while (0);
+  } while (0)
 
 #ifdef __cplusplus
 }
