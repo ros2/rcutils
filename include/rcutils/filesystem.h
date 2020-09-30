@@ -27,6 +27,12 @@ extern "C"
 #include "rcutils/macros.h"
 #include "rcutils/visibility_control.h"
 
+#ifdef _WIN32
+# define RCUTILS_PATH_DELIMITER "\\"
+#else
+# define RCUTILS_PATH_DELIMITER "/"
+#endif  // _WIN32
+
 /// Return current working directory.
 /**
  * \param[in] buffer Allocated string to store current directory path to
