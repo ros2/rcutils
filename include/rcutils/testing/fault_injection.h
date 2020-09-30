@@ -196,7 +196,7 @@ _rcutils_fault_injection_maybe_fail(void);
     int64_t no_fault_injection_count = rcutils_fault_injection_get_count(); \
     rcutils_fault_injection_set_count(RCUTILS_FAULT_INJECTION_NEVER_FAIL); \
     code; \
-    rcutils_fault_injection_set_count(count); \
+    rcutils_fault_injection_set_count(no_fault_injection_count); \
   } while (0)
 
 #ifdef __cplusplus
