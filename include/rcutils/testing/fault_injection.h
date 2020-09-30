@@ -167,6 +167,38 @@ _rcutils_fault_injection_maybe_fail(void);
     rcutils_fault_injection_set_count(RCUTILS_FAULT_INJECTION_NEVER_FAIL); \
   } while (0)
 
+/**
+ * \def RCUTILS_NO_FAULT_INJECTION
+ *
+ * A convenience macro built around rcutils_fault_injection_set_count() to pause fault
+ * injection during `code` execution.
+ * This macro is intended to be used within RCUTILS_FAULT_INJECTION_TEST() blocks.
+ *
+ * `code` is executed within a do-while loop and therefore any variables declared within are in
+ * their own scope block.
+ *
+ * Here's a simple example:
+ *  RCUTILS_FAULT_INJECTION_TEST({
+ *    rcl_ret_t ret = rcl_init(argc, argv, options, context);
+ *    if (RCL_RET_OK == ret)
+ *    {
+ *      RCUTILS_NO_FAULT_INJECTION({
+ *        ret = rcl_shutdown(context);
+ *      });
+ *    }
+ * });
+ *
+ * In this example, on successful rcl_init(), rcl_shutdown() is called while ensuring that
+ * it will not fail due to fault injection.
+ */
+#define RCUTILS_NO_FAULT_INJECTION(code) \
+  do { \
+    int64_t no_fault_injection_count = rcutils_fault_injection_get_count(); \
+    rcutils_fault_injection_set_count(RCUTILS_FAULT_INJECTION_NEVER_FAIL); \
+    code; \
+    rcutils_fault_injection_set_count(count); \
+  } while (0)
+
 #ifdef __cplusplus
 }
 #endif
