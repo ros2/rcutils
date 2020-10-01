@@ -65,3 +65,6 @@ The API is a combination of parts:
     - rcutils/types/string_map.h
 - Macros for controlling symbol visibility and linkage for this library:
   - rcutils/visibility_control.h
+
+
+Just made some changes to win Hacktoberfest, Have Fun! from CWH gang
