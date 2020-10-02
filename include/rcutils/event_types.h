@@ -30,21 +30,21 @@ enum EventQueueType {
 typedef enum EventQueueType EventQueueType;
 
 struct EventQ {
-  void * entity;
+  const void * entity;
   EventQueueType type;
 };
 
 typedef struct EventQ EventQ;
 
-typedef void (*Event_callback)(void * context, EventQ event);
+typedef void (*Event_callback)(const void * context, EventQ event);
 
 struct EventHandle {
 
     // Associated context (executor)
-    void * context;
+    const void * context;
 
     // Event handle;
-    void * ros2_handle;
+    const void * ros2_handle;
 
     // Event callback
     Event_callback callback;
