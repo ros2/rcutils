@@ -16,6 +16,7 @@
 #include <string>
 
 #include "rcutils/filesystem.h"
+#include "rcutils/get_env.h"
 
 #include "osrf_testing_tools_cpp/scope_exit.hpp"
 
@@ -304,6 +305,62 @@ TEST_F(TestFilesystemFixture, is_readable_and_writable) {
     });
     ASSERT_FALSE(nullptr == path);
     EXPECT_FALSE(rcutils_is_readable_and_writable(path));
+  }
+}
+
+TEST_F(TestFilesystemFixture, expand_user) {
+  const char * homedir = rcutils_get_home_dir();
+  ASSERT_STRNE(NULL, homedir);
+  const std::string homedir_str(homedir);
+
+  {
+    // Invalid path arg
+    EXPECT_EQ(NULL, rcutils_expand_user(NULL, g_allocator));
+  }
+  {
+    // No ~
+    const char * path = "/this/path/has/no/tilde";
+    char * ret_path = rcutils_expand_user(path, g_allocator);
+    EXPECT_STREQ(ret_path, path);
+    ASSERT_NE(ret_path, path);
+    g_allocator.deallocate(ret_path, g_allocator.state);
+  }
+  {
+    // No ~ and empty path
+    const char * path = "";
+    char * ret_path = rcutils_expand_user(path, g_allocator);
+    EXPECT_STREQ(ret_path, path);
+    ASSERT_NE(ret_path, path);
+    g_allocator.deallocate(ret_path, g_allocator.state);
+  }
+  {
+    // With ~ but not leading
+    const char * path = "/prefix/~/my/dir";
+    char * ret_path = rcutils_expand_user(path, g_allocator);
+    EXPECT_STREQ(ret_path, path);
+    ASSERT_NE(ret_path, path);
+    g_allocator.deallocate(ret_path, g_allocator.state);
+  }
+  {
+    // With ~ only
+    const char * path = "~";
+    char * ret_path = rcutils_expand_user(path, g_allocator);
+    EXPECT_STREQ(ret_path, homedir);
+    g_allocator.deallocate(ret_path, g_allocator.state);
+  }
+  {
+    // With ~/ only
+    const char * path = "~/";
+    char * ret_path = rcutils_expand_user(path, g_allocator);
+    EXPECT_STREQ(ret_path, (homedir_str + "/").c_str());
+    g_allocator.deallocate(ret_path, g_allocator.state);
+  }
+  {
+    // Normal use-case
+    const char * path = "~/my/directory";
+    char * ret_path = rcutils_expand_user(path, g_allocator);
+    EXPECT_STREQ(ret_path, (homedir_str + "/my/directory").c_str());
+    g_allocator.deallocate(ret_path, g_allocator.state);
   }
 }
 
