@@ -2,6 +2,16 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add RCUTILS_NO_FAULT_INJECTION() macro. (`#295 <https://github.com/ros2/rcutils/issues/295>`_)
+* Inject faults on rcutils_get_env() and rcutils_set_env() call. (`#292 <https://github.com/ros2/rcutils/issues/292>`_)
+* env.h and get_env.h docblock fixes (`#291 <https://github.com/ros2/rcutils/issues/291>`_)
+* Introduce rcutils_strcasecmp, case insensitive string compare. (`#280 <https://github.com/ros2/rcutils/issues/280>`_)
+* Stop using fprintf to avoid using file handles by changing as few lines of code as possible. (`#289 <https://github.com/ros2/rcutils/issues/289>`_)
+* Defines QNX implementation for rcutils_get_platform_library_name (`#287 <https://github.com/ros2/rcutils/issues/287>`_)
+* Contributors: Ahmed Sobhy, Ivan Santiago Paunovic, Michel Hidalgo, tomoya
+
 2.0.0 (2020-08-28)
 ------------------
 * Add RCUTILS_CAN_SET_ERROR_MSG_AND_RETURN_WITH_ERROR_OF() macro. (`#284 <https://github.com/ros2/rcutils/issues/284>`_)
