@@ -2,8 +2,8 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.1.0 (2020-10-02)
+------------------
 * Add RCUTILS_NO_FAULT_INJECTION() macro. (`#295 <https://github.com/ros2/rcutils/issues/295>`_)
 * Inject faults on rcutils_get_env() and rcutils_set_env() call. (`#292 <https://github.com/ros2/rcutils/issues/292>`_)
 * env.h and get_env.h docblock fixes (`#291 <https://github.com/ros2/rcutils/issues/291>`_)
