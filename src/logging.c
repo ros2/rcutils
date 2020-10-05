@@ -342,39 +342,35 @@ rcutils_logging_severity_level_from_string(
 
 rcutils_logging_output_handler_t rcutils_logging_get_output_handler(void)
 {
-  RCUTILS_LOGGING_AUTOINIT
+  RCUTILS_LOGGING_AUTOINIT;
   return g_rcutils_logging_output_handler;
 }
 
 void rcutils_logging_set_output_handler(rcutils_logging_output_handler_t function)
 {
-  // *INDENT-OFF* (prevent uncrustify from making unnecessary indents here)
-  RCUTILS_LOGGING_AUTOINIT
+  RCUTILS_LOGGING_AUTOINIT;
   g_rcutils_logging_output_handler = function;
-  // *INDENT-ON*
 }
 
 int rcutils_logging_get_default_logger_level(void)
 {
-  RCUTILS_LOGGING_AUTOINIT
+  RCUTILS_LOGGING_AUTOINIT;
   return g_rcutils_logging_default_logger_level;
 }
 
 void rcutils_logging_set_default_logger_level(int level)
 {
-  // *INDENT-OFF* (prevent uncrustify from making unnecessary indents here)
-  RCUTILS_LOGGING_AUTOINIT
+  RCUTILS_LOGGING_AUTOINIT;
   if (RCUTILS_LOG_SEVERITY_UNSET == level) {
     // Restore the default
     level = RCUTILS_DEFAULT_LOGGER_DEFAULT_LEVEL;
   }
   g_rcutils_logging_default_logger_level = level;
-  // *INDENT-ON*
 }
 
 int rcutils_logging_get_logger_level(const char * name)
 {
-  RCUTILS_LOGGING_AUTOINIT
+  RCUTILS_LOGGING_AUTOINIT;
   if (NULL == name) {
     return -1;
   }
@@ -383,7 +379,7 @@ int rcutils_logging_get_logger_level(const char * name)
 
 int rcutils_logging_get_logger_leveln(const char * name, size_t name_length)
 {
-  RCUTILS_LOGGING_AUTOINIT
+  RCUTILS_LOGGING_AUTOINIT;
   if (NULL == name) {
     return -1;
   }
@@ -421,7 +417,7 @@ int rcutils_logging_get_logger_leveln(const char * name, size_t name_length)
 
 int rcutils_logging_get_logger_effective_level(const char * name)
 {
-  RCUTILS_LOGGING_AUTOINIT
+  RCUTILS_LOGGING_AUTOINIT;
   if (NULL == name) {
     return -1;
   }
@@ -453,7 +449,7 @@ int rcutils_logging_get_logger_effective_level(const char * name)
 
 rcutils_ret_t rcutils_logging_set_logger_level(const char * name, int level)
 {
-  RCUTILS_LOGGING_AUTOINIT
+  RCUTILS_LOGGING_AUTOINIT;
   if (NULL == name) {
     RCUTILS_SET_ERROR_MSG("Invalid logger name");
     return RCUTILS_RET_INVALID_ARGUMENT;
@@ -494,7 +490,7 @@ rcutils_ret_t rcutils_logging_set_logger_level(const char * name, int level)
 
 bool rcutils_logging_logger_is_enabled_for(const char * name, int severity)
 {
-  RCUTILS_LOGGING_AUTOINIT
+  RCUTILS_LOGGING_AUTOINIT;
   int logger_level = g_rcutils_logging_default_logger_level;
   if (name) {
     logger_level = rcutils_logging_get_logger_effective_level(name);
