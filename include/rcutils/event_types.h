@@ -24,7 +24,8 @@ enum EventQueueType {
     SUBSCRIPTION_EVENT,
     SERVICE_EVENT,
     CLIENT_EVENT,
-    GUARD_CONDITION_EVENT
+    GUARD_CONDITION_EVENT,
+    USER_EVENT_BASE = 1000
 };
 
 typedef enum EventQueueType EventQueueType;
