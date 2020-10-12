@@ -20,26 +20,26 @@ extern "C"
 {
 #endif
 
-enum EventQueueType {
+enum ExecutorEventType {
     SUBSCRIPTION_EVENT,
     SERVICE_EVENT,
     CLIENT_EVENT,
-    GUARD_CONDITION_EVENT,
+    WAITABLE_EVENT,
     USER_EVENT_BASE = 1000
 };
 
-typedef enum EventQueueType EventQueueType;
+typedef enum ExecutorEventType ExecutorEventType;
 
 struct ExecutorEvent {
   const void * entity;
-  EventQueueType type;
+  ExecutorEventType type;
 };
 
 typedef struct ExecutorEvent ExecutorEvent;
 
-typedef void (*Event_callback)(const void * context, ExecutorEvent event);
+typedef void (*ExecutorEventCallback)(const void * context, ExecutorEvent event);
 
-struct EventHandle {
+struct ExecutorEventHandle {
 
     // Associated context (executor)
     const void * context;
@@ -48,10 +48,10 @@ struct EventHandle {
     const void * ros2_handle;
 
     // Event callback
-    Event_callback callback;
+    ExecutorEventCallback callback;
 };
 
-typedef struct EventHandle EventHandle;
+typedef struct ExecutorEventHandle ExecutorEventHandle;
 
 
 #ifdef __cplusplus
