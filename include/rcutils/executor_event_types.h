@@ -39,20 +39,6 @@ typedef struct ExecutorEvent ExecutorEvent;
 
 typedef void (*ExecutorEventCallback)(const void * context, ExecutorEvent event);
 
-struct ExecutorEventHandle {
-
-    // Associated context (executor)
-    const void * context;
-
-    // Event handle;
-    const void * ros2_handle;
-
-    // Event callback
-    ExecutorEventCallback callback;
-};
-
-typedef struct ExecutorEventHandle ExecutorEventHandle;
-
 
 #ifdef __cplusplus
 }
