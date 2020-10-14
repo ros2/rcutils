@@ -24,7 +24,7 @@ enum ExecutorEventType {
     SUBSCRIPTION_EVENT,
     SERVICE_EVENT,
     CLIENT_EVENT,
-    WAITABLE_EVENT,
+    WAITABLE_EVENT
 };
 
 typedef enum ExecutorEventType ExecutorEventType;
