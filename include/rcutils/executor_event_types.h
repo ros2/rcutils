@@ -25,7 +25,6 @@ enum ExecutorEventType {
     SERVICE_EVENT,
     CLIENT_EVENT,
     WAITABLE_EVENT,
-    USER_EVENT_BASE = 1000
 };
 
 typedef enum ExecutorEventType ExecutorEventType;
