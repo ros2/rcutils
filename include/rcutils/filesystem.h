@@ -144,6 +144,24 @@ rcutils_to_native_path(
   const char * path,
   rcutils_allocator_t allocator);
 
+/// Expand user directory in path.
+/**
+ * This function expands an initial '~' to the current user's home directory.
+ * The home directory is fetched using `rcutils_get_home_dir()`.
+ * This function returns a newly allocated string on success.
+ * It is up to the caller to release the memory once it is done with it by
+ * calling `deallocate` on the same allocator passed here.
+ *
+ * \param[in] path A null-terminated C string representing a path.
+ * \param[in] allocator
+ * \return path with expanded home directory on success, or
+ * \return `NULL` on invalid arguments, or
+ * \return `NULL` on failure.
+ */
+RCUTILS_PUBLIC
+char *
+rcutils_expand_user(const char * path, rcutils_allocator_t allocator);
+
 /// Create the specified directory.
 /**
  * This function creates an absolutely-specified directory.
