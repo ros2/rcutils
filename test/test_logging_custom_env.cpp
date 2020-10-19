@@ -43,7 +43,9 @@ TEST(CLASSNAME(TestLoggingCustomEnv, RMW_IMPLEMENTATION), test_logging) {
   rcutils_allocator_t allocator = rcutils_get_default_allocator();
   rcutils_char_array_t msg_buf, output_buf;
   ret = rcutils_char_array_init(&msg_buf, 1024, &allocator);
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
   ret = rcutils_char_array_init(&output_buf, 1024, &allocator);
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
   rcutils_time_point_value_t now = 0;
 
   ret = rcutils_logging_format_message(
