@@ -243,6 +243,7 @@ TEST_F(ArrayListPreInitTest, remove_success_removes_from_list) {
   EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
   ret = rcutils_array_list_get_size(&list, &size);
+  ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
   EXPECT_EQ(size, (size_t)0);
 }
 
@@ -333,6 +334,7 @@ TEST_F(ArrayListTest, add_grow_capacity) {
   for (uint32_t i = 0; i < 17; ++i) {
     uint32_t ret_data = 0;
     ret = rcutils_array_list_get(&list, i, &ret_data);
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
     EXPECT_EQ((i * 2), ret_data) << rcutils_get_error_string().str;
   }
 
