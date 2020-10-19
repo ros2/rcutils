@@ -2,6 +2,13 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add rcutils_expand_user() to expand user directory in path (`#298 <https://github.com/ros2/rcutils/issues/298>`_)
+* Update the maintainers. (`#299 <https://github.com/ros2/rcutils/issues/299>`_)
+* Remove the temporary variable in RCUTILS_LOGGING_AUTOINIT (`#290 <https://github.com/ros2/rcutils/issues/290>`_)
+* Contributors: Chris Lalancette, Christophe Bedard, Felix Endres
+
 2.1.0 (2020-10-02)
 ------------------
 * Add RCUTILS_NO_FAULT_INJECTION() macro. (`#295 <https://github.com/ros2/rcutils/issues/295>`_)
