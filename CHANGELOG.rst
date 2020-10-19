@@ -2,8 +2,8 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.2.0 (2020-10-19)
+------------------
 * Add rcutils_expand_user() to expand user directory in path (`#298 <https://github.com/ros2/rcutils/issues/298>`_)
 * Update the maintainers. (`#299 <https://github.com/ros2/rcutils/issues/299>`_)
 * Remove the temporary variable in RCUTILS_LOGGING_AUTOINIT (`#290 <https://github.com/ros2/rcutils/issues/290>`_)
