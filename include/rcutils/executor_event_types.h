@@ -36,7 +36,7 @@ struct ExecutorEvent {
 
 typedef struct ExecutorEvent ExecutorEvent;
 
-typedef void (*ExecutorEventCallback)(const void * context, ExecutorEvent event);
+typedef void (*EventsExecutorCallback)(const void * context, ExecutorEvent event);
 
 
 #ifdef __cplusplus
