@@ -419,9 +419,9 @@ TEST_F(TestFilesystemFixture, calculate_directory_size) {
 #ifdef WIN32
   // Due to different line breaks on windows, we have one more byte in the file.
   // See https://github.com/ros2/rcutils/issues/198
-  EXPECT_EQ(6u, size);
+  EXPECT_EQ(18u, size);
 #else
-  EXPECT_EQ(5u, size);
+  EXPECT_EQ(15u, size);
 #endif
   g_allocator.deallocate(path, g_allocator.state);
 

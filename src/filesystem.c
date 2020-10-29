@@ -274,7 +274,11 @@ rcutils_calculate_directory_size(const char * directory_path, rcutils_allocator_
       // Skip over local folder handle (`.`) and parent folder (`..`)
       if (strcmp(data.cFileName, ".") != 0 && strcmp(data.cFileName, "..") != 0) {
         char * file_path = rcutils_join_path(directory_path, data.cFileName, allocator);
-        dir_size += rcutils_get_file_size(file_path);
+        if (rcutils_is_directory(file_path)) {
+          dir_size += rcutils_calculate_directory_size(file_path, allocator);
+        } else {
+          dir_size += rcutils_get_file_size(file_path);
+        }
         allocator.deallocate(file_path, allocator.state);
       }
     } while (FindNextFile(handle, &data));
@@ -293,7 +297,11 @@ rcutils_calculate_directory_size(const char * directory_path, rcutils_allocator_
     // Skip over local folder handle (`.`) and parent folder (`..`)
     if (strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0) {
       char * file_path = rcutils_join_path(directory_path, entry->d_name, allocator);
-      dir_size += rcutils_get_file_size(file_path);
+      if (rcutils_is_directory(file_path)) {
+        dir_size += rcutils_calculate_directory_size(file_path, allocator);
+      } else {
+        dir_size += rcutils_get_file_size(file_path);
+      }
       allocator.deallocate(file_path, allocator.state);
     }
   }
