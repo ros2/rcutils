@@ -187,7 +187,7 @@ rcutils_mkdir(const char * abs_path);
 /// Calculate the size of the specified directory.
 /*
  * Calculates the size of a directory by summarizing the file size of all files.
- * \note This operation is recursive.
+ * \note This operation is recursive. Not follow the symbolic link that points to directory.
  *
  * \param[in] directory_path The directory path to calculate the size of.
  * \param[in] allocator Allocator being used for internal file path composition.
