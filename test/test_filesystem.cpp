@@ -413,9 +413,22 @@ TEST_F(TestFilesystemFixture, mkdir) {
 }
 
 TEST_F(TestFilesystemFixture, calculate_directory_size) {
+  // Check directory without sub-directory
   char * path =
     rcutils_join_path(this->test_path, "dummy_folder", g_allocator);
   size_t size = rcutils_calculate_directory_size(path, g_allocator);
+#ifdef WIN32
+  // Due to different line breaks on windows, we have one more byte in the file.
+  // See https://github.com/ros2/rcutils/issues/198
+  EXPECT_EQ(6u, size);
+#else
+  EXPECT_EQ(5u, size);
+#endif
+  g_allocator.deallocate(path, g_allocator.state);
+
+  // Check directory with sub-directory
+  path = rcutils_join_path(this->test_path, "dummy_folder_with_subdir", g_allocator);
+  size = rcutils_calculate_directory_size(path, g_allocator);
 #ifdef WIN32
   // Due to different line breaks on windows, we have one more byte in the file.
   // See https://github.com/ros2/rcutils/issues/198
