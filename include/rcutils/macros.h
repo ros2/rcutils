@@ -92,7 +92,7 @@ extern "C"
  * \param[in] first_to_check_index index of the first "optional argument"
  */
 #define RCUTILS_ATTRIBUTE_PRINTF_FORMAT(format_string_index, first_to_check_index) \
-  __attribute__ ((format(printf, format_string_index, first_to_check_index)))
+  __attribute__ ((__format__(__printf__, format_string_index, first_to_check_index)))
 #endif  // !defined _WIN32 || defined __CYGWIN__
 
 /// Macro to declare deprecation in the platform appropriate manner.
