@@ -31,6 +31,7 @@ extern "C"
 #include "rcutils/allocator.h"
 #include "rcutils/error_handling.h"
 #include "rcutils/process.h"
+#include "rcutils/strdup.h"
 
 int rcutils_get_pid(void)
 {
@@ -75,13 +76,11 @@ char * rcutils_get_executable_name(rcutils_allocator_t allocator)
   // Get just the executable name (Unix may return the absolute path)
 #if defined __APPLE__ || defined __FreeBSD__ || defined __GNUC__
   // We need an intermediate copy because basename may modify its arguments
-  char * intermediate = allocator.allocate(applen + 1, allocator.state);
+  char * intermediate = rcutils_strdup(appname, allocator);
   if (NULL == intermediate) {
     allocator.deallocate(executable_name, allocator.state);
     return NULL;
   }
-  memcpy(intermediate, appname, applen);
-  intermediate[applen] = '\0';
 
   char * bname = basename(intermediate);
   size_t baselen = strlen(bname);
