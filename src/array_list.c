@@ -167,6 +167,7 @@ rcutils_array_list_remove(rcutils_array_list_t * array_list, size_t index)
   ARRAY_LIST_VALIDATE_ARRAY_LIST(array_list);
   ARRAY_LIST_VALIDATE_INDEX_IN_BOUNDS(array_list, index);
 
+  // Shift all the data in the list to replace the missing data
   size_t copy_count = array_list->impl->size - (index + 1);
   if (copy_count > 0) {
     uint8_t * dst_ptr = rcutils_array_list_get_pointer_for_index(array_list, index);
