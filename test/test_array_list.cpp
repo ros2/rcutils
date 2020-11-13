@@ -382,6 +382,14 @@ TEST_F(ArrayListPreInitTest, remove_preserves_data_around_it) {
   EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
   EXPECT_EQ(size, (size_t)2);
 
+  ret = rcutils_array_list_get(&list, 0, &ret_data);
+  EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
+  EXPECT_EQ((uint32_t)0, ret_data) << rcutils_get_error_string().str;
+
+  ret = rcutils_array_list_get(&list, 1, &ret_data);
+  EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
+  EXPECT_EQ((uint32_t)2, ret_data) << rcutils_get_error_string().str;
+
   ret = rcutils_array_list_remove(&list, 0);
   EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
