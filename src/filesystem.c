@@ -249,17 +249,9 @@ rcutils_mkdir(const char * abs_path)
   return success;
 }
 
-size_t
+ssize_t
 rcutils_calculate_directory_size(const char * directory_path, rcutils_allocator_t allocator)
 {
-  size_t dir_size = 0;
-
-  if (!rcutils_is_directory(directory_path)) {
-    RCUTILS_SAFE_FWRITE_TO_STDERR_WITH_FORMAT_STRING(
-      "Path is not a directory: %s\n", directory_path);
-    return dir_size;
-  }
-
   return rcutils_calculate_directory_size_with_recursion(directory_path, 1, allocator);
 }
 
@@ -281,35 +273,97 @@ static inline void free_dir_list(dir_list_t * dir_list, rcutils_allocator_t allo
   } while (dir_list);
 }
 
-size_t
+static inline void remove_first_dir_from_list(dir_list_t ** dir_list, rcutils_allocator_t allocator)
+{
+  dir_list_t * next_dir = (*dir_list)->next;
+  allocator.deallocate((*dir_list)->path, allocator.state);
+  allocator.deallocate(*dir_list, allocator.state);
+  *dir_list = next_dir;
+}
+
+static inline bool check_and_calculate_size(
+  const char * filename,
+  ssize_t * dir_size,
+  const size_t max_depth,
+  dir_list_t * dir_list,
+  rcutils_allocator_t allocator)
+{
+  // Skip over local folder handle (`.`) and parent folder (`..`)
+  if (strcmp(filename, ".") == 0 || strcmp(filename, "..") == 0) {
+    return true;
+  }
+
+  char * file_path = rcutils_join_path(dir_list->path, filename, allocator);
+  if (NULL == file_path) {
+    RCUTILS_SAFE_FWRITE_TO_STDERR("rcutils_join_path return NULL !\n");
+    return false;
+  }
+
+  if (rcutils_is_directory(file_path)) {
+    if ((max_depth == 0) || ((dir_list->depth + 1) <= max_depth)) {
+      // Add new directory to dir_list
+      dir_list_t * found_new_dir =
+        allocator.allocate(sizeof(dir_list_t), allocator.state);
+      if (NULL == found_new_dir) {
+        RCUTILS_SAFE_FWRITE_TO_STDERR_WITH_FORMAT_STRING(
+          "Failed to allocate memory for path %s !\n", file_path);
+        return false;
+      }
+      found_new_dir->path = file_path;
+      found_new_dir->depth = dir_list->depth + 1;
+      found_new_dir->next = dir_list->next;
+      dir_list->next = found_new_dir;
+    }
+  } else {
+    *dir_size += rcutils_get_file_size(file_path);
+    allocator.deallocate(file_path, allocator.state);
+  }
+
+  return true;
+}
+
+ssize_t
 rcutils_calculate_directory_size_with_recursion(
   const char * directory_path,
-  const uint32_t max_deepth,
+  const size_t max_depth,
   rcutils_allocator_t allocator)
 {
   dir_list_t * dir_list = NULL;
-  size_t dir_size = 0;
+  ssize_t dir_size = 0;
 
-  dir_list = (dir_list_t *) allocator.allocate(sizeof(dir_list_t), allocator.state);
+  if (!rcutils_is_directory(directory_path)) {
+    RCUTILS_SAFE_FWRITE_TO_STDERR_WITH_FORMAT_STRING(
+      "Path is not a directory: %s\n", directory_path);
+    return -1;
+  }
+
+  dir_list = allocator.zero_allocate(1, sizeof(dir_list_t), allocator.state);
   if (NULL == dir_list) {
     RCUTILS_SAFE_FWRITE_TO_STDERR("Failed to allocate memory !\n");
-    return 0;
+    return -1;
+  }
+
+  dir_list->depth = 1;
+
+  dir_list->path = rcutils_strdup(directory_path, allocator);
+  if (NULL == dir_list->path) {
+    RCUTILS_SAFE_FWRITE_TO_STDERR("Failed to duplicate directory path !\n");
+    return -1;
   }
 
 #ifdef _WIN32
   HANDLE handle = INVALID_HANDLE_VALUE;
-
-  dir_list->next = NULL;
-  dir_list->depth = 1;
-  dir_list->path = rcutils_join_path(directory_path, "*", allocator);
-  if (NULL == dir_list->path) {
-    RCUTILS_SAFE_FWRITE_TO_STDERR("Failed to duplicate directory path !\n");
-    goto fail;
-  }
+  char * dir_path = NULL;
 
   do {
+    dir_path = rcutils_join_path(dir_list->path, "*", allocator);
+    if (NULL == dir_path) {
+      RCUTILS_SAFE_FWRITE_TO_STDERR("Failed to duplicate directory path !\n");
+      goto fail;
+    }
+
     WIN32_FIND_DATA data;
-    handle = FindFirstFile(dir_list->path, &data);
+    handle = FindFirstFile(dir_path, &data);
     if (INVALID_HANDLE_VALUE == handle) {
       RCUTILS_SAFE_FWRITE_TO_STDERR_WITH_FORMAT_STRING(
         "Can't open directory %s. Error code: %lu\n", dir_list->path, GetLastError());
@@ -317,64 +371,31 @@ rcutils_calculate_directory_size_with_recursion(
     }
 
     do {
-      // Skip over local folder handle (`.`) and parent folder (`..`)
-      if (strcmp(data.cFileName, ".") != 0 && strcmp(data.cFileName, "..") != 0) {
-        char * file_path = rcutils_join_path(dir_list->path, data.cFileName, allocator);
-        if (NULL == file_path) {
-          RCUTILS_SAFE_FWRITE_TO_STDERR("rcutils_join_path return NULL !\n");
-          goto fail;
-        }
-
-        if (rcutils_is_directory(file_path)) {
-          if ((max_deepth == 0) || ((dir_list->depth + 1) <= max_deepth)) {
-            // Add new directory to dir_list
-            dir_list_t * found_new_dir =
-              (dir_list_t *) allocator.allocate(sizeof(dir_list_t), allocator.state);
-            if (NULL == found_new_dir) {
-              RCUTILS_SAFE_FWRITE_TO_STDERR("Failed to allocate memory !\n");
-              goto fail;
-            }
-
-            found_new_dir->path = file_path;
-            found_new_dir->depth = dir_list->depth + 1;
-            found_new_dir->next = dir_list->next;
-
-            dir_list->next = found_new_dir;
-          }
-        } else {
-          dir_size += rcutils_get_file_size(file_path);
-          allocator.deallocate(file_path, allocator.state);
-        }
+      if (!check_and_calculate_size(data.cFileName, &dir_size, max_depth, dir_list, allocator)) {
+        goto fail;
       }
     } while (FindNextFile(handle, &data));
 
     FindClose(handle);
+    allocator.deallocate(dir_path, allocator.state);
 
-    dir_list_t * next_dir = dir_list->next;
-    allocator.deallocate(dir_list->path, allocator.state);
-    allocator.deallocate(dir_list, allocator.state);
-    dir_list = next_dir;
+    remove_first_dir_from_list(&dir_list, allocator);
   } while (dir_list);
 
   return dir_size;
 
 fail:
+  if (NULL != dir_path) {
+    allocator.deallocate(dir_path, allocator.state);
+  }
+
   if (INVALID_HANDLE_VALUE != handle) {
     FindClose(handle);
   }
   free_dir_list(dir_list, allocator);
-  return dir_size;
+  return -1;
 #else
   DIR * dir = NULL;
-
-  dir_list->next = NULL;
-  dir_list->depth = 1;
-  dir_list->path = rcutils_strdup(directory_path, allocator);
-
-  if (NULL == dir_list->path) {
-    RCUTILS_SAFE_FWRITE_TO_STDERR("Failed to duplicate directory path !\n");
-    goto fail;
-  }
 
   struct dirent * entry;
   do {
@@ -389,43 +410,14 @@ fail:
     // If found directory, add to dir_list
     // If found file, calculate file size
     while (NULL != (entry = readdir(dir))) {
-      // Skip over local folder handle (`.`) and parent folder (`..`)
-      if (strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0) {
-        char * file_path = rcutils_join_path(dir_list->path, entry->d_name, allocator);
-        if (NULL == file_path) {
-          RCUTILS_SAFE_FWRITE_TO_STDERR("rcutils_join_path return NULL !\n");
-          goto fail;
-        }
-
-        if (rcutils_is_directory(file_path)) {
-          if ((max_deepth == 0) || ((dir_list->depth + 1) <= max_deepth)) {
-            // Add new directory to dir_list
-            dir_list_t * found_new_dir =
-              (dir_list_t *) allocator.allocate(sizeof(dir_list_t), allocator.state);
-            if (NULL == found_new_dir) {
-              RCUTILS_SAFE_FWRITE_TO_STDERR("Failed to allocate memory !\n");
-              goto fail;
-            }
-
-            found_new_dir->path = file_path;
-            found_new_dir->depth = dir_list->depth + 1;
-            found_new_dir->next = dir_list->next;
-
-            dir_list->next = found_new_dir;
-          }
-        } else {
-          dir_size += rcutils_get_file_size(file_path);
-          allocator.deallocate(file_path, allocator.state);
-        }
+      if (!check_and_calculate_size(entry->d_name, &dir_size, max_depth, dir_list, allocator)) {
+        goto fail;
       }
     }
 
     closedir(dir);
 
-    dir_list_t * next_dir = dir_list->next;
-    allocator.deallocate(dir_list->path, allocator.state);
-    allocator.deallocate(dir_list, allocator.state);
-    dir_list = next_dir;
+    remove_first_dir_from_list(&dir_list, allocator);
   } while (dir_list);
 
   return dir_size;
@@ -435,7 +427,7 @@ fail:
     closedir(dir);
   }
   free_dir_list(dir_list, allocator);
-  return dir_size;
+  return -1;
 #endif
 }
 

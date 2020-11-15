@@ -23,6 +23,12 @@ extern "C"
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#ifndef _WIN32
+#include <sys/types.h>
+#else
+#include <BaseTsd.h>
+typedef SSIZE_T ssize_t;
+#endif
 
 #include "rcutils/allocator.h"
 #include "rcutils/macros.h"
@@ -191,16 +197,17 @@ rcutils_mkdir(const char * abs_path);
  * \note This operation is not recursive.
  * \param[in] directory_path The directory path to calculate the size of.
  * \param[in] allocator Allocator being used for internal file path composition.
- * \return The size of the directory in bytes.
+ * \return The size of the directory in bytes on success.
+ * \return -1 on failure.
  */
 RCUTILS_PUBLIC
-size_t
+ssize_t
 rcutils_calculate_directory_size(const char * directory_path, rcutils_allocator_t allocator);
 
-/// Calculate the size of the specified directory with recursive directory.
+/// Calculate the size of the specified directory with recursion.
 /**
  * Calculates the size of a directory and subdirectory by summarizing the file size of all files.
- * If necessary, you can specify maximum directory depth for calcation.
+ * If necessary, you can specify the maximum directory depth to recurse into.
  * Depth definition as below.
  * \code
  * directory_path  <= depth 1
@@ -213,13 +220,14 @@ rcutils_calculate_directory_size(const char * directory_path, rcutils_allocator_
  * \param[in] directory_path The directory path to calculate the size of.
  * \param[in] max_depth The maximum depth of subdirectory. 0 means no limitation.
  * \param[in] allocator Allocator being used for internal file path composition.
- * \return The size of the directory in bytes.
+ * \return The size of the directory in bytes on success.
+ * \return -1 on failure.
  */
 RCUTILS_PUBLIC
-size_t
+ssize_t
 rcutils_calculate_directory_size_with_recursion(
   const char * directory_path,
-  const uint32_t max_depth,
+  const size_t max_depth,
   rcutils_allocator_t allocator);
 
 /// Calculate the size of the specifed file.

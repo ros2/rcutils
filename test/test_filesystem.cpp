@@ -417,7 +417,7 @@ TEST_F(TestFilesystemFixture, calculate_directory_size) {
   char * path =
     rcutils_join_path(this->test_path, "dummy_folder", g_allocator);
   ASSERT_NE(nullptr, path);
-  size_t size = rcutils_calculate_directory_size(path, g_allocator);
+  ssize_t size = rcutils_calculate_directory_size(path, g_allocator);
 #ifdef WIN32
   // Due to different line breaks on windows, we have one more byte in the file.
   // See https://github.com/ros2/rcutils/issues/198
@@ -443,7 +443,7 @@ TEST_F(TestFilesystemFixture, calculate_directory_size) {
   char * non_existing_path = rcutils_join_path(this->test_path, "non_existing_folder", g_allocator);
   ASSERT_NE(nullptr, non_existing_path);
   size = rcutils_calculate_directory_size(non_existing_path, g_allocator);
-  EXPECT_EQ(0u, size);
+  EXPECT_EQ(-1, size);
   g_allocator.deallocate(non_existing_path, g_allocator.state);
 
   {
@@ -452,7 +452,7 @@ TEST_F(TestFilesystemFixture, calculate_directory_size) {
     fs.file_info(path).st_mode |= mocking_utils::filesystem::file_types::DIRECTORY;
     fs.exhaust_file_descriptors();
     size = rcutils_calculate_directory_size(path, g_allocator);
-    EXPECT_EQ(0u, size);
+    EXPECT_EQ(-1, size);
   }
 }
 
@@ -461,7 +461,7 @@ TEST_F(TestFilesystemFixture, rcutils_calculate_directory_size_with_recursion) {
     rcutils_join_path(this->test_path, "dummy_folder_with_subdir", g_allocator);
   ASSERT_NE(nullptr, path);
   // Check depth is 2
-  size_t size = rcutils_calculate_directory_size_with_recursion(path, 2, g_allocator);
+  ssize_t size = rcutils_calculate_directory_size_with_recursion(path, 2, g_allocator);
 #ifdef WIN32
   // Due to different line breaks on windows, we have one more byte in the file.
   // See https://github.com/ros2/rcutils/issues/198
@@ -484,7 +484,7 @@ TEST_F(TestFilesystemFixture, rcutils_calculate_directory_size_with_recursion) {
   char * non_existing_path = rcutils_join_path(this->test_path, "non_existing_folder", g_allocator);
   ASSERT_NE(nullptr, non_existing_path);
   size = rcutils_calculate_directory_size_with_recursion(non_existing_path, 0, g_allocator);
-  EXPECT_EQ(0u, size);
+  EXPECT_EQ(-1, size);
   g_allocator.deallocate(non_existing_path, g_allocator.state);
 
   {
@@ -493,7 +493,7 @@ TEST_F(TestFilesystemFixture, rcutils_calculate_directory_size_with_recursion) {
     fs.file_info(path).st_mode |= mocking_utils::filesystem::file_types::DIRECTORY;
     fs.exhaust_file_descriptors();
     size = rcutils_calculate_directory_size_with_recursion(path, 0, g_allocator);
-    EXPECT_EQ(0u, size);
+    EXPECT_EQ(-1, size);
   }
 }
 
