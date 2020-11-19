@@ -154,6 +154,7 @@ TEST_F(HashMapBaseTest, init_map_success) {
   EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
   ret = rcutils_hash_map_fini(&map);
+  EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 }
 
 TEST_F(HashMapBaseTest, fini_map_success) {
