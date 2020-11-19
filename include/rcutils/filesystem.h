@@ -198,10 +198,9 @@ rcutils_mkdir(const char * abs_path);
  * \param[in] directory_path The directory path to calculate the size of.
  * \param[in] allocator Allocator being used for internal file path composition.
  * \return The size of the directory in bytes on success.
- * \return -1 on failure.
  */
 RCUTILS_PUBLIC
-ssize_t
+size_t
 rcutils_calculate_directory_size(const char * directory_path, rcutils_allocator_t allocator);
 
 /// Calculate the size of the specified directory with recursion.
@@ -216,18 +215,22 @@ rcutils_calculate_directory_size(const char * directory_path, rcutils_allocator_
  *                    ...
  * \endcode
  *
- * \note This operation doesn't follow the symbolic link that points to directory.
+ * \note Not calculate the size of the symlink which points to file or directory.
  * \param[in] directory_path The directory path to calculate the size of.
  * \param[in] max_depth The maximum depth of subdirectory. 0 means no limitation.
+ * \param[out] size The size of the directory in bytes on success
  * \param[in] allocator Allocator being used for internal file path composition.
- * \return The size of the directory in bytes on success.
- * \return -1 on failure.
+ * \return `RCUTILS_RET_OK` if successful, or
+ * \return `RCUTILS_RET_INVALID_ARGUMENT` for invalid arguments, or
+ * \return `RCUTILS_RET_BAD_ALLOC` if memory allocation fails
+ * \return `RCUTILS_RET_ERROR` if other error occurs
  */
 RCUTILS_PUBLIC
-ssize_t
+rcutils_ret_t
 rcutils_calculate_directory_size_with_recursion(
   const char * directory_path,
   const size_t max_depth,
+  size_t * size,
   rcutils_allocator_t allocator);
 
 /// Calculate the size of the specifed file.
