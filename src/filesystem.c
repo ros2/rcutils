@@ -252,13 +252,13 @@ rcutils_mkdir(const char * abs_path)
 size_t
 rcutils_calculate_directory_size(const char * directory_path, rcutils_allocator_t allocator)
 {
-  size_t size;
+  uint64_t size;
   if (RCUTILS_RET_OK !=
     rcutils_calculate_directory_size_with_recursion(directory_path, 1, &size, allocator))
   {
     size = 0;
   }
-  return size;
+  return (size_t)(size);
 }
 
 typedef struct dir_list_t
@@ -289,7 +289,7 @@ static void remove_first_dir_from_list(dir_list_t ** dir_list, rcutils_allocator
 
 static rcutils_ret_t check_and_calculate_size(
   const char * filename,
-  size_t * dir_size,
+  uint64_t * dir_size,
   const size_t max_depth,
   dir_list_t * dir_list,
   rcutils_allocator_t allocator)
@@ -332,11 +332,11 @@ rcutils_ret_t
 rcutils_calculate_directory_size_with_recursion(
   const char * directory_path,
   const size_t max_depth,
-  size_t * size,
+  uint64_t * size,
   rcutils_allocator_t allocator)
 {
   dir_list_t * dir_list = NULL;
-  size_t * dir_size = size;
+  uint64_t * dir_size = size;
   rcutils_ret_t ret = RCUTILS_RET_OK;
 
   if (NULL == directory_path) {
