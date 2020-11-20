@@ -234,13 +234,14 @@ TEST_F(ArrayListPreInitTest, remove_success_removes_from_list) {
 
   // Add something first so we know the index isn't out of bounds
   rcutils_ret_t ret = rcutils_array_list_add(&list, &data);
-  EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
+  ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
   ret = rcutils_array_list_get_size(&list, &size);
+  ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
   EXPECT_EQ(size, (size_t)1);
 
   ret = rcutils_array_list_remove(&list, index);
-  EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
+  ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
   ret = rcutils_array_list_get_size(&list, &size);
   ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
@@ -310,12 +311,14 @@ TEST_F(ArrayListPreInitTest, get_size_increases_with_add) {
   rcutils_ret_t ret;
 
   ret = rcutils_array_list_get_size(&list, &size);
+  ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
   EXPECT_EQ(size, (size_t)0);
 
   ret = rcutils_array_list_add(&list, &data);
-  EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
+  ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 
   ret = rcutils_array_list_get_size(&list, &size);
+  ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
   EXPECT_EQ(size, (size_t)1);
 }
 

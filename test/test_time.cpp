@@ -139,6 +139,7 @@ TEST_F(TestTimeFixture, test_rcutils_system_time_now) {
   // Compare to std::chrono::system_clock time (within a second).
   now = 0;
   ret = rcutils_system_time_now(&now);
+  ASSERT_EQ(ret, RCUTILS_RET_OK) << rcutils_get_error_string().str;
   {
     std::chrono::system_clock::time_point now_sc = std::chrono::system_clock::now();
     auto now_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(now_sc.time_since_epoch());
