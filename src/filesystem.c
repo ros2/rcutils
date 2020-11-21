@@ -249,16 +249,13 @@ rcutils_mkdir(const char * abs_path)
   return success;
 }
 
-size_t
-rcutils_calculate_directory_size(const char * directory_path, rcutils_allocator_t allocator)
+rcutils_ret_t
+rcutils_calculate_directory_size(
+  const char * directory_path,
+  uint64_t * size,
+  rcutils_allocator_t allocator)
 {
-  uint64_t size;
-  if (RCUTILS_RET_OK !=
-    rcutils_calculate_directory_size_with_recursion(directory_path, 1, &size, allocator))
-  {
-    size = 0;
-  }
-  return (size_t)(size);
+  return rcutils_calculate_directory_size_with_recursion(directory_path, 1, size, allocator);
 }
 
 typedef struct dir_list_t

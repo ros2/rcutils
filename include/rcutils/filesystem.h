@@ -23,12 +23,6 @@ extern "C"
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#ifndef _WIN32
-#include <sys/types.h>
-#else
-#include <BaseTsd.h>
-typedef SSIZE_T ssize_t;
-#endif
 
 #include "rcutils/allocator.h"
 #include "rcutils/macros.h"
@@ -196,12 +190,19 @@ rcutils_mkdir(const char * abs_path);
  * Calculates the size of a directory by summarizing the file size of all files.
  * \note This operation is not recursive.
  * \param[in] directory_path The directory path to calculate the size of.
+ * \param[out] size The size of the directory in bytes on success
  * \param[in] allocator Allocator being used for internal file path composition.
- * \return The size of the directory in bytes on success.
+ * \return `RCUTILS_RET_OK` if successful, or
+ * \return `RCUTILS_RET_INVALID_ARGUMENT` for invalid arguments, or
+ * \return `RCUTILS_RET_BAD_ALLOC` if memory allocation fails
+ * \return `RCUTILS_RET_ERROR` if other error occurs
  */
 RCUTILS_PUBLIC
-size_t
-rcutils_calculate_directory_size(const char * directory_path, rcutils_allocator_t allocator);
+rcutils_ret_t
+rcutils_calculate_directory_size(
+  const char * directory_path,
+  uint64_t * size,
+  rcutils_allocator_t allocator);
 
 /// Calculate the size of the specified directory with recursion.
 /**
@@ -230,7 +231,7 @@ rcutils_ret_t
 rcutils_calculate_directory_size_with_recursion(
   const char * directory_path,
   const size_t max_depth,
-  size_t * size,
+  uint64_t * size,
   rcutils_allocator_t allocator);
 
 /// Calculate the size of the specifed file.

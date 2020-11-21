@@ -417,7 +417,9 @@ TEST_F(TestFilesystemFixture, calculate_directory_size) {
   char * path =
     rcutils_join_path(this->test_path, "dummy_folder", g_allocator);
   ASSERT_NE(nullptr, path);
-  size_t size = rcutils_calculate_directory_size(path, g_allocator);
+  uint64_t size = 0;
+  rcutils_ret_t ret = rcutils_calculate_directory_size(path, &size, g_allocator);
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
 #ifdef WIN32
   // Due to different line breaks on windows, we have one more byte in the file.
   // See https://github.com/ros2/rcutils/issues/198
@@ -430,7 +432,8 @@ TEST_F(TestFilesystemFixture, calculate_directory_size) {
   // Check directory with sub-directory
   path = rcutils_join_path(this->test_path, "dummy_folder_with_subdir", g_allocator);
   ASSERT_NE(nullptr, path);
-  size = rcutils_calculate_directory_size(path, g_allocator);
+  ret = rcutils_calculate_directory_size(path, &size, g_allocator);
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
 #ifdef WIN32
   // Due to different line breaks on windows, we have one more byte in the file.
   // See https://github.com/ros2/rcutils/issues/198
@@ -442,8 +445,8 @@ TEST_F(TestFilesystemFixture, calculate_directory_size) {
 
   char * non_existing_path = rcutils_join_path(this->test_path, "non_existing_folder", g_allocator);
   ASSERT_NE(nullptr, non_existing_path);
-  size = rcutils_calculate_directory_size(non_existing_path, g_allocator);
-  EXPECT_EQ(0u, size);
+  ret = rcutils_calculate_directory_size(non_existing_path, &size, g_allocator);
+  EXPECT_EQ(RCUTILS_RET_ERROR, ret);
   g_allocator.deallocate(non_existing_path, g_allocator.state);
 
   {
@@ -451,8 +454,8 @@ TEST_F(TestFilesystemFixture, calculate_directory_size) {
     const char * path = "some_fake_directory/some_fake_folder";
     fs.file_info(path).st_mode |= mocking_utils::filesystem::file_types::DIRECTORY;
     fs.exhaust_file_descriptors();
-    size = rcutils_calculate_directory_size(path, g_allocator);
-    EXPECT_EQ(0u, size);
+    ret = rcutils_calculate_directory_size(path, &size, g_allocator);
+    EXPECT_EQ(RCUTILS_RET_ERROR, ret);
   }
 }
 
