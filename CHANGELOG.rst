@@ -2,6 +2,11 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.7.6 (2020-11-24)
+------------------
+* Add QNX support for rcutils_get_executable_name. (`#282 <https://github.com/ros2/rcutils/issues/282>`_) (`#308 <https://github.com/ros2/rcutils/issues/308>`_)
+* Contributors: Ahmed Sobhy, Jacob Perron
+
 0.7.5 (2019-12-10)
 ------------------
 * Fix uninitialized handle error (`#187 <https://github.com/ros2/rcutils/issues/187>`_) (`#191 <https://github.com/ros2/rcutils/issues/191>`_)
