@@ -122,7 +122,7 @@ A description of how coverage statistics are summarized from this page, can be f
 `rcutils` follows the recommendations for performance testing of C code in the [ROS 2 Developer Guide](https://index.ros.org/doc/ros2/Contributing/Developer-Guide/#performance), and opts to do performance analysis on each release rather than each change.
 
 System level performance benchmarks that cover features of `rcutils` can be found at:
-* [Benchmarks](http://build.ros2.org/view/Rci/job/Rci__benchmark_ubuntu_focal_amd64/lastCompletedBuild/)
+* [Benchmarks](http://build.ros2.org/view/Rci/job/Rci__benchmark_ubuntu_focal_amd64/BenchmarkTable/)
 * [Performance](http://build.ros2.org/view/Rci/job/Rci__nightly-performance_ubuntu_focal_amd64/lastCompletedBuild/)
 
 Changes that introduce regressions in performance must be adequately justified in order to be accepted and merged.
