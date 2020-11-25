@@ -310,17 +310,20 @@ static rcutils_ret_t check_and_calculate_size(
       if (NULL == found_new_dir) {
         RCUTILS_SAFE_FWRITE_TO_STDERR_WITH_FORMAT_STRING(
           "Failed to allocate memory for path %s !\n", file_path);
+        allocator.deallocate(file_path, allocator.state);
         return RCUTILS_RET_BAD_ALLOC;
       }
       found_new_dir->path = file_path;
       found_new_dir->depth = dir_list->depth + 1;
       found_new_dir->next = dir_list->next;
       dir_list->next = found_new_dir;
+      return RCUTILS_RET_OK;
     }
   } else {
     *dir_size += rcutils_get_file_size(file_path);
-    allocator.deallocate(file_path, allocator.state);
   }
+
+  allocator.deallocate(file_path, allocator.state);
 
   return RCUTILS_RET_OK;
 }

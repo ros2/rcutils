@@ -459,7 +459,7 @@ TEST_F(TestFilesystemFixture, calculate_directory_size) {
   }
 }
 
-TEST_F(TestFilesystemFixture, rcutils_calculate_directory_size_with_recursion) {
+TEST_F(TestFilesystemFixture, calculate_directory_size_with_recursion) {
   char * path =
     rcutils_join_path(this->test_path, "dummy_folder_with_subdir", g_allocator);
   ASSERT_NE(nullptr, path);
