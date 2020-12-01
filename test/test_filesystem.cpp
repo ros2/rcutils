@@ -419,6 +419,7 @@ TEST_F(TestFilesystemFixture, calculate_directory_size) {
   ASSERT_NE(nullptr, path);
   uint64_t size = 0;
   rcutils_ret_t ret = rcutils_calculate_directory_size(path, &size, g_allocator);
+  g_allocator.deallocate(path, g_allocator.state);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 #ifdef WIN32
   // Due to different line breaks on windows, we have one more byte in the file.
@@ -427,12 +428,12 @@ TEST_F(TestFilesystemFixture, calculate_directory_size) {
 #else
   EXPECT_EQ(5u, size);
 #endif
-  g_allocator.deallocate(path, g_allocator.state);
 
   // Check directory with sub-directory
   path = rcutils_join_path(this->test_path, "dummy_folder_with_subdir", g_allocator);
   ASSERT_NE(nullptr, path);
   ret = rcutils_calculate_directory_size(path, &size, g_allocator);
+  g_allocator.deallocate(path, g_allocator.state);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 #ifdef WIN32
   // Due to different line breaks on windows, we have one more byte in the file.
@@ -441,7 +442,6 @@ TEST_F(TestFilesystemFixture, calculate_directory_size) {
 #else
   EXPECT_EQ(5u, size);
 #endif
-  g_allocator.deallocate(path, g_allocator.state);
 
   char * non_existing_path = rcutils_join_path(this->test_path, "non_existing_folder", g_allocator);
   ASSERT_NE(nullptr, non_existing_path);
@@ -466,6 +466,7 @@ TEST_F(TestFilesystemFixture, calculate_directory_size_with_recursion) {
   uint64_t size = 0;
   // Check depth is 2
   rcutils_ret_t ret = rcutils_calculate_directory_size_with_recursion(path, 2, &size, g_allocator);
+  g_allocator.deallocate(path, g_allocator.state);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 #ifdef WIN32
   // Due to different line breaks on windows, we have one more byte in the file.
@@ -476,7 +477,11 @@ TEST_F(TestFilesystemFixture, calculate_directory_size_with_recursion) {
 #endif
 
   // Check depth is 0 (no limitation)
+  path = rcutils_join_path(this->test_path, "dummy_folder_with_subdir", g_allocator);
+  ASSERT_NE(nullptr, path);
+  size = 0;
   ret = rcutils_calculate_directory_size_with_recursion(path, 0, &size, g_allocator);
+  g_allocator.deallocate(path, g_allocator.state);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 #ifdef WIN32
   // Due to different line breaks on windows, we have one more byte in the file.
@@ -486,9 +491,10 @@ TEST_F(TestFilesystemFixture, calculate_directory_size_with_recursion) {
   EXPECT_EQ(15u, size);
 #endif
 
+  path = rcutils_join_path(this->test_path, "dummy_folder_with_subdir", g_allocator);
+  ASSERT_NE(nullptr, path);
   ret = rcutils_calculate_directory_size_with_recursion(path, 0, nullptr, g_allocator);
   EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret);
-
   g_allocator.deallocate(path, g_allocator.state);
 
   ret = rcutils_calculate_directory_size_with_recursion(nullptr, 0, &size, g_allocator);
