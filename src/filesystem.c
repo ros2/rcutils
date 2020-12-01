@@ -336,7 +336,6 @@ rcutils_calculate_directory_size_with_recursion(
   rcutils_allocator_t allocator)
 {
   dir_list_t * dir_list = NULL;
-  uint64_t * dir_size = size;
   rcutils_ret_t ret = RCUTILS_RET_OK;
 
   if (NULL == directory_path) {
@@ -369,7 +368,7 @@ rcutils_calculate_directory_size_with_recursion(
     return RCUTILS_RET_BAD_ALLOC;
   }
 
-  *dir_size = 0;
+  *size = 0;
 
 #ifdef _WIN32
   HANDLE handle = INVALID_HANDLE_VALUE;
@@ -393,7 +392,7 @@ rcutils_calculate_directory_size_with_recursion(
     }
 
     do {
-      ret = check_and_calculate_size(data.cFileName, dir_size, max_depth, dir_list, allocator);
+      ret = check_and_calculate_size(data.cFileName, size, max_depth, dir_list, allocator);
       if (RCUTILS_RET_OK != ret) {
         goto fail;
       }
@@ -434,7 +433,7 @@ fail:
     // If found directory, add to dir_list
     // If found file, calculate file size
     while (NULL != (entry = readdir(dir))) {
-      ret = check_and_calculate_size(entry->d_name, dir_size, max_depth, dir_list, allocator);
+      ret = check_and_calculate_size(entry->d_name, size, max_depth, dir_list, allocator);
       if (RCUTILS_RET_OK != ret) {
         goto fail;
       }

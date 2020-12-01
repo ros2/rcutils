@@ -190,7 +190,7 @@ rcutils_mkdir(const char * abs_path);
  * Calculates the size of a directory by summarizing the file size of all files.
  * \note This operation is not recursive.
  * \param[in] directory_path The directory path to calculate the size of.
- * \param[out] size The size of the directory in bytes on success
+ * \param[out] size The size of the directory in bytes on success.
  * \param[in] allocator Allocator being used for internal file path composition.
  * \return `RCUTILS_RET_OK` if successful, or
  * \return `RCUTILS_RET_INVALID_ARGUMENT` for invalid arguments, or
@@ -216,10 +216,10 @@ rcutils_calculate_directory_size(
  *                    ...
  * \endcode
  *
- * \note Not calculate the size of the symlink which points to file or directory.
+ * \note This API does not follow symlinks to files or directories.
  * \param[in] directory_path The directory path to calculate the size of.
  * \param[in] max_depth The maximum depth of subdirectory. 0 means no limitation.
- * \param[out] size The size of the directory in bytes on success
+ * \param[out] size The size of the directory in bytes on success.
  * \param[in] allocator Allocator being used for internal file path composition.
  * \return `RCUTILS_RET_OK` if successful, or
  * \return `RCUTILS_RET_INVALID_ARGUMENT` for invalid arguments, or
