@@ -413,9 +413,14 @@ TEST_F(TestFilesystemFixture, mkdir) {
 }
 
 TEST_F(TestFilesystemFixture, calculate_directory_size) {
+  // Check directory without sub-directory
   char * path =
     rcutils_join_path(this->test_path, "dummy_folder", g_allocator);
-  size_t size = rcutils_calculate_directory_size(path, g_allocator);
+  ASSERT_NE(nullptr, path);
+  uint64_t size = 0;
+  rcutils_ret_t ret = rcutils_calculate_directory_size(path, &size, g_allocator);
+  g_allocator.deallocate(path, g_allocator.state);
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
 #ifdef WIN32
   // Due to different line breaks on windows, we have one more byte in the file.
   // See https://github.com/ros2/rcutils/issues/198
@@ -423,11 +428,25 @@ TEST_F(TestFilesystemFixture, calculate_directory_size) {
 #else
   EXPECT_EQ(5u, size);
 #endif
+
+  // Check directory with sub-directory
+  path = rcutils_join_path(this->test_path, "dummy_folder_with_subdir", g_allocator);
+  ASSERT_NE(nullptr, path);
+  ret = rcutils_calculate_directory_size(path, &size, g_allocator);
   g_allocator.deallocate(path, g_allocator.state);
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
+#ifdef WIN32
+  // Due to different line breaks on windows, we have one more byte in the file.
+  // See https://github.com/ros2/rcutils/issues/198
+  EXPECT_EQ(6u, size);
+#else
+  EXPECT_EQ(5u, size);
+#endif
 
   char * non_existing_path = rcutils_join_path(this->test_path, "non_existing_folder", g_allocator);
-  size = rcutils_calculate_directory_size(non_existing_path, g_allocator);
-  EXPECT_EQ(0u, size);
+  ASSERT_NE(nullptr, non_existing_path);
+  ret = rcutils_calculate_directory_size(non_existing_path, &size, g_allocator);
+  EXPECT_EQ(RCUTILS_RET_ERROR, ret);
   g_allocator.deallocate(non_existing_path, g_allocator.state);
 
   {
@@ -435,8 +454,65 @@ TEST_F(TestFilesystemFixture, calculate_directory_size) {
     const char * path = "some_fake_directory/some_fake_folder";
     fs.file_info(path).st_mode |= mocking_utils::filesystem::file_types::DIRECTORY;
     fs.exhaust_file_descriptors();
-    size = rcutils_calculate_directory_size(path, g_allocator);
-    EXPECT_EQ(0u, size);
+    ret = rcutils_calculate_directory_size(path, &size, g_allocator);
+    EXPECT_EQ(RCUTILS_RET_ERROR, ret);
+  }
+}
+
+TEST_F(TestFilesystemFixture, calculate_directory_size_with_recursion) {
+  char * path =
+    rcutils_join_path(this->test_path, "dummy_folder_with_subdir", g_allocator);
+  ASSERT_NE(nullptr, path);
+  uint64_t size = 0;
+  // Check depth is 2
+  rcutils_ret_t ret = rcutils_calculate_directory_size_with_recursion(path, 2, &size, g_allocator);
+  g_allocator.deallocate(path, g_allocator.state);
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
+#ifdef WIN32
+  // Due to different line breaks on windows, we have one more byte in the file.
+  // See https://github.com/ros2/rcutils/issues/198
+  EXPECT_EQ(12u, size);
+#else
+  EXPECT_EQ(10u, size);
+#endif
+
+  // Check depth is 0 (no limitation)
+  path = rcutils_join_path(this->test_path, "dummy_folder_with_subdir", g_allocator);
+  ASSERT_NE(nullptr, path);
+  size = 0;
+  ret = rcutils_calculate_directory_size_with_recursion(path, 0, &size, g_allocator);
+  g_allocator.deallocate(path, g_allocator.state);
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
+#ifdef WIN32
+  // Due to different line breaks on windows, we have one more byte in the file.
+  // See https://github.com/ros2/rcutils/issues/198
+  EXPECT_EQ(18u, size);
+#else
+  EXPECT_EQ(15u, size);
+#endif
+
+  path = rcutils_join_path(this->test_path, "dummy_folder_with_subdir", g_allocator);
+  ASSERT_NE(nullptr, path);
+  ret = rcutils_calculate_directory_size_with_recursion(path, 0, nullptr, g_allocator);
+  EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret);
+  g_allocator.deallocate(path, g_allocator.state);
+
+  ret = rcutils_calculate_directory_size_with_recursion(nullptr, 0, &size, g_allocator);
+  EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret);
+
+  char * non_existing_path = rcutils_join_path(this->test_path, "non_existing_folder", g_allocator);
+  ASSERT_NE(nullptr, non_existing_path);
+  ret = rcutils_calculate_directory_size_with_recursion(non_existing_path, 0, &size, g_allocator);
+  EXPECT_EQ(RCUTILS_RET_ERROR, ret);
+  g_allocator.deallocate(non_existing_path, g_allocator.state);
+
+  {
+    auto fs = mocking_utils::patch_filesystem("lib:rcutils");
+    const char * path = "some_fake_directory/some_fake_folder";
+    fs.file_info(path).st_mode |= mocking_utils::filesystem::file_types::DIRECTORY;
+    fs.exhaust_file_descriptors();
+    ret = rcutils_calculate_directory_size_with_recursion(path, 0, &size, g_allocator);
+    EXPECT_EQ(RCUTILS_RET_ERROR, ret);
   }
 }
 
