@@ -2,6 +2,19 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Update rcutils_calculate_directory_size() to support recursion (`#306 <https://github.com/ros2/rcutils/issues/306>`_)
+* Updating QD to QL 1 (`#317 <https://github.com/ros2/rcutils/issues/317>`_)
+* Address unused return values found in scan-build (`#316 <https://github.com/ros2/rcutils/issues/316>`_)
+* use one copy for continuous area instead of loop copy (`#312 <https://github.com/ros2/rcutils/issues/312>`_)
+* use a better way to check whether string is empty (`#315 <https://github.com/ros2/rcutils/issues/315>`_)
+* Use helper funciton to copy string (`#314 <https://github.com/ros2/rcutils/issues/314>`_)
+* Disable a Windows platform warning. (`#311 <https://github.com/ros2/rcutils/issues/311>`_)
+* Fix format of code description on document (`#313 <https://github.com/ros2/rcutils/issues/313>`_)
+* Make sure to check the return values of rcutils APIs. (`#302 <https://github.com/ros2/rcutils/issues/302>`_)
+* Contributors: Barry Xu, Chen Lihui, Chris Lalancette, Stephen Brawner
+
 2.2.0 (2020-10-19)
 ------------------
 * Add rcutils_expand_user() to expand user directory in path (`#298 <https://github.com/ros2/rcutils/issues/298>`_)
