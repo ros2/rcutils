@@ -2,8 +2,8 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+3.0.0 (2020-12-02)
+------------------
 * Update rcutils_calculate_directory_size() to support recursion (`#306 <https://github.com/ros2/rcutils/issues/306>`_)
 * Updating QD to QL 1 (`#317 <https://github.com/ros2/rcutils/issues/317>`_)
 * Address unused return values found in scan-build (`#316 <https://github.com/ros2/rcutils/issues/316>`_)
