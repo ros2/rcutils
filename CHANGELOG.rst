@@ -2,6 +2,12 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.8.5 (2020-12-04)
+------------------
+* Update the maintainers. (`#299 <https://github.com/ros2/rcutils/issues/299>`_)
+* check and link against libatomic (`#172 <https://github.com/ros2/rcutils/issues/172>`_) (`#178 <https://github.com/ros2/rcutils/issues/178>`_) (`#217 <https://github.com/ros2/rcutils/issues/217>`_)
+* Contributors: Chris Lalancette, Shane Loretz
+
 0.8.4 (2019-11-18)
 ------------------
 * fix type of logging feature keys (`#192 <https://github.com/ros2/rcutils/issues/192>`_)
