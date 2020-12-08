@@ -2,6 +2,15 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.2 (2020-12-08)
+------------------
+* Disable a Windows platform warning (`#311 <https://github.com/ros2/rcutils/issues/311>`_) (`#319 <https://github.com/ros2/rcutils/issues/319>`_)
+* Update QD to QL 1 (`#318 <https://github.com/ros2/rcutils/issues/318>`_)
+* Add QNX support for rcutils_get_executable_name (`#282 <https://github.com/ros2/rcutils/issues/282>`_) (`#307 <https://github.com/ros2/rcutils/issues/307>`_)
+* DefinesQNX implementation for rcutils_get_platform_library_name (`#287 <https://github.com/ros2/rcutils/issues/287>`_) (`#309 <https://github.com/ros2/rcutils/issues/309>`_)
+* Update the maintainers (`#299 <https://github.com/ros2/rcutils/issues/299>`_) (`#300 <https://github.com/ros2/rcutils/issues/300>`_)
+* Contributors: Ahmed Sobhy, Alejandro Hernández Cordero, Chris Lalancette, Jacob Perron, Stephen Brawner
+
 1.1.0 (2020-06-26)
 ------------------
 * Add token join macros (`#262 <https://github.com/ros2/rcutils/issues/262>`_)
