@@ -96,35 +96,46 @@ TEST_F(TestSharedLibrary, load_two_times) {
 
   // getting shared library
   ret = rcutils_load_shared_library(&lib, library_path, rcutils_get_default_allocator());
-  ASSERT_EQ(RCUTILS_RET_OK, ret);
+  EXPECT_EQ(RCUTILS_RET_OK, ret);
 
   // getting shared library
-  ret = rcutils_load_shared_library(&lib, library_path, rcutils_get_default_allocator());
-  ASSERT_EQ(RCUTILS_RET_OK, ret);
+  rcutils_shared_library_t clone = rcutils_get_zero_initialized_shared_library();
+  ret = rcutils_load_shared_library(&clone, library_path, rcutils_get_default_allocator());
+  EXPECT_EQ(RCUTILS_RET_OK, ret);
+
+  // unload shared_library
+  ret = rcutils_unload_shared_library(&clone);
+  EXPECT_EQ(RCUTILS_RET_OK, ret);
 
   // unload shared_library
   ret = rcutils_unload_shared_library(&lib);
-  ASSERT_EQ(RCUTILS_RET_OK, ret);
+  EXPECT_EQ(RCUTILS_RET_OK, ret);
 }
 
 TEST_F(TestSharedLibrary, error_load) {
   rcutils_ret_t ret;
 
-  rcutils_shared_library_t lib_empty;
-  ret = rcutils_load_shared_library(&lib_empty, NULL, rcutils_get_zero_initialized_allocator());
-  ASSERT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret);
-
-  lib_empty = rcutils_get_zero_initialized_shared_library();
-  ret = rcutils_load_shared_library(&lib_empty, NULL, rcutils_get_zero_initialized_allocator());
+  ret = rcutils_load_shared_library(&lib, NULL, rcutils_get_default_allocator());
   ASSERT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret);
 
   ret = rcutils_get_platform_library_name("dummy_shared_library", library_path, 1024, false);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
   ret = rcutils_load_shared_library(
-    &lib_empty,
+    &lib,
     library_path, rcutils_get_zero_initialized_allocator());
   ASSERT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret);
+
+  ret = rcutils_load_shared_library(
+    &lib, library_path, rcutils_get_default_allocator());
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
+
+  ret = rcutils_load_shared_library(
+    &lib, library_path, rcutils_get_default_allocator());
+  EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret);
+
+  ret = rcutils_unload_shared_library(&lib);
+  EXPECT_EQ(RCUTILS_RET_OK, ret);
 }
 
 TEST_F(TestSharedLibrary, error_unload) {
