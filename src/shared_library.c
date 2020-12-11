@@ -20,6 +20,11 @@ extern "C"
 #include <stdlib.h>
 
 #ifndef _WIN32
+#if defined(__APPLE__)
+#include <mach-o/dyld.h>
+#elif defined (_GNU_SOURCE)
+#include <link.h>
+#endif
 #include <dlfcn.h>
 #else
 // When building with MSVC 19.28.29333.0 on Windows 10 (as of 2020-11-11),
@@ -35,6 +40,10 @@ extern "C"
 #include <windows.h>
 #pragma warning(pop)
 C_ASSERT(sizeof(void *) == sizeof(HINSTANCE));
+#ifdef UNICODE
+#error "rcutils does not support Unicode paths"
+#endif
+C_ASSERT(sizeof(char) == sizeof(TCHAR));
 #endif  // _WIN32
 
 #include "rcutils/error_handling.h"
@@ -65,33 +74,116 @@ rcutils_load_shared_library(
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(lib, RCUTILS_RET_INVALID_ARGUMENT);
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(library_path, RCUTILS_RET_INVALID_ARGUMENT);
   RCUTILS_CHECK_ALLOCATOR(&allocator, return RCUTILS_RET_INVALID_ARGUMENT);
-
-  if (lib->library_path != NULL) {
-    lib->allocator.deallocate(lib->library_path, lib->allocator.state);
+  if (NULL != lib->lib_pointer) {
+    RCUTILS_SET_ERROR_MSG("lib argument is not zero-initialized");
+    return RCUTILS_RET_INVALID_ARGUMENT;
   }
 
+  rcutils_ret_t ret = RCUTILS_RET_OK;
   lib->allocator = allocator;
 
-  lib->library_path = rcutils_strdup(library_path, lib->allocator);
-  if (NULL == lib->library_path) {
-    RCUTILS_SET_ERROR_MSG("unable to allocate memory");
-    return RCUTILS_RET_BAD_ALLOC;
-  }
-
 #ifndef _WIN32
-  lib->lib_pointer = dlopen(lib->library_path, RTLD_LAZY);
-  if (!lib->lib_pointer) {
-    RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("LoadLibrary error: %s", dlerror());
-#else
-  lib->lib_pointer = (void *)(LoadLibrary(lib->library_path));
-  if (!lib->lib_pointer) {
-    RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("LoadLibrary error: %lu", GetLastError());
-#endif  // _WIN32
-    lib->allocator.deallocate(lib->library_path, lib->allocator.state);
-    lib->library_path = NULL;
+  lib->lib_pointer = dlopen(library_path, RTLD_LAZY);
+  if (NULL == lib->lib_pointer) {
+    RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("dlopen error: %s", dlerror());
     return RCUTILS_RET_ERROR;
   }
+
+#if defined(__APPLE__)
+  const char * image_name = NULL;
+  uint32_t image_count = _dyld_image_count();
+  for (uint32_t i = 0; NULL == image_name && i < image_count; ++i) {
+    // Iterate in reverse as the library is likely near the end of the list.
+    const char * candidate_name = _dyld_image_name(image_count - i - 1);
+    if (NULL == candidate_name) {
+      RCUTILS_SET_ERROR_MSG("dyld image index out of range");
+      ret = RCUTILS_RET_ERROR;
+      goto fail;
+    }
+    void * handle = dlopen(candidate_name, RTLD_LAZY | RTLD_NOLOAD);
+    if (handle == lib->lib_pointer) {
+      image_name = candidate_name;
+    }
+    if (dlclose(handle) != 0) {
+      RCUTILS_SET_ERROR_MSG("dlclose error: %s", dlerror());
+      ret = RCUTILS_RET_ERROR;
+      goto fail;
+    }
+  }
+  if (NULL == image_name) {
+    RCUTILS_SET_ERROR_MSG("dyld image name could not be found");
+    ret = RCUTILS_RET_ERROR;
+    goto fail;
+  }
+  lib->library_path = rcutils_strdup(image_name, lib->allocator);
+#elif defined(_GNU_SOURCE)
+  struct link_map * map = NULL;
+  if (dlinfo(lib->lib_pointer, RTLD_DI_LINKMAP, &map) != 0) {
+    RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("dlinfo error: %s", dlerror());
+    ret = RCUTILS_RET_ERROR;
+    goto fail;
+  }
+  lib->library_path = rcutils_strdup(map->l_name, lib->allocator);
+#else
+  lib->library_path = rcutils_strdup(library_path, lib->allocator);
+#endif
+  if (NULL == lib->library_path) {
+    RCUTILS_SET_ERROR_MSG("unable to allocate memory");
+    ret = RCUTILS_RET_BAD_ALLOC;
+    goto fail;
+  }
+
   return RCUTILS_RET_OK;
+fail:
+  if (dlclose(lib->lib_pointer) != 0) {
+    RCUTILS_SAFE_FWRITE_TO_STDERR_WITH_FORMAT_STRING(
+      "dlclose error: %s\n", dlerror());
+  }
+  lib->lib_pointer = NULL;
+  return ret;
+#else
+  HDMODULE module = LoadLibrary(library_path);
+  if (!module) {
+    RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
+      "LoadLibrary error: %lu", GetLastError());
+    return RCUTILS_RET_ERROR;
+  }
+
+  for (DWORD buffer_capacity = MAX_PATH; ; buffer_capacity *= 2) {
+    LPSTR buffer = lib->allocator.allocate(buffer_capacity, lib->allocator.state);
+    if (NULL == buffer) {
+      RCUTILS_SET_ERROR("unable to allocate memory");
+      ret = RCUTILS_RET_BAD_ALLOC;
+      goto fail;
+    }
+    DWORD buffer_size = GetModuleFileName(module, buffer, buffer_capacity);
+    if (0 == buffer_size) {
+      RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
+        "GetModuleFileName error: %lu", GetLastError());
+      ret = RCUTILS_RET_ERROR;
+      goto fail;
+    }
+    if (GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
+      lib->allocator.deallocate(buffer, lib->allocator.state);
+      continue;
+    }
+    lib->library_path = lib->allocator.reallocate(
+      buffer, buffer_size, lib->allocator.state);
+    if (NULL == lib->library_path) {
+      lib->library_path = buffer;
+    }
+    break;
+  }
+  lib->lib_pointer = (void *)module;
+
+  return RCUTILS_RET_OK;
+fail:
+  if (!FreeLibrary(module)) {
+    RCUTILS_SAFE_FWRITE_TO_STDERR_WITH_FORMAT_STRING(
+      "FreeLibrary error: %lu\n", GetLastError());
+  }
+  return ret;
+#endif  // _WIN32
 }
 
 void *
