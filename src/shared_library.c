@@ -105,7 +105,7 @@ rcutils_load_shared_library(
       image_name = candidate_name;
     }
     if (dlclose(handle) != 0) {
-      RCUTILS_SET_ERROR_MSG("dlclose error: %s", dlerror());
+      RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("dlclose error: %s", dlerror());
       ret = RCUTILS_RET_ERROR;
       goto fail;
     }
