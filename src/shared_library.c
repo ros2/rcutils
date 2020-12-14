@@ -94,7 +94,7 @@ rcutils_load_shared_library(
   uint32_t image_count = _dyld_image_count();
   for (uint32_t i = 0; NULL == image_name && i < image_count; ++i) {
     // Iterate in reverse as the library is likely near the end of the list.
-    const char * candidate_name = _dyld_image_name(image_count - i - 1);
+    const char * candidate_name = _dyld_get_image_name(image_count - i - 1);
     if (NULL == candidate_name) {
       RCUTILS_SET_ERROR_MSG("dyld image index out of range");
       ret = RCUTILS_RET_ERROR;
