@@ -142,7 +142,7 @@ fail:
   lib->lib_pointer = NULL;
   return ret;
 #else
-  HDMODULE module = LoadLibrary(library_path);
+  HMODULE module = LoadLibrary(library_path);
   if (!module) {
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
       "LoadLibrary error: %lu", GetLastError());
@@ -152,7 +152,7 @@ fail:
   for (DWORD buffer_capacity = MAX_PATH; ; buffer_capacity *= 2) {
     LPSTR buffer = lib->allocator.allocate(buffer_capacity, lib->allocator.state);
     if (NULL == buffer) {
-      RCUTILS_SET_ERROR("unable to allocate memory");
+      RCUTILS_SET_ERROR_MSG("unable to allocate memory");
       ret = RCUTILS_RET_BAD_ALLOC;
       goto fail;
     }
