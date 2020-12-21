@@ -82,6 +82,15 @@ rcutils_load_shared_library(
   rcutils_ret_t ret = RCUTILS_RET_OK;
   lib->allocator = allocator;
 
+  // Delegate library path resolution to dynamic linker.
+
+  // Since the given library path might be relative, let the dynamic
+  // linker search for the binary object in all standard locations and
+  // current process space (if already loaded) first.
+  // Then lookup its full path with the handle obtained.
+  // See POSIX dlopen() API and Windows' LoadLibrary() API documentation
+  // for further reference.
+
 #ifndef _WIN32
   lib->lib_pointer = dlopen(library_path, RTLD_LAZY);
   if (NULL == lib->lib_pointer) {
