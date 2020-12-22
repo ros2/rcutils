@@ -387,8 +387,8 @@ if(BUILD_TESTING)
     add_dummy_shared_library(dummy_shared_library_in_run_paths)
     target_compile_definitions(test_shared_library_in_run_paths PRIVATE
       "SHARED_LIBRARY_UNDER_TEST=dummy_shared_library_in_run_paths")
-    if(NOT WIN32)
-      # NOTE(hidmic): DT_RUNPATH entries are ignored by dlopen despite the fact
+    if(NOT WIN32 AND NOT APPLE)
+      # NOTE(hidmic): DT_RUNPATH entries are ignored by dlopen in Linux despite the fact
       # documentation says otherwise, so here we fallback to DT_RPATH entries.
       target_link_libraries(test_shared_library_in_run_paths "-Wl,--disable-new-dtags")
     endif()
@@ -421,7 +421,7 @@ if(BUILD_TESTING)
       "SHARED_LIBRARY_UNDER_TEST=dummy_shared_library_preloaded")
     if(NOT WIN32)
       # Force (apparently) unused libraries to be linked in.
-      if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+      if(CMAKE_CXX_COMPILER_ID MATCHES "(C|c)lang")
         target_link_libraries(test_shared_library_preloaded "-Wl,-all_load")
       else()
         target_link_libraries(test_shared_library_preloaded "-Wl,--no-as-needed")
