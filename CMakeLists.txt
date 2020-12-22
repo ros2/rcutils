@@ -372,20 +372,63 @@ if(BUILD_TESTING)
     target_link_libraries(test_repl_str ${PROJECT_NAME})
   endif()
 
-  set(append_library_dirs "$<TARGET_FILE_DIR:${PROJECT_NAME}>")
-
-  ament_add_gtest(test_shared_library test/test_shared_library.cpp
-    APPEND_LIBRARY_DIRS "${append_library_dirs}"
-  )
-
-  if(TARGET test_shared_library)
-    add_library(dummy_shared_library test/dummy_shared_library/dummy_shared_library.c)
+  macro(add_dummy_shared_library target)
+    add_library(${target} test/dummy_shared_library/dummy_shared_library.c)
     if(WIN32)
       # Causes the visibility macros to use dllexport rather than dllimport
       # which is appropriate when building the dll but not consuming it.
-      target_compile_definitions(dummy_shared_library PRIVATE "DUMMY_SHARED_LIBRARY_BUILDING_DLL")
+      target_compile_definitions(${target} PRIVATE "DUMMY_SHARED_LIBRARY_BUILDING_DLL")
     endif()
-    target_link_libraries(test_shared_library ${PROJECT_NAME} mimick)
+  endmacro()
+
+  ament_add_gtest(test_shared_library_in_run_paths test/test_shared_library.cpp)
+  if(TARGET test_shared_library_in_run_paths)
+    # Rely on CMake setting build tree RUNPATHs by default on Unix systems.
+    add_dummy_shared_library(dummy_shared_library_in_run_paths)
+    target_compile_definitions(test_shared_library_in_run_paths PRIVATE
+      "SHARED_LIBRARY_UNDER_TEST=dummy_shared_library_in_run_paths")
+    if(NOT WIN32)
+      # NOTE(hidmic): DT_RUNPATH entries are ignored by dlopen despite the fact
+      # documentation says otherwise, so here we fallback to DT_RPATH entries.
+      target_link_libraries(test_shared_library_in_run_paths "-Wl,--disable-new-dtags")
+    endif()
+    target_link_libraries(test_shared_library_in_run_paths ${PROJECT_NAME} mimick)
+  endif()
+
+  set(project_binary_dir "$<TARGET_FILE_DIR:${PROJECT_NAME}>")
+  set(test_libraries_dir "$<TARGET_FILE_DIR:${PROJECT_NAME}>/test_libraries")
+  ament_add_gtest(test_shared_library_in_load_paths test/test_shared_library.cpp
+    APPEND_LIBRARY_DIRS ${project_binary_dir} ${test_libraries_dir}
+  )
+  if(TARGET test_shared_library_in_load_paths)
+    # Make sure CMake adds no RPATHs/RUNPATHs.
+    set_target_properties(test_shared_library_in_load_paths
+      PROPERTIES SKIP_BUILD_RPATH TRUE)
+    add_dummy_shared_library(dummy_shared_library_in_load_paths)
+    set_target_properties(dummy_shared_library_in_load_paths PROPERTIES
+      LIBRARY_OUTPUT_DIRECTORY ${test_libraries_dir})
+    target_compile_definitions(test_shared_library_in_load_paths PRIVATE
+      "SHARED_LIBRARY_UNDER_TEST=dummy_shared_library_in_load_paths")
+    target_link_libraries(test_shared_library_in_load_paths ${PROJECT_NAME} mimick)
+  endif()
+
+  ament_add_gtest(test_shared_library_preloaded test/test_shared_library.cpp)
+  if(TARGET test_shared_library_in_load_paths)
+    add_dummy_shared_library(dummy_shared_library_preloaded)
+    set_target_properties(dummy_shared_library_preloaded PROPERTIES
+      LIBRARY_OUTPUT_DIRECTORY ${test_libraries_dir})
+    target_compile_definitions(test_shared_library_preloaded PRIVATE
+      "SHARED_LIBRARY_UNDER_TEST=dummy_shared_library_preloaded")
+    if(NOT WIN32)
+      # Force (apparently) unused libraries to be linked in.
+      if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+        target_link_libraries(test_shared_library_preloaded "-Wl,-all_load")
+      else()
+        target_link_libraries(test_shared_library_preloaded "-Wl,--no-as-needed")
+      endif()
+    endif()
+    target_link_libraries(test_shared_library_preloaded dummy_shared_library_preloaded)
+    target_link_libraries(test_shared_library_preloaded ${PROJECT_NAME} mimick)
   endif()
 
   rcutils_custom_add_gtest(test_time

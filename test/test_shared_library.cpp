@@ -49,15 +49,17 @@ TEST_F(TestSharedLibrary, basic_load) {
 
   // Check debug name works first because rcutils_load_shared_library should be called on
   // non-debug symbol name
-  ret = rcutils_get_platform_library_name("dummy_shared_library", library_path, 1024, true);
+  ret = rcutils_get_platform_library_name(
+    RCUTILS_STRINGIFY(SHARED_LIBRARY_UNDER_TEST), library_path, 1024, true);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
-  ret = rcutils_get_platform_library_name("dummy_shared_library", library_path, 1024, false);
+  ret = rcutils_get_platform_library_name(
+    RCUTILS_STRINGIFY(SHARED_LIBRARY_UNDER_TEST), library_path, 1024, false);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
   // getting shared library
   ret = rcutils_load_shared_library(&lib, library_path, rcutils_get_default_allocator());
-  ASSERT_EQ(RCUTILS_RET_OK, ret);
+  ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
   EXPECT_TRUE(rcutils_is_shared_library_loaded(&lib));
 
   // unload shared_library
@@ -80,7 +82,8 @@ TEST_F(TestSharedLibrary, bad_load) {
 
 TEST_F(TestSharedLibrary, fail_allocator) {
   rcutils_ret_t ret;
-  ret = rcutils_get_platform_library_name("dummy_shared_library", library_path, 1024, false);
+  ret = rcutils_get_platform_library_name(
+    RCUTILS_STRINGIFY(SHARED_LIBRARY_UNDER_TEST), library_path, 1024, false);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
   rcutils_allocator_t failing_allocator = get_failing_allocator();
@@ -91,7 +94,8 @@ TEST_F(TestSharedLibrary, fail_allocator) {
 TEST_F(TestSharedLibrary, load_two_times) {
   rcutils_ret_t ret;
 
-  ret = rcutils_get_platform_library_name("dummy_shared_library", library_path, 1024, false);
+  ret = rcutils_get_platform_library_name(
+    RCUTILS_STRINGIFY(SHARED_LIBRARY_UNDER_TEST), library_path, 1024, false);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
   // getting shared library
@@ -117,14 +121,17 @@ TEST_F(TestSharedLibrary, error_load) {
 
   ret = rcutils_load_shared_library(&lib, NULL, rcutils_get_default_allocator());
   ASSERT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret);
+  rcutils_reset_error();
 
-  ret = rcutils_get_platform_library_name("dummy_shared_library", library_path, 1024, false);
+  ret = rcutils_get_platform_library_name(
+    RCUTILS_STRINGIFY(SHARED_LIBRARY_UNDER_TEST), library_path, 1024, false);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
   ret = rcutils_load_shared_library(
     &lib,
     library_path, rcutils_get_zero_initialized_allocator());
   ASSERT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret);
+  rcutils_reset_error();
 
   ret = rcutils_load_shared_library(
     &lib, library_path, rcutils_get_default_allocator());
@@ -133,6 +140,7 @@ TEST_F(TestSharedLibrary, error_load) {
   ret = rcutils_load_shared_library(
     &lib, library_path, rcutils_get_default_allocator());
   EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret);
+  rcutils_reset_error();
 
   ret = rcutils_unload_shared_library(&lib);
   EXPECT_EQ(RCUTILS_RET_OK, ret);
@@ -141,7 +149,8 @@ TEST_F(TestSharedLibrary, error_load) {
 TEST_F(TestSharedLibrary, error_unload) {
   rcutils_ret_t ret;
 
-  ret = rcutils_get_platform_library_name("dummy_shared_library", library_path, 1024, false);
+  ret = rcutils_get_platform_library_name(
+    RCUTILS_STRINGIFY(SHARED_LIBRARY_UNDER_TEST), library_path, 1024, false);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
   ret = rcutils_load_shared_library(&lib, library_path, rcutils_get_default_allocator());
@@ -164,7 +173,8 @@ TEST_F(TestSharedLibrary, error_symbol) {
   void * symbol = rcutils_get_symbol(&lib, "print_name");
   EXPECT_TRUE(symbol == NULL);
 
-  ret = rcutils_get_platform_library_name("dummy_shared_library", library_path, 1024, false);
+  ret = rcutils_get_platform_library_name(
+    RCUTILS_STRINGIFY(SHARED_LIBRARY_UNDER_TEST), library_path, 1024, false);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
   ret = rcutils_load_shared_library(&lib, library_path, rcutils_get_default_allocator());
   ASSERT_EQ(RCUTILS_RET_OK, ret);
@@ -188,7 +198,8 @@ TEST_F(TestSharedLibrary, basic_symbol) {
   ret = rcutils_has_symbol(nullptr, "symbol");
   EXPECT_FALSE(ret);
 
-  ret = rcutils_get_platform_library_name("dummy_shared_library", library_path, 1024, false);
+  ret = rcutils_get_platform_library_name(
+    RCUTILS_STRINGIFY(SHARED_LIBRARY_UNDER_TEST), library_path, 1024, false);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
   // getting shared library
