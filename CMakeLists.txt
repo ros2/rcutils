@@ -421,9 +421,9 @@ if(BUILD_TESTING)
       "SHARED_LIBRARY_UNDER_TEST=dummy_shared_library_preloaded")
     if(NOT WIN32)
       # Force (apparently) unused libraries to be linked in.
-      if(CMAKE_CXX_COMPILER_ID MATCHES "(C|c)lang")
+      if(APPLE)  # Assume llvm
         target_link_libraries(test_shared_library_preloaded "-Wl,-all_load")
-      else()
+      else()  # Assume ld
         target_link_libraries(test_shared_library_preloaded "-Wl,--no-as-needed")
       endif()
     endif()
