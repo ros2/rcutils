@@ -177,7 +177,7 @@ fail:
       continue;
     }
     lib->library_path = lib->allocator.reallocate(
-      buffer, buffer_size, lib->allocator.state);
+      buffer, buffer_size + 1, lib->allocator.state);
     if (NULL == lib->library_path) {
       lib->library_path = buffer;
     }
