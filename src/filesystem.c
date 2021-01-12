@@ -411,20 +411,6 @@ fail:
   return ret;
 }
 
-size_t
-rcutils_get_file_size(const char * file_path)
-{
-  if (!rcutils_is_file(file_path)) {
-    RCUTILS_SAFE_FWRITE_TO_STDERR_WITH_FORMAT_STRING(
-      "Path is not a file: %s\n", file_path);
-    return 0;
-  }
-
-  struct stat stat_buffer;
-  int rc = stat(file_path, &stat_buffer);
-  return rc == 0 ? (size_t)(stat_buffer.st_size) : 0;
-}
-
 rcutils_dir_iter_t *
 rcutils_dir_iter_start(const char * directory_path, const rcutils_allocator_t allocator)
 {
@@ -594,6 +580,20 @@ fail:
       "failed to clean up on error (leaking memory): '%s'", rcutils_get_error_string().str);
   }
   return ret;
+}
+
+size_t
+rcutils_get_file_size(const char * file_path)
+{
+  if (!rcutils_is_file(file_path)) {
+    RCUTILS_SAFE_FWRITE_TO_STDERR_WITH_FORMAT_STRING(
+      "Path is not a file: %s\n", file_path);
+    return 0;
+  }
+
+  struct stat stat_buffer;
+  int rc = stat(file_path, &stat_buffer);
+  return rc == 0 ? (size_t)(stat_buffer.st_size) : 0;
 }
 
 #ifdef __cplusplus
