@@ -26,7 +26,6 @@ extern "C"
 
 #include "rcutils/allocator.h"
 #include "rcutils/macros.h"
-#include "rcutils/types.h"
 #include "rcutils/visibility_control.h"
 
 /// Return current working directory.
@@ -291,27 +290,6 @@ rcutils_dir_iter_next(rcutils_dir_iter_t * iter);
 RCUTILS_PUBLIC
 void
 rcutils_dir_iter_end(rcutils_dir_iter_t * iter);
-
-/// List the entries present in a directory.
-/**
- * This function lists the name of each file or directory present in the given
- * directory in an implementation-specific order.
- *
- * \param[in] directory_path The directory path to list the contents of.
- * \param[in] allocator Allocator being used for resources in the string_array.
- * \param[out] string_array The object to store the entries into.
- * \return `RCUTILS_RET_OK` if successful, or
- * \return `RCUTILS_RET_INVALID_ARGUMENT` for invalid arguments, or
- * \return `RCUTILS_RET_BAD_ALLOC` if memory allocation fails, or
- * \return `RCUTILS_RET_ERROR` if an unknown error occurs
- */
-RCUTILS_PUBLIC
-RCUTILS_WARN_UNUSED
-rcutils_ret_t
-rcutils_list_directory(
-  const char * directory_path,
-  rcutils_allocator_t allocator,
-  rcutils_string_array_t * string_array);
 
 #ifdef __cplusplus
 }
