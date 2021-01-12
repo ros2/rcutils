@@ -365,7 +365,8 @@ rcutils_calculate_directory_size_with_recursion(
   dir_list->path = rcutils_strdup(directory_path, allocator);
   if (NULL == dir_list->path) {
     RCUTILS_SAFE_FWRITE_TO_STDERR("Failed to duplicate directory path !\n");
-    return RCUTILS_RET_BAD_ALLOC;
+    ret = RCUTILS_RET_BAD_ALLOC;
+    goto fail;
   }
 
   *size = 0;
