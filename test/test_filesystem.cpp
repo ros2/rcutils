@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <gtest/gtest.h>
+#include <set>
 #include <string>
 
 #include "rcutils/error_handling.h"
@@ -557,6 +558,12 @@ TEST_F(TestFilesystemFixture, directory_iterator) {
     g_allocator.deallocate(path, g_allocator.state);
   });
 
+  std::set<std::string> expected {
+    ".",
+    "..",
+    "dummy.dummy",
+  };
+
   rcutils_dir_iter_t * iter = rcutils_dir_iter_start(path, g_allocator);
   ASSERT_NE(nullptr, iter);
   OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
@@ -564,28 +571,14 @@ TEST_F(TestFilesystemFixture, directory_iterator) {
     rcutils_dir_iter_end(iter);
   });
 
-  const char * expected[] = {
-    ".",
-    "..",
-    "dummy.dummy",
-  };
-
   do {
-    size_t i;
-    for (i = 0; i < sizeof(expected) / sizeof(expected[0]); i++) {
-      if (nullptr != expected[i] && 0 == strcmp(expected[i], iter->entry_name)) {
-        expected[i] = nullptr;
-        break;
-      }
-    }
-
-    if (i >= sizeof(expected) / sizeof(expected[0])) {
-      ADD_FAILURE() << "Unexpected entry " << iter->entry_name << " during iteration";
+    if (1u != expected.erase(iter->entry_name)) {
+      ADD_FAILURE() << "Unexpected entry '" << iter->entry_name << "' was enumerated";
     }
   } while (rcutils_dir_iter_next(iter));
 
-  for (size_t i = 0; i < sizeof(expected) / sizeof(expected[0]); i++) {
-    EXPECT_EQ(nullptr, expected[i]) << "Expected entry " << expected[i] << " not found";
+  for (std::string missing : expected) {
+    ADD_FAILURE() << "Expected entry '" << missing << "' was not enumerated";
   }
 }
 
