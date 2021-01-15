@@ -256,7 +256,7 @@ typedef struct rcutils_dir_iter_t
 
 /// Begin iterating over the contents of the specified directory.
 /*
- * This function is used to list the file and directories that are contained in
+ * This function is used to list the files and directories that are contained in
  * a specified directory. The structure returned by it must be deallocated using
  * ::rcutils_dir_iter_end when the iteration is completed. The name of the
  * enumerated entry is stored in the `entry_name` member of the returned object,
