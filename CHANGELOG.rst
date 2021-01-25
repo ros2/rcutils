@@ -2,8 +2,8 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+3.1.0 (2021-01-25)
+------------------
 * Add an API for directory iteration (`#323 <https://github.com/ros2/rcutils/issues/323>`_)
 * Fix a leak during error handling in dir size calculation (`#324 <https://github.com/ros2/rcutils/issues/324>`_)
 * Fix rcutils_shared_library_t path on Windows. (`#322 <https://github.com/ros2/rcutils/issues/322>`_)
