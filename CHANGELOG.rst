@@ -2,6 +2,15 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add an API for directory iteration (`#323 <https://github.com/ros2/rcutils/issues/323>`_)
+* Fix a leak during error handling in dir size calculation (`#324 <https://github.com/ros2/rcutils/issues/324>`_)
+* Fix rcutils_shared_library_t path on Windows. (`#322 <https://github.com/ros2/rcutils/issues/322>`_)
+* Check linker flags instead of assuming compiler correlation. (`#321 <https://github.com/ros2/rcutils/issues/321>`_)
+* Improve shared library relative paths handling (`#320 <https://github.com/ros2/rcutils/issues/320>`_)
+* Contributors: Michel Hidalgo, Scott K Logan
+
 3.0.0 (2020-12-02)
 ------------------
 * Update rcutils_calculate_directory_size() to support recursion (`#306 <https://github.com/ros2/rcutils/issues/306>`_)
