@@ -27,7 +27,7 @@ rcutils_strerror(char * buffer, size_t buffer_length)
 {
 #if defined(_WIN32)
   strerror_s(buffer, buffer_length, errno);
-#elif defined(_GNU_SOURCE) && (!defined(ANDROID) || __ANDROID_API__ >= 23)
+#elif defined(_GNU_SOURCE) && (!defined(ANDROID) || __ANDROID_API__ >= 23) && !defined(__QNXNTO__)
   /* GNU-specific */
   char * msg = strerror_r(errno, buffer, buffer_length);
   if (msg != buffer) {
