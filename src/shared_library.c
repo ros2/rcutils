@@ -22,8 +22,10 @@ extern "C"
 #ifndef _WIN32
 #if defined(__APPLE__)
 #include <mach-o/dyld.h>
-#elif defined (_GNU_SOURCE)
+#elif defined (_GNU_SOURCE) && !defined (__QNXNTO__)
 #include <link.h>
+#elif defined (__QNXNTO__)
+#include <sys/link.h>
 #endif
 #include <dlfcn.h>
 #else
@@ -125,7 +127,7 @@ rcutils_load_shared_library(
     goto fail;
   }
   lib->library_path = rcutils_strdup(image_name, lib->allocator);
-#elif defined(_GNU_SOURCE)
+#elif defined(_GNU_SOURCE) && !defined(__QNXNTO__)
   struct link_map * map = NULL;
   if (dlinfo(lib->lib_pointer, RTLD_DI_LINKMAP, &map) != 0) {
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("dlinfo error: %s", dlerror());
