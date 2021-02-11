@@ -503,7 +503,8 @@ if(BUILD_TESTING)
 
   rcutils_custom_add_gtest(test_logging_custom_env test/test_logging_custom_env.cpp
     ENV
-      RCUTILS_CONSOLE_OUTPUT_FORMAT="[{severity}] [{time},{time_as_nanoseconds}] [{name},{function_name},{file_name}]: {line_number}-{message}"
+      RCUTILS_CONSOLE_OUTPUT_FORMAT=
+        "[{severity}] [{time},{time_as_nanoseconds}] [{name},{function_name},{file_name}]: {line_number}-{message}"
       RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED=1
       RCUTILS_LOGGING_BUFFERED_STREAM=1
       RCUTILS_LOGGING_USE_STDOUT=1
@@ -515,7 +516,8 @@ if(BUILD_TESTING)
 
   # RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN is defined as 2048, truncation should occur
   foreach(i RANGE 0 100)
-    set(_output_format "${_output_format} [{severity}] [{time},{time_as_nanoseconds}] [{name},{function_name},{file_name}]: {line_number}-{message}")
+    set(_output_format
+      "${_output_format} [{severity}] [{time},{time_as_nanoseconds}] [{name},{function_name},{file_name}]: {line_number}-{message}")
   endforeach(i)
   rcutils_custom_add_gtest(test_logging_custom_env2 test/test_logging_custom_env.cpp
     ENV
