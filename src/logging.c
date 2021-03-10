@@ -54,6 +54,9 @@ extern "C"
 #include "rcutils/time.h"
 #include "rcutils/types/string_map.h"
 
+
+#define RCUTILS_LOGGING_SEPARATOR_CHAR '.'
+
 #define RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN (2048)
 
 #if defined(_WIN32)
