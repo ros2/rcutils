@@ -4,16 +4,11 @@ PROJECT_NAME           = "rcutils"
 PROJECT_NUMBER         = master
 PROJECT_BRIEF          = "C API providing common utilities and data structures."
 
-# Use these lines to include the generated logging_macro.h (update install path if needed)
-#INPUT                  = README.md ../../../install_isolated/rcutils/include
-#STRIP_FROM_PATH        = /Users/william/ros2_ws/install_isolated/rcutils/include
-# Otherwise just generate for the local (non-generated header files)
-INPUT                  = README.md ./include
-USE_MDFILE_AS_MAINPAGE = README.md
+INPUT                  = ./include
 RECURSIVE              = YES
-OUTPUT_DIRECTORY       = doc_output
+EXCLUDE                = include/rcutils/macros.h include/rcutils/stdatomic_helper/gcc/stdatomic.h include/rcutils/stdatomic_helper/win32/stdatomic.h include/rcutils/stdatomic_helper.h include/rcutils/qsort.h
 
-EXTRACT_ALL            = YES
+EXTRACT_ALL            = NO
 SORT_MEMBER_DOCS       = NO
 
 GENERATE_LATEX         = NO
@@ -25,8 +20,4 @@ PREDEFINED             += RCUTILS_PUBLIC=
 PREDEFINED             += RCUTILS_PUBLIC_TYPE=
 PREDEFINED             += RCUTILS_WARN_UNUSED=
 PREDEFINED             += RCUTILS_ENABLE_FAULT_INJECTION=
-
-# Tag files that do not exist will produce a warning and cross-project linking will not work.
-TAGFILES += "../../../doxygen_tag_files/cppreference-doxygen-web.tag.xml=http://en.cppreference.com/w/"
-# Uncomment to generate tag files for cross-project linking.
-#GENERATE_TAGFILE = "../../../doxygen_tag_files/rcutils.tag"
+PREDEFINED             += __STDC_WANT_LIB_EXT1__=1
