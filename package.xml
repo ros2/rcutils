@@ -22,6 +22,7 @@
   <test_depend>launch_testing</test_depend>
   <test_depend>launch_testing_ament_cmake</test_depend>
   <test_depend>osrf_testing_tools_cpp</test_depend>
+  <test_depend>performance_test_fixture</test_depend>
 
   <export>
     <build_type>ament_cmake</build_type>

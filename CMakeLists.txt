@@ -146,6 +146,8 @@ if(BUILD_TESTING)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
   endif()
 
+  find_package(performance_test_fixture REQUIRED)
+
   find_package(ament_cmake_gmock REQUIRED)
   find_package(ament_cmake_gtest REQUIRED)
   find_package(ament_cmake_pytest REQUIRED)
@@ -572,6 +574,19 @@ if(BUILD_TESTING)
   rcutils_custom_add_gtest(test_macros
     test/test_macros.cpp
   )
+
+  add_performance_test(benchmark_logging test/benchmark/benchmark_logging.cpp)
+  if(TARGET benchmark_logging)
+    target_link_libraries(benchmark_logging ${PROJECT_NAME})
+    target_include_directories(benchmark_logging PUBLIC include)
+  endif()
+
+  add_performance_test(benchmark_err_handle test/benchmark/benchmark_error_handling.cpp)
+  if(TARGET benchmark_err_handle)
+    target_link_libraries(benchmark_err_handle ${PROJECT_NAME})
+    target_include_directories(benchmark_err_handle PUBLIC include)
+  endif()
+
   if(TARGET test_macros)
     target_link_libraries(test_macros ${PROJECT_NAME})
   endif()
