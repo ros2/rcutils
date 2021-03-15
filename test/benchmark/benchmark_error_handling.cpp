@@ -24,6 +24,7 @@ static void benchmark_err_handling(benchmark::State & state)
     rcutils_ret_t ret =
       rcutils_initialize_error_handling_thread_local_storage(rcutils_get_default_allocator());
     assert(ret == RCUTILS_RET_OK);
+    (void)ret;
     rcutils_reset_error();
     const char * test_message = "test message";
     RCUTILS_SET_ERROR_MSG(test_message);
