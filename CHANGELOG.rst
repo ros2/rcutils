@@ -2,8 +2,8 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+4.0.0 (2021-03-18)
+------------------
 * Quiet down a warning in release mode. (`#334 <https://github.com/ros2/rcutils/issues/334>`_)
 * Make the logging separate char an implementation detail. (`#332 <https://github.com/ros2/rcutils/issues/332>`_)
 * Performance tests demo (`#288 <https://github.com/ros2/rcutils/issues/288>`_)
