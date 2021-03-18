@@ -2,6 +2,18 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Quiet down a warning in release mode. (`#334 <https://github.com/ros2/rcutils/issues/334>`_)
+* Make the logging separate char an implementation detail. (`#332 <https://github.com/ros2/rcutils/issues/332>`_)
+* Performance tests demo (`#288 <https://github.com/ros2/rcutils/issues/288>`_)
+* Remove references of __xstat (`#330 <https://github.com/ros2/rcutils/issues/330>`_)
+* Update the documentation to be more consistent. (`#331 <https://github.com/ros2/rcutils/issues/331>`_)
+* Shorten some excessively long lines of CMake (`#328 <https://github.com/ros2/rcutils/issues/328>`_)
+* qnx-support: include sys/link.h & avoid using dlinfo (`#327 <https://github.com/ros2/rcutils/issues/327>`_)
+* QNX uses XSI-compliant (`#326 <https://github.com/ros2/rcutils/issues/326>`_)
+* Contributors: Ahmed Sobhy, Chris Lalancette, Homalozoa X, Jorge Perez, Scott K Logan
+
 3.1.0 (2021-01-25)
 ------------------
 * Add an API for directory iteration (`#323 <https://github.com/ros2/rcutils/issues/323>`_)
