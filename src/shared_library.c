@@ -83,7 +83,11 @@ rcutils_load_shared_library(
   if (!lib->lib_pointer) {
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("LoadLibrary error: %s", dlerror());
 #else
+#if WINDOWS_UWP
   lib->lib_pointer = (void *)(LoadLibrary(lib->library_path));
+#else
+  lib->lib_pointer = (void *)(LoadPackagedLibrary(lib->library_path, 0));
+#endif
   if (!lib->lib_pointer) {
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("LoadLibrary error: %lu", GetLastError());
 #endif  // _WIN32
