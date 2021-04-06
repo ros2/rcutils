@@ -2,6 +2,11 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* updating quality declaration links (re: `ros2/docs.ros2.org#52 <https://github.com/ros2/docs.ros2.org/issues/52>`_) (`#335 <https://github.com/ros2/rcutils/issues/335>`_)
+* Contributors: shonigmann
+
 4.0.0 (2021-03-18)
 ------------------
 * Quiet down a warning in release mode. (`#334 <https://github.com/ros2/rcutils/issues/334>`_)
