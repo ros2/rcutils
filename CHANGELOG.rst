@@ -2,6 +2,11 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Declare dependency on libatomic (`#338 <https://github.com/ros2/rcutils/issues/338>`_)
+* Contributors: Scott K Logan
+
 4.0.1 (2021-04-06)
 ------------------
 * updating quality declaration links (re: `ros2/docs.ros2.org#52 <https://github.com/ros2/docs.ros2.org/issues/52>`_) (`#335 <https://github.com/ros2/rcutils/issues/335>`_)
