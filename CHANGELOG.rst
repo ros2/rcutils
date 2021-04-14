@@ -2,6 +2,11 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.3 (2021-04-14)
+------------------
+* Update quality declaration links (re: `ros2/docs.ros2.org#52 <https://github.com/ros2/docs.ros2.org/issues/52>`_) (`#336 <https://github.com/ros2/rcutils/issues/336>`_)
+* Contributors: Simon Honigmann
+
 1.1.2 (2020-12-08)
 ------------------
 * Disable a Windows platform warning (`#311 <https://github.com/ros2/rcutils/issues/311>`_) (`#319 <https://github.com/ros2/rcutils/issues/319>`_)
