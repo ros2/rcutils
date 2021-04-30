@@ -58,6 +58,7 @@ rcutils_set_env(const char * env_name, const char * env_value)
 }
 
 #ifdef _WIN32
+#pragma warning(push)
 #pragma warning(disable : 4996)
 #endif
 
@@ -81,6 +82,10 @@ rcutils_get_env(const char * env_name, const char ** env_value)
   }
   return NULL;
 }
+
+#ifdef _WIN32
+#pragma warning(pop)
+#endif
 
 const char *
 rcutils_get_home_dir(void)
