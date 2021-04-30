@@ -69,7 +69,7 @@ rcutils_set_env(const char * env_name, const char * env_value);
  *
  * ```c
  * #include <stdio.h>
- * #include <rcutils/get_env.h>
+ * #include <rcutils/env.h>
  * const char * env_value;
  * const char * error_str;
  * error_str = rcutils_get_env("SOME_ENV_VAR", &env_value);
