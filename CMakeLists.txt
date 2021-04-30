@@ -56,7 +56,6 @@ set(rcutils_sources
   src/filesystem.c
   src/find.c
   src/format_string.c
-  src/get_env.c
   src/hash_map.c
   src/logging.c
   src/process.c
