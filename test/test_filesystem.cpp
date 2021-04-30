@@ -16,9 +16,9 @@
 #include <set>
 #include <string>
 
+#include "rcutils/env.h"
 #include "rcutils/error_handling.h"
 #include "rcutils/filesystem.h"
-#include "rcutils/get_env.h"
 
 #include "osrf_testing_tools_cpp/scope_exit.hpp"
 
