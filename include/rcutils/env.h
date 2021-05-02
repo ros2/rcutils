@@ -100,10 +100,9 @@ rcutils_get_env(const char * env_name, const char ** env_value);
  *
  * The function first tries to get the HOME environment variable.
  * If that variable exists and is non-empty, that will be returned.
- * Otherwise, the function tries to get the USERPROFILE environment variable.
+ * Otherwise, on Windows, the function tries to get the USERPROFILE environment variable.
  * If that variable exists and is non-empty, that will be returned.
- * If neither exists, NULL will be returned.
- * The above algorithm is portable across both Unix and Windows.
+ * Otherwise, NULL will be returned.
  *
  * This function cannot be thread-safely called together with rcutils_set_env
  * (or any platform specific equivalent), but multiple calls to this function are thread safe.
