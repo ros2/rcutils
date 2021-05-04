@@ -18,7 +18,6 @@
 
 #include "rcutils/env.h"
 #include "rcutils/error_handling.h"
-#include "rcutils/get_env.h"
 
 TEST(TestEnv, test_set_env) {
   const char * res = nullptr;
@@ -54,4 +53,56 @@ TEST(TestEnv, test_set_env) {
   ASSERT_TRUE(rcutils_set_env("NEW_ENV_VAR", nullptr));
   ASSERT_EQ(nullptr, rcutils_get_env("NEW_ENV_VAR", &res));
   EXPECT_STREQ("", res);
+}
+
+/* Tests rcutils_get_env.
+ *
+ * Expected environment variables must be set by the calling code:
+ *
+ *   - EMPTY_TEST=
+ *   - NORMAL_TEST=foo
+ *
+ * These are set in the call to `ament_add_gtest()` in the `CMakeLists.txt`.
+ */
+TEST(TestEnv, test_get_env) {
+  const char * env;
+  const char * ret;
+  ret = rcutils_get_env("NORMAL_TEST", NULL);
+  EXPECT_STREQ("argument env_value is null", ret);
+  ret = rcutils_get_env(NULL, &env);
+  EXPECT_STREQ("argument env_name is null", ret);
+  ret = rcutils_get_env("SHOULD_NOT_EXIST_TEST", &env);
+  EXPECT_FALSE(ret);
+  EXPECT_STREQ("", env);
+  ret = rcutils_get_env("NORMAL_TEST", &env);
+  EXPECT_FALSE(ret);
+  EXPECT_FALSE(NULL == env);
+  EXPECT_STREQ("foo", env);
+  ret = rcutils_get_env("EMPTY_TEST", &env);
+  EXPECT_FALSE(ret);
+  EXPECT_FALSE(NULL == env);
+  EXPECT_STREQ("", env);
+}
+
+TEST(TestEnv, test_get_home) {
+  EXPECT_STRNE(NULL, rcutils_get_home_dir());
+  const char * home = NULL;
+
+#ifdef _WIN32
+  // Assert pre-condition that USERPROFILE is defined
+  const char * ret = rcutils_get_env("USERPROFILE", &home);
+  ASSERT_EQ(NULL, ret);
+
+  // Check USERPROFILE is not defined
+  EXPECT_TRUE(rcutils_set_env("USERPROFILE", NULL));
+  EXPECT_EQ(NULL, rcutils_get_home_dir());
+#else
+  // Assert pre-condition that HOME is defined
+  const char * ret = rcutils_get_env("HOME", &home);
+  ASSERT_EQ(NULL, ret);
+
+  // Check HOME is not defined
+  EXPECT_TRUE(rcutils_set_env("HOME", NULL));
+  EXPECT_EQ(NULL, rcutils_get_home_dir());
+#endif
 }

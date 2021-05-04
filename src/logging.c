@@ -43,10 +43,10 @@ extern "C"
 #endif
 
 #include "rcutils/allocator.h"
+#include "rcutils/env.h"
 #include "rcutils/error_handling.h"
 #include "rcutils/find.h"
 #include "rcutils/format_string.h"
-#include "rcutils/get_env.h"
 #include "rcutils/logging.h"
 #include "rcutils/snprintf.h"
 #include "rcutils/strdup.h"
