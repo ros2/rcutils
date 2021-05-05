@@ -61,7 +61,13 @@ char * rcutils_get_executable_name(rcutils_allocator_t allocator)
 #if defined __APPLE__ || defined __FreeBSD__ || (defined __ANDROID__ && __ANDROID_API__ >= 21)
   const char * appname = getprogname();
 #elif defined __GNUC__ && !defined(__QNXNTO__)
-  const char * appname = program_invocation_name;
+  #if defined __linux__ || defined __linux || defined __gnu_linux__ || defined linux
+    const char * appname = program_invocation_name;
+  #else
+    // Some embedded OS compile with __GNUC__ but are not quite conformant with GNU-specific extensions.
+    // They may fake to have a GLIBC in their custom C library implementation.
+    const char * appname = "";
+  #endif
 #elif defined _WIN32 || defined __CYGWIN__
   char appname[MAX_PATH];
   int32_t size = GetModuleFileNameA(NULL, appname, MAX_PATH);
