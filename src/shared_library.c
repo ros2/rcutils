@@ -19,6 +19,10 @@ extern "C"
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "rcutils/configuration_flags.h"
+
+#ifndef RCUTILS_NO_FILESYSTEM
+
 #ifndef _WIN32
 #if defined(__APPLE__)
 #include <mach-o/dyld.h>
@@ -48,6 +52,8 @@ C_ASSERT(sizeof(void *) == sizeof(HINSTANCE));
 C_ASSERT(sizeof(char) == sizeof(TCHAR));
 #endif  // _WIN32
 
+#endif //RCUTILS_NO_FILESYSTEM
+
 #include "rcutils/error_handling.h"
 #include "rcutils/macros.h"
 #include "rcutils/shared_library.h"
@@ -69,6 +75,7 @@ rcutils_load_shared_library(
   const char * library_path,
   rcutils_allocator_t allocator)
 {
+#ifndef RCUTILS_NO_FILESYSTEM
   RCUTILS_CAN_RETURN_WITH_ERROR_OF(RCUTILS_RET_INVALID_ARGUMENT);
   RCUTILS_CAN_RETURN_WITH_ERROR_OF(RCUTILS_RET_BAD_ALLOC);
   RCUTILS_CAN_RETURN_WITH_ERROR_OF(RCUTILS_RET_ERROR);
@@ -195,6 +202,11 @@ fail:
   }
   return ret;
 #endif  // _WIN32
+
+#else
+  return RCUTILS_RET_ERROR;
+#endif //RCUTILS_NO_FILESYSTEM
+
 }
 
 void *
