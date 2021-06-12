@@ -187,6 +187,9 @@ if(BUILD_TESTING)
 
   ament_add_gtest(test_logging test/test_logging.cpp)
   target_link_libraries(test_logging ${PROJECT_NAME} mimick osrf_testing_tools_cpp::memory_tools)
+  if(HAVE_LIBATOMICS)
+    target_link_libraries(test_logging atomic)
+  endif()
 
   add_executable(test_logging_long_messages test/test_logging_long_messages.cpp)
   target_link_libraries(test_logging_long_messages ${PROJECT_NAME})
@@ -243,6 +246,9 @@ if(BUILD_TESTING)
   )
   if(TARGET test_allocator)
     target_link_libraries(test_allocator ${PROJECT_NAME} osrf_testing_tools_cpp::memory_tools)
+    if(HAVE_LIBATOMICS)
+      target_link_libraries(test_allocator atomic)
+    endif()
   endif()
 
   rcutils_custom_add_gtest(test_char_array
@@ -277,6 +283,9 @@ if(BUILD_TESTING)
   )
   if(TARGET test_error_handling)
     target_link_libraries(test_error_handling ${PROJECT_NAME} osrf_testing_tools_cpp::memory_tools)
+    if(HAVE_LIBATOMICS)
+      target_link_libraries(test_error_handling atomic)
+    endif()
   endif()
 
   rcutils_custom_add_gmock(test_error_handling_helpers test/test_error_handling_helpers.cpp
@@ -327,7 +336,6 @@ if(BUILD_TESTING)
     if(HAVE_LIBATOMICS)
       target_link_libraries(test_string_array atomic)
     endif()
-    # XXX -latomic
   endif()
 
   rcutils_custom_add_gtest(test_get_env test/test_get_env.cpp
@@ -360,6 +368,9 @@ if(BUILD_TESTING)
   if(TARGET test_filesystem)
     ament_target_dependencies(test_filesystem "osrf_testing_tools_cpp")
     target_link_libraries(test_filesystem ${PROJECT_NAME} mimick)
+    if(HAVE_LIBATOMICS)
+      target_link_libraries(test_filesystem atomic)
+    endif()
     target_compile_definitions(test_filesystem PRIVATE BUILD_DIR="${CMAKE_CURRENT_BINARY_DIR}")
   endif()
 
@@ -389,6 +400,9 @@ if(BUILD_TESTING)
   if(TARGET test_string_map)
     ament_target_dependencies(test_string_map "osrf_testing_tools_cpp")
     target_link_libraries(test_string_map ${PROJECT_NAME})
+    if(HAVE_LIBATOMICS)
+      target_link_libraries(test_string_map atomic)
+    endif()
   endif()
 
   rcutils_custom_add_gtest(test_isalnum_no_locale
@@ -435,6 +449,9 @@ if(BUILD_TESTING)
     ENV ${memory_tools_test_env_vars})
   if(TARGET test_time)
     target_link_libraries(test_time ${PROJECT_NAME} mimick osrf_testing_tools_cpp::memory_tools)
+    if(HAVE_LIBATOMICS)
+      target_link_libraries(test_time atomic)
+    endif()
   endif()
 
   rcutils_custom_add_gtest(test_snprintf
@@ -507,6 +524,9 @@ if(BUILD_TESTING)
   )
   if(TARGET test_logging_custom_env)
     target_link_libraries(test_logging_custom_env ${PROJECT_NAME} osrf_testing_tools_cpp::memory_tools mimick)
+    if(HAVE_LIBATOMICS)
+      target_link_libraries(test_logging_custom_env atomic)
+    endif()
   endif()
 
   # RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN is defined as 2048, truncation should occur
@@ -523,6 +543,9 @@ if(BUILD_TESTING)
   )
   if(TARGET test_logging_custom_env2)
     target_link_libraries(test_logging_custom_env2 ${PROJECT_NAME} osrf_testing_tools_cpp::memory_tools mimick)
+    if(HAVE_LIBATOMICS)
+      target_link_libraries(test_logging_custom_env2 atomic)
+    endif()
   endif()
 
   rcutils_custom_add_gtest(test_logging_bad_env test/test_logging_bad_env.cpp
@@ -563,6 +586,9 @@ if(BUILD_TESTING)
   )
   if(TARGET test_logging_enable_for)
     target_link_libraries(test_logging_enable_for ${PROJECT_NAME} osrf_testing_tools_cpp::memory_tools)
+    if(HAVE_LIBATOMICS)
+      target_link_libraries(test_logging_enable_for atomic)
+    endif()
   endif()
 
   rcutils_custom_add_gtest(test_logging_console_output_handler
@@ -570,6 +596,9 @@ if(BUILD_TESTING)
   )
   if(TARGET test_logging_console_output_handler)
     target_link_libraries(test_logging_console_output_handler ${PROJECT_NAME} osrf_testing_tools_cpp::memory_tools)
+    if(HAVE_LIBATOMICS)
+      target_link_libraries(test_logging_console_output_handler atomic)
+    endif()
   endif()
 
   rcutils_custom_add_gtest(test_macros
