@@ -9,6 +9,7 @@ PROJECT_BRIEF          = "C API providing common utilities and data structures."
 #STRIP_FROM_PATH        = /Users/william/ros2_ws/install_isolated/rcutils/include
 # Otherwise just generate for the local (non-generated header files)
 INPUT                  = README.md ./include
+EXCLUDE_PATTERNS       = */stdatomic_helper/*
 USE_MDFILE_AS_MAINPAGE = README.md
 RECURSIVE              = YES
 OUTPUT_DIRECTORY       = doc_output
