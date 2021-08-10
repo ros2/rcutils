@@ -6,10 +6,9 @@ PROJECT_BRIEF          = "C API providing common utilities and data structures."
 
 # Use these lines to include the generated logging_macro.h (update install path if needed)
 #INPUT                  = README.md ../../../install_isolated/rcutils/include
-#STRIP_FROM_PATH        = /Users/william/ros2_ws/install_isolated/rcutils/include
 # Otherwise just generate for the local (non-generated header files)
 INPUT                  = README.md ./include
-EXCLUDE_PATTERNS       = */stdatomic_helper/*
+EXCLUDE_PATTERNS       = */stdatomic_helper/* */rcutils/qsort.h
 USE_MDFILE_AS_MAINPAGE = README.md
 RECURSIVE              = YES
 OUTPUT_DIRECTORY       = doc_output
