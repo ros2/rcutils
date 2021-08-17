@@ -233,6 +233,7 @@ rcutils_calculate_directory_size(const char * directory_path, rcutils_allocator_
     return dir_size;
   }
 #ifdef _WIN32
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
   char * path = rcutils_join_path(directory_path, "*", allocator);
   WIN32_FIND_DATA data;
   HANDLE handle = FindFirstFile(path, &data);
@@ -252,6 +253,9 @@ rcutils_calculate_directory_size(const char * directory_path, rcutils_allocator_
     } while (FindNextFile(handle, &data));
     FindClose(handle);
   }
+#else
+  // Don't enumerate UWP filesystems
+#endif
   return dir_size;
 #else
   DIR * dir = opendir(directory_path);

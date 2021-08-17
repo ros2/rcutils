@@ -83,7 +83,7 @@ rcutils_load_shared_library(
   if (!lib->lib_pointer) {
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("LoadLibrary error: %s", dlerror());
 #else
-#ifdef WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP) && WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
   lib->lib_pointer = (void *)(LoadLibrary(lib->library_path));
 #else
   lib->lib_pointer = (void *)(LoadPackagedLibrary(lib->library_path, 0));
