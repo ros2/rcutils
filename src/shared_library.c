@@ -204,6 +204,9 @@ fail:
 #endif  // _WIN32
 
 #else
+  (void) lib;
+  (void) library_path;
+  (void) allocator;
   return RCUTILS_RET_ERROR;
 #endif //RCUTILS_NO_FILESYSTEM
 
@@ -212,6 +215,7 @@ fail:
 void *
 rcutils_get_symbol(const rcutils_shared_library_t * lib, const char * symbol_name)
 {
+#ifndef RCUTILS_NO_FILESYSTEM
   if (!lib || !lib->lib_pointer || (symbol_name == NULL)) {
     RCUTILS_SET_ERROR_MSG("invalid inputs arguments");
     return NULL;
@@ -242,11 +246,17 @@ rcutils_get_symbol(const rcutils_shared_library_t * lib, const char * symbol_nam
     return NULL;
   }
   return lib_symbol;
+#else
+  (void) lib;
+  (void) symbol_name;
+  return NULL;
+#endif //RCUTILS_NO_FILESYSTEM
 }
 
 bool
 rcutils_has_symbol(const rcutils_shared_library_t * lib, const char * symbol_name)
 {
+#ifndef RCUTILS_NO_FILESYSTEM
   if (!lib || !lib->lib_pointer || symbol_name == NULL) {
     return false;
   }
@@ -262,11 +272,17 @@ rcutils_has_symbol(const rcutils_shared_library_t * lib, const char * symbol_nam
   void * lib_symbol = GetProcAddress((HINSTANCE)(lib->lib_pointer), symbol_name);
   return lib_symbol != NULL;
 #endif  // _WIN32
+#else
+  (void) lib;
+  (void) symbol_name;
+  return false;
+#endif //RCUTILS_NO_FILESYSTEM
 }
 
 rcutils_ret_t
 rcutils_unload_shared_library(rcutils_shared_library_t * lib)
 {
+#ifndef RCUTILS_NO_FILESYSTEM
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(lib, RCUTILS_RET_INVALID_ARGUMENT);
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(lib->lib_pointer, RCUTILS_RET_INVALID_ARGUMENT);
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(lib->library_path, RCUTILS_RET_INVALID_ARGUMENT);
@@ -292,6 +308,10 @@ rcutils_unload_shared_library(rcutils_shared_library_t * lib)
   lib->lib_pointer = NULL;
   lib->allocator = rcutils_get_zero_initialized_allocator();
   return ret;
+#else
+  (void) lib;
+  return RCUTILS_RET_ERROR;
+#endif //RCUTILS_NO_FILESYSTEM
 }
 
 rcutils_ret_t
@@ -301,6 +321,7 @@ rcutils_get_platform_library_name(
   unsigned int buffer_size,
   bool debug)
 {
+#ifndef RCUTILS_NO_FILESYSTEM
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(library_name, RCUTILS_RET_INVALID_ARGUMENT);
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(library_name_platform, RCUTILS_RET_INVALID_ARGUMENT);
 
@@ -350,6 +371,13 @@ rcutils_get_platform_library_name(
     return RCUTILS_RET_ERROR;
   }
   return RCUTILS_RET_OK;
+#else
+  (void) library_name;
+  (void) library_name_platform;
+  (void) buffer_size;
+  (void) debug;
+  return RCUTILS_RET_ERROR;
+#endif //RCUTILS_NO_FILESYSTEM
 }
 
 bool
