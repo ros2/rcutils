@@ -75,6 +75,8 @@ bool
 rcutils_get_cwd(char * buffer, size_t max_length)
 {
 #ifdef RCUTILS_NO_FILESYSTEM
+  (void) buffer;
+  (void) max_length;
   RCUTILS_SET_ERROR_MSG("not available filesystem");
   return false;
 #else
@@ -98,6 +100,7 @@ bool
 rcutils_is_directory(const char * abs_path)
 {
 #ifdef RCUTILS_NO_FILESYSTEM
+  (void) abs_path;
   RCUTILS_SET_ERROR_MSG("not available filesystem");
   return false;
 #else
@@ -117,6 +120,7 @@ bool
 rcutils_is_file(const char * abs_path)
 {
 #ifdef RCUTILS_NO_FILESYSTEM
+  (void) abs_path;
   RCUTILS_SET_ERROR_MSG("not available filesystem");
   return false;
 #else
@@ -136,6 +140,7 @@ bool
 rcutils_exists(const char * abs_path)
 {
 #ifdef RCUTILS_NO_FILESYSTEM
+  (void) abs_path;
   RCUTILS_SET_ERROR_MSG("not available filesystem");
   return false;
 #else
@@ -151,6 +156,7 @@ bool
 rcutils_is_readable(const char * abs_path)
 {
 #ifdef RCUTILS_NO_FILESYSTEM
+  (void) abs_path;
   RCUTILS_SET_ERROR_MSG("not available filesystem");
   return false;
 #else
@@ -173,6 +179,7 @@ bool
 rcutils_is_writable(const char * abs_path)
 {
 #ifdef RCUTILS_NO_FILESYSTEM
+  (void) abs_path;
   RCUTILS_SET_ERROR_MSG("not available filesystem");
   return false;
 #else
@@ -195,6 +202,7 @@ bool
 rcutils_is_readable_and_writable(const char * abs_path)
 {
 #ifdef RCUTILS_NO_FILESYSTEM
+  (void) abs_path;
   RCUTILS_SET_ERROR_MSG("not available filesystem");
   return false;
 #else
@@ -222,6 +230,9 @@ rcutils_join_path(
   rcutils_allocator_t allocator)
 {
 #ifdef RCUTILS_NO_FILESYSTEM
+  (void) left_hand_path;
+  (void) right_hand_path;
+  (void) allocator;
   RCUTILS_SET_ERROR_MSG("not available filesystem");
   return NULL;
 #else
@@ -245,6 +256,8 @@ rcutils_to_native_path(
   rcutils_allocator_t allocator)
 {
 #ifdef RCUTILS_NO_FILESYSTEM
+  (void) path;
+  (void) allocator;
   RCUTILS_SET_ERROR_MSG("not available filesystem");
   return NULL;
 #else
@@ -260,6 +273,8 @@ char *
 rcutils_expand_user(const char * path, rcutils_allocator_t allocator)
 {
 #ifdef RCUTILS_NO_FILESYSTEM
+  (void) path;
+  (void) allocator;
   RCUTILS_SET_ERROR_MSG("not available filesystem");
   return NULL;
 #else
@@ -288,6 +303,7 @@ bool
 rcutils_mkdir(const char * abs_path)
 {
 #ifdef RCUTILS_NO_FILESYSTEM
+  (void) abs_path;
   RCUTILS_SET_ERROR_MSG("not available filesystem");
   return false;
 #else
@@ -337,11 +353,9 @@ typedef struct dir_list_t
   struct dir_list_t * next;
 } dir_list_t;
 
+#ifndef RCUTILS_NO_FILESYSTEM
 static void free_dir_list(dir_list_t * dir_list, rcutils_allocator_t allocator)
 {
-#ifdef RCUTILS_NO_FILESYSTEM
-  RCUTILS_SET_ERROR_MSG("not available filesystem");
-#else
   dir_list_t * next_dir;
   do {
     next_dir = dir_list->next;
@@ -349,19 +363,14 @@ static void free_dir_list(dir_list_t * dir_list, rcutils_allocator_t allocator)
     allocator.deallocate(dir_list, allocator.state);
     dir_list = next_dir;
   } while (dir_list);
-#endif  // _RCUTILS_NO_FILESYSTEM
 }
 
 static void remove_first_dir_from_list(dir_list_t ** dir_list, rcutils_allocator_t allocator)
 {
-#ifdef RCUTILS_NO_FILESYSTEM
-  RCUTILS_SET_ERROR_MSG("not available filesystem");
-#else
   dir_list_t * next_dir = (*dir_list)->next;
   allocator.deallocate((*dir_list)->path, allocator.state);
   allocator.deallocate(*dir_list, allocator.state);
   *dir_list = next_dir;
-#endif  // _RCUTILS_NO_FILESYSTEM
 }
 
 static rcutils_ret_t check_and_calculate_size(
@@ -371,10 +380,6 @@ static rcutils_ret_t check_and_calculate_size(
   dir_list_t * dir_list,
   rcutils_allocator_t allocator)
 {
-#ifdef RCUTILS_NO_FILESYSTEM
-  RCUTILS_SET_ERROR_MSG("not available filesystem");
-  return RCUTILS_RET_ERROR;
-#else
   // Skip over local folder handle (`.`) and parent folder (`..`)
   if (strcmp(filename, ".") == 0 || strcmp(filename, "..") == 0) {
     return RCUTILS_RET_OK;
@@ -410,8 +415,8 @@ static rcutils_ret_t check_and_calculate_size(
   allocator.deallocate(file_path, allocator.state);
 
   return RCUTILS_RET_OK;
-#endif  // _RCUTILS_NO_FILESYSTEM
 }
+#endif  // _RCUTILS_NO_FILESYSTEM
 
 rcutils_ret_t
 rcutils_calculate_directory_size_with_recursion(
@@ -421,6 +426,10 @@ rcutils_calculate_directory_size_with_recursion(
   rcutils_allocator_t allocator)
 {
 #ifdef RCUTILS_NO_FILESYSTEM
+  (void) directory_path;
+  (void) max_depth;
+  (void) size;
+  (void) allocator;
   RCUTILS_SET_ERROR_MSG("not available filesystem");
   return RCUTILS_RET_ERROR;
 #else
@@ -495,6 +504,8 @@ rcutils_dir_iter_t *
 rcutils_dir_iter_start(const char * directory_path, const rcutils_allocator_t allocator)
 {
 #ifdef RCUTILS_NO_FILESYSTEM
+  (void) directory_path;
+  (void) allocator;
   RCUTILS_SET_ERROR_MSG("not available filesystem");
   return NULL;
 #else
@@ -566,6 +577,7 @@ bool
 rcutils_dir_iter_next(rcutils_dir_iter_t * iter)
 {
 #ifdef RCUTILS_NO_FILESYSTEM
+  (void) iter;
   RCUTILS_SET_ERROR_MSG("not available filesystem");
   return false;
 #else
@@ -596,6 +608,7 @@ void
 rcutils_dir_iter_end(rcutils_dir_iter_t * iter)
 {
 #ifdef RCUTILS_NO_FILESYSTEM
+  (void) iter;
   RCUTILS_SET_ERROR_MSG("not available filesystem");
 #else
   if (NULL == iter) {
@@ -625,6 +638,7 @@ rcutils_get_file_size(const char * file_path)
 {
 
 #ifdef RCUTILS_NO_FILESYSTEM
+  (void) file_path;
   RCUTILS_SET_ERROR_MSG("not available filesystem");
   return 0;
 #else
