@@ -293,6 +293,44 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
     }
 
     g_rcutils_logging_initialized = true;
+
+    // We load the logging configs after setting g_rcutils_logging_initialized
+    // to true otherwise rcutils_logging_set_logger_level will cause recursive
+    // call to this function due to RCUTILS_LOGGING_AUTOINIT Check for the
+    // Check for the environment variable for selecting logging level
+    const char * logging_config_filename;
+    ret_str = rcutils_get_env("RCUTILS_LOGGING_CONFIG_FILE", &logging_config_filename);
+    if (NULL == ret_str && strcmp(logging_config_filename, "") != 0) {
+      FILE * logging_config_file = fopen(logging_config_filename, "r");
+      if (NULL == logging_config_file) {
+        RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
+          "Failed to open logging config file `[%s]`.",
+          logging_config_filename);
+        return RCUTILS_RET_ERROR;
+      }
+      char logger_name[50];
+      char severity[10];   // fatal error debug info warn case insensitive
+
+      while (fscanf(
+          logging_config_file, "%49[^=]=%9[^\n]\n", logger_name,
+          severity) != EOF)
+      {
+        int severity_level;
+        if (RCUTILS_RET_OK != rcutils_logging_severity_level_from_string(
+            severity, g_rcutils_logging_allocator, &severity_level))
+        {
+          RCUTILS_SAFE_FWRITE_TO_STDERR_WITH_FORMAT_STRING(
+            "Logger has an invalid severity level: %s\n", severity);
+          return RCUTILS_RET_ERROR;
+        }
+        if (RCUTILS_RET_OK != rcutils_logging_set_logger_level(logger_name, severity_level)) {
+          RCUTILS_SAFE_FWRITE_TO_STDERR_WITH_FORMAT_STRING(
+            "Failed to set severity level: %s for logger '%s'\n", severity, logger_name);
+        }
+      }
+
+      fclose(logging_config_file);
+    }
   }
   return ret;
 }
