@@ -2,8 +2,8 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+5.0.0 (2021-11-01)
+------------------
 * Fixing up documentation build when using rosdoc2 (`#344 <https://github.com/ros2/rcutils/issues/344>`_)
 * Stop double-defining structs. (`#333 <https://github.com/ros2/rcutils/issues/333>`_)
 * Use FindPython3 explicitly instead of FindPythonInterp implicitly (`#345 <https://github.com/ros2/rcutils/issues/345>`_)
