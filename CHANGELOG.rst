@@ -2,6 +2,15 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fixing up documentation build when using rosdoc2 (`#344 <https://github.com/ros2/rcutils/issues/344>`_)
+* Stop double-defining structs. (`#333 <https://github.com/ros2/rcutils/issues/333>`_)
+* Use FindPython3 explicitly instead of FindPythonInterp implicitly (`#345 <https://github.com/ros2/rcutils/issues/345>`_)
+* Fix build on Android (`#342 <https://github.com/ros2/rcutils/issues/342>`_)
+* Deprecate get_env.h and move content to env.{h,c} (`#340 <https://github.com/ros2/rcutils/issues/340>`_)
+* Contributors: Chris Lalancette, Christophe Bedard, Ivan Santiago Paunovic, Shane Loretz, William Woodall
+
 4.0.2 (2021-04-12)
 ------------------
 * Declare dependency on libatomic (`#338 <https://github.com/ros2/rcutils/issues/338>`_)
