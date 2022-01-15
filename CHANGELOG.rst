@@ -2,6 +2,11 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+5.0.1 (2022-01-14)
+------------------
+* Use static_cast instead of C-style cast (`#349 <https://github.com/ros2/rcutils/issues/349>`_)
+* Contributors: Jacob Perron
+
 5.0.0 (2021-11-01)
 ------------------
 * Fixing up documentation build when using rosdoc2 (`#344 <https://github.com/ros2/rcutils/issues/344>`_)
