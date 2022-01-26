@@ -120,7 +120,7 @@ add_library(
 target_include_directories(${PROJECT_NAME} PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>"
-  "$<INSTALL_INTERFACE:include>")
+  "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>")
 
 # Causes the visibility macros to use dllexport rather than dllimport,
 # which is appropriate when building the dll but not consuming it.
@@ -572,13 +572,11 @@ if(BUILD_TESTING)
   add_performance_test(benchmark_logging test/benchmark/benchmark_logging.cpp)
   if(TARGET benchmark_logging)
     target_link_libraries(benchmark_logging ${PROJECT_NAME})
-    target_include_directories(benchmark_logging PUBLIC include)
   endif()
 
   add_performance_test(benchmark_err_handle test/benchmark/benchmark_error_handling.cpp)
   if(TARGET benchmark_err_handle)
     target_link_libraries(benchmark_err_handle ${PROJECT_NAME})
-    target_include_directories(benchmark_err_handle PUBLIC include)
   endif()
 
   if(TARGET test_macros)
@@ -586,12 +584,17 @@ if(BUILD_TESTING)
   endif()
 endif()
 
-ament_export_dependencies(ament_cmake)
-ament_export_include_directories(include)
+# Export old-style CMake variables
+ament_export_include_directories("include/${PROJECT_NAME}")
 ament_export_libraries(${PROJECT_NAME} ${CMAKE_DL_LIBS})
+
+# Export modern CMake targets
 ament_export_targets(${PROJECT_NAME})
+
+ament_export_dependencies(ament_cmake)
+
 ament_package()
 
 install(
   DIRECTORY include/ ${CMAKE_CURRENT_BINARY_DIR}/include/
-  DESTINATION include)
+  DESTINATION include/${PROJECT_NAME})
