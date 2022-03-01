@@ -2,6 +2,12 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Remove dst_size from strlen usage (`#353 <https://github.com/ros2/rcutils/issues/353>`_)
+* Install headers to include\${PROJECT_NAME} (`#351 <https://github.com/ros2/rcutils/issues/351>`_)
+* Contributors: Jorge Perez, Shane Loretz
+
 5.0.1 (2022-01-14)
 ------------------
 * Use static_cast instead of C-style cast (`#349 <https://github.com/ros2/rcutils/issues/349>`_)
