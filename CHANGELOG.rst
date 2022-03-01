@@ -2,8 +2,8 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+5.1.0 (2022-03-01)
+------------------
 * Remove dst_size from strlen usage (`#353 <https://github.com/ros2/rcutils/issues/353>`_)
 * Install headers to include\${PROJECT_NAME} (`#351 <https://github.com/ros2/rcutils/issues/351>`_)
 * Contributors: Jorge Perez, Shane Loretz
