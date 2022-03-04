@@ -17,6 +17,7 @@ import unittest
 
 from launch import LaunchDescription
 from launch.actions import ExecuteProcess
+from launch.actions import SetEnvironmentVariable
 
 import launch_testing
 import launch_testing.actions
@@ -28,15 +29,20 @@ import launch_testing.markers
 def generate_test_description():
     launch_description = LaunchDescription()
     # Set the output format to a "verbose" format that is expected by the executable output
-    os.environ['RCUTILS_CONSOLE_OUTPUT_FORMAT'] = \
-        '[{severity}] [{name}]: {message} ({function_name}() at {file_name}:{line_number})'
+    launch_description.add_action(
+        SetEnvironmentVariable(
+            name='RCUTILS_CONSOLE_OUTPUT_FORMAT',
+            value='[{severity}] [{name}]: {message} '
+                  '({function_name}() at {file_name}:{line_number})'
+        )
+    )
     executable = os.path.join(os.getcwd(), 'test_logging_long_messages')
     if os.name == 'nt':
         executable += '.exe'
     process_name = 'test_logging_long_messages'
-    launch_description.add_action(ExecuteProcess(
-        cmd=[executable], name=process_name, output='screen'
-    ))
+    launch_description.add_action(
+        ExecuteProcess(cmd=[executable], name=process_name, output='screen')
+    )
 
     launch_description.add_action(
         launch_testing.actions.ReadyToTest()
