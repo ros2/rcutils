@@ -2,6 +2,11 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Update launch test for change related to enviroment variables in launch (`#354 <https://github.com/ros2/rcutils/issues/354>`_)
+* Contributors: Jacob Perron
+
 5.1.0 (2022-03-01)
 ------------------
 * Remove dst_size from strlen usage (`#353 <https://github.com/ros2/rcutils/issues/353>`_)
