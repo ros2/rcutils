@@ -2,8 +2,8 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+5.1.1 (2022-03-31)
+------------------
 * Update launch test for change related to enviroment variables in launch (`#354 <https://github.com/ros2/rcutils/issues/354>`_)
 * Contributors: Jacob Perron
 
