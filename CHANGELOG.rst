@@ -2,6 +2,11 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+5.2.0 (2022-04-29)
+------------------
+* Update rcutils_steady_time_now to return the same data as std::chrono (`#357 <https://github.com/ros2/rcutils/issues/357>`_)
+* Contributors: Chris Lalancette
+
 5.1.1 (2022-03-31)
 ------------------
 * Update launch test for change related to enviroment variables in launch (`#354 <https://github.com/ros2/rcutils/issues/354>`_)
