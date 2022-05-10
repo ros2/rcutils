@@ -18,12 +18,14 @@
 
 #include "osrf_testing_tools_cpp/memory_tools/gtest_quickstart.hpp"
 
+#include "rcutils/memset.h"
+
 #include "../src/error_handling_helpers.h"
 
 TEST(test_error_handling, copy_string) {
   osrf_testing_tools_cpp::memory_tools::ScopedQuickstartGtest scoped_quickstart_gtest;
   char buffer[10];
-  memset(buffer, '?', sizeof(buffer));
+  RCUTILS_MEMSET(buffer, sizeof(buffer), '?', sizeof(buffer));
   size_t written;
 
   // normal truncation

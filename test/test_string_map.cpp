@@ -21,6 +21,7 @@
 #include "osrf_testing_tools_cpp/scope_exit.hpp"
 #include "rcutils/allocator.h"
 #include "rcutils/error_handling.h"
+#include "rcutils/memset.h"
 #include "rcutils/types/string_map.h"
 
 class TestStringMap : public ::testing::Test
@@ -89,7 +90,7 @@ TEST(test_string_map, lifecycle) {
   {
     rcutils_string_map_t string_map;
     // dirty the memory, otherwise this is flaky (sometimes the junk memory is null)
-    memset(&string_map, 0x7, sizeof(rcutils_string_map_t));
+    RCUTILS_MEMSET(&string_map, sizeof(rcutils_string_map_t), 0x7, sizeof(rcutils_string_map_t));
     ret = rcutils_string_map_init(&string_map, 10, allocator);
     EXPECT_EQ(RCUTILS_RET_STRING_MAP_ALREADY_INIT, ret) << rcutils_get_error_string().str;
     rcutils_reset_error();

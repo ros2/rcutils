@@ -243,6 +243,13 @@ if(BUILD_TESTING)
     target_link_libraries(test_allocator ${PROJECT_NAME} osrf_testing_tools_cpp::memory_tools)
   endif()
 
+  rcutils_custom_add_gtest(test_zero_memory
+    test/test_zero_memory.cpp
+  )
+  if(TARGET test_zero_memory)
+    target_link_libraries(test_zero_memory ${PROJECT_NAME})
+  endif()
+
   rcutils_custom_add_gtest(test_char_array
     test/test_char_array.cpp
   )
@@ -282,6 +289,13 @@ if(BUILD_TESTING)
   if(TARGET test_error_handling_helpers)
     target_include_directories(test_error_handling_helpers PUBLIC include)
     target_link_libraries(test_error_handling_helpers osrf_testing_tools_cpp::memory_tools)
+  endif()
+
+  rcutils_custom_add_gtest(test_zero_memory_explicit
+    test/test_zero_memory_explicit.cpp
+  )
+  if(TARGET test_zero_memory_explicit)
+    target_link_libraries(test_zero_memory_explicit ${PROJECT_NAME})
   endif()
 
   rcutils_custom_add_gtest(test_split
