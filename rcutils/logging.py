@@ -56,7 +56,7 @@ skipfirst_doc_lines = [
 throttle_params = OrderedDict((
     ('get_time_point_value', 'Function that returns rcutils_ret_t and expects a '
         'rcutils_time_point_value_t pointer.'),
-    ('duration', 'The duration of the throttle interval'),
+    ('duration', 'The duration of the throttle interval as an integral value in milliseconds.'),
 ))
 throttle_args = {
     'condition_before': 'RCUTILS_LOG_CONDITION_THROTTLE_BEFORE(get_time_point_value, duration)',
