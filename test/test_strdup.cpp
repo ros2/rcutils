@@ -73,3 +73,19 @@ TEST(test_strdup, invalid_arguments) {
   EXPECT_EQ(NULL, rcutils_strndup(NULL, 5, allocator));
   EXPECT_EQ(NULL, rcutils_strdup("something", failing_allocator));
 }
+
+TEST(test_strndup, one_byte_overread) {
+  auto allocator = rcutils_get_default_allocator();
+  char str[4];
+  char * p;
+  memcpy(str, "test", sizeof(str));
+
+  // If there is a bug, a one byte overread happens here. Run this test under a
+  // memory sanitizer to guarantee it causes a crash.
+  p = rcutils_strndup(str, sizeof(str), allocator);
+  if (NULL == p) {
+    FAIL();
+  }
+  ASSERT_STREQ(p, "test");
+  allocator.deallocate(p, allocator.state);
+}

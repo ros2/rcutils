@@ -49,7 +49,7 @@ rcutils_strndup(const char * str, size_t string_length, rcutils_allocator_t allo
   if (NULL == new_string) {
     return NULL;
   }
-  memcpy(new_string, str, string_length + 1);
+  memcpy(new_string, str, string_length);
   new_string[string_length] = '\0';
   return new_string;
 }
