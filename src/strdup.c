@@ -19,6 +19,7 @@ extern "C"
 
 #include "rcutils/strdup.h"
 
+#include <limits.h>
 #include <stddef.h>
 #include <string.h>
 
@@ -31,20 +32,19 @@ rcutils_strdup(const char * str, rcutils_allocator_t allocator)
 {
   RCUTILS_CAN_RETURN_WITH_ERROR_OF(NULL);
 
-  if (NULL == str) {
-    return NULL;
-  }
-  return rcutils_strndup(str, strlen(str), allocator);
+  return rcutils_strndup(str, SIZE_MAX, allocator);
 }
 
 char *
-rcutils_strndup(const char * str, size_t string_length, rcutils_allocator_t allocator)
+rcutils_strndup(const char * str, size_t max_length, rcutils_allocator_t allocator)
 {
   RCUTILS_CAN_RETURN_WITH_ERROR_OF(NULL);
 
   if (NULL == str) {
     return NULL;
   }
+  char * p = memchr(str, '\0', max_length);
+  size_t string_length = p == NULL ? max_length : (size_t)(p - str);
   char * new_string = allocator.allocate(string_length + 1, allocator.state);
   if (NULL == new_string) {
     return NULL;
