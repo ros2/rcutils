@@ -2,8 +2,8 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+4.0.3 (2022-06-30)
+------------------
 * Clarify duration arg description in logging macros (`#359 <https://github.com/ros2/rcutils/issues/359>`_) (`#361 <https://github.com/ros2/rcutils/issues/361>`_)
 * Fix build on Android (`#343 <https://github.com/ros2/rcutils/issues/343>`_)
 * Contributors: Ivan Santiago Paunovic, mergify[bot]
