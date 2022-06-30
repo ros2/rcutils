@@ -2,6 +2,12 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Clarify duration arg description in logging macros (`#359 <https://github.com/ros2/rcutils/issues/359>`_) (`#361 <https://github.com/ros2/rcutils/issues/361>`_)
+* Fix build on Android (`#343 <https://github.com/ros2/rcutils/issues/343>`_)
+* Contributors: Ivan Santiago Paunovic, mergify[bot]
+
 4.0.2 (2021-04-12)
 ------------------
 * Declare dependency on libatomic (`#338 <https://github.com/ros2/rcutils/issues/338>`_)
