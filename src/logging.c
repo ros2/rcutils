@@ -815,16 +815,6 @@ rcutils_ret_t rcutils_logging_format_message(
 # define IS_STREAM_A_TTY(stream) (isatty(fileno(stream)) != 0)
 #endif
 
-#define IS_OUTPUT_COLORIZED(is_colorized) \
-  { \
-    if (g_colorized_output == RCUTILS_COLORIZED_OUTPUT_FORCE_ENABLE) { \
-      is_colorized = true; \
-    } else if (g_colorized_output == RCUTILS_COLORIZED_OUTPUT_FORCE_DISABLE) { \
-      is_colorized = false; \
-    } else { \
-      is_colorized = IS_STREAM_A_TTY(g_output_stream); \
-    } \
-  }
 #define SET_COLOR_WITH_SEVERITY(status, severity, color) \
   { \
     switch (severity) { \
@@ -946,7 +936,13 @@ void rcutils_logging_console_output_handler(
       return;
   }
 
-  IS_OUTPUT_COLORIZED(is_colorized)
+  if (g_colorized_output == RCUTILS_COLORIZED_OUTPUT_FORCE_ENABLE) {
+    is_colorized = true;
+  } else if (g_colorized_output == RCUTILS_COLORIZED_OUTPUT_FORCE_DISABLE) {
+    is_colorized = false;
+  } else {
+    is_colorized = IS_STREAM_A_TTY(g_output_stream);
+  }
 
   char msg_buf[1024] = "";
   rcutils_char_array_t msg_array = {
