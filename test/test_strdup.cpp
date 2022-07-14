@@ -14,6 +14,7 @@
 
 #include <gtest/gtest.h>
 
+#include <limits>
 #include <string>
 
 #include "./allocator_testing_utils.h"
@@ -87,5 +88,22 @@ TEST(test_strndup, one_byte_overread) {
     FAIL();
   }
   ASSERT_STREQ(p, "test");
+  allocator.deallocate(p, allocator.state);
+}
+
+TEST(test_strndup, arbitrary_overread) {
+  auto allocator = rcutils_get_default_allocator();
+  char str[1];
+  char * p;
+  memcpy(str, "", sizeof(str));
+
+  // A buggy strndup() doesn't stop copying str at the null byte, instead it
+  // copies SIZE_MAX bytes.
+  // If there is a bug, this segfaults on anything with a MMU.
+  p = rcutils_strndup(str, SIZE_MAX, allocator);
+  if (NULL == p) {
+    FAIL();
+  }
+  ASSERT_STREQ(p, str);
   allocator.deallocate(p, allocator.state);
 }
