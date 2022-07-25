@@ -2,6 +2,11 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.4 (2022-07-25)
+------------------
+* Clarify duration arg description in logging macros (`#359 <https://github.com/ros2/rcutils/issues/359>`_) (`#362 <https://github.com/ros2/rcutils/issues/362>`_)
+* Contributors: Abrar Rahman Protyasha
+
 1.1.3 (2021-04-14)
 ------------------
 * Update quality declaration links (re: `ros2/docs.ros2.org#52 <https://github.com/ros2/docs.ros2.org/issues/52>`_) (`#336 <https://github.com/ros2/rcutils/issues/336>`_)
