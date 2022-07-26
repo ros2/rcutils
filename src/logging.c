@@ -102,6 +102,30 @@ static FILE * g_output_stream = NULL;
 
 static enum rcutils_colorized_output g_colorized_output = RCUTILS_COLORIZED_OUTPUT_AUTO;
 
+typedef struct logging_input_s
+{
+  const char * name;
+  const rcutils_log_location_t * location;
+  const char * msg;
+  int severity;
+  rcutils_time_point_value_t timestamp;
+} logging_input_t;
+
+typedef const char * (* token_handler)(
+  const logging_input_t * logging_input,
+  rcutils_char_array_t * logging_output,
+  size_t start_offset, size_t end_offset);
+
+typedef struct log_msg_part_s
+{
+  token_handler handler;
+  size_t start_offset;
+  size_t end_offset;
+} log_msg_part_t;
+
+static size_t g_num_log_msg_handlers = 0;
+static log_msg_part_t g_handlers[1024];
+
 rcutils_ret_t rcutils_logging_initialize(void)
 {
   return rcutils_logging_initialize_with_allocator(rcutils_get_default_allocator());
@@ -150,6 +174,353 @@ static enum rcutils_get_env_retval rcutils_get_env_var_zero_or_one(
     env_var_value, name, zero_semantic, one_semantic);
 
   return RCUTILS_GET_ENV_ERROR;
+}
+
+static const char * expand_time(
+  const logging_input_t * logging_input, rcutils_char_array_t * logging_output,
+  rcutils_ret_t (* time_func)(const rcutils_time_point_value_t *, char *, size_t))
+{
+  // Temporary, local storage for integer/float conversion to string
+  // Note:
+  //   32 characters enough, because the most it can be is 20 characters
+  //   for the 19 possible digits in a signed 64-bit number plus the optional
+  //   decimal point in the floating point seconds version
+  char numeric_storage[32];
+
+  if (time_func(
+      &logging_input->timestamp, numeric_storage,
+      sizeof(numeric_storage)) != RCUTILS_RET_OK)
+  {
+    RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string().str);
+    rcutils_reset_error();
+    RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
+    return NULL;
+  }
+
+  if (rcutils_char_array_strcat(logging_output, numeric_storage) != RCUTILS_RET_OK) {
+    RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string().str);
+    rcutils_reset_error();
+    RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
+    return NULL;
+  }
+
+  return logging_output->buffer;
+}
+
+static const char * expand_time_as_seconds(
+  const logging_input_t * logging_input,
+  rcutils_char_array_t * logging_output,
+  size_t start_offset, size_t end_offset)
+{
+  (void)start_offset;
+  (void)end_offset;
+
+  return expand_time(logging_input, logging_output, rcutils_time_point_value_as_seconds_string);
+}
+
+static const char * expand_time_as_nanoseconds(
+  const logging_input_t * logging_input,
+  rcutils_char_array_t * logging_output,
+  size_t start_offset, size_t end_offset)
+{
+  (void)start_offset;
+  (void)end_offset;
+
+  return expand_time(logging_input, logging_output, rcutils_time_point_value_as_nanoseconds_string);
+}
+
+static const char * expand_line_number(
+  const logging_input_t * logging_input,
+  rcutils_char_array_t * logging_output,
+  size_t start_offset, size_t end_offset)
+{
+  (void)start_offset;
+  (void)end_offset;
+
+  if (logging_input->location) {
+    // Allow 9 digits for the expansion of the line number (otherwise, truncate).
+    char line_number_expansion[10];
+
+    // Even in the case of truncation the result will still be null-terminated.
+    int written = rcutils_snprintf(
+      line_number_expansion, sizeof(line_number_expansion), "%zu",
+      logging_input->location->line_number);
+    if (written < 0) {
+      RCUTILS_SAFE_FWRITE_TO_STDERR_WITH_FORMAT_STRING(
+        "failed to format line number: '%zu'\n", logging_input->location->line_number);
+      return NULL;
+    }
+
+    if (rcutils_char_array_strcat(logging_output, line_number_expansion) != RCUTILS_RET_OK) {
+      RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string().str);
+      rcutils_reset_error();
+      RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
+      return NULL;
+    }
+  }
+
+  return logging_output->buffer;
+}
+
+static const char * expand_severity(
+  const logging_input_t * logging_input,
+  rcutils_char_array_t * logging_output,
+  size_t start_offset, size_t end_offset)
+{
+  (void)start_offset;
+  (void)end_offset;
+
+  const char * severity_string = g_rcutils_log_severity_names[logging_input->severity];
+  if (rcutils_char_array_strcat(logging_output, severity_string) != RCUTILS_RET_OK) {
+    RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string().str);
+    rcutils_reset_error();
+    RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
+    return NULL;
+  }
+
+  return logging_output->buffer;
+}
+
+static const char * expand_name(
+  const logging_input_t * logging_input,
+  rcutils_char_array_t * logging_output,
+  size_t start_offset, size_t end_offset)
+{
+  (void)start_offset;
+  (void)end_offset;
+
+  if (NULL != logging_input->name) {
+    if (rcutils_char_array_strcat(logging_output, logging_input->name) != RCUTILS_RET_OK) {
+      RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string().str);
+      rcutils_reset_error();
+      RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
+      return NULL;
+    }
+  }
+
+  return logging_output->buffer;
+}
+
+static const char * expand_message(
+  const logging_input_t * logging_input,
+  rcutils_char_array_t * logging_output,
+  size_t start_offset, size_t end_offset)
+{
+  (void)start_offset;
+  (void)end_offset;
+
+  if (rcutils_char_array_strcat(logging_output, logging_input->msg) != RCUTILS_RET_OK) {
+    RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string().str);
+    rcutils_reset_error();
+    RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
+    return NULL;
+  }
+
+  return logging_output->buffer;
+}
+
+static const char * expand_function_name(
+  const logging_input_t * logging_input,
+  rcutils_char_array_t * logging_output,
+  size_t start_offset, size_t end_offset)
+{
+  (void)start_offset;
+  (void)end_offset;
+
+  if (logging_input->location) {
+    if (rcutils_char_array_strcat(
+        logging_output,
+        logging_input->location->function_name) != RCUTILS_RET_OK)
+    {
+      RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string().str);
+      rcutils_reset_error();
+      RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
+      return NULL;
+    }
+  }
+
+  return logging_output->buffer;
+}
+
+static const char * expand_file_name(
+  const logging_input_t * logging_input,
+  rcutils_char_array_t * logging_output,
+  size_t start_offset, size_t end_offset)
+{
+  (void)start_offset;
+  (void)end_offset;
+
+  if (logging_input->location) {
+    if (rcutils_char_array_strcat(
+        logging_output,
+        logging_input->location->file_name) != RCUTILS_RET_OK)
+    {
+      RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string().str);
+      rcutils_reset_error();
+      RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
+      return NULL;
+    }
+  }
+
+  return logging_output->buffer;
+}
+
+typedef struct token_map_entry_s
+{
+  const char * token;
+  token_handler handler;
+} token_map_entry_t;
+
+static const token_map_entry_t tokens[] = {
+  {.token = "severity", .handler = expand_severity},
+  {.token = "name", .handler = expand_name},
+  {.token = "message", .handler = expand_message},
+  {.token = "function_name", .handler = expand_function_name},
+  {.token = "file_name", .handler = expand_file_name},
+  {.token = "time", .handler = expand_time_as_seconds},
+  {.token = "time_as_nanoseconds", .handler = expand_time_as_nanoseconds},
+  {.token = "line_number", .handler = expand_line_number},
+};
+
+static token_handler find_token_handler(const char * token)
+{
+  int token_number = sizeof(tokens) / sizeof(tokens[0]);
+  for (int token_index = 0; token_index < token_number; token_index++) {
+    if (strcmp(token, tokens[token_index].token) == 0) {
+      return tokens[token_index].handler;
+    }
+  }
+  return NULL;
+}
+
+static const char * copy_from_orig(
+  const logging_input_t * logging_input,
+  rcutils_char_array_t * logging_output,
+  size_t start_offset, size_t end_offset)
+{
+  (void)logging_input;
+
+  if (rcutils_char_array_strncat(
+      logging_output,
+      g_rcutils_logging_output_format_string + start_offset,
+      end_offset - start_offset) != RCUTILS_RET_OK)
+  {
+    RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string().str);
+    rcutils_reset_error();
+    RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
+    return NULL;
+  }
+
+  return logging_output->buffer;
+}
+
+static void parse_and_create_handlers_list(void)
+{
+  // Process the format string looking for known tokens.
+  const char token_start_delimiter = '{';
+  const char token_end_delimiter = '}';
+
+  const char * str = g_rcutils_logging_output_format_string;
+  size_t size = strlen(g_rcutils_logging_output_format_string);
+
+  g_num_log_msg_handlers = 0;
+
+  // Walk through the format string and create callbacks when they're encountered.
+  size_t i = 0;
+  while (i < size) {
+    // Print everything up to the next token start delimiter.
+    size_t chars_to_start_delim = rcutils_find(str + i, token_start_delimiter);
+    size_t remaining_chars = size - i;
+
+    if (chars_to_start_delim > 0) {  // there is stuff before a token start delimiter
+      size_t chars_to_copy = chars_to_start_delim >
+        remaining_chars ? remaining_chars : chars_to_start_delim;
+      g_handlers[g_num_log_msg_handlers].handler = copy_from_orig;
+      g_handlers[g_num_log_msg_handlers].start_offset = i;
+      g_handlers[g_num_log_msg_handlers].end_offset = i + chars_to_copy;
+      if (g_num_log_msg_handlers >= sizeof(g_handlers) - 1) {
+        RCUTILS_SAFE_FWRITE_TO_STDERR(
+          "Too many substitutions in the logging output format string; truncating");
+        rcutils_reset_error();
+        RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
+        return;
+      }
+      g_num_log_msg_handlers++;
+
+      i += chars_to_copy;
+      if (i >= size) {  // perhaps no start delimiter was found
+        break;
+      }
+
+      continue;
+    }
+
+    // We are at a token start delimiter: determine if there's a known token or not.
+    // Potential tokens can't possibly be longer than the format string itself.
+    char token[RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN];
+
+    // Look for a token end delimiter.
+    size_t chars_to_end_delim = rcutils_find(str + i, token_end_delimiter);
+    remaining_chars = size - i;
+
+    if (chars_to_end_delim > remaining_chars) {
+      // No end delimiters found in the remainder of the format string;
+      // there won't be any more tokens so shortcut the rest of the checking.
+      g_handlers[g_num_log_msg_handlers].handler = copy_from_orig;
+      g_handlers[g_num_log_msg_handlers].start_offset = i;
+      g_handlers[g_num_log_msg_handlers].end_offset = i + remaining_chars;
+      if (g_num_log_msg_handlers >= sizeof(g_handlers) - 1) {
+        RCUTILS_SAFE_FWRITE_TO_STDERR(
+          "Too many substitutions in the logging output format string; truncating");
+        rcutils_reset_error();
+        RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
+        return;
+      }
+      g_num_log_msg_handlers++;
+      break;
+    }
+
+    // Found what looks like a token; determine if it's recognized.
+    size_t token_len = chars_to_end_delim - 1;  // Not including delimiters.
+    memcpy(token, str + i + 1, token_len);  // Skip the start delimiter.
+    token[token_len] = '\0';
+
+    token_handler expand_token = find_token_handler(token);
+
+    if (!expand_token) {
+      // This wasn't a token; print the start delimiter and continue the search as usual
+      // (the substring might contain more start delimiters).
+      g_handlers[g_num_log_msg_handlers].handler = copy_from_orig;
+      g_handlers[g_num_log_msg_handlers].start_offset = i;
+      g_handlers[g_num_log_msg_handlers].end_offset = i + 1;
+      if (g_num_log_msg_handlers >= sizeof(g_handlers) - 1) {
+        RCUTILS_SAFE_FWRITE_TO_STDERR(
+          "Too many substitutions in the logging output format string; truncating");
+        rcutils_reset_error();
+        RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
+        return;
+      }
+      g_num_log_msg_handlers++;
+      i++;
+      continue;
+    }
+
+    g_handlers[g_num_log_msg_handlers].handler = expand_token;
+    // These are unused when using a token expander
+    g_handlers[g_num_log_msg_handlers].start_offset = 0;
+    g_handlers[g_num_log_msg_handlers].end_offset = 0;
+    if (g_num_log_msg_handlers >= sizeof(g_handlers) - 1) {
+      RCUTILS_SAFE_FWRITE_TO_STDERR(
+        "Too many substitutions in the logging output format string; truncating");
+      rcutils_reset_error();
+      RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
+      return;
+    }
+    g_num_log_msg_handlers++;
+
+    // Skip ahead to avoid re-processing the token characters (including the 2 delimiters).
+    i += token_len + 2;
+  }
 }
 
 rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allocator)
@@ -286,7 +657,10 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
     return RCUTILS_RET_STRING_MAP_INVALID;
   }
 
+  parse_and_create_handlers_list();
+
   g_rcutils_logging_severities_map_valid = true;
+
   g_rcutils_logging_initialized = true;
 
   return RCUTILS_RET_OK;
@@ -308,6 +682,7 @@ rcutils_ret_t rcutils_logging_shutdown(void)
     }
     g_rcutils_logging_severities_map_valid = false;
   }
+  g_num_log_msg_handlers = 0;
   g_rcutils_logging_initialized = false;
   return ret;
 }
@@ -512,26 +887,6 @@ bool rcutils_logging_logger_is_enabled_for(const char * name, int severity)
   }
   return severity >= logger_level;
 }
-#define SAFE_FWRITE_TO_STDERR_AND(action) \
-  RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string().str); \
-  rcutils_reset_error(); \
-  RCUTILS_SAFE_FWRITE_TO_STDERR("\n"); \
-  action;
-
-#define OK_OR_RETURN_NULL(op) \
-  if (op != RCUTILS_RET_OK) { \
-    SAFE_FWRITE_TO_STDERR_AND(return NULL); \
-  }
-
-#define OK_OR_RETURN_EARLY(op) \
-  if (op != RCUTILS_RET_OK) { \
-    return op; \
-  }
-
-#define APPEND_AND_RETURN_LOG_OUTPUT(s) \
-  OK_OR_RETURN_NULL(rcutils_char_array_strcat(logging_output, s)); \
-  return logging_output->buffer;
-
 
 static void vrcutils_log_internal(
   const rcutils_log_location_t * location,
@@ -573,160 +928,11 @@ void rcutils_log_internal(
   va_end(args);
 }
 
-typedef struct logging_input_s
-{
-  const char * name;
-  const rcutils_log_location_t * location;
-  const char * msg;
-  int severity;
-  rcutils_time_point_value_t timestamp;
-} logging_input_t;
-
-typedef const char * (* token_handler)(
-  const logging_input_t * logging_input,
-  rcutils_char_array_t * logging_output);
-
-typedef struct token_map_entry_s
-{
-  const char * token;
-  token_handler handler;
-} token_map_entry_t;
-
-static const char * expand_time(
-  const logging_input_t * logging_input, rcutils_char_array_t * logging_output,
-  rcutils_ret_t (* time_func)(const rcutils_time_point_value_t *, char *, size_t))
-{
-  // Temporary, local storage for integer/float conversion to string
-  // Note:
-  //   32 characters enough, because the most it can be is 20 characters
-  //   for the 19 possible digits in a signed 64-bit number plus the optional
-  //   decimal point in the floating point seconds version
-  char numeric_storage[32];
-  OK_OR_RETURN_NULL(time_func(&logging_input->timestamp, numeric_storage, sizeof(numeric_storage)));
-  APPEND_AND_RETURN_LOG_OUTPUT(numeric_storage);
-}
-
-static const char * expand_time_as_seconds(
-  const logging_input_t * logging_input,
-  rcutils_char_array_t * logging_output)
-{
-  return expand_time(logging_input, logging_output, rcutils_time_point_value_as_seconds_string);
-}
-
-static const char * expand_time_as_nanoseconds(
-  const logging_input_t * logging_input,
-  rcutils_char_array_t * logging_output)
-{
-  return expand_time(logging_input, logging_output, rcutils_time_point_value_as_nanoseconds_string);
-}
-
-static const char * expand_line_number(
-  const logging_input_t * logging_input,
-  rcutils_char_array_t * logging_output)
-{
-  // Allow 9 digits for the expansion of the line number (otherwise, truncate).
-  char line_number_expansion[10];
-
-  const rcutils_log_location_t * location = logging_input->location;
-
-  if (!location) {
-    OK_OR_RETURN_NULL(rcutils_char_array_strcpy(logging_output, "0"));
-    return logging_output->buffer;
-  }
-
-  // Even in the case of truncation the result will still be null-terminated.
-  int written = rcutils_snprintf(
-    line_number_expansion, sizeof(line_number_expansion), "%zu", location->line_number);
-  if (written < 0) {
-    RCUTILS_SAFE_FWRITE_TO_STDERR_WITH_FORMAT_STRING(
-      "failed to format line number: '%zu'\n", location->line_number);
-    return NULL;
-  }
-
-  APPEND_AND_RETURN_LOG_OUTPUT(line_number_expansion);
-}
-
-static const char * expand_severity(
-  const logging_input_t * logging_input,
-  rcutils_char_array_t * logging_output)
-{
-  const char * severity_string = g_rcutils_log_severity_names[logging_input->severity];
-  APPEND_AND_RETURN_LOG_OUTPUT(severity_string);
-}
-
-static const char * expand_name(
-  const logging_input_t * logging_input,
-  rcutils_char_array_t * logging_output)
-{
-  if (NULL != logging_input->name) {
-    APPEND_AND_RETURN_LOG_OUTPUT(logging_input->name);
-  }
-  return logging_output->buffer;
-}
-
-static const char * expand_message(
-  const logging_input_t * logging_input,
-  rcutils_char_array_t * logging_output)
-{
-  OK_OR_RETURN_NULL(rcutils_char_array_strcat(logging_output, logging_input->msg));
-  return logging_output->buffer;
-}
-
-static const char * expand_function_name(
-  const logging_input_t * logging_input,
-  rcutils_char_array_t * logging_output)
-{
-  if (logging_input->location) {
-    APPEND_AND_RETURN_LOG_OUTPUT(logging_input->location->function_name);
-  }
-  return logging_output->buffer;
-}
-
-static const char * expand_file_name(
-  const logging_input_t * logging_input,
-  rcutils_char_array_t * logging_output)
-{
-  if (logging_input->location) {
-    APPEND_AND_RETURN_LOG_OUTPUT(logging_input->location->file_name);
-  }
-  return logging_output->buffer;
-}
-
-static const token_map_entry_t tokens[] = {
-  {.token = "severity", .handler = expand_severity},
-  {.token = "name", .handler = expand_name},
-  {.token = "message", .handler = expand_message},
-  {.token = "function_name", .handler = expand_function_name},
-  {.token = "file_name", .handler = expand_file_name},
-  {.token = "time", .handler = expand_time_as_seconds},
-  {.token = "time_as_nanoseconds", .handler = expand_time_as_nanoseconds},
-  {.token = "line_number", .handler = expand_line_number},
-};
-
-static token_handler find_token_handler(const char * token)
-{
-  int token_number = sizeof(tokens) / sizeof(tokens[0]);
-  for (int token_index = 0; token_index < token_number; token_index++) {
-    if (strcmp(token, tokens[token_index].token) == 0) {
-      return tokens[token_index].handler;
-    }
-  }
-  return NULL;
-}
-
 rcutils_ret_t rcutils_logging_format_message(
   const rcutils_log_location_t * location,
   int severity, const char * name, rcutils_time_point_value_t timestamp,
   const char * msg, rcutils_char_array_t * logging_output)
 {
-  rcutils_ret_t status = RCUTILS_RET_OK;
-  // Process the format string looking for known tokens.
-  const char token_start_delimiter = '{';
-  const char token_end_delimiter = '}';
-
-  const char * str = g_rcutils_logging_output_format_string;
-  size_t size = strlen(g_rcutils_logging_output_format_string);
-
   const logging_input_t logging_input = {
     .location = location,
     .severity = severity,
@@ -735,64 +941,16 @@ rcutils_ret_t rcutils_logging_format_message(
     .msg = msg
   };
 
-  // Walk through the format string and expand tokens when they're encountered.
-  size_t i = 0;
-  while (i < size) {
-    // Print everything up to the next token start delimiter.
-    size_t chars_to_start_delim = rcutils_find(str + i, token_start_delimiter);
-    size_t remaining_chars = size - i;
-
-    if (chars_to_start_delim > 0) {  // there are stuff before a token start delimiter
-      size_t chars_to_copy = chars_to_start_delim >
-        remaining_chars ? remaining_chars : chars_to_start_delim;
-      status = rcutils_char_array_strncat(logging_output, str + i, chars_to_copy);
-      OK_OR_RETURN_EARLY(status);
-      i += chars_to_copy;
-      if (i >= size) {  // perhaps no start delimiter was found
-        break;
-      }
-    }
-
-    // We are at a token start delimiter: determine if there's a known token or not.
-    // Potential tokens can't possibly be longer than the format string itself.
-    char token[RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN];
-
-    // Look for a token end delimiter.
-    size_t chars_to_end_delim = rcutils_find(str + i, token_end_delimiter);
-    remaining_chars = size - i;
-
-    if (chars_to_end_delim > remaining_chars) {
-      // No end delimiters found in the remainder of the format string;
-      // there won't be any more tokens so shortcut the rest of the checking.
-      status = rcutils_char_array_strncat(logging_output, str + i, remaining_chars);
-      OK_OR_RETURN_EARLY(status);
-      break;
-    }
-
-    // Found what looks like a token; determine if it's recognized.
-    size_t token_len = chars_to_end_delim - 1;  // Not including delimiters.
-    memcpy(token, str + i + 1, token_len);  // Skip the start delimiter.
-    token[token_len] = '\0';
-
-    token_handler expand_token = find_token_handler(token);
-
-    if (!expand_token) {
-      // This wasn't a token; print the start delimiter and continue the search as usual
-      // (the substring might contain more start delimiters).
-      status = rcutils_char_array_strncat(logging_output, str + i, 1);
-      OK_OR_RETURN_EARLY(status);
-      i++;
-      continue;
-    }
-
-    if (!expand_token(&logging_input, logging_output)) {
+  for (size_t i = 0; i < g_num_log_msg_handlers; ++i) {
+    if (g_handlers[i].handler(
+        &logging_input, logging_output,
+        g_handlers[i].start_offset, g_handlers[i].end_offset) == NULL)
+    {
       return RCUTILS_RET_ERROR;
     }
-    // Skip ahead to avoid re-processing the token characters (including the 2 delimiters).
-    i += token_len + 2;
   }
 
-  return status;
+  return RCUTILS_RET_OK;
 }
 
 #ifdef _WIN32
