@@ -175,17 +175,17 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
 
   const char * line_buffered = NULL;
   const char * ret_str = rcutils_get_env("RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED", &line_buffered);
-  if (NULL == ret_str) {
-    if (strcmp(line_buffered, "") != 0) {
-      RCUTILS_SAFE_FWRITE_TO_STDERR(
-        "RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED is now ignored. "
-        "Please set RCUTILS_LOGGING_USE_STDOUT and RCUTILS_LOGGING_BUFFERED_STREAM "
-        "to control the stream and the buffering of log messages.\n");
-    }
-  } else {
+  if (NULL != ret_str) {
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
       "Error getting environment variable RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED: %s", ret_str);
     return RCUTILS_RET_ERROR;
+  }
+
+  if (strcmp(line_buffered, "") != 0) {
+    RCUTILS_SAFE_FWRITE_TO_STDERR(
+      "RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED is now ignored. "
+      "Please set RCUTILS_LOGGING_USE_STDOUT and RCUTILS_LOGGING_BUFFERED_STREAM "
+      "to control the stream and the buffering of log messages.\n");
   }
 
   // Set the default output stream for all severities to stderr so that errors
