@@ -88,7 +88,7 @@ enum rcutils_colorized_output
 
 bool g_rcutils_logging_initialized = false;
 
-char g_rcutils_logging_output_format_string[RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN];
+static char g_rcutils_logging_output_format_string[RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN];
 static const char * g_rcutils_logging_default_output_format =
   "[{severity}] [{time}] [{name}]: {message}";
 
@@ -99,13 +99,13 @@ static rcutils_string_map_t g_rcutils_logging_severities_map;
 
 // If this is false, attempts to use the severities map will be skipped.
 // This can happen if allocation of the map fails at initialization.
-bool g_rcutils_logging_severities_map_valid = false;
+static bool g_rcutils_logging_severities_map_valid = false;
 
 int g_rcutils_logging_default_logger_level = 0;
 
 static FILE * g_output_stream = NULL;
 
-enum rcutils_colorized_output g_colorized_output = RCUTILS_COLORIZED_OUTPUT_AUTO;
+static enum rcutils_colorized_output g_colorized_output = RCUTILS_COLORIZED_OUTPUT_AUTO;
 
 rcutils_ret_t rcutils_logging_initialize(void)
 {
