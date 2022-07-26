@@ -598,7 +598,7 @@ typedef struct token_map_entry
   token_handler handler;
 } token_map_entry;
 
-const char * expand_time(
+static const char * expand_time(
   const logging_input * logging_input, rcutils_char_array_t * logging_output,
   rcutils_ret_t (* time_func)(const rcutils_time_point_value_t *, char *, size_t))
 {
@@ -612,21 +612,21 @@ const char * expand_time(
   APPEND_AND_RETURN_LOG_OUTPUT(numeric_storage);
 }
 
-const char * expand_time_as_seconds(
+static const char * expand_time_as_seconds(
   const logging_input * logging_input,
   rcutils_char_array_t * logging_output)
 {
   return expand_time(logging_input, logging_output, rcutils_time_point_value_as_seconds_string);
 }
 
-const char * expand_time_as_nanoseconds(
+static const char * expand_time_as_nanoseconds(
   const logging_input * logging_input,
   rcutils_char_array_t * logging_output)
 {
   return expand_time(logging_input, logging_output, rcutils_time_point_value_as_nanoseconds_string);
 }
 
-const char * expand_line_number(
+static const char * expand_line_number(
   const logging_input * logging_input,
   rcutils_char_array_t * logging_output)
 {
@@ -652,7 +652,7 @@ const char * expand_line_number(
   APPEND_AND_RETURN_LOG_OUTPUT(line_number_expansion);
 }
 
-const char * expand_severity(
+static const char * expand_severity(
   const logging_input * logging_input,
   rcutils_char_array_t * logging_output)
 {
@@ -660,7 +660,9 @@ const char * expand_severity(
   APPEND_AND_RETURN_LOG_OUTPUT(severity_string);
 }
 
-const char * expand_name(const logging_input * logging_input, rcutils_char_array_t * logging_output)
+static const char * expand_name(
+  const logging_input * logging_input,
+  rcutils_char_array_t * logging_output)
 {
   if (NULL != logging_input->name) {
     APPEND_AND_RETURN_LOG_OUTPUT(logging_input->name);
@@ -668,7 +670,7 @@ const char * expand_name(const logging_input * logging_input, rcutils_char_array
   return logging_output->buffer;
 }
 
-const char * expand_message(
+static const char * expand_message(
   const logging_input * logging_input,
   rcutils_char_array_t * logging_output)
 {
@@ -676,7 +678,7 @@ const char * expand_message(
   return logging_output->buffer;
 }
 
-const char * expand_function_name(
+static const char * expand_function_name(
   const logging_input * logging_input,
   rcutils_char_array_t * logging_output)
 {
@@ -686,7 +688,7 @@ const char * expand_function_name(
   return logging_output->buffer;
 }
 
-const char * expand_file_name(
+static const char * expand_file_name(
   const logging_input * logging_input,
   rcutils_char_array_t * logging_output)
 {
@@ -707,7 +709,7 @@ static const token_map_entry tokens[] = {
   {.token = "line_number", .handler = expand_line_number},
 };
 
-token_handler find_token_handler(const char * token)
+static token_handler find_token_handler(const char * token)
 {
   int token_number = sizeof(tokens) / sizeof(tokens[0]);
   for (int token_index = 0; token_index < token_number; token_index++) {
