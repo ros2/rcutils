@@ -579,27 +579,27 @@ void rcutils_log_internal(
   va_end(args);
 }
 
-typedef struct logging_input
+typedef struct logging_input_s
 {
   const char * name;
   const rcutils_log_location_t * location;
   const char * msg;
   int severity;
   rcutils_time_point_value_t timestamp;
-} logging_input;
+} logging_input_t;
 
 typedef const char * (* token_handler)(
-  const logging_input * logging_input,
+  const logging_input_t * logging_input,
   rcutils_char_array_t * logging_output);
 
-typedef struct token_map_entry
+typedef struct token_map_entry_s
 {
   const char * token;
   token_handler handler;
-} token_map_entry;
+} token_map_entry_t;
 
 static const char * expand_time(
-  const logging_input * logging_input, rcutils_char_array_t * logging_output,
+  const logging_input_t * logging_input, rcutils_char_array_t * logging_output,
   rcutils_ret_t (* time_func)(const rcutils_time_point_value_t *, char *, size_t))
 {
   // Temporary, local storage for integer/float conversion to string
@@ -613,21 +613,21 @@ static const char * expand_time(
 }
 
 static const char * expand_time_as_seconds(
-  const logging_input * logging_input,
+  const logging_input_t * logging_input,
   rcutils_char_array_t * logging_output)
 {
   return expand_time(logging_input, logging_output, rcutils_time_point_value_as_seconds_string);
 }
 
 static const char * expand_time_as_nanoseconds(
-  const logging_input * logging_input,
+  const logging_input_t * logging_input,
   rcutils_char_array_t * logging_output)
 {
   return expand_time(logging_input, logging_output, rcutils_time_point_value_as_nanoseconds_string);
 }
 
 static const char * expand_line_number(
-  const logging_input * logging_input,
+  const logging_input_t * logging_input,
   rcutils_char_array_t * logging_output)
 {
   // Allow 9 digits for the expansion of the line number (otherwise, truncate).
@@ -653,7 +653,7 @@ static const char * expand_line_number(
 }
 
 static const char * expand_severity(
-  const logging_input * logging_input,
+  const logging_input_t * logging_input,
   rcutils_char_array_t * logging_output)
 {
   const char * severity_string = g_rcutils_log_severity_names[logging_input->severity];
@@ -661,7 +661,7 @@ static const char * expand_severity(
 }
 
 static const char * expand_name(
-  const logging_input * logging_input,
+  const logging_input_t * logging_input,
   rcutils_char_array_t * logging_output)
 {
   if (NULL != logging_input->name) {
@@ -671,7 +671,7 @@ static const char * expand_name(
 }
 
 static const char * expand_message(
-  const logging_input * logging_input,
+  const logging_input_t * logging_input,
   rcutils_char_array_t * logging_output)
 {
   OK_OR_RETURN_NULL(rcutils_char_array_strcat(logging_output, logging_input->msg));
@@ -679,7 +679,7 @@ static const char * expand_message(
 }
 
 static const char * expand_function_name(
-  const logging_input * logging_input,
+  const logging_input_t * logging_input,
   rcutils_char_array_t * logging_output)
 {
   if (logging_input->location) {
@@ -689,7 +689,7 @@ static const char * expand_function_name(
 }
 
 static const char * expand_file_name(
-  const logging_input * logging_input,
+  const logging_input_t * logging_input,
   rcutils_char_array_t * logging_output)
 {
   if (logging_input->location) {
@@ -698,7 +698,7 @@ static const char * expand_file_name(
   return logging_output->buffer;
 }
 
-static const token_map_entry tokens[] = {
+static const token_map_entry_t tokens[] = {
   {.token = "severity", .handler = expand_severity},
   {.token = "name", .handler = expand_name},
   {.token = "message", .handler = expand_message},
@@ -733,7 +733,7 @@ rcutils_ret_t rcutils_logging_format_message(
   const char * str = g_rcutils_logging_output_format_string;
   size_t size = strlen(g_rcutils_logging_output_format_string);
 
-  const logging_input logging_input = {
+  const logging_input_t logging_input = {
     .location = location,
     .severity = severity,
     .name = name,
