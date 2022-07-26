@@ -159,141 +159,144 @@ static enum rcutils_get_env_retval rcutils_get_env_var_zero_or_one(
 
 rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allocator)
 {
+  if (g_rcutils_logging_initialized) {
+    return RCUTILS_RET_OK;
+  }
+
   rcutils_ret_t ret = RCUTILS_RET_OK;
-  if (!g_rcutils_logging_initialized) {
-    if (!rcutils_allocator_is_valid(&allocator)) {
-      RCUTILS_SET_ERROR_MSG("Provided allocator is invalid.");
+  if (!rcutils_allocator_is_valid(&allocator)) {
+    RCUTILS_SET_ERROR_MSG("Provided allocator is invalid.");
+    return RCUTILS_RET_INVALID_ARGUMENT;
+  }
+  g_rcutils_logging_allocator = allocator;
+
+  g_rcutils_logging_output_handler = &rcutils_logging_console_output_handler;
+  g_rcutils_logging_default_logger_level = RCUTILS_DEFAULT_LOGGER_DEFAULT_LEVEL;
+
+  const char * line_buffered = NULL;
+  const char * ret_str = rcutils_get_env("RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED", &line_buffered);
+  if (NULL == ret_str) {
+    if (strcmp(line_buffered, "") != 0) {
+      RCUTILS_SAFE_FWRITE_TO_STDERR(
+        "RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED is now ignored. "
+        "Please set RCUTILS_LOGGING_USE_STDOUT and RCUTILS_LOGGING_BUFFERED_STREAM "
+        "to control the stream and the buffering of log messages.\n");
+    }
+  } else {
+    RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
+      "Error getting environment variable RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED: %s", ret_str);
+    return RCUTILS_RET_ERROR;
+  }
+
+  // Set the default output stream for all severities to stderr so that errors
+  // are propagated immediately.
+  // The user can choose to set the output stream to stdout by setting the
+  // RCUTILS_LOGGING_USE_STDOUT environment variable to 1.
+  enum rcutils_get_env_retval retval = rcutils_get_env_var_zero_or_one(
+    "RCUTILS_LOGGING_USE_STDOUT", "use stderr", "use stdout");
+  switch (retval) {
+    case RCUTILS_GET_ENV_ERROR:
       return RCUTILS_RET_INVALID_ARGUMENT;
-    }
-    g_rcutils_logging_allocator = allocator;
-
-    g_rcutils_logging_output_handler = &rcutils_logging_console_output_handler;
-    g_rcutils_logging_default_logger_level = RCUTILS_DEFAULT_LOGGER_DEFAULT_LEVEL;
-
-    const char * line_buffered = NULL;
-    const char * ret_str = rcutils_get_env("RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED", &line_buffered);
-    if (NULL == ret_str) {
-      if (strcmp(line_buffered, "") != 0) {
-        RCUTILS_SAFE_FWRITE_TO_STDERR(
-          "RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED is now ignored. "
-          "Please set RCUTILS_LOGGING_USE_STDOUT and RCUTILS_LOGGING_BUFFERED_STREAM "
-          "to control the stream and the buffering of log messages.\n");
-      }
-    } else {
-      RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
-        "Error getting environment variable RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED: %s", ret_str);
-      return RCUTILS_RET_ERROR;
-    }
-
-    // Set the default output stream for all severities to stderr so that errors
-    // are propagated immediately.
-    // The user can choose to set the output stream to stdout by setting the
-    // RCUTILS_LOGGING_USE_STDOUT environment variable to 1.
-    enum rcutils_get_env_retval retval = rcutils_get_env_var_zero_or_one(
-      "RCUTILS_LOGGING_USE_STDOUT", "use stderr", "use stdout");
-    switch (retval) {
-      case RCUTILS_GET_ENV_ERROR:
-        return RCUTILS_RET_INVALID_ARGUMENT;
-      case RCUTILS_GET_ENV_EMPTY:
-      case RCUTILS_GET_ENV_ZERO:
-        g_output_stream = stderr;
-        break;
-      case RCUTILS_GET_ENV_ONE:
-        g_output_stream = stdout;
-        break;
-      default:
-        RCUTILS_SET_ERROR_MSG(
-          "Invalid return from environment fetch");
-        return RCUTILS_RET_ERROR;
-    }
-
-    // Allow the user to choose how buffering on the stream works by setting
-    // RCUTILS_LOGGING_BUFFERED_STREAM.
-    // With an empty environment variable, use the default of the stream.
-    // With a value of 0, force the stream to be unbuffered.
-    // With a value of 1, force the stream to be line buffered.
-    retval = rcutils_get_env_var_zero_or_one(
-      "RCUTILS_LOGGING_BUFFERED_STREAM", "not buffered", "buffered");
-    if (RCUTILS_GET_ENV_ERROR == retval) {
-      return RCUTILS_RET_INVALID_ARGUMENT;
-    }
-    if (RCUTILS_GET_ENV_ZERO == retval || RCUTILS_GET_ENV_ONE == retval) {
-      int mode = retval == RCUTILS_GET_ENV_ZERO ? _IONBF : _IOLBF;
-      size_t buffer_size = (mode == _IOLBF) ? RCUTILS_LOGGING_STREAM_BUFFER_SIZE : 0;
-
-      // buffer_size cannot be 0 on Windows with IOLBF, see comments above where it's #define'd
-      if (setvbuf(g_output_stream, NULL, mode, buffer_size) != 0) {
-        char error_string[1024];
-        rcutils_strerror(error_string, sizeof(error_string));
-        RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
-          "Error setting stream buffering mode: %s", error_string);
-        return RCUTILS_RET_ERROR;
-      }
-    } else if (RCUTILS_GET_ENV_EMPTY != retval) {
+    case RCUTILS_GET_ENV_EMPTY:
+    case RCUTILS_GET_ENV_ZERO:
+      g_output_stream = stderr;
+      break;
+    case RCUTILS_GET_ENV_ONE:
+      g_output_stream = stdout;
+      break;
+    default:
       RCUTILS_SET_ERROR_MSG(
         "Invalid return from environment fetch");
       return RCUTILS_RET_ERROR;
-    }
-
-    retval = rcutils_get_env_var_zero_or_one(
-      "RCUTILS_COLORIZED_OUTPUT", "force color",
-      "force no color");
-    switch (retval) {
-      case RCUTILS_GET_ENV_ERROR:
-        return RCUTILS_RET_INVALID_ARGUMENT;
-      case RCUTILS_GET_ENV_EMPTY:
-        g_colorized_output = RCUTILS_COLORIZED_OUTPUT_AUTO;
-        break;
-      case RCUTILS_GET_ENV_ZERO:
-        g_colorized_output = RCUTILS_COLORIZED_OUTPUT_FORCE_DISABLE;
-        break;
-      case RCUTILS_GET_ENV_ONE:
-        g_colorized_output = RCUTILS_COLORIZED_OUTPUT_FORCE_ENABLE;
-        break;
-      default:
-        RCUTILS_SET_ERROR_MSG(
-          "Invalid return from environment fetch");
-        return RCUTILS_RET_ERROR;
-    }
-
-    // Check for the environment variable for custom output formatting
-    const char * output_format;
-    ret_str = rcutils_get_env("RCUTILS_CONSOLE_OUTPUT_FORMAT", &output_format);
-    if (NULL == ret_str && strcmp(output_format, "") != 0) {
-      size_t chars_to_copy = strlen(output_format);
-      if (chars_to_copy > RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN - 1) {
-        chars_to_copy = RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN - 1;
-      }
-      memcpy(g_rcutils_logging_output_format_string, output_format, chars_to_copy);
-      g_rcutils_logging_output_format_string[chars_to_copy] = '\0';
-    } else {
-      if (NULL != ret_str) {
-        RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
-          "Failed to get output format from env. variable [%s]. Using default output format.",
-          ret_str);
-        ret = RCUTILS_RET_INVALID_ARGUMENT;
-      }
-      memcpy(
-        g_rcutils_logging_output_format_string, g_rcutils_logging_default_output_format,
-        strlen(g_rcutils_logging_default_output_format) + 1);
-    }
-
-    g_rcutils_logging_severities_map = rcutils_get_zero_initialized_string_map();
-    rcutils_ret_t string_map_ret = rcutils_string_map_init(
-      &g_rcutils_logging_severities_map, 0, g_rcutils_logging_allocator);
-    if (string_map_ret != RCUTILS_RET_OK) {
-      // If an error message was set it will have been overwritten by rcutils_string_map_init.
-      RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
-        "Failed to initialize map for logger severities [%s]. Severities will not be configurable.",
-        rcutils_get_error_string().str);
-      g_rcutils_logging_severities_map_valid = false;
-      ret = RCUTILS_RET_STRING_MAP_INVALID;
-    } else {
-      g_rcutils_logging_severities_map_valid = true;
-    }
-
-    g_rcutils_logging_initialized = true;
   }
+
+  // Allow the user to choose how buffering on the stream works by setting
+  // RCUTILS_LOGGING_BUFFERED_STREAM.
+  // With an empty environment variable, use the default of the stream.
+  // With a value of 0, force the stream to be unbuffered.
+  // With a value of 1, force the stream to be line buffered.
+  retval = rcutils_get_env_var_zero_or_one(
+    "RCUTILS_LOGGING_BUFFERED_STREAM", "not buffered", "buffered");
+  if (RCUTILS_GET_ENV_ERROR == retval) {
+    return RCUTILS_RET_INVALID_ARGUMENT;
+  }
+  if (RCUTILS_GET_ENV_ZERO == retval || RCUTILS_GET_ENV_ONE == retval) {
+    int mode = retval == RCUTILS_GET_ENV_ZERO ? _IONBF : _IOLBF;
+    size_t buffer_size = (mode == _IOLBF) ? RCUTILS_LOGGING_STREAM_BUFFER_SIZE : 0;
+
+    // buffer_size cannot be 0 on Windows with IOLBF, see comments above where it's #define'd
+    if (setvbuf(g_output_stream, NULL, mode, buffer_size) != 0) {
+      char error_string[1024];
+      rcutils_strerror(error_string, sizeof(error_string));
+      RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
+        "Error setting stream buffering mode: %s", error_string);
+      return RCUTILS_RET_ERROR;
+    }
+  } else if (RCUTILS_GET_ENV_EMPTY != retval) {
+    RCUTILS_SET_ERROR_MSG(
+      "Invalid return from environment fetch");
+    return RCUTILS_RET_ERROR;
+  }
+
+  retval = rcutils_get_env_var_zero_or_one(
+    "RCUTILS_COLORIZED_OUTPUT", "force color",
+    "force no color");
+  switch (retval) {
+    case RCUTILS_GET_ENV_ERROR:
+      return RCUTILS_RET_INVALID_ARGUMENT;
+    case RCUTILS_GET_ENV_EMPTY:
+      g_colorized_output = RCUTILS_COLORIZED_OUTPUT_AUTO;
+      break;
+    case RCUTILS_GET_ENV_ZERO:
+      g_colorized_output = RCUTILS_COLORIZED_OUTPUT_FORCE_DISABLE;
+      break;
+    case RCUTILS_GET_ENV_ONE:
+      g_colorized_output = RCUTILS_COLORIZED_OUTPUT_FORCE_ENABLE;
+      break;
+    default:
+      RCUTILS_SET_ERROR_MSG(
+        "Invalid return from environment fetch");
+      return RCUTILS_RET_ERROR;
+  }
+
+  // Check for the environment variable for custom output formatting
+  const char * output_format;
+  ret_str = rcutils_get_env("RCUTILS_CONSOLE_OUTPUT_FORMAT", &output_format);
+  if (NULL == ret_str && strcmp(output_format, "") != 0) {
+    size_t chars_to_copy = strlen(output_format);
+    if (chars_to_copy > RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN - 1) {
+      chars_to_copy = RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN - 1;
+    }
+    memcpy(g_rcutils_logging_output_format_string, output_format, chars_to_copy);
+    g_rcutils_logging_output_format_string[chars_to_copy] = '\0';
+  } else {
+    if (NULL != ret_str) {
+      RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
+        "Failed to get output format from env. variable [%s]. Using default output format.",
+        ret_str);
+      ret = RCUTILS_RET_INVALID_ARGUMENT;
+    }
+    memcpy(
+      g_rcutils_logging_output_format_string, g_rcutils_logging_default_output_format,
+      strlen(g_rcutils_logging_default_output_format) + 1);
+  }
+
+  g_rcutils_logging_severities_map = rcutils_get_zero_initialized_string_map();
+  rcutils_ret_t string_map_ret = rcutils_string_map_init(
+    &g_rcutils_logging_severities_map, 0, g_rcutils_logging_allocator);
+  if (string_map_ret != RCUTILS_RET_OK) {
+    // If an error message was set it will have been overwritten by rcutils_string_map_init.
+    RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
+      "Failed to initialize map for logger severities [%s]. Severities will not be configurable.",
+      rcutils_get_error_string().str);
+    g_rcutils_logging_severities_map_valid = false;
+    ret = RCUTILS_RET_STRING_MAP_INVALID;
+  } else {
+    g_rcutils_logging_severities_map_valid = true;
+  }
+
+  g_rcutils_logging_initialized = true;
+
   return ret;
 }
 
