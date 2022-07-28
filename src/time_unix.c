@@ -28,7 +28,12 @@ extern "C"
 #include <mach/mach.h>
 #endif  // defined(__MACH__)
 #include <math.h>
+
+#if defined(__ZEPHYR__)
+#include <posix/time.h>  //  Points to Zephyr toolchain posix time implementation
+#else
 #include <time.h>
+#endif  //  defined(__ZEPHYR__)
 #include <unistd.h>
 
 #include "./common.h"
