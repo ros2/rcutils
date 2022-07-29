@@ -476,6 +476,7 @@ int rcutils_logging_get_logger_effective_level(const char * name);
  * \param[in] format The format string
  * \param[in] ... The variable arguments
  */
+RCUTILS_PUBLIC
 void rcutils_log_internal(
   const rcutils_log_location_t * location,
   int severity,
