@@ -293,6 +293,65 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
     }
 
     g_rcutils_logging_initialized = true;
+
+    // We load the logging configs after setting g_rcutils_logging_initialized
+    // to true otherwise rcutils_logging_set_logger_level will cause recursive
+    // call to this function due to RCUTILS_LOGGING_AUTOINIT
+    // Check for the environment variable for selecting logging level
+    const char * logging_config_filename = NULL;
+    ret_str = rcutils_get_env("RCUTILS_LOGGING_CONFIG_FILE", &logging_config_filename);
+    if (NULL == ret_str && strcmp(logging_config_filename, "") != 0) {
+      FILE * logging_config_file = fopen(logging_config_filename, "r");
+      if (NULL == logging_config_file) {
+        RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
+          "Failed to open logging config file `[%s]`.",
+          logging_config_filename);
+        return RCUTILS_RET_ERROR;
+      }
+
+      char logger_name[128];
+      char severity[10];   // fatal/error/debug/info/warn case-insensitive
+      char line[256];  // lines could have comments
+      while (fgets(line, sizeof(line), logging_config_file)) {
+        // If a line start with # ignore it since it's a comment
+        if (line[0] == '#') {
+          continue;
+        }
+        if (sscanf(
+            line, "%127[^=]=%9[^\t\n ]\n", logger_name,
+            severity) != 2)
+        {
+          RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
+            "Failed to parse line in logging config file [%s]: %s", logging_config_filename, line);
+          fclose(logging_config_file);
+          return RCUTILS_RET_ERROR;
+        }
+        int severity_level;
+        if (RCUTILS_RET_OK != rcutils_logging_severity_level_from_string(
+            severity, g_rcutils_logging_allocator, &severity_level))
+        {
+          RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
+            "Logger has an invalid severity level: %s", severity);
+          fclose(logging_config_file);
+          return RCUTILS_RET_ERROR;
+        }
+        // Special name for setting the default logger level
+        if (strcmp(logger_name, "default_logger_level") == 0) {
+          g_rcutils_logging_default_logger_level = severity_level;
+          // NOLINTNEXTLINE
+        } else if (
+          RCUTILS_RET_OK !=
+          rcutils_logging_set_logger_level(logger_name, severity_level))
+        {
+          RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
+            "Failed to set severity level: %s for logger '%s'", severity, logger_name);
+          fclose(logging_config_file);
+          return RCUTILS_RET_ERROR;
+        }
+      }
+
+      fclose(logging_config_file);
+    }
   }
   return ret;
 }
