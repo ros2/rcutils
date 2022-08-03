@@ -538,13 +538,10 @@ bool rcutils_logging_logger_is_enabled_for(const char * name, int severity)
   return logging_output->buffer;
 
 
-void rcutils_log(
+static void vrcutils_log_internal(
   const rcutils_log_location_t * location,
-  int severity, const char * name, const char * format, ...)
+  int severity, const char * name, const char * format, va_list * args)
 {
-  if (!rcutils_logging_logger_is_enabled_for(name, severity)) {
-    return;
-  }
   rcutils_time_point_value_t now;
   rcutils_ret_t ret = rcutils_system_time_now(&now);
   if (ret != RCUTILS_RET_OK) {
@@ -553,11 +550,32 @@ void rcutils_log(
   }
   rcutils_logging_output_handler_t output_handler = g_rcutils_logging_output_handler;
   if (output_handler != NULL) {
-    va_list args;
-    va_start(args, format);
-    (*output_handler)(location, severity, name ? name : "", now, format, &args);
-    va_end(args);
+    (*output_handler)(location, severity, name ? name : "", now, format, args);
   }
+}
+
+void rcutils_log(
+  const rcutils_log_location_t * location,
+  int severity, const char * name, const char * format, ...)
+{
+  if (!rcutils_logging_logger_is_enabled_for(name, severity)) {
+    return;
+  }
+
+  va_list args;
+  va_start(args, format);
+  vrcutils_log_internal(location, severity, name, format, &args);
+  va_end(args);
+}
+
+void rcutils_log_internal(
+  const rcutils_log_location_t * location,
+  int severity, const char * name, const char * format, ...)
+{
+  va_list args;
+  va_start(args, format);
+  vrcutils_log_internal(location, severity, name, format, &args);
+  va_end(args);
 }
 
 typedef struct logging_input
