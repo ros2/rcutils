@@ -262,24 +262,23 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
   // Check for the environment variable for custom output formatting
   const char * output_format;
   ret_str = rcutils_get_env("RCUTILS_CONSOLE_OUTPUT_FORMAT", &output_format);
-  if (NULL == ret_str && strcmp(output_format, "") != 0) {
-    size_t chars_to_copy = strlen(output_format);
-    if (chars_to_copy > RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN - 1) {
-      chars_to_copy = RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN - 1;
-    }
-    memcpy(g_rcutils_logging_output_format_string, output_format, chars_to_copy);
-    g_rcutils_logging_output_format_string[chars_to_copy] = '\0';
+  if (NULL != ret_str) {
+    RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
+      "Failed to get output format from env. variable [%s]. Using default output format.",
+      ret_str);
+    output_format = g_rcutils_logging_default_output_format;
   } else {
-    if (NULL != ret_str) {
-      RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
-        "Failed to get output format from env. variable [%s]. Using default output format.",
-        ret_str);
-      ret = RCUTILS_RET_INVALID_ARGUMENT;
+    if (strcmp(output_format, "") == 0) {
+      output_format = g_rcutils_logging_default_output_format;
     }
-    memcpy(
-      g_rcutils_logging_output_format_string, g_rcutils_logging_default_output_format,
-      strlen(g_rcutils_logging_default_output_format) + 1);
   }
+
+  size_t chars_to_copy = strlen(output_format);
+  if (chars_to_copy > RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN - 1) {
+    chars_to_copy = RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN - 1;
+  }
+  memcpy(g_rcutils_logging_output_format_string, output_format, chars_to_copy);
+  g_rcutils_logging_output_format_string[chars_to_copy] = '\0';
 
   g_rcutils_logging_severities_map = rcutils_get_zero_initialized_string_map();
   rcutils_ret_t string_map_ret = rcutils_string_map_init(
