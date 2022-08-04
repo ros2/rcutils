@@ -290,11 +290,10 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
       "Failed to initialize map for logger severities [%s]. Severities will not be configurable.",
       rcutils_get_error_string().str);
     g_rcutils_logging_severities_map_valid = false;
-    ret = RCUTILS_RET_STRING_MAP_INVALID;
-  } else {
-    g_rcutils_logging_severities_map_valid = true;
+    return RCUTILS_RET_STRING_MAP_INVALID;
   }
 
+  g_rcutils_logging_severities_map_valid = true;
   g_rcutils_logging_initialized = true;
 
   return ret;
