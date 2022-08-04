@@ -158,7 +158,6 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
     return RCUTILS_RET_OK;
   }
 
-  rcutils_ret_t ret = RCUTILS_RET_OK;
   if (!rcutils_allocator_is_valid(&allocator)) {
     RCUTILS_SET_ERROR_MSG("Provided allocator is invalid.");
     return RCUTILS_RET_INVALID_ARGUMENT;
@@ -290,7 +289,7 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
   g_rcutils_logging_severities_map_valid = true;
   g_rcutils_logging_initialized = true;
 
-  return ret;
+  return RCUTILS_RET_OK;
 }
 
 rcutils_ret_t rcutils_logging_shutdown(void)
