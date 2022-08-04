@@ -44,7 +44,7 @@ TEST(TestLogging, test_logging_initialization) {
   // for the string map relating severity level values to string
   rcutils_allocator_t failing_allocator = get_failing_allocator();
   EXPECT_EQ(
-    RCUTILS_RET_STRING_MAP_INVALID, rcutils_logging_initialize_with_allocator(failing_allocator));
+    RCUTILS_RET_ERROR, rcutils_logging_initialize_with_allocator(failing_allocator));
 }
 
 size_t g_log_calls = 0;
@@ -408,4 +408,33 @@ TEST(TestLogging, test_logger_set_change_ancestor) {
     RCUTILS_LOG_SEVERITY_FATAL,
     rcutils_logging_get_logger_effective_level(
       "rcutils_test_logging_cpp.x"));
+}
+
+TEST(TestLogging, test_logger_allocated_names) {
+  // This tests whether we properly store and free the logger names inside
+  // of logging implementation.  It's best to run this under valgrind to
+  // see that there are no errors and no leaked memory.
+
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_initialize());
+  OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
+  {
+    EXPECT_EQ(RCUTILS_RET_OK, rcutils_logging_shutdown());
+  });
+
+  rcutils_logging_set_default_logger_level(RCUTILS_LOG_SEVERITY_INFO);
+
+  const char * allocated_name = strdup("rcutils_test_loggers");
+
+  // check setting of acceptable severities
+  ASSERT_EQ(
+    RCUTILS_RET_OK,
+    rcutils_logging_set_logger_level(
+      allocated_name, RCUTILS_LOG_SEVERITY_WARN));
+
+  free(const_cast<char *>(allocated_name));
+
+  ASSERT_EQ(
+    RCUTILS_LOG_SEVERITY_WARN,
+    rcutils_logging_get_logger_level("rcutils_test_loggers"));
+  rcutils_reset_error();
 }

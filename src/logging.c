@@ -47,7 +47,7 @@
 #include "rcutils/strdup.h"
 #include "rcutils/strerror.h"
 #include "rcutils/time.h"
-#include "rcutils/types/string_map.h"
+#include "rcutils/types/hash_map.h"
 
 
 #define RCUTILS_LOGGING_SEPARATOR_CHAR '.'
@@ -90,7 +90,7 @@ static const char * g_rcutils_logging_default_output_format =
 static rcutils_allocator_t g_rcutils_logging_allocator;
 
 static rcutils_logging_output_handler_t g_rcutils_logging_output_handler = NULL;
-static rcutils_string_map_t g_rcutils_logging_severities_map;
+static rcutils_hash_map_t g_rcutils_logging_severities_map;
 
 // If this is false, attempts to use the severities map will be skipped.
 // This can happen if allocation of the map fails at initialization.
@@ -631,16 +631,17 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
   memcpy(g_rcutils_logging_output_format_string, output_format, chars_to_copy);
   g_rcutils_logging_output_format_string[chars_to_copy] = '\0';
 
-  g_rcutils_logging_severities_map = rcutils_get_zero_initialized_string_map();
-  rcutils_ret_t string_map_ret = rcutils_string_map_init(
-    &g_rcutils_logging_severities_map, 0, g_rcutils_logging_allocator);
-  if (string_map_ret != RCUTILS_RET_OK) {
-    // If an error message was set it will have been overwritten by rcutils_string_map_init.
+  g_rcutils_logging_severities_map = rcutils_get_zero_initialized_hash_map();
+  rcutils_ret_t hash_map_ret = rcutils_hash_map_init(
+    &g_rcutils_logging_severities_map, 2, sizeof(const char *), sizeof(int),
+    rcutils_hash_map_string_hash_func, rcutils_hash_map_string_cmp_func, &allocator);
+  if (hash_map_ret != RCUTILS_RET_OK) {
+    // If an error message was set it will have been overwritten by rcutils_hash_map_init.
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
       "Failed to initialize map for logger severities [%s]. Severities will not be configurable.",
       rcutils_get_error_string().str);
     g_rcutils_logging_severities_map_valid = false;
-    return RCUTILS_RET_STRING_MAP_INVALID;
+    return RCUTILS_RET_ERROR;
   }
 
   parse_and_create_handlers_list();
@@ -657,10 +658,30 @@ rcutils_ret_t rcutils_logging_shutdown(void)
   if (!g_rcutils_logging_initialized) {
     return RCUTILS_RET_OK;
   }
+
   rcutils_ret_t ret = RCUTILS_RET_OK;
   if (g_rcutils_logging_severities_map_valid) {
-    rcutils_ret_t string_map_ret = rcutils_string_map_fini(&g_rcutils_logging_severities_map);
-    if (string_map_ret != RCUTILS_RET_OK) {
+    // Iterate over the map, getting every key so we can free it
+    char * key = NULL;
+    int level;
+    rcutils_ret_t hash_map_ret = rcutils_hash_map_get_next_key_and_data(
+      &g_rcutils_logging_severities_map, NULL, &key, &level);
+    while (RCUTILS_RET_OK == hash_map_ret) {
+      hash_map_ret = rcutils_hash_map_unset(&g_rcutils_logging_severities_map, &key);
+      if (hash_map_ret != RCUTILS_RET_OK) {
+        RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
+          "Failed to clear out logger severities [%s] during shutdown; memory will be leaked.",
+          rcutils_get_error_string().str);
+        break;
+      }
+      g_rcutils_logging_allocator.deallocate(key, g_rcutils_logging_allocator.state);
+
+      hash_map_ret = rcutils_hash_map_get_next_key_and_data(
+        &g_rcutils_logging_severities_map, NULL, &key, &level);
+    }
+
+    hash_map_ret = rcutils_hash_map_fini(&g_rcutils_logging_severities_map);
+    if (hash_map_ret != RCUTILS_RET_OK) {
       RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
         "Failed to finalize map for logger severities: %s",
         rcutils_get_error_string().str);
@@ -747,6 +768,51 @@ int rcutils_logging_get_logger_level(const char * name)
   return rcutils_logging_get_logger_leveln(name, strlen(name));
 }
 
+static rcutils_ret_t add_key_to_hash_map(const char * name, int level, bool set_by_user)
+{
+  // Copy the name that we will store, as there is no guarantee that the caller will keep it around.
+
+  char * copy_name = rcutils_strdup(name, g_rcutils_logging_allocator);
+  if (copy_name == NULL) {
+    // Don't report an error to the error handling machinery; some uses of this function are for
+    // caching so this is not necessarily fatal.
+    return RCUTILS_RET_ERROR;
+  }
+
+  if (set_by_user) {
+    // If the level was set by the user (rather than optimistically cached by the implementation),
+    // mark it here.  When we purge the cache, we'll make sure not to purge these.  The mark we
+    // use is setting the bottom bit; since our levels are 0, 10, 20, 30, 40, and 50, this works.
+    level |= 0x1;
+  }
+
+  rcutils_ret_t hash_map_ret =
+    rcutils_hash_map_set(&g_rcutils_logging_severities_map, &copy_name, &level);
+  if (hash_map_ret != RCUTILS_RET_OK) {
+    RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
+      "Error setting severity level for logger named '%s': %s",
+      name, rcutils_get_error_string().str);
+    return RCUTILS_RET_ERROR;
+  }
+
+  return RCUTILS_RET_OK;
+}
+
+static rcutils_ret_t get_severity_level(const char * name, int * severity)
+{
+  rcutils_ret_t ret =
+    rcutils_hash_map_get(&g_rcutils_logging_severities_map, &name, severity);
+  if (ret != RCUTILS_RET_OK) {
+    // One possible response is RCUTILS_RET_NOT_FOUND, but the higher layers may be OK with that.
+    return ret;
+  }
+
+  // See the comment in add_key_to_hash_map() on why we remove the bottom bit.
+  (*severity) &= ~(0x1);
+
+  return RCUTILS_RET_OK;
+}
+
 int rcutils_logging_get_logger_leveln(const char * name, size_t name_length)
 {
   RCUTILS_LOGGING_AUTOINIT;
@@ -763,25 +829,21 @@ int rcutils_logging_get_logger_leveln(const char * name, size_t name_length)
     return RCUTILS_LOG_SEVERITY_UNSET;
   }
 
-  // TODO(dhood): replace string map with int map.
-  const char * severity_string = rcutils_string_map_getn(
-    &g_rcutils_logging_severities_map, name, name_length);
-  if (NULL == severity_string) {
-    if (rcutils_string_map_key_existsn(&g_rcutils_logging_severities_map, name, name_length)) {
-      // The level has been specified but couldn't be retrieved.
-      return -1;
-    }
-    return RCUTILS_LOG_SEVERITY_UNSET;
+  char * short_name = rcutils_strndup(name, name_length, g_rcutils_logging_allocator);
+  if (short_name == NULL) {
+    RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
+      "Failed to allocate memory when looking up logger level for '%s'", name);
+    return -1;
   }
 
   int severity;
-  rcutils_ret_t ret = rcutils_logging_severity_level_from_string(
-    severity_string, g_rcutils_logging_allocator, &severity);
-  if (RCUTILS_RET_OK != ret) {
-    RCUTILS_SAFE_FWRITE_TO_STDERR_WITH_FORMAT_STRING(
-      "Logger has an invalid severity level: %s\n", severity_string);
-    return -1;
+  rcutils_ret_t ret = get_severity_level(short_name, &severity);
+  g_rcutils_logging_allocator.deallocate(short_name, g_rcutils_logging_allocator.state);
+  if (ret != RCUTILS_RET_OK) {
+    // The error message was already set by get_severity_level
+    return RCUTILS_LOG_SEVERITY_UNSET;
   }
+
   return severity;
 }
 
@@ -791,30 +853,102 @@ int rcutils_logging_get_logger_effective_level(const char * name)
   if (NULL == name) {
     return -1;
   }
-  size_t substring_length = strlen(name);
-  while (true) {
-    int severity = rcutils_logging_get_logger_leveln(name, substring_length);
-    if (-1 == severity) {
-      RCUTILS_SAFE_FWRITE_TO_STDERR_WITH_FORMAT_STRING(
-        "Error getting effective level of logger '%s'\n", name);
-      return -1;
-    }
+
+  size_t hash_map_size;
+  rcutils_ret_t hash_map_ret = rcutils_hash_map_get_size(
+    &g_rcutils_logging_severities_map, &hash_map_size);
+  if (hash_map_ret != RCUTILS_RET_OK) {
+    RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
+      "Error getting severity level for logger named '%s': %s",
+      name, rcutils_get_error_string().str);
+    return -1;
+  }
+
+  if (hash_map_size == 0) {
+    // The reason we do this extra check here is a bit tricky.  The call to get_severity_level()
+    // below calls rcutils_hash_map_get(), which already has an optimization to return early if
+    // there are no entries in the map.  However, the rest of this function doesn't know how to
+    // disambiguate between not finding this particular name in the map and there being no items in
+    // the map.  In the former case, we need to do the additional work of looking through the
+    // hierarchy of loggers, while in the latter case we can short-circuit.  To keep this function
+    // fast in the latter case, we do the disambiguation here.
+    return g_rcutils_logging_default_logger_level;
+  }
+
+  // Start by trying to find the exact name.
+  int severity;
+  rcutils_ret_t ret = get_severity_level(name, &severity);
+  if (ret == RCUTILS_RET_OK) {
     if (severity != RCUTILS_LOG_SEVERITY_UNSET) {
       return severity;
     }
+    // If the severity is UNSET, then we go through the slow path and try to find a parent logger
+    // that is set.  Failing that, we fall back to the default logger level.
+  } else if (ret != RCUTILS_RET_NOT_FOUND) {
+    // The error message was already set by get_severity_level
+    return -1;
+  }
+
+  // Since we didn't find the name in the fast path, fall back to the slow path where we break the
+  // string into substrings based on dots and look for any part that matches.
+
+  size_t substring_length = strlen(name);
+  char * tmp_name = rcutils_strdup(name, g_rcutils_logging_allocator);
+  if (tmp_name == NULL) {
+    RCUTILS_SAFE_FWRITE_TO_STDERR_WITH_FORMAT_STRING(
+      "Error copying string '%s'\n", name);
+    return -1;
+  }
+
+  severity = RCUTILS_LOG_SEVERITY_UNSET;
+
+  while (true) {
     // Determine the next ancestor's FQN by removing the child's name.
     size_t index_last_separator = rcutils_find_lastn(
       name, RCUTILS_LOGGING_SEPARATOR_CHAR, substring_length);
     if (SIZE_MAX == index_last_separator) {
-      // There are no more separators in the substring.
-      // The name we just checked was the last that we needed to, and it was unset.
+      // There are no more separators in the substring, so this is the last name we needed to check.
       break;
     }
-    // Shorten the substring to be the name of the ancestor (excluding the separator).
+
     substring_length = index_last_separator;
+
+    // Shorten the substring to be the name of the ancestor (excluding the separator).
+    tmp_name[index_last_separator] = '\0';
+
+    rcutils_ret_t ret = get_severity_level(tmp_name, &severity);
+    if (ret == RCUTILS_RET_OK) {
+      if (severity != RCUTILS_LOG_SEVERITY_UNSET) {
+        break;
+      }
+    } else if (ret != RCUTILS_RET_NOT_FOUND) {
+      // The error message was already set by get_severity_level
+      g_rcutils_logging_allocator.deallocate(tmp_name, g_rcutils_logging_allocator.state);
+      return -1;
+    }
   }
-  // Neither the logger nor its ancestors have had their level specified.
-  return g_rcutils_logging_default_logger_level;
+
+  g_rcutils_logging_allocator.deallocate(tmp_name, g_rcutils_logging_allocator.state);
+
+  if (severity == RCUTILS_LOG_SEVERITY_UNSET) {
+    // Neither the logger nor its ancestors have had their level specified.
+    severity = g_rcutils_logging_default_logger_level;
+  }
+
+  // If the calculated severity is anything but UNSET, we place it into the hashmap for speedier
+  // lookup next time.  If the severity is UNSET, we don't bother because we are going to have to
+  // walk the hierarchy next time anyway.
+  if (severity != RCUTILS_LOG_SEVERITY_UNSET) {
+    ret = add_key_to_hash_map(name, severity, false);
+    if (ret != RCUTILS_RET_OK) {
+      // Continue on if we failed to add the key to the hashmap.
+      // This will affect performance but is not fatal.
+      RCUTILS_SAFE_FWRITE_TO_STDERR(
+        "Failed to cache severity; this is not fatal but will impact performance");
+    }
+  }
+
+  return severity;
 }
 
 rcutils_ret_t rcutils_logging_set_logger_level(const char * name, int level)
@@ -824,7 +958,9 @@ rcutils_ret_t rcutils_logging_set_logger_level(const char * name, int level)
     RCUTILS_SET_ERROR_MSG("Invalid logger name");
     return RCUTILS_RET_INVALID_ARGUMENT;
   }
-  if (strlen(name) == 0) {
+
+  size_t name_length = strlen(name);
+  if (name_length == 0) {
     g_rcutils_logging_default_logger_level = level;
     return RCUTILS_RET_OK;
   }
@@ -834,7 +970,6 @@ rcutils_ret_t rcutils_logging_set_logger_level(const char * name, int level)
   }
 
   // Convert the severity value into a string for storage.
-  // TODO(dhood): replace string map with int map.
   if (level < 0 ||
     level >=
     (int)(sizeof(g_rcutils_log_severity_names) / sizeof(g_rcutils_log_severity_names[0])))
@@ -847,15 +982,73 @@ rcutils_ret_t rcutils_logging_set_logger_level(const char * name, int level)
     RCUTILS_SET_ERROR_MSG("Unable to determine severity_string for severity");
     return RCUTILS_RET_INVALID_ARGUMENT;
   }
-  rcutils_ret_t string_map_ret = rcutils_string_map_set(
-    &g_rcutils_logging_severities_map, name, severity_string);
-  if (string_map_ret != RCUTILS_RET_OK) {
+
+  if (rcutils_hash_map_key_exists(&g_rcutils_logging_severities_map, &name)) {
+    // Iterate over the entire contents of the severities map, looking for entries that start with
+    // this key name.  For any ones that match, check whether the user explicitly set them.  If the
+    // user did not set it, then we cached it and so we can throw it away.
+
+    char * key = NULL;
+    int tmp_level;
+
+    rcutils_ret_t hash_map_ret = rcutils_hash_map_get_next_key_and_data(
+      &g_rcutils_logging_severities_map, NULL, &key, &tmp_level);
+    while (RCUTILS_RET_OK == hash_map_ret) {
+      // Hold onto a reference to the pointer; we'll need it later
+      char * previous_key = key;
+      bool free_current_key = false;
+      if (key != NULL && strncmp(name, key, name_length) == 0) {
+        // If this is the key we are replacing, unconditionally remove it from the hash map;
+        // we'll be adding it back as a user-set level anyway
+        if (key[name_length] == '\0') {
+          free_current_key = true;
+        } else {
+          // Otherwise, this is a descendant; only remove it from the hash map
+          // if we cached it (the user didn't explicitly set it).
+          if (!(tmp_level & 0x1)) {
+            free_current_key = true;
+          }
+        }
+      }
+
+      // Note that we need to get the next key before we free the current
+      // key so that we can continue iterating over the hash_map
+      hash_map_ret = rcutils_hash_map_get_next_key_and_data(
+        &g_rcutils_logging_severities_map, &previous_key, &key, &tmp_level);
+      if (hash_map_ret != RCUTILS_RET_OK &&
+        hash_map_ret != RCUTILS_RET_HASH_MAP_NO_MORE_ENTRIES &&
+        hash_map_ret != RCUTILS_RET_NOT_FOUND)
+      {
+        RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
+          "Error accessing hash map when setting logger level for '%s': %s",
+          name, rcutils_get_error_string().str);
+        return hash_map_ret;
+      }
+
+      if (free_current_key) {
+        rcutils_ret_t unset_ret = rcutils_hash_map_unset(
+          &g_rcutils_logging_severities_map, &previous_key);
+        if (unset_ret != RCUTILS_RET_OK) {
+          // The only way that hash_map_unset can fail is if there is something wrong with the
+          // hashmap structure or the key is NULL.  Since we don't expect either, report it as an
+          // error and return.
+          RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
+            "Error clearing old severity level for logger named '%s': %s",
+            name, rcutils_get_error_string().str);
+          return unset_ret;
+        }
+        g_rcutils_logging_allocator.deallocate(previous_key, g_rcutils_logging_allocator.state);
+      }
+    }
+  }
+
+  rcutils_ret_t add_key_ret = add_key_to_hash_map(name, level, true);
+  if (add_key_ret != RCUTILS_RET_OK) {
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
       "Error setting severity level for logger named '%s': %s",
       name, rcutils_get_error_string().str);
-    return RCUTILS_RET_ERROR;
   }
-  return RCUTILS_RET_OK;
+  return add_key_ret;
 }
 
 bool rcutils_logging_logger_is_enabled_for(const char * name, int severity)
