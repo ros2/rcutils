@@ -12,11 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
 #include <ctype.h>
 #include <errno.h>
 #include <inttypes.h>
@@ -1006,7 +1001,3 @@ void rcutils_logging_console_output_handler(
     RCUTILS_SAFE_FWRITE_TO_STDERR("Failed to fini array.\n");
   }
 }
-
-#ifdef __cplusplus
-}
-#endif
