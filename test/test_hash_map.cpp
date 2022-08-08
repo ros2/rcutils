@@ -480,7 +480,7 @@ TEST_F(HashMapBaseTest, string_keys) {
   const char * key2 = "two";
   const char * lookup_key = "one";
   rcutils_ret_t ret = rcutils_hash_map_init(
-    &map, 10, sizeof(char *), sizeof(uint32_t),
+    &map, 8, sizeof(char *), sizeof(uint32_t),
     rcutils_hash_map_string_hash_func, rcutils_hash_map_string_cmp_func,
     &allocator);
   EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
