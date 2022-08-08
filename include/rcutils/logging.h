@@ -219,10 +219,6 @@ typedef void (* rcutils_logging_output_handler_t)(
   va_list *  // args
 );
 
-/// The function pointer of the current output handler.
-RCUTILS_PUBLIC
-extern rcutils_logging_output_handler_t g_rcutils_logging_output_handler;
-
 /// Get the current output handler.
 /**
  * <hr>
