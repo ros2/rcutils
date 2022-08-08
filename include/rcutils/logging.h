@@ -283,16 +283,6 @@ rcutils_ret_t rcutils_logging_format_message(
   int severity, const char * name, rcutils_time_point_value_t timestamp,
   const char * msg, rcutils_char_array_t * logging_output);
 
-/// The default severity level for loggers.
-/**
- * This level is used for (1) nameless log calls and (2) named log
- * calls where the effective level of the logger name is unspecified.
- *
- * \see rcutils_logging_get_logger_effective_level()
- */
-RCUTILS_PUBLIC
-extern int g_rcutils_logging_default_logger_level;
-
 /// Get the default level for loggers.
 /**
  * <hr>
@@ -345,7 +335,7 @@ void rcutils_logging_set_default_logger_level(int level);
  * \param[in] name The name of the logger, must be null terminated c string
  * \return The level of the logger if it has been set, or
  * \return `RCUTILS_LOG_SEVERITY_UNSET` if unset, or
- * \return `g_rcutils_logging_default_logger_level` for an empty name, or
+ * \return the default logger level for an empty name, or
  * \return -1 on invalid arguments, or
  * \return -1 if an error occurred
  */
@@ -370,7 +360,7 @@ int rcutils_logging_get_logger_level(const char * name);
  * \param[in] name_length Logger name length
  * \return The level of the logger if it has been set, or
  * \return `RCUTILS_LOG_SEVERITY_UNSET` if unset, or
- * \return `g_rcutils_logging_default_logger_level` for `name_length` of `0`, or
+ * \return the default logger level for an empty name, or
  * \return -1 on invalid arguments, or
  * \return -1 if an error occurred
  */
@@ -380,8 +370,7 @@ int rcutils_logging_get_logger_leveln(const char * name, size_t name_length);
 
 /// Set the severity level for a logger.
 /**
- * If an empty string is specified as the name, the
- * `g_rcutils_logging_default_logger_level` will be set.
+ * If an empty string is specified as the name, the default logger level will be set.
  *
  * <hr>
  * Attribute          | Adherence
