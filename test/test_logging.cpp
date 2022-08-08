@@ -67,8 +67,8 @@ TEST(TestLogging, test_logging) {
     EXPECT_EQ(RCUTILS_RET_OK, rcutils_logging_shutdown());
   });
   EXPECT_TRUE(g_rcutils_logging_initialized);
-  g_rcutils_logging_default_logger_level = RCUTILS_LOG_SEVERITY_DEBUG;
-  EXPECT_EQ(RCUTILS_LOG_SEVERITY_DEBUG, g_rcutils_logging_default_logger_level);
+  rcutils_logging_set_default_logger_level(RCUTILS_LOG_SEVERITY_DEBUG);
+  EXPECT_EQ(RCUTILS_LOG_SEVERITY_DEBUG, rcutils_logging_get_default_logger_level());
 
   auto rcutils_logging_console_output_handler = [](
     const rcutils_log_location_t * location,

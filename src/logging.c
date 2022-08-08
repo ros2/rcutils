@@ -96,7 +96,7 @@ static rcutils_string_map_t g_rcutils_logging_severities_map;
 // This can happen if allocation of the map fails at initialization.
 static bool g_rcutils_logging_severities_map_valid = false;
 
-int g_rcutils_logging_default_logger_level = 0;
+static int g_rcutils_logging_default_logger_level = 0;
 
 static FILE * g_output_stream = NULL;
 

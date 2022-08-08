@@ -30,7 +30,7 @@ TEST(TestLoggingCustomEnv, test_logging) {
     EXPECT_EQ(RCUTILS_RET_OK, rcutils_logging_shutdown());
   });
   EXPECT_TRUE(g_rcutils_logging_initialized);
-  g_rcutils_logging_default_logger_level = RCUTILS_LOG_SEVERITY_DEBUG;
+  rcutils_logging_set_default_logger_level(RCUTILS_LOG_SEVERITY_DEBUG);
 
   rcutils_ret_t ret;
   rcutils_allocator_t allocator = rcutils_get_default_allocator();
