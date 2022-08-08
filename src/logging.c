@@ -89,7 +89,7 @@ static const char * g_rcutils_logging_default_output_format =
 
 static rcutils_allocator_t g_rcutils_logging_allocator;
 
-rcutils_logging_output_handler_t g_rcutils_logging_output_handler = NULL;
+static rcutils_logging_output_handler_t g_rcutils_logging_output_handler = NULL;
 static rcutils_string_map_t g_rcutils_logging_severities_map;
 
 // If this is false, attempts to use the severities map will be skipped.
