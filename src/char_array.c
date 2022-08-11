@@ -139,6 +139,12 @@ rcutils_char_array_expand_as_needed(rcutils_char_array_t * char_array, size_t ne
     return RCUTILS_RET_OK;
   }
 
+  // Make sure we expand by at least 1.5x the old capacity
+  size_t minimum_size = char_array->buffer_capacity + (char_array->buffer_capacity >> 1);
+  if (new_size < minimum_size) {
+    new_size = minimum_size;
+  }
+
   return rcutils_char_array_resize(char_array, new_size);
 }
 
