@@ -439,6 +439,11 @@ rcutils_hash_map_unset(rcutils_hash_map_t * hash_map, const void * key)
   bool already_exists = false;
   rcutils_hash_map_entry_t * entry = NULL;
 
+  // If there is nothing in the hash map, don't bother computing the key
+  if (hash_map->impl->size == 0) {
+    return RCUTILS_RET_OK;
+  }
+
   already_exists = hash_map_find(hash_map, key, &key_hash, &map_index, &bucket_index, &entry);
 
   if (!already_exists) {
@@ -472,6 +477,11 @@ rcutils_hash_map_key_exists(const rcutils_hash_map_t * hash_map, const void * ke
   bool already_exists = false;
   rcutils_hash_map_entry_t * entry = NULL;
 
+  // If there is nothing in the hash map, don't bother computing the key
+  if (hash_map->impl->size == 0) {
+    return RCUTILS_RET_OK;
+  }
+
   already_exists = hash_map_find(hash_map, key, &key_hash, &map_index, &bucket_index, &entry);
 
   return already_exists;
@@ -487,6 +497,11 @@ rcutils_hash_map_get(const rcutils_hash_map_t * hash_map, const void * key, void
   size_t key_hash = 0, map_index = 0, bucket_index = 0;
   bool already_exists = false;
   rcutils_hash_map_entry_t * entry = NULL;
+
+  // If there is nothing in the hash map, don't bother computing the key
+  if (hash_map->impl->size == 0) {
+    return RCUTILS_RET_NOT_FOUND;
+  }
 
   already_exists = hash_map_find(hash_map, key, &key_hash, &map_index, &bucket_index, &entry);
 
@@ -513,6 +528,15 @@ rcutils_hash_map_get_next_key_and_data(
   bool already_exists = false;
   rcutils_hash_map_entry_t * entry = NULL;
   rcutils_ret_t ret = RCUTILS_RET_OK;
+
+  // If there is nothing in the hash map, don't bother computing the key
+  if (hash_map->impl->size == 0) {
+    if (NULL != previous_key) {
+      return RCUTILS_RET_NOT_FOUND;
+    } else {
+      return RCUTILS_RET_HASH_MAP_NO_MORE_ENTRIES;
+    }
+  }
 
   if (NULL != previous_key) {
     already_exists = hash_map_find(hash_map, key, &key_hash, &map_index, &bucket_index, &entry);
