@@ -12,11 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -65,14 +60,19 @@ rcutils_find_lastn(const char * str, char delimiter, size_t string_length)
     return SIZE_MAX;
   }
 
+#if defined(_GNU_SOURCE)
+  const char * ptr = memrchr(str, delimiter, string_length);
+  if (ptr == NULL) {
+    return SIZE_MAX;
+  }
+
+  return ptr - str;
+#else
   for (size_t i = string_length - 1; i > 0; --i) {
     if (str[i] == delimiter) {
       return i;
     }
   }
   return str[0] == delimiter ? 0 : SIZE_MAX;
-}
-
-#ifdef __cplusplus
-}
 #endif
+}
