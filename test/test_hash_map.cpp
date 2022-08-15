@@ -95,6 +95,13 @@ TEST_F(HashMapBaseTest, init_map_initial_capacity_zero_fails) {
   EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string().str;
 }
 
+TEST_F(HashMapBaseTest, init_map_initial_capacity_not_power_of_two_fails) {
+  rcutils_ret_t ret = rcutils_hash_map_init(
+    &map, 3, sizeof(uint32_t), sizeof(uint32_t),
+    test_hash_map_uint32_hash_func, test_uint32_cmp, &allocator);
+  EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string().str;
+}
+
 TEST_F(HashMapBaseTest, init_map_key_size_zero_fails) {
   rcutils_ret_t ret = rcutils_hash_map_init(
     &map, 2, 0, sizeof(uint32_t),
