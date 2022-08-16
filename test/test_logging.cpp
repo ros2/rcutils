@@ -321,3 +321,91 @@ TEST(TestLogging, test_logger_severity_hierarchy) {
     rcutils_test_logging_cpp_dot_severity,
     rcutils_logging_get_logger_effective_level("rcutils_test_logging_cpp.."));
 }
+
+TEST(TestLogging, test_logger_unset_change_ancestor) {
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_initialize());
+  OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
+  {
+    EXPECT_EQ(RCUTILS_RET_OK, rcutils_logging_shutdown());
+  });
+
+  // check resolving of effective thresholds in hierarchy of loggers
+  rcutils_logging_set_default_logger_level(RCUTILS_LOG_SEVERITY_INFO);
+
+  ASSERT_EQ(
+    RCUTILS_RET_OK,
+    rcutils_logging_set_logger_level(
+      "rcutils_test_logging_cpp", RCUTILS_LOG_SEVERITY_WARN));
+  ASSERT_EQ(
+    RCUTILS_RET_OK,
+    rcutils_logging_set_logger_level(
+      "rcutils_test_logging_cpp.x", RCUTILS_LOG_SEVERITY_UNSET));
+
+  EXPECT_EQ(
+    RCUTILS_LOG_SEVERITY_WARN,
+    rcutils_logging_get_logger_effective_level("rcutils_test_logging_cpp"));
+  EXPECT_EQ(
+    RCUTILS_LOG_SEVERITY_WARN,
+    rcutils_logging_get_logger_effective_level(
+      "rcutils_test_logging_cpp.x"));
+
+  // Now change the logger level of the ancestor.  This should cause the
+  // higher-level one to change as well (since it is unset).
+
+  ASSERT_EQ(
+    RCUTILS_RET_OK,
+    rcutils_logging_set_logger_level(
+      "rcutils_test_logging_cpp", RCUTILS_LOG_SEVERITY_DEBUG));
+
+  EXPECT_EQ(
+    RCUTILS_LOG_SEVERITY_DEBUG,
+    rcutils_logging_get_logger_effective_level("rcutils_test_logging_cpp"));
+  EXPECT_EQ(
+    RCUTILS_LOG_SEVERITY_DEBUG,
+    rcutils_logging_get_logger_effective_level(
+      "rcutils_test_logging_cpp.x"));
+}
+
+TEST(TestLogging, test_logger_set_change_ancestor) {
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_initialize());
+  OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
+  {
+    EXPECT_EQ(RCUTILS_RET_OK, rcutils_logging_shutdown());
+  });
+
+  // check resolving of effective thresholds in hierarchy of loggers
+  rcutils_logging_set_default_logger_level(RCUTILS_LOG_SEVERITY_INFO);
+
+  ASSERT_EQ(
+    RCUTILS_RET_OK,
+    rcutils_logging_set_logger_level(
+      "rcutils_test_logging_cpp", RCUTILS_LOG_SEVERITY_WARN));
+  ASSERT_EQ(
+    RCUTILS_RET_OK,
+    rcutils_logging_set_logger_level(
+      "rcutils_test_logging_cpp.x", RCUTILS_LOG_SEVERITY_FATAL));
+
+  EXPECT_EQ(
+    RCUTILS_LOG_SEVERITY_WARN,
+    rcutils_logging_get_logger_effective_level("rcutils_test_logging_cpp"));
+  EXPECT_EQ(
+    RCUTILS_LOG_SEVERITY_FATAL,
+    rcutils_logging_get_logger_effective_level(
+      "rcutils_test_logging_cpp.x"));
+
+  // Now change the logger level of the ancestor.  This should not change
+  // the level of the descendant, since it was set separately.
+
+  ASSERT_EQ(
+    RCUTILS_RET_OK,
+    rcutils_logging_set_logger_level(
+      "rcutils_test_logging_cpp", RCUTILS_LOG_SEVERITY_DEBUG));
+
+  EXPECT_EQ(
+    RCUTILS_LOG_SEVERITY_DEBUG,
+    rcutils_logging_get_logger_effective_level("rcutils_test_logging_cpp"));
+  EXPECT_EQ(
+    RCUTILS_LOG_SEVERITY_FATAL,
+    rcutils_logging_get_logger_effective_level(
+      "rcutils_test_logging_cpp.x"));
+}
