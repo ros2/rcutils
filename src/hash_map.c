@@ -257,7 +257,7 @@ rcutils_hash_map_init(
 
   // Due to an optimization we use during lookup, we can currently only handle power-of-two
   // capacities.  Enforce that here.
-  if ((initial_capacity % 2) != 0) {
+  if ((initial_capacity & (initial_capacity - 1)) != 0) {
     RCUTILS_SET_ERROR_MSG("This hashmap only works with power-of-two capacities");
     return RCUTILS_RET_INVALID_ARGUMENT;
   }
