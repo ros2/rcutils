@@ -539,7 +539,8 @@ rcutils_hash_map_get_next_key_and_data(
   }
 
   if (NULL != previous_key) {
-    already_exists = hash_map_find(hash_map, key, &key_hash, &map_index, &bucket_index, &entry);
+    already_exists = hash_map_find(
+      hash_map, previous_key, &key_hash, &map_index, &bucket_index, &entry);
     if (!already_exists) {
       return RCUTILS_RET_NOT_FOUND;
     }

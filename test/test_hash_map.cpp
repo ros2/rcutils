@@ -431,7 +431,8 @@ TEST_F(HashMapPreInitTest, get_next_key_and_data_working) {
   last_key = ret_key;
 
   // Get the next entry
-  ret = rcutils_hash_map_get_next_key_and_data(&map, &ret_key, &ret_key, &ret_data);
+  ret_key = 0;
+  ret = rcutils_hash_map_get_next_key_and_data(&map, &last_key, &ret_key, &ret_data);
   EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
   EXPECT_TRUE(1 == ret_key || 2 == ret_key);  // we only put these two keys in the map
   EXPECT_NE(last_key, ret_key);
