@@ -414,6 +414,21 @@ static const char * copy_from_orig(
   return logging_output->buffer;
 }
 
+static bool add_handler(token_handler handler, size_t start_offset, size_t end_offset)
+{
+  g_handlers[g_num_log_msg_handlers].handler = handler;
+  g_handlers[g_num_log_msg_handlers].start_offset = start_offset;
+  g_handlers[g_num_log_msg_handlers].end_offset = end_offset;
+  if (g_num_log_msg_handlers >= sizeof(g_handlers) - 1) {
+    RCUTILS_SET_ERROR_MSG("Too many substitutions in the logging output format string; truncating");
+    return false;
+  }
+
+  g_num_log_msg_handlers++;
+
+  return true;
+}
+
 static void parse_and_create_handlers_list(void)
 {
   // Process the format string looking for known tokens.
@@ -435,17 +450,10 @@ static void parse_and_create_handlers_list(void)
     if (chars_to_start_delim > 0) {  // there is stuff before a token start delimiter
       size_t chars_to_copy = chars_to_start_delim >
         remaining_chars ? remaining_chars : chars_to_start_delim;
-      g_handlers[g_num_log_msg_handlers].handler = copy_from_orig;
-      g_handlers[g_num_log_msg_handlers].start_offset = i;
-      g_handlers[g_num_log_msg_handlers].end_offset = i + chars_to_copy;
-      if (g_num_log_msg_handlers >= sizeof(g_handlers) - 1) {
-        RCUTILS_SAFE_FWRITE_TO_STDERR(
-          "Too many substitutions in the logging output format string; truncating");
-        rcutils_reset_error();
-        RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
+      if (!add_handler(copy_from_orig, i, i + chars_to_copy)) {
+        // The error was already set by add_handler
         return;
       }
-      g_num_log_msg_handlers++;
 
       i += chars_to_copy;
       if (i >= size) {  // perhaps no start delimiter was found
@@ -466,17 +474,10 @@ static void parse_and_create_handlers_list(void)
     if (chars_to_end_delim > remaining_chars) {
       // No end delimiters found in the remainder of the format string;
       // there won't be any more tokens so shortcut the rest of the checking.
-      g_handlers[g_num_log_msg_handlers].handler = copy_from_orig;
-      g_handlers[g_num_log_msg_handlers].start_offset = i;
-      g_handlers[g_num_log_msg_handlers].end_offset = i + remaining_chars;
-      if (g_num_log_msg_handlers >= sizeof(g_handlers) - 1) {
-        RCUTILS_SAFE_FWRITE_TO_STDERR(
-          "Too many substitutions in the logging output format string; truncating");
-        rcutils_reset_error();
-        RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
+      if (!add_handler(copy_from_orig, i, i + remaining_chars)) {
+        // The error was already set by add_handler
         return;
       }
-      g_num_log_msg_handlers++;
       break;
     }
 
@@ -490,33 +491,18 @@ static void parse_and_create_handlers_list(void)
     if (!expand_token) {
       // This wasn't a token; print the start delimiter and continue the search as usual
       // (the substring might contain more start delimiters).
-      g_handlers[g_num_log_msg_handlers].handler = copy_from_orig;
-      g_handlers[g_num_log_msg_handlers].start_offset = i;
-      g_handlers[g_num_log_msg_handlers].end_offset = i + 1;
-      if (g_num_log_msg_handlers >= sizeof(g_handlers) - 1) {
-        RCUTILS_SAFE_FWRITE_TO_STDERR(
-          "Too many substitutions in the logging output format string; truncating");
-        rcutils_reset_error();
-        RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
+      if (!add_handler(copy_from_orig, i, i + 1)) {
+        // The error was already set by add_handler
         return;
       }
-      g_num_log_msg_handlers++;
       i++;
       continue;
     }
 
-    g_handlers[g_num_log_msg_handlers].handler = expand_token;
-    // These are unused when using a token expander
-    g_handlers[g_num_log_msg_handlers].start_offset = 0;
-    g_handlers[g_num_log_msg_handlers].end_offset = 0;
-    if (g_num_log_msg_handlers >= sizeof(g_handlers) - 1) {
-      RCUTILS_SAFE_FWRITE_TO_STDERR(
-        "Too many substitutions in the logging output format string; truncating");
-      rcutils_reset_error();
-      RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
+    if (!add_handler(expand_token, 0, 0)) {
+      // The error was already set by add_handler
       return;
     }
-    g_num_log_msg_handlers++;
 
     // Skip ahead to avoid re-processing the token characters (including the 2 delimiters).
     i += token_len + 2;
