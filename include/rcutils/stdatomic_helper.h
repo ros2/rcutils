@@ -32,7 +32,7 @@
 // The my__has_feature avoids a preprocessor error when you check for it and
 // use it on the same line below.
 #if defined(__has_feature)
-#define my__has_feature(...) __has_feature(__VAR_ARGS__)
+#define my__has_feature(...) __has_feature(__VA_ARGS__)
 #else
 #define my__has_feature(...) 0
 #endif
