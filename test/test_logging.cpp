@@ -438,3 +438,47 @@ TEST(TestLogging, test_logger_allocated_names) {
     rcutils_logging_get_logger_level("rcutils_test_loggers"));
   rcutils_reset_error();
 }
+
+TEST(TestLogging, test_root_logger_after_nonexistent)
+{
+  // This tests whether the root logger remains unset after setting the logger name for a
+  // non-existent logger.
+
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_initialize());
+  OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
+  {
+    EXPECT_EQ(RCUTILS_RET_OK, rcutils_logging_shutdown());
+  });
+
+  int original_severity = rcutils_logging_get_logger_effective_level("my_internal_logger_name");
+
+  ASSERT_EQ(
+    RCUTILS_RET_OK,
+    rcutils_logging_set_logger_level(
+      "my_internal_logger_name", RCUTILS_LOG_SEVERITY_DEBUG));
+
+  EXPECT_EQ(
+    RCUTILS_LOG_SEVERITY_DEBUG,
+    rcutils_logging_get_logger_effective_level("my_internal_logger_name"));
+
+  ASSERT_EQ(
+    RCUTILS_RET_OK,
+    rcutils_logging_set_logger_level(
+      "my_internal_logger_name", original_severity));
+
+  int original_root_severity = rcutils_logging_get_logger_effective_level("");
+
+  ASSERT_EQ(
+    RCUTILS_RET_OK,
+    rcutils_logging_set_logger_level(
+      "", RCUTILS_LOG_SEVERITY_UNSET));
+
+  EXPECT_EQ(
+    RCUTILS_LOG_SEVERITY_UNSET,
+    rcutils_logging_get_logger_effective_level(""));
+
+  ASSERT_EQ(
+    RCUTILS_RET_OK,
+    rcutils_logging_set_logger_level(
+      "", original_root_severity));
+}

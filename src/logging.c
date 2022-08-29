@@ -959,11 +959,6 @@ rcutils_ret_t rcutils_logging_set_logger_level(const char * name, int level)
     return RCUTILS_RET_INVALID_ARGUMENT;
   }
 
-  size_t name_length = strlen(name);
-  if (name_length == 0) {
-    g_rcutils_logging_default_logger_level = level;
-    return RCUTILS_RET_OK;
-  }
   if (!g_rcutils_logging_severities_map_valid) {
     RCUTILS_SET_ERROR_MSG("Logger severity level map is invalid");
     return RCUTILS_RET_LOGGING_SEVERITY_MAP_INVALID;
@@ -982,6 +977,8 @@ rcutils_ret_t rcutils_logging_set_logger_level(const char * name, int level)
     RCUTILS_SET_ERROR_MSG("Unable to determine severity_string for severity");
     return RCUTILS_RET_INVALID_ARGUMENT;
   }
+
+  size_t name_length = strlen(name);
 
   if (rcutils_hash_map_key_exists(&g_rcutils_logging_severities_map, &name)) {
     // Iterate over the entire contents of the severities map, looking for entries that start with
@@ -1048,6 +1045,12 @@ rcutils_ret_t rcutils_logging_set_logger_level(const char * name, int level)
       "Error setting severity level for logger named '%s': %s",
       name, rcutils_get_error_string().str);
   }
+
+  if (name_length == 0) {
+    // If the name was empty, this also means we should update the default logger level
+    g_rcutils_logging_default_logger_level = level;
+  }
+
   return add_key_ret;
 }
 
