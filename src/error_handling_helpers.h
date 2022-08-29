@@ -139,7 +139,7 @@ void
 __rcutils_convert_int32_t_into_c_str(int number, char * buffer, size_t buffer_size)
 {
   assert(buffer != NULL);
-  assert(buffer_size >= 11);
+  assert(buffer_size >= 12);
   (void)buffer_size;  // prevent warning in release builds where there is no assert(...)
   size_t i = 0;
 
@@ -160,7 +160,7 @@ __rcutils_convert_int32_t_into_c_str(int number, char * buffer, size_t buffer_si
   buffer[i] = '\0';
 
   // reverse the string in place
-  __rcutils_reverse_str(buffer, strnlen(buffer, 11));
+  __rcutils_reverse_str(buffer, strnlen(buffer, 12));
 }
 
 // do not use externally, internal function which is only to be used by error_handling.c
