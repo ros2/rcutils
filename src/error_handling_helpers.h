@@ -160,7 +160,7 @@ __rcutils_convert_int32_t_into_c_str(int number, char * buffer, size_t buffer_si
   buffer[i] = '\0';
 
   // reverse the string in place
-  __rcutils_reverse_str(buffer, strnlen(buffer, 21));
+  __rcutils_reverse_str(buffer, strnlen(buffer, 11));
 }
 
 // do not use externally, internal function which is only to be used by error_handling.c
