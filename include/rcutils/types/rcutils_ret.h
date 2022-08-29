@@ -14,6 +14,8 @@
 
 /// @file
 
+#include <stdint.h>
+
 #ifndef RCUTILS__TYPES__RCUTILS_RET_H_
 #define RCUTILS__TYPES__RCUTILS_RET_H_
 
