@@ -136,6 +136,36 @@ __rcutils_convert_uint64_t_into_c_str(uint64_t number, char * buffer, size_t buf
 // do not use externally, internal function which is only to be used by error_handling.c
 static
 void
+__rcutils_convert_int32_t_into_c_str(int number, char * buffer, size_t buffer_size)
+{
+  assert(buffer != NULL);
+  assert(buffer_size >= 11);
+  (void)buffer_size;  // prevent warning in release builds where there is no assert(...)
+  size_t i = 0;
+
+  // if number is 0, short circuit
+  if (number == 0) {
+    buffer[0] = '0';
+    buffer[1] = '\0';
+    return;
+  }
+
+  // add the modulo 10 to the string and then integer divide by 10 until 0
+  while (number != 0) {
+    buffer[i++] = (char)(number % 10 + '0');
+    number = number / 10;
+  }
+
+  // null terminate
+  buffer[i] = '\0';
+
+  // reverse the string in place
+  __rcutils_reverse_str(buffer, strnlen(buffer, 21));
+}
+
+// do not use externally, internal function which is only to be used by error_handling.c
+static
+void
 __rcutils_format_error_string(
   rcutils_error_string_t * error_string,
   const rcutils_error_state_t * error_state)
@@ -171,6 +201,37 @@ __rcutils_format_error_string(
   __rcutils_convert_uint64_t_into_c_str(
     error_state->line_number, line_number_buffer, sizeof(line_number_buffer));
   written = __rcutils_copy_string(offset, bytes_left, line_number_buffer);
+  offset += written;
+  offset[0] = '\0';
+}
+
+// do not use externally, internal function which is only to be used by error_handling.c
+static
+void
+__rcutils_format_add_error_code(
+rcutils_error_string_t * error_string,
+const rcutils_ret_t * error_code)
+{
+  assert(error_string != NULL);
+  assert(error_code != NULL);
+  static const char format_begin[] = "(Error code:";
+  static const char format_end[] = ")";
+  char error_code_buffer[11];
+  char * offset = error_string->str;
+  size_t bytes_left = sizeof(error_string->str);
+  offset += strnlen(offset , bytes_left);
+
+  size_t written = __rcutils_copy_string(offset, bytes_left, format_begin);
+  offset += written;
+  bytes_left -= written;
+
+  __rcutils_convert_int32_t_into_c_str(
+    *error_code, error_code_buffer, sizeof(error_code_buffer));
+  written = __rcutils_copy_string(offset , bytes_left , error_code_buffer);
+  offset += written;
+  bytes_left -= written;
+
+  written = __rcutils_copy_string(offset, bytes_left, format_end);
   offset += written;
   offset[0] = '\0';
 }

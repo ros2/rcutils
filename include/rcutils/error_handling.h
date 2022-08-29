@@ -193,6 +193,12 @@ RCUTILS_PUBLIC
 void
 rcutils_set_error_state(const char * error_string, const char * file, size_t line_number);
 
+/// Set the error code.
+RCUTILS_PUBLIC
+rcutils_ret_t
+rcutils_set_error_code(rcutils_ret_t error_code);
+
+
 /// Check an argument for a null value.
 /**
  * If the argument's value is `NULL`, set the error message saying so and
@@ -235,6 +241,10 @@ rcutils_set_error_state(const char * error_string, const char * file, size_t lin
  */
 #define RCUTILS_SET_ERROR_MSG(msg) \
   do {rcutils_set_error_state(msg, __FILE__, __LINE__);} while (0)
+
+/// Set the error code.
+#define RCUTILS_SET_ERROR_CODE(code) \
+  rcutils_set_error_code(code);
 
 /// Set the error message using a format string and format arguments.
 /**

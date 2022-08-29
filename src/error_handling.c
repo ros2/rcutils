@@ -40,6 +40,9 @@ RCUTILS_THREAD_LOCAL rcutils_error_state_t gtls_rcutils_error_state;
 RCUTILS_THREAD_LOCAL bool gtls_rcutils_error_string_is_formatted = false;
 RCUTILS_THREAD_LOCAL rcutils_error_string_t gtls_rcutils_error_string;
 RCUTILS_THREAD_LOCAL bool gtls_rcutils_error_is_set = false;
+RCUTILS_THREAD_LOCAL bool gtls_rcutils_error_code_is_formatted = false;
+RCUTILS_THREAD_LOCAL rcutils_ret_t gtls_rcutils_error_code = 21;
+RCUTILS_THREAD_LOCAL bool gtls_rcutils_error_code_is_set = true;
 
 rcutils_ret_t
 rcutils_initialize_error_handling_thread_local_storage(rcutils_allocator_t allocator)
@@ -221,6 +224,13 @@ rcutils_set_error_state(
   gtls_rcutils_error_is_set = true;
 }
 
+rcutils_ret_t
+rcutils_set_error_code(rcutils_ret_t error_code){
+  gtls_rcutils_error_code = error_code;
+  gtls_rcutils_error_code_is_set  = true;
+  return error_code;
+}
+
 bool
 rcutils_error_is_set(void)
 {
@@ -236,13 +246,19 @@ rcutils_get_error_state(void)
 rcutils_error_string_t
 rcutils_get_error_string(void)
 {
-  if (!gtls_rcutils_error_is_set) {
+  if (!gtls_rcutils_error_is_set && !gtls_rcutils_error_code_is_set) {
     return (rcutils_error_string_t) {"error not set"};  // NOLINT(readability/braces)
   }
-  if (!gtls_rcutils_error_string_is_formatted) {
+  if (!gtls_rcutils_error_string_is_formatted && gtls_rcutils_error_is_set) {
     __rcutils_format_error_string(&gtls_rcutils_error_string, &gtls_rcutils_error_state);
     gtls_rcutils_error_string_is_formatted = true;
   }
+
+   if(!gtls_rcutils_error_code_is_formatted && gtls_rcutils_error_code_is_set){
+    __rcutils_format_add_error_code(&gtls_rcutils_error_string , &gtls_rcutils_error_code);
+    gtls_rcutils_error_code_is_formatted = false;
+  }
+
   return gtls_rcutils_error_string;
 }
 
@@ -257,6 +273,9 @@ rcutils_reset_error(void)
     .str = "\0"
   };
   gtls_rcutils_error_is_set = false;
+  gtls_rcutils_error_code = RCUTILS_RET_OK;
+  gtls_rcutils_error_code_is_set = false;
+  gtls_rcutils_error_code_is_formatted = false;
 }
 
 #ifdef __cplusplus

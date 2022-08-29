@@ -23,7 +23,7 @@ extern "C"
 #endif
 
 /// The type that holds a return value for an rcutils operation.
-typedef int rcutils_ret_t;
+typedef int32_t rcutils_ret_t;
 
 /// Successful operation.
 #define RCUTILS_RET_OK 0
