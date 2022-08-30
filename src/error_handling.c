@@ -41,8 +41,8 @@ RCUTILS_THREAD_LOCAL bool gtls_rcutils_error_string_is_formatted = false;
 RCUTILS_THREAD_LOCAL rcutils_error_string_t gtls_rcutils_error_string;
 RCUTILS_THREAD_LOCAL bool gtls_rcutils_error_is_set = false;
 RCUTILS_THREAD_LOCAL bool gtls_rcutils_error_code_is_formatted = false;
-RCUTILS_THREAD_LOCAL rcutils_ret_t gtls_rcutils_error_code = 21;
-RCUTILS_THREAD_LOCAL bool gtls_rcutils_error_code_is_set = true;
+RCUTILS_THREAD_LOCAL rcutils_ret_t gtls_rcutils_error_code = RCUTILS_RET_OK;
+RCUTILS_THREAD_LOCAL bool gtls_rcutils_error_code_is_set = false;
 
 rcutils_ret_t
 rcutils_initialize_error_handling_thread_local_storage(rcutils_allocator_t allocator)
@@ -246,9 +246,6 @@ rcutils_get_error_state(void)
 rcutils_error_string_t
 rcutils_get_error_string(void)
 {
-  if (!gtls_rcutils_error_is_set && !gtls_rcutils_error_code_is_set) {
-    return (rcutils_error_string_t) {"error not set"};  // NOLINT(readability/braces)
-  }
   if (!gtls_rcutils_error_string_is_formatted && gtls_rcutils_error_is_set) {
     __rcutils_format_error_string(&gtls_rcutils_error_string, &gtls_rcutils_error_state);
     gtls_rcutils_error_string_is_formatted = true;
@@ -259,7 +256,8 @@ rcutils_get_error_string(void)
     gtls_rcutils_error_code_is_formatted = false;
   }
 
-  return gtls_rcutils_error_string;
+  // Default return.
+  return (rcutils_error_string_t) {"error not set"};   // NOLINT(readability/braces)
 }
 
 void
