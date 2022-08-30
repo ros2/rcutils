@@ -20,6 +20,7 @@
 #include "./allocator_testing_utils.h"
 #include "osrf_testing_tools_cpp/scope_exit.hpp"
 #include "rcutils/logging.h"
+#include "rcutils/strdup.h"
 
 TEST(TestLogging, test_logging_initialization) {
   EXPECT_FALSE(g_rcutils_logging_initialized);
@@ -423,7 +424,9 @@ TEST(TestLogging, test_logger_allocated_names) {
 
   rcutils_logging_set_default_logger_level(RCUTILS_LOG_SEVERITY_INFO);
 
-  const char * allocated_name = strdup("rcutils_test_loggers");
+  rcutils_allocator_t allocator = rcutils_get_default_allocator();
+
+  const char * allocated_name = rcutils_strdup("rcutils_test_loggers", allocator);
 
   // check setting of acceptable severities
   ASSERT_EQ(
@@ -431,7 +434,7 @@ TEST(TestLogging, test_logger_allocated_names) {
     rcutils_logging_set_logger_level(
       allocated_name, RCUTILS_LOG_SEVERITY_WARN));
 
-  free(const_cast<char *>(allocated_name));
+  allocator.deallocate(const_cast<char *>(allocated_name), allocator.state);
 
   ASSERT_EQ(
     RCUTILS_LOG_SEVERITY_WARN,
