@@ -42,9 +42,9 @@ extern "C"
 #include <direct.h>
 #endif  // _WIN32
 
+#include "rcutils/env.h"
 #include "rcutils/error_handling.h"
 #include "rcutils/format_string.h"
-#include "rcutils/get_env.h"
 #include "rcutils/repl_str.h"
 #include "rcutils/strdup.h"
 

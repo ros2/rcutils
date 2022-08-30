@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// @file
+/// \file
 
 #ifndef RCUTILS__TYPES__UINT8_ARRAY_H_
 #define RCUTILS__TYPES__UINT8_ARRAY_H_
@@ -29,7 +29,7 @@ extern "C"
 #include "rcutils/visibility_control.h"
 
 /// The structure holding the metadata for a uint8 array.
-typedef struct RCUTILS_PUBLIC_TYPE rcutils_uint8_array_t
+typedef struct RCUTILS_PUBLIC_TYPE rcutils_uint8_array_s
 {
   /// The allocated memory for the uint8 array.
   uint8_t * buffer;

@@ -2,11 +2,36 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-4.0.3 (2022-06-30)
+
+5.2.0 (2022-04-29)
 ------------------
-* Clarify duration arg description in logging macros (`#359 <https://github.com/ros2/rcutils/issues/359>`_) (`#361 <https://github.com/ros2/rcutils/issues/361>`_)
-* Fix build on Android (`#343 <https://github.com/ros2/rcutils/issues/343>`_)
-* Contributors: Ivan Santiago Paunovic, mergify[bot]
+* Update rcutils_steady_time_now to return the same data as std::chrono (`#357 <https://github.com/ros2/rcutils/issues/357>`_)
+* Contributors: Chris Lalancette
+
+5.1.1 (2022-03-31)
+------------------
+* Update launch test for change related to enviroment variables in launch (`#354 <https://github.com/ros2/rcutils/issues/354>`_)
+* Contributors: Jacob Perron
+
+5.1.0 (2022-03-01)
+------------------
+* Remove dst_size from strlen usage (`#353 <https://github.com/ros2/rcutils/issues/353>`_)
+* Install headers to include\${PROJECT_NAME} (`#351 <https://github.com/ros2/rcutils/issues/351>`_)
+* Contributors: Jorge Perez, Shane Loretz
+
+5.0.1 (2022-01-14)
+------------------
+* Use static_cast instead of C-style cast (`#349 <https://github.com/ros2/rcutils/issues/349>`_)
+* Contributors: Jacob Perron
+
+5.0.0 (2021-11-01)
+------------------
+* Fixing up documentation build when using rosdoc2 (`#344 <https://github.com/ros2/rcutils/issues/344>`_)
+* Stop double-defining structs. (`#333 <https://github.com/ros2/rcutils/issues/333>`_)
+* Use FindPython3 explicitly instead of FindPythonInterp implicitly (`#345 <https://github.com/ros2/rcutils/issues/345>`_)
+* Fix build on Android (`#342 <https://github.com/ros2/rcutils/issues/342>`_)
+* Deprecate get_env.h and move content to env.{h,c} (`#340 <https://github.com/ros2/rcutils/issues/340>`_)
+* Contributors: Chris Lalancette, Christophe Bedard, Ivan Santiago Paunovic, Shane Loretz, William Woodall
 
 4.0.2 (2021-04-12)
 ------------------

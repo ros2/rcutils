@@ -12,11 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
 #include <ctype.h>
 #include <errno.h>
 #include <inttypes.h>
@@ -43,10 +38,10 @@ extern "C"
 #endif
 
 #include "rcutils/allocator.h"
+#include "rcutils/env.h"
 #include "rcutils/error_handling.h"
 #include "rcutils/find.h"
 #include "rcutils/format_string.h"
-#include "rcutils/get_env.h"
 #include "rcutils/logging.h"
 #include "rcutils/snprintf.h"
 #include "rcutils/strdup.h"
@@ -88,24 +83,48 @@ enum rcutils_colorized_output
 
 bool g_rcutils_logging_initialized = false;
 
-char g_rcutils_logging_output_format_string[RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN];
+static char g_rcutils_logging_output_format_string[RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN];
 static const char * g_rcutils_logging_default_output_format =
   "[{severity}] [{time}] [{name}]: {message}";
 
 static rcutils_allocator_t g_rcutils_logging_allocator;
 
-rcutils_logging_output_handler_t g_rcutils_logging_output_handler = NULL;
+static rcutils_logging_output_handler_t g_rcutils_logging_output_handler = NULL;
 static rcutils_string_map_t g_rcutils_logging_severities_map;
 
 // If this is false, attempts to use the severities map will be skipped.
 // This can happen if allocation of the map fails at initialization.
-bool g_rcutils_logging_severities_map_valid = false;
+static bool g_rcutils_logging_severities_map_valid = false;
 
-int g_rcutils_logging_default_logger_level = 0;
+static int g_rcutils_logging_default_logger_level = 0;
 
 static FILE * g_output_stream = NULL;
 
-enum rcutils_colorized_output g_colorized_output = RCUTILS_COLORIZED_OUTPUT_AUTO;
+static enum rcutils_colorized_output g_colorized_output = RCUTILS_COLORIZED_OUTPUT_AUTO;
+
+typedef struct logging_input_s
+{
+  const char * name;
+  const rcutils_log_location_t * location;
+  const char * msg;
+  int severity;
+  rcutils_time_point_value_t timestamp;
+} logging_input_t;
+
+typedef const char * (* token_handler)(
+  const logging_input_t * logging_input,
+  rcutils_char_array_t * logging_output,
+  size_t start_offset, size_t end_offset);
+
+typedef struct log_msg_part_s
+{
+  token_handler handler;
+  size_t start_offset;
+  size_t end_offset;
+} log_msg_part_t;
+
+static size_t g_num_log_msg_handlers = 0;
+static log_msg_part_t g_handlers[1024];
 
 rcutils_ret_t rcutils_logging_initialize(void)
 {
@@ -157,144 +176,494 @@ static enum rcutils_get_env_retval rcutils_get_env_var_zero_or_one(
   return RCUTILS_GET_ENV_ERROR;
 }
 
+static const char * expand_time(
+  const logging_input_t * logging_input, rcutils_char_array_t * logging_output,
+  rcutils_ret_t (* time_func)(const rcutils_time_point_value_t *, char *, size_t))
+{
+  // Temporary, local storage for integer/float conversion to string
+  // Note:
+  //   32 characters enough, because the most it can be is 20 characters
+  //   for the 19 possible digits in a signed 64-bit number plus the optional
+  //   decimal point in the floating point seconds version
+  char numeric_storage[32];
+
+  if (time_func(
+      &logging_input->timestamp, numeric_storage,
+      sizeof(numeric_storage)) != RCUTILS_RET_OK)
+  {
+    RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string().str);
+    rcutils_reset_error();
+    RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
+    return NULL;
+  }
+
+  if (rcutils_char_array_strcat(logging_output, numeric_storage) != RCUTILS_RET_OK) {
+    RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string().str);
+    rcutils_reset_error();
+    RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
+    return NULL;
+  }
+
+  return logging_output->buffer;
+}
+
+static const char * expand_time_as_seconds(
+  const logging_input_t * logging_input,
+  rcutils_char_array_t * logging_output,
+  size_t start_offset, size_t end_offset)
+{
+  (void)start_offset;
+  (void)end_offset;
+
+  return expand_time(logging_input, logging_output, rcutils_time_point_value_as_seconds_string);
+}
+
+static const char * expand_time_as_nanoseconds(
+  const logging_input_t * logging_input,
+  rcutils_char_array_t * logging_output,
+  size_t start_offset, size_t end_offset)
+{
+  (void)start_offset;
+  (void)end_offset;
+
+  return expand_time(logging_input, logging_output, rcutils_time_point_value_as_nanoseconds_string);
+}
+
+static const char * expand_line_number(
+  const logging_input_t * logging_input,
+  rcutils_char_array_t * logging_output,
+  size_t start_offset, size_t end_offset)
+{
+  (void)start_offset;
+  (void)end_offset;
+
+  if (logging_input->location) {
+    // Allow 9 digits for the expansion of the line number (otherwise, truncate).
+    char line_number_expansion[10];
+
+    // Even in the case of truncation the result will still be null-terminated.
+    int written = rcutils_snprintf(
+      line_number_expansion, sizeof(line_number_expansion), "%zu",
+      logging_input->location->line_number);
+    if (written < 0) {
+      RCUTILS_SAFE_FWRITE_TO_STDERR_WITH_FORMAT_STRING(
+        "failed to format line number: '%zu'\n", logging_input->location->line_number);
+      return NULL;
+    }
+
+    if (rcutils_char_array_strcat(logging_output, line_number_expansion) != RCUTILS_RET_OK) {
+      RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string().str);
+      rcutils_reset_error();
+      RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
+      return NULL;
+    }
+  }
+
+  return logging_output->buffer;
+}
+
+static const char * expand_severity(
+  const logging_input_t * logging_input,
+  rcutils_char_array_t * logging_output,
+  size_t start_offset, size_t end_offset)
+{
+  (void)start_offset;
+  (void)end_offset;
+
+  const char * severity_string = g_rcutils_log_severity_names[logging_input->severity];
+  if (rcutils_char_array_strcat(logging_output, severity_string) != RCUTILS_RET_OK) {
+    RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string().str);
+    rcutils_reset_error();
+    RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
+    return NULL;
+  }
+
+  return logging_output->buffer;
+}
+
+static const char * expand_name(
+  const logging_input_t * logging_input,
+  rcutils_char_array_t * logging_output,
+  size_t start_offset, size_t end_offset)
+{
+  (void)start_offset;
+  (void)end_offset;
+
+  if (NULL != logging_input->name) {
+    if (rcutils_char_array_strcat(logging_output, logging_input->name) != RCUTILS_RET_OK) {
+      RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string().str);
+      rcutils_reset_error();
+      RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
+      return NULL;
+    }
+  }
+
+  return logging_output->buffer;
+}
+
+static const char * expand_message(
+  const logging_input_t * logging_input,
+  rcutils_char_array_t * logging_output,
+  size_t start_offset, size_t end_offset)
+{
+  (void)start_offset;
+  (void)end_offset;
+
+  if (rcutils_char_array_strcat(logging_output, logging_input->msg) != RCUTILS_RET_OK) {
+    RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string().str);
+    rcutils_reset_error();
+    RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
+    return NULL;
+  }
+
+  return logging_output->buffer;
+}
+
+static const char * expand_function_name(
+  const logging_input_t * logging_input,
+  rcutils_char_array_t * logging_output,
+  size_t start_offset, size_t end_offset)
+{
+  (void)start_offset;
+  (void)end_offset;
+
+  if (logging_input->location) {
+    if (rcutils_char_array_strcat(
+        logging_output,
+        logging_input->location->function_name) != RCUTILS_RET_OK)
+    {
+      RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string().str);
+      rcutils_reset_error();
+      RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
+      return NULL;
+    }
+  }
+
+  return logging_output->buffer;
+}
+
+static const char * expand_file_name(
+  const logging_input_t * logging_input,
+  rcutils_char_array_t * logging_output,
+  size_t start_offset, size_t end_offset)
+{
+  (void)start_offset;
+  (void)end_offset;
+
+  if (logging_input->location) {
+    if (rcutils_char_array_strcat(
+        logging_output,
+        logging_input->location->file_name) != RCUTILS_RET_OK)
+    {
+      RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string().str);
+      rcutils_reset_error();
+      RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
+      return NULL;
+    }
+  }
+
+  return logging_output->buffer;
+}
+
+typedef struct token_map_entry_s
+{
+  const char * token;
+  token_handler handler;
+} token_map_entry_t;
+
+static const token_map_entry_t tokens[] = {
+  {.token = "severity", .handler = expand_severity},
+  {.token = "name", .handler = expand_name},
+  {.token = "message", .handler = expand_message},
+  {.token = "function_name", .handler = expand_function_name},
+  {.token = "file_name", .handler = expand_file_name},
+  {.token = "time", .handler = expand_time_as_seconds},
+  {.token = "time_as_nanoseconds", .handler = expand_time_as_nanoseconds},
+  {.token = "line_number", .handler = expand_line_number},
+};
+
+static token_handler find_token_handler(const char * token)
+{
+  int token_number = sizeof(tokens) / sizeof(tokens[0]);
+  for (int token_index = 0; token_index < token_number; token_index++) {
+    if (strcmp(token, tokens[token_index].token) == 0) {
+      return tokens[token_index].handler;
+    }
+  }
+  return NULL;
+}
+
+static const char * copy_from_orig(
+  const logging_input_t * logging_input,
+  rcutils_char_array_t * logging_output,
+  size_t start_offset, size_t end_offset)
+{
+  (void)logging_input;
+
+  if (rcutils_char_array_strncat(
+      logging_output,
+      g_rcutils_logging_output_format_string + start_offset,
+      end_offset - start_offset) != RCUTILS_RET_OK)
+  {
+    RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string().str);
+    rcutils_reset_error();
+    RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
+    return NULL;
+  }
+
+  return logging_output->buffer;
+}
+
+static void parse_and_create_handlers_list(void)
+{
+  // Process the format string looking for known tokens.
+  const char token_start_delimiter = '{';
+  const char token_end_delimiter = '}';
+
+  const char * str = g_rcutils_logging_output_format_string;
+  size_t size = strlen(g_rcutils_logging_output_format_string);
+
+  g_num_log_msg_handlers = 0;
+
+  // Walk through the format string and create callbacks when they're encountered.
+  size_t i = 0;
+  while (i < size) {
+    // Print everything up to the next token start delimiter.
+    size_t chars_to_start_delim = rcutils_find(str + i, token_start_delimiter);
+    size_t remaining_chars = size - i;
+
+    if (chars_to_start_delim > 0) {  // there is stuff before a token start delimiter
+      size_t chars_to_copy = chars_to_start_delim >
+        remaining_chars ? remaining_chars : chars_to_start_delim;
+      g_handlers[g_num_log_msg_handlers].handler = copy_from_orig;
+      g_handlers[g_num_log_msg_handlers].start_offset = i;
+      g_handlers[g_num_log_msg_handlers].end_offset = i + chars_to_copy;
+      if (g_num_log_msg_handlers >= sizeof(g_handlers) - 1) {
+        RCUTILS_SAFE_FWRITE_TO_STDERR(
+          "Too many substitutions in the logging output format string; truncating");
+        rcutils_reset_error();
+        RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
+        return;
+      }
+      g_num_log_msg_handlers++;
+
+      i += chars_to_copy;
+      if (i >= size) {  // perhaps no start delimiter was found
+        break;
+      }
+
+      continue;
+    }
+
+    // We are at a token start delimiter: determine if there's a known token or not.
+    // Potential tokens can't possibly be longer than the format string itself.
+    char token[RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN];
+
+    // Look for a token end delimiter.
+    size_t chars_to_end_delim = rcutils_find(str + i, token_end_delimiter);
+    remaining_chars = size - i;
+
+    if (chars_to_end_delim > remaining_chars) {
+      // No end delimiters found in the remainder of the format string;
+      // there won't be any more tokens so shortcut the rest of the checking.
+      g_handlers[g_num_log_msg_handlers].handler = copy_from_orig;
+      g_handlers[g_num_log_msg_handlers].start_offset = i;
+      g_handlers[g_num_log_msg_handlers].end_offset = i + remaining_chars;
+      if (g_num_log_msg_handlers >= sizeof(g_handlers) - 1) {
+        RCUTILS_SAFE_FWRITE_TO_STDERR(
+          "Too many substitutions in the logging output format string; truncating");
+        rcutils_reset_error();
+        RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
+        return;
+      }
+      g_num_log_msg_handlers++;
+      break;
+    }
+
+    // Found what looks like a token; determine if it's recognized.
+    size_t token_len = chars_to_end_delim - 1;  // Not including delimiters.
+    memcpy(token, str + i + 1, token_len);  // Skip the start delimiter.
+    token[token_len] = '\0';
+
+    token_handler expand_token = find_token_handler(token);
+
+    if (!expand_token) {
+      // This wasn't a token; print the start delimiter and continue the search as usual
+      // (the substring might contain more start delimiters).
+      g_handlers[g_num_log_msg_handlers].handler = copy_from_orig;
+      g_handlers[g_num_log_msg_handlers].start_offset = i;
+      g_handlers[g_num_log_msg_handlers].end_offset = i + 1;
+      if (g_num_log_msg_handlers >= sizeof(g_handlers) - 1) {
+        RCUTILS_SAFE_FWRITE_TO_STDERR(
+          "Too many substitutions in the logging output format string; truncating");
+        rcutils_reset_error();
+        RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
+        return;
+      }
+      g_num_log_msg_handlers++;
+      i++;
+      continue;
+    }
+
+    g_handlers[g_num_log_msg_handlers].handler = expand_token;
+    // These are unused when using a token expander
+    g_handlers[g_num_log_msg_handlers].start_offset = 0;
+    g_handlers[g_num_log_msg_handlers].end_offset = 0;
+    if (g_num_log_msg_handlers >= sizeof(g_handlers) - 1) {
+      RCUTILS_SAFE_FWRITE_TO_STDERR(
+        "Too many substitutions in the logging output format string; truncating");
+      rcutils_reset_error();
+      RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
+      return;
+    }
+    g_num_log_msg_handlers++;
+
+    // Skip ahead to avoid re-processing the token characters (including the 2 delimiters).
+    i += token_len + 2;
+  }
+}
+
 rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allocator)
 {
-  rcutils_ret_t ret = RCUTILS_RET_OK;
-  if (!g_rcutils_logging_initialized) {
-    if (!rcutils_allocator_is_valid(&allocator)) {
-      RCUTILS_SET_ERROR_MSG("Provided allocator is invalid.");
+  if (g_rcutils_logging_initialized) {
+    return RCUTILS_RET_OK;
+  }
+
+  if (!rcutils_allocator_is_valid(&allocator)) {
+    RCUTILS_SET_ERROR_MSG("Provided allocator is invalid.");
+    return RCUTILS_RET_INVALID_ARGUMENT;
+  }
+  g_rcutils_logging_allocator = allocator;
+
+  g_rcutils_logging_output_handler = &rcutils_logging_console_output_handler;
+  g_rcutils_logging_default_logger_level = RCUTILS_DEFAULT_LOGGER_DEFAULT_LEVEL;
+
+  const char * line_buffered = NULL;
+  const char * ret_str = rcutils_get_env("RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED", &line_buffered);
+  if (NULL != ret_str) {
+    RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
+      "Error getting environment variable RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED: %s", ret_str);
+    return RCUTILS_RET_ERROR;
+  }
+
+  if (strcmp(line_buffered, "") != 0) {
+    RCUTILS_SAFE_FWRITE_TO_STDERR(
+      "RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED is now ignored. "
+      "Please set RCUTILS_LOGGING_USE_STDOUT and RCUTILS_LOGGING_BUFFERED_STREAM "
+      "to control the stream and the buffering of log messages.\n");
+  }
+
+  // Set the default output stream for all severities to stderr so that errors
+  // are propagated immediately.
+  // The user can choose to set the output stream to stdout by setting the
+  // RCUTILS_LOGGING_USE_STDOUT environment variable to 1.
+  enum rcutils_get_env_retval retval = rcutils_get_env_var_zero_or_one(
+    "RCUTILS_LOGGING_USE_STDOUT", "use stderr", "use stdout");
+  switch (retval) {
+    case RCUTILS_GET_ENV_ERROR:
       return RCUTILS_RET_INVALID_ARGUMENT;
-    }
-    g_rcutils_logging_allocator = allocator;
-
-    g_rcutils_logging_output_handler = &rcutils_logging_console_output_handler;
-    g_rcutils_logging_default_logger_level = RCUTILS_DEFAULT_LOGGER_DEFAULT_LEVEL;
-
-    const char * line_buffered = NULL;
-    const char * ret_str = rcutils_get_env("RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED", &line_buffered);
-    if (NULL == ret_str) {
-      if (strcmp(line_buffered, "") != 0) {
-        RCUTILS_SAFE_FWRITE_TO_STDERR(
-          "RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED is now ignored. "
-          "Please set RCUTILS_LOGGING_USE_STDOUT and RCUTILS_LOGGING_BUFFERED_STREAM "
-          "to control the stream and the buffering of log messages.\n");
-      }
-    } else {
-      RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
-        "Error getting environment variable RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED: %s", ret_str);
-      return RCUTILS_RET_ERROR;
-    }
-
-    // Set the default output stream for all severities to stderr so that errors
-    // are propagated immediately.
-    // The user can choose to set the output stream to stdout by setting the
-    // RCUTILS_LOGGING_USE_STDOUT environment variable to 1.
-    enum rcutils_get_env_retval retval = rcutils_get_env_var_zero_or_one(
-      "RCUTILS_LOGGING_USE_STDOUT", "use stderr", "use stdout");
-    switch (retval) {
-      case RCUTILS_GET_ENV_ERROR:
-        return RCUTILS_RET_INVALID_ARGUMENT;
-      case RCUTILS_GET_ENV_EMPTY:
-      case RCUTILS_GET_ENV_ZERO:
-        g_output_stream = stderr;
-        break;
-      case RCUTILS_GET_ENV_ONE:
-        g_output_stream = stdout;
-        break;
-      default:
-        RCUTILS_SET_ERROR_MSG(
-          "Invalid return from environment fetch");
-        return RCUTILS_RET_ERROR;
-    }
-
-    // Allow the user to choose how buffering on the stream works by setting
-    // RCUTILS_LOGGING_BUFFERED_STREAM.
-    // With an empty environment variable, use the default of the stream.
-    // With a value of 0, force the stream to be unbuffered.
-    // With a value of 1, force the stream to be line buffered.
-    retval = rcutils_get_env_var_zero_or_one(
-      "RCUTILS_LOGGING_BUFFERED_STREAM", "not buffered", "buffered");
-    if (RCUTILS_GET_ENV_ERROR == retval) {
-      return RCUTILS_RET_INVALID_ARGUMENT;
-    }
-    if (RCUTILS_GET_ENV_ZERO == retval || RCUTILS_GET_ENV_ONE == retval) {
-      int mode = retval == RCUTILS_GET_ENV_ZERO ? _IONBF : _IOLBF;
-      size_t buffer_size = (mode == _IOLBF) ? RCUTILS_LOGGING_STREAM_BUFFER_SIZE : 0;
-
-      // buffer_size cannot be 0 on Windows with IOLBF, see comments above where it's #define'd
-      if (setvbuf(g_output_stream, NULL, mode, buffer_size) != 0) {
-        char error_string[1024];
-        rcutils_strerror(error_string, sizeof(error_string));
-        RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
-          "Error setting stream buffering mode: %s", error_string);
-        return RCUTILS_RET_ERROR;
-      }
-    } else if (RCUTILS_GET_ENV_EMPTY != retval) {
+    case RCUTILS_GET_ENV_EMPTY:
+    case RCUTILS_GET_ENV_ZERO:
+      g_output_stream = stderr;
+      break;
+    case RCUTILS_GET_ENV_ONE:
+      g_output_stream = stdout;
+      break;
+    default:
       RCUTILS_SET_ERROR_MSG(
         "Invalid return from environment fetch");
       return RCUTILS_RET_ERROR;
-    }
-
-    retval = rcutils_get_env_var_zero_or_one(
-      "RCUTILS_COLORIZED_OUTPUT", "force color",
-      "force no color");
-    switch (retval) {
-      case RCUTILS_GET_ENV_ERROR:
-        return RCUTILS_RET_INVALID_ARGUMENT;
-      case RCUTILS_GET_ENV_EMPTY:
-        g_colorized_output = RCUTILS_COLORIZED_OUTPUT_AUTO;
-        break;
-      case RCUTILS_GET_ENV_ZERO:
-        g_colorized_output = RCUTILS_COLORIZED_OUTPUT_FORCE_DISABLE;
-        break;
-      case RCUTILS_GET_ENV_ONE:
-        g_colorized_output = RCUTILS_COLORIZED_OUTPUT_FORCE_ENABLE;
-        break;
-      default:
-        RCUTILS_SET_ERROR_MSG(
-          "Invalid return from environment fetch");
-        return RCUTILS_RET_ERROR;
-    }
-
-    // Check for the environment variable for custom output formatting
-    const char * output_format;
-    ret_str = rcutils_get_env("RCUTILS_CONSOLE_OUTPUT_FORMAT", &output_format);
-    if (NULL == ret_str && strcmp(output_format, "") != 0) {
-      size_t chars_to_copy = strlen(output_format);
-      if (chars_to_copy > RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN - 1) {
-        chars_to_copy = RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN - 1;
-      }
-      memcpy(g_rcutils_logging_output_format_string, output_format, chars_to_copy);
-      g_rcutils_logging_output_format_string[chars_to_copy] = '\0';
-    } else {
-      if (NULL != ret_str) {
-        RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
-          "Failed to get output format from env. variable [%s]. Using default output format.",
-          ret_str);
-        ret = RCUTILS_RET_INVALID_ARGUMENT;
-      }
-      memcpy(
-        g_rcutils_logging_output_format_string, g_rcutils_logging_default_output_format,
-        strlen(g_rcutils_logging_default_output_format) + 1);
-    }
-
-    g_rcutils_logging_severities_map = rcutils_get_zero_initialized_string_map();
-    rcutils_ret_t string_map_ret = rcutils_string_map_init(
-      &g_rcutils_logging_severities_map, 0, g_rcutils_logging_allocator);
-    if (string_map_ret != RCUTILS_RET_OK) {
-      // If an error message was set it will have been overwritten by rcutils_string_map_init.
-      RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
-        "Failed to initialize map for logger severities [%s]. Severities will not be configurable.",
-        rcutils_get_error_string().str);
-      g_rcutils_logging_severities_map_valid = false;
-      ret = RCUTILS_RET_STRING_MAP_INVALID;
-    } else {
-      g_rcutils_logging_severities_map_valid = true;
-    }
-
-    g_rcutils_logging_initialized = true;
   }
-  return ret;
+
+  // Allow the user to choose how buffering on the stream works by setting
+  // RCUTILS_LOGGING_BUFFERED_STREAM.
+  // With an empty environment variable, use the default of the stream.
+  // With a value of 0, force the stream to be unbuffered.
+  // With a value of 1, force the stream to be line buffered.
+  retval = rcutils_get_env_var_zero_or_one(
+    "RCUTILS_LOGGING_BUFFERED_STREAM", "not buffered", "buffered");
+  if (RCUTILS_GET_ENV_ERROR == retval) {
+    return RCUTILS_RET_INVALID_ARGUMENT;
+  }
+  if (RCUTILS_GET_ENV_ZERO == retval || RCUTILS_GET_ENV_ONE == retval) {
+    int mode = retval == RCUTILS_GET_ENV_ZERO ? _IONBF : _IOLBF;
+    size_t buffer_size = (mode == _IOLBF) ? RCUTILS_LOGGING_STREAM_BUFFER_SIZE : 0;
+
+    // buffer_size cannot be 0 on Windows with IOLBF, see comments above where it's #define'd
+    if (setvbuf(g_output_stream, NULL, mode, buffer_size) != 0) {
+      char error_string[1024];
+      rcutils_strerror(error_string, sizeof(error_string));
+      RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
+        "Error setting stream buffering mode: %s", error_string);
+      return RCUTILS_RET_ERROR;
+    }
+  } else if (RCUTILS_GET_ENV_EMPTY != retval) {
+    RCUTILS_SET_ERROR_MSG(
+      "Invalid return from environment fetch");
+    return RCUTILS_RET_ERROR;
+  }
+
+  retval = rcutils_get_env_var_zero_or_one(
+    "RCUTILS_COLORIZED_OUTPUT", "force color",
+    "force no color");
+  switch (retval) {
+    case RCUTILS_GET_ENV_ERROR:
+      return RCUTILS_RET_INVALID_ARGUMENT;
+    case RCUTILS_GET_ENV_EMPTY:
+      g_colorized_output = RCUTILS_COLORIZED_OUTPUT_AUTO;
+      break;
+    case RCUTILS_GET_ENV_ZERO:
+      g_colorized_output = RCUTILS_COLORIZED_OUTPUT_FORCE_DISABLE;
+      break;
+    case RCUTILS_GET_ENV_ONE:
+      g_colorized_output = RCUTILS_COLORIZED_OUTPUT_FORCE_ENABLE;
+      break;
+    default:
+      RCUTILS_SET_ERROR_MSG(
+        "Invalid return from environment fetch");
+      return RCUTILS_RET_ERROR;
+  }
+
+  // Check for the environment variable for custom output formatting
+  const char * output_format;
+  ret_str = rcutils_get_env("RCUTILS_CONSOLE_OUTPUT_FORMAT", &output_format);
+  if (NULL != ret_str) {
+    RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
+      "Failed to get output format from env. variable [%s]. Using default output format.",
+      ret_str);
+    output_format = g_rcutils_logging_default_output_format;
+  } else {
+    if (strcmp(output_format, "") == 0) {
+      output_format = g_rcutils_logging_default_output_format;
+    }
+  }
+
+  size_t chars_to_copy = strlen(output_format);
+  if (chars_to_copy > RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN - 1) {
+    chars_to_copy = RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN - 1;
+  }
+  memcpy(g_rcutils_logging_output_format_string, output_format, chars_to_copy);
+  g_rcutils_logging_output_format_string[chars_to_copy] = '\0';
+
+  g_rcutils_logging_severities_map = rcutils_get_zero_initialized_string_map();
+  rcutils_ret_t string_map_ret = rcutils_string_map_init(
+    &g_rcutils_logging_severities_map, 0, g_rcutils_logging_allocator);
+  if (string_map_ret != RCUTILS_RET_OK) {
+    // If an error message was set it will have been overwritten by rcutils_string_map_init.
+    RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
+      "Failed to initialize map for logger severities [%s]. Severities will not be configurable.",
+      rcutils_get_error_string().str);
+    g_rcutils_logging_severities_map_valid = false;
+    return RCUTILS_RET_STRING_MAP_INVALID;
+  }
+
+  parse_and_create_handlers_list();
+
+  g_rcutils_logging_severities_map_valid = true;
+
+  g_rcutils_logging_initialized = true;
+
+  return RCUTILS_RET_OK;
 }
 
 rcutils_ret_t rcutils_logging_shutdown(void)
@@ -313,6 +682,7 @@ rcutils_ret_t rcutils_logging_shutdown(void)
     }
     g_rcutils_logging_severities_map_valid = false;
   }
+  g_num_log_msg_handlers = 0;
   g_rcutils_logging_initialized = false;
   return ret;
 }
@@ -517,34 +887,11 @@ bool rcutils_logging_logger_is_enabled_for(const char * name, int severity)
   }
   return severity >= logger_level;
 }
-#define SAFE_FWRITE_TO_STDERR_AND(action) \
-  RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string().str); \
-  rcutils_reset_error(); \
-  RCUTILS_SAFE_FWRITE_TO_STDERR("\n"); \
-  action;
 
-#define OK_OR_RETURN_NULL(op) \
-  if (op != RCUTILS_RET_OK) { \
-    SAFE_FWRITE_TO_STDERR_AND(return NULL); \
-  }
-
-#define OK_OR_RETURN_EARLY(op) \
-  if (op != RCUTILS_RET_OK) { \
-    return op; \
-  }
-
-#define APPEND_AND_RETURN_LOG_OUTPUT(s) \
-  OK_OR_RETURN_NULL(rcutils_char_array_strcat(logging_output, s)); \
-  return logging_output->buffer;
-
-
-void rcutils_log(
+static void vrcutils_log_internal(
   const rcutils_log_location_t * location,
-  int severity, const char * name, const char * format, ...)
+  int severity, const char * name, const char * format, va_list * args)
 {
-  if (!rcutils_logging_logger_is_enabled_for(name, severity)) {
-    return;
-  }
   rcutils_time_point_value_t now;
   rcutils_ret_t ret = rcutils_system_time_now(&now);
   if (ret != RCUTILS_RET_OK) {
@@ -553,150 +900,32 @@ void rcutils_log(
   }
   rcutils_logging_output_handler_t output_handler = g_rcutils_logging_output_handler;
   if (output_handler != NULL) {
-    va_list args;
-    va_start(args, format);
-    (*output_handler)(location, severity, name ? name : "", now, format, &args);
-    va_end(args);
+    (*output_handler)(location, severity, name ? name : "", now, format, args);
   }
 }
 
-typedef struct logging_input
+void rcutils_log(
+  const rcutils_log_location_t * location,
+  int severity, const char * name, const char * format, ...)
 {
-  const char * name;
-  const rcutils_log_location_t * location;
-  const char * msg;
-  int severity;
-  rcutils_time_point_value_t timestamp;
-} logging_input;
-
-typedef const char * (* token_handler)(
-  const logging_input * logging_input,
-  rcutils_char_array_t * logging_output);
-
-typedef struct token_map_entry
-{
-  const char * token;
-  token_handler handler;
-} token_map_entry;
-
-const char * expand_time(
-  const logging_input * logging_input, rcutils_char_array_t * logging_output,
-  rcutils_ret_t (* time_func)(const rcutils_time_point_value_t *, char *, size_t))
-{
-  // Temporary, local storage for integer/float conversion to string
-  // Note:
-  //   32 characters enough, because the most it can be is 20 characters
-  //   for the 19 possible digits in a signed 64-bit number plus the optional
-  //   decimal point in the floating point seconds version
-  char numeric_storage[32];
-  OK_OR_RETURN_NULL(time_func(&logging_input->timestamp, numeric_storage, sizeof(numeric_storage)));
-  APPEND_AND_RETURN_LOG_OUTPUT(numeric_storage);
-}
-
-const char * expand_time_as_seconds(
-  const logging_input * logging_input,
-  rcutils_char_array_t * logging_output)
-{
-  return expand_time(logging_input, logging_output, rcutils_time_point_value_as_seconds_string);
-}
-
-const char * expand_time_as_nanoseconds(
-  const logging_input * logging_input,
-  rcutils_char_array_t * logging_output)
-{
-  return expand_time(logging_input, logging_output, rcutils_time_point_value_as_nanoseconds_string);
-}
-
-const char * expand_line_number(
-  const logging_input * logging_input,
-  rcutils_char_array_t * logging_output)
-{
-  // Allow 9 digits for the expansion of the line number (otherwise, truncate).
-  char line_number_expansion[10];
-
-  const rcutils_log_location_t * location = logging_input->location;
-
-  if (!location) {
-    OK_OR_RETURN_NULL(rcutils_char_array_strcpy(logging_output, "0"));
-    return logging_output->buffer;
+  if (!rcutils_logging_logger_is_enabled_for(name, severity)) {
+    return;
   }
 
-  // Even in the case of truncation the result will still be null-terminated.
-  int written = rcutils_snprintf(
-    line_number_expansion, sizeof(line_number_expansion), "%zu", location->line_number);
-  if (written < 0) {
-    RCUTILS_SAFE_FWRITE_TO_STDERR_WITH_FORMAT_STRING(
-      "failed to format line number: '%zu'\n", location->line_number);
-    return NULL;
-  }
-
-  APPEND_AND_RETURN_LOG_OUTPUT(line_number_expansion);
+  va_list args;
+  va_start(args, format);
+  vrcutils_log_internal(location, severity, name, format, &args);
+  va_end(args);
 }
 
-const char * expand_severity(
-  const logging_input * logging_input,
-  rcutils_char_array_t * logging_output)
+void rcutils_log_internal(
+  const rcutils_log_location_t * location,
+  int severity, const char * name, const char * format, ...)
 {
-  const char * severity_string = g_rcutils_log_severity_names[logging_input->severity];
-  APPEND_AND_RETURN_LOG_OUTPUT(severity_string);
-}
-
-const char * expand_name(const logging_input * logging_input, rcutils_char_array_t * logging_output)
-{
-  if (NULL != logging_input->name) {
-    APPEND_AND_RETURN_LOG_OUTPUT(logging_input->name);
-  }
-  return logging_output->buffer;
-}
-
-const char * expand_message(
-  const logging_input * logging_input,
-  rcutils_char_array_t * logging_output)
-{
-  OK_OR_RETURN_NULL(rcutils_char_array_strcat(logging_output, logging_input->msg));
-  return logging_output->buffer;
-}
-
-const char * expand_function_name(
-  const logging_input * logging_input,
-  rcutils_char_array_t * logging_output)
-{
-  if (logging_input->location) {
-    APPEND_AND_RETURN_LOG_OUTPUT(logging_input->location->function_name);
-  }
-  return logging_output->buffer;
-}
-
-const char * expand_file_name(
-  const logging_input * logging_input,
-  rcutils_char_array_t * logging_output)
-{
-  if (logging_input->location) {
-    APPEND_AND_RETURN_LOG_OUTPUT(logging_input->location->file_name);
-  }
-  return logging_output->buffer;
-}
-
-static const token_map_entry tokens[] = {
-  {.token = "severity", .handler = expand_severity},
-  {.token = "name", .handler = expand_name},
-  {.token = "message", .handler = expand_message},
-  {.token = "function_name", .handler = expand_function_name},
-  {.token = "file_name", .handler = expand_file_name},
-  {.token = "time", .handler = expand_time_as_seconds},
-  {.token = "time_as_nanoseconds", .handler = expand_time_as_nanoseconds},
-  {.token = "line_number", .handler = expand_line_number},
-};
-
-token_handler find_token_handler(const char * token)
-{
-  int token_number = sizeof(tokens) / sizeof(tokens[0]);
-  for (int token_index = 0; token_index < token_number; token_index++) {
-    if (strcmp(token, tokens[token_index].token) == 0) {
-      return tokens[token_index].handler;
-    }
-  }
-  return NULL;
+  va_list args;
+  va_start(args, format);
+  vrcutils_log_internal(location, severity, name, format, &args);
+  va_end(args);
 }
 
 rcutils_ret_t rcutils_logging_format_message(
@@ -704,15 +933,7 @@ rcutils_ret_t rcutils_logging_format_message(
   int severity, const char * name, rcutils_time_point_value_t timestamp,
   const char * msg, rcutils_char_array_t * logging_output)
 {
-  rcutils_ret_t status = RCUTILS_RET_OK;
-  // Process the format string looking for known tokens.
-  const char token_start_delimiter = '{';
-  const char token_end_delimiter = '}';
-
-  const char * str = g_rcutils_logging_output_format_string;
-  size_t size = strlen(g_rcutils_logging_output_format_string);
-
-  const logging_input logging_input = {
+  const logging_input_t logging_input = {
     .location = location,
     .severity = severity,
     .name = name,
@@ -720,64 +941,16 @@ rcutils_ret_t rcutils_logging_format_message(
     .msg = msg
   };
 
-  // Walk through the format string and expand tokens when they're encountered.
-  size_t i = 0;
-  while (i < size) {
-    // Print everything up to the next token start delimiter.
-    size_t chars_to_start_delim = rcutils_find(str + i, token_start_delimiter);
-    size_t remaining_chars = size - i;
-
-    if (chars_to_start_delim > 0) {  // there are stuff before a token start delimiter
-      size_t chars_to_copy = chars_to_start_delim >
-        remaining_chars ? remaining_chars : chars_to_start_delim;
-      status = rcutils_char_array_strncat(logging_output, str + i, chars_to_copy);
-      OK_OR_RETURN_EARLY(status);
-      i += chars_to_copy;
-      if (i >= size) {  // perhaps no start delimiter was found
-        break;
-      }
-    }
-
-    // We are at a token start delimiter: determine if there's a known token or not.
-    // Potential tokens can't possibly be longer than the format string itself.
-    char token[RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN];
-
-    // Look for a token end delimiter.
-    size_t chars_to_end_delim = rcutils_find(str + i, token_end_delimiter);
-    remaining_chars = size - i;
-
-    if (chars_to_end_delim > remaining_chars) {
-      // No end delimiters found in the remainder of the format string;
-      // there won't be any more tokens so shortcut the rest of the checking.
-      status = rcutils_char_array_strncat(logging_output, str + i, remaining_chars);
-      OK_OR_RETURN_EARLY(status);
-      break;
-    }
-
-    // Found what looks like a token; determine if it's recognized.
-    size_t token_len = chars_to_end_delim - 1;  // Not including delimiters.
-    memcpy(token, str + i + 1, token_len);  // Skip the start delimiter.
-    token[token_len] = '\0';
-
-    token_handler expand_token = find_token_handler(token);
-
-    if (!expand_token) {
-      // This wasn't a token; print the start delimiter and continue the search as usual
-      // (the substring might contain more start delimiters).
-      status = rcutils_char_array_strncat(logging_output, str + i, 1);
-      OK_OR_RETURN_EARLY(status);
-      i++;
-      continue;
-    }
-
-    if (!expand_token(&logging_input, logging_output)) {
+  for (size_t i = 0; i < g_num_log_msg_handlers; ++i) {
+    if (g_handlers[i].handler(
+        &logging_input, logging_output,
+        g_handlers[i].start_offset, g_handlers[i].end_offset) == NULL)
+    {
       return RCUTILS_RET_ERROR;
     }
-    // Skip ahead to avoid re-processing the token characters (including the 2 delimiters).
-    i += token_len + 2;
   }
 
-  return status;
+  return RCUTILS_RET_OK;
 }
 
 #ifdef _WIN32
@@ -794,16 +967,6 @@ rcutils_ret_t rcutils_logging_format_message(
 # define IS_STREAM_A_TTY(stream) (isatty(fileno(stream)) != 0)
 #endif
 
-#define IS_OUTPUT_COLORIZED(is_colorized) \
-  { \
-    if (g_colorized_output == RCUTILS_COLORIZED_OUTPUT_FORCE_ENABLE) { \
-      is_colorized = true; \
-    } else if (g_colorized_output == RCUTILS_COLORIZED_OUTPUT_FORCE_DISABLE) { \
-      is_colorized = false; \
-    } else { \
-      is_colorized = IS_STREAM_A_TTY(g_output_stream); \
-    } \
-  }
 #define SET_COLOR_WITH_SEVERITY(status, severity, color) \
   { \
     switch (severity) { \
@@ -925,7 +1088,13 @@ void rcutils_logging_console_output_handler(
       return;
   }
 
-  IS_OUTPUT_COLORIZED(is_colorized)
+  if (g_colorized_output == RCUTILS_COLORIZED_OUTPUT_FORCE_ENABLE) {
+    is_colorized = true;
+  } else if (g_colorized_output == RCUTILS_COLORIZED_OUTPUT_FORCE_DISABLE) {
+    is_colorized = false;
+  } else {
+    is_colorized = IS_STREAM_A_TTY(g_output_stream);
+  }
 
   char msg_buf[1024] = "";
   rcutils_char_array_t msg_array = {
@@ -989,7 +1158,3 @@ void rcutils_logging_console_output_handler(
     RCUTILS_SAFE_FWRITE_TO_STDERR("Failed to fini array.\n");
   }
 }
-
-#ifdef __cplusplus
-}
-#endif

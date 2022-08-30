@@ -46,8 +46,8 @@ public:
     EXPECT_FALSE(g_rcutils_logging_initialized);
     ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_initialize());
     EXPECT_TRUE(g_rcutils_logging_initialized);
-    g_rcutils_logging_default_logger_level = RCUTILS_LOG_SEVERITY_DEBUG;
-    EXPECT_EQ(RCUTILS_LOG_SEVERITY_DEBUG, g_rcutils_logging_default_logger_level);
+    rcutils_logging_set_default_logger_level(RCUTILS_LOG_SEVERITY_DEBUG);
+    EXPECT_EQ(RCUTILS_LOG_SEVERITY_DEBUG, rcutils_logging_get_default_logger_level());
 
     auto rcutils_logging_console_output_handler = [](
       const rcutils_log_location_t * location,
@@ -120,14 +120,14 @@ TEST_F(TestLoggingMacros, test_logging_function) {
   g_function_called = false;
 
   // check that evaluation of a specified function does not occur if the severity is not enabled
-  g_rcutils_logging_default_logger_level = RCUTILS_LOG_SEVERITY_INFO;
+  rcutils_logging_set_default_logger_level(RCUTILS_LOG_SEVERITY_INFO);
   for (int i : {0, 1}) {  // cover both true and false return values
     g_counter = i;
     RCUTILS_LOG_DEBUG_FUNCTION(&not_divisible_by_three, "message %d", i);
   }
   EXPECT_EQ(0u, g_log_calls);
   EXPECT_FALSE(g_function_called);
-  g_rcutils_logging_default_logger_level = RCUTILS_LOG_SEVERITY_DEBUG;
+  rcutils_logging_set_default_logger_level(RCUTILS_LOG_SEVERITY_DEBUG);
 
   for (int i : {1, 2, 3, 4, 5, 6}) {
     g_counter = i;

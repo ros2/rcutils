@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// @file
+/// \file
 
 #ifndef RCUTILS__FILESYSTEM_H_
 #define RCUTILS__FILESYSTEM_H_
@@ -246,7 +246,7 @@ size_t
 rcutils_get_file_size(const char * file_path);
 
 /// An iterator used for enumerating directory contents
-typedef struct rcutils_dir_iter_t
+typedef struct rcutils_dir_iter_s
 {
   /// The name of the enumerated file or directory
   const char * entry_name;

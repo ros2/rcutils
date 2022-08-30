@@ -54,7 +54,7 @@ __rcutils_copy_string(char * dst, size_t dst_size, const char * src)
   assert(dst_size > 0);
   assert(src != NULL);
   // doesn't matter how long src actually is if it is longer than dst, so limit to dst + 1
-  size_t src_length = strnlen(src, dst_size);
+  size_t src_length = strlen(src);
   size_t size_to_copy = src_length;
   // the destination must be one byte bigger to store the NULL terminating character
   if (src_length >= dst_size) {

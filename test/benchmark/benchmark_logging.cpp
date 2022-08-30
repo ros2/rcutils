@@ -49,7 +49,7 @@ static void benchmark_logging(benchmark::State & state)
       ret_value = rcutils_logging_shutdown();
       (void) ret_value;
     });
-    g_rcutils_logging_default_logger_level = RCUTILS_LOG_SEVERITY_DEBUG;
+    rcutils_logging_set_default_logger_level(RCUTILS_LOG_SEVERITY_DEBUG);
 
     auto rcutils_logging_console_output_handler = [](
       const rcutils_log_location_t * location,

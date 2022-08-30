@@ -21,14 +21,7 @@
 #include "osrf_testing_tools_cpp/scope_exit.hpp"
 #include "rcutils/logging.h"
 
-#ifdef RMW_IMPLEMENTATION
-# define CLASSNAME_(NAME, SUFFIX) NAME ## __ ## SUFFIX
-# define CLASSNAME(NAME, SUFFIX) CLASSNAME_(NAME, SUFFIX)
-#else
-# define CLASSNAME(NAME, SUFFIX) NAME
-#endif
-
-TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logging_initialization) {
+TEST(TestLogging, test_logging_initialization) {
   EXPECT_FALSE(g_rcutils_logging_initialized);
   ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_initialize());
   OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
@@ -66,7 +59,7 @@ struct LogEvent
 };
 LogEvent g_last_log_event;
 
-TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logging) {
+TEST(TestLogging, test_logging) {
   EXPECT_FALSE(g_rcutils_logging_initialized);
   ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_initialize());
   OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
@@ -74,8 +67,8 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logging) {
     EXPECT_EQ(RCUTILS_RET_OK, rcutils_logging_shutdown());
   });
   EXPECT_TRUE(g_rcutils_logging_initialized);
-  g_rcutils_logging_default_logger_level = RCUTILS_LOG_SEVERITY_DEBUG;
-  EXPECT_EQ(RCUTILS_LOG_SEVERITY_DEBUG, g_rcutils_logging_default_logger_level);
+  rcutils_logging_set_default_logger_level(RCUTILS_LOG_SEVERITY_DEBUG);
+  EXPECT_EQ(RCUTILS_LOG_SEVERITY_DEBUG, rcutils_logging_get_default_logger_level());
 
   auto rcutils_logging_console_output_handler = [](
     const rcutils_log_location_t * location,
@@ -147,7 +140,7 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logging) {
   rcutils_logging_set_output_handler(original_function);
 }
 
-TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_log_severity) {
+TEST(TestLogging, test_log_severity) {
   rcutils_allocator_t allocator = rcutils_get_default_allocator();
   int severity;
   // check supported severities
@@ -187,7 +180,7 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_log_severity) {
     rcutils_logging_severity_level_from_string("Info", failing_allocator, &severity));
 }
 
-TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logger_severities) {
+TEST(TestLogging, test_logger_severities) {
   ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_initialize());
   OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
   {
@@ -262,7 +255,7 @@ TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logger_severities) {
     rcutils_logging_set_logger_level("rcutils_test_loggers", 51));
 }
 
-TEST(CLASSNAME(TestLogging, RMW_IMPLEMENTATION), test_logger_severity_hierarchy) {
+TEST(TestLogging, test_logger_severity_hierarchy) {
   ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_initialize());
   OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
   {

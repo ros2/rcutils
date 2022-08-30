@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// @file
+/// \file
 
 #ifndef RCUTILS__TYPES__HASH_MAP_H_
 #define RCUTILS__TYPES__HASH_MAP_H_
@@ -29,13 +29,13 @@ extern "C"
 #include "rcutils/macros.h"
 #include "rcutils/visibility_control.h"
 
-struct rcutils_hash_map_impl_t;
+struct rcutils_hash_map_impl_s;
 
 /// The structure holding the metadata for a hash map.
-typedef struct RCUTILS_PUBLIC_TYPE rcutils_hash_map_t
+typedef struct RCUTILS_PUBLIC_TYPE rcutils_hash_map_s
 {
   /// A pointer to the PIMPL implementation type.
-  struct rcutils_hash_map_impl_t * impl;
+  struct rcutils_hash_map_impl_s * impl;
 } rcutils_hash_map_t;
 
 /// The function signature for a key hashing function.
@@ -156,7 +156,7 @@ rcutils_get_zero_initialized_hash_map();
  * ```
  *
  * \param[inout] hash_map rcutils_hash_map_t to be initialized
- * \param[in] initial_capacity the amount of initial capacity for the hash_map
+ * \param[in] initial_capacity the amount of initial capacity for the hash_map - this must be greater than zero and a power of 2
  * \param[in] key_size the size (in bytes) of the key used to index the data
  * \param[in] data_size the size (in bytes) of the data being stored
  * \param[in] key_hashing_func a function that returns a hashed value for a key

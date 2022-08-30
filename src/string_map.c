@@ -29,7 +29,7 @@ extern "C"
 #include "rcutils/format_string.h"
 #include "rcutils/types/rcutils_ret.h"
 
-typedef struct rcutils_string_map_impl_t
+typedef struct rcutils_string_map_impl_s
 {
   char ** keys;
   char ** values;

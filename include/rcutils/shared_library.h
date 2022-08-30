@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// @file
+/// \file
 
 #ifndef RCUTILS__SHARED_LIBRARY_H_
 #define RCUTILS__SHARED_LIBRARY_H_
@@ -30,7 +30,7 @@ extern "C"
 #include "rcutils/visibility_control.h"
 
 /// Handle to a loaded shared library.
-typedef struct RCUTILS_PUBLIC_TYPE rcutils_shared_library_t
+typedef struct RCUTILS_PUBLIC_TYPE rcutils_shared_library_s
 {
   /// The platform-specific pointer to the shared library
   void * lib_pointer;

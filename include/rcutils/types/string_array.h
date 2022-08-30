@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// @file
+/// \file
 
 #ifndef RCUTILS__TYPES__STRING_ARRAY_H_
 #define RCUTILS__TYPES__STRING_ARRAY_H_
@@ -32,7 +32,7 @@ extern "C"
 #include "rcutils/visibility_control.h"
 
 /// The structure holding the metadata for a string array.
-typedef struct RCUTILS_PUBLIC_TYPE rcutils_string_array_t
+typedef struct RCUTILS_PUBLIC_TYPE rcutils_string_array_s
 {
   /// The number of strings that can be stored in the string array.
   size_t size;

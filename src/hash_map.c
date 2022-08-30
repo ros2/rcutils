@@ -32,14 +32,14 @@ extern "C"
 #define LOAD_FACTOR         (0.75)
 #define BUCKET_INITIAL_CAP  ((size_t)2)
 
-typedef struct rcutils_hash_map_entry_t
+typedef struct rcutils_hash_map_entry_s
 {
   size_t hashed_key;
   void * key;
   void * value;
 } rcutils_hash_map_entry_t;
 
-typedef struct rcutils_hash_map_impl_t
+typedef struct rcutils_hash_map_impl_s
 {
   // This is the array of buckets that will store the keypairs
   rcutils_array_list_t * map;
@@ -255,6 +255,13 @@ rcutils_hash_map_init(
     return RCUTILS_RET_INVALID_ARGUMENT;
   }
 
+  // Due to an optimization we use during lookup, we can currently only handle power-of-two
+  // capacities.  Enforce that here.
+  if ((initial_capacity & (initial_capacity - 1)) != 0) {
+    RCUTILS_SET_ERROR_MSG("This hashmap only works with power-of-two capacities");
+    return RCUTILS_RET_INVALID_ARGUMENT;
+  }
+
   hash_map->impl = allocator->allocate(sizeof(rcutils_hash_map_impl_t), allocator->state);
   if (NULL == hash_map->impl) {
     RCUTILS_SET_ERROR_MSG("failed to allocate memory for hash map impl");
@@ -329,7 +336,14 @@ static bool hash_map_find(
   rcutils_hash_map_entry_t * bucket_entry = NULL;
 
   *key_hash = hash_map->impl->key_hashing_func(key);
-  *map_index = (*key_hash) % hash_map->impl->capacity;
+  // The below is equivalent to:
+  //
+  // *map_index = (*key_hash) % hash_map->impl->capacity;
+  //
+  // This implementation is significantly faster since it avoids a divide, but
+  // only works when the capacity is a power of two.  We enforce that in the
+  // rcutils_hash_map_init() function.
+  *map_index = (*key_hash) & (hash_map->impl->capacity - 1);
 
   // Find the bucket the entry should be in check that it's valid
   rcutils_array_list_t * bucket = &(hash_map->impl->map[*map_index]);
@@ -394,7 +408,8 @@ rcutils_hash_map_set(rcutils_hash_map_t * hash_map, const void * key, const void
       memcpy(entry->value, value, hash_map->impl->data_size);
       memcpy(entry->key, key, hash_map->impl->key_size);
 
-      bucket_index = key_hash % hash_map->impl->capacity;
+      // See the comment in hash_map_find for why we do this.
+      bucket_index = key_hash & (hash_map->impl->capacity - 1);
       ret = hash_map_insert_entry(hash_map->impl->map, bucket_index, entry, allocator);
     }
 
@@ -423,6 +438,11 @@ rcutils_hash_map_unset(rcutils_hash_map_t * hash_map, const void * key)
   size_t key_hash = 0, map_index = 0, bucket_index = 0;
   bool already_exists = false;
   rcutils_hash_map_entry_t * entry = NULL;
+
+  // If there is nothing in the hash map, don't bother computing the key
+  if (hash_map->impl->size == 0) {
+    return RCUTILS_RET_OK;
+  }
 
   already_exists = hash_map_find(hash_map, key, &key_hash, &map_index, &bucket_index, &entry);
 
@@ -457,6 +477,11 @@ rcutils_hash_map_key_exists(const rcutils_hash_map_t * hash_map, const void * ke
   bool already_exists = false;
   rcutils_hash_map_entry_t * entry = NULL;
 
+  // If there is nothing in the hash map, don't bother computing the key
+  if (hash_map->impl->size == 0) {
+    return RCUTILS_RET_OK;
+  }
+
   already_exists = hash_map_find(hash_map, key, &key_hash, &map_index, &bucket_index, &entry);
 
   return already_exists;
@@ -472,6 +497,11 @@ rcutils_hash_map_get(const rcutils_hash_map_t * hash_map, const void * key, void
   size_t key_hash = 0, map_index = 0, bucket_index = 0;
   bool already_exists = false;
   rcutils_hash_map_entry_t * entry = NULL;
+
+  // If there is nothing in the hash map, don't bother computing the key
+  if (hash_map->impl->size == 0) {
+    return RCUTILS_RET_NOT_FOUND;
+  }
 
   already_exists = hash_map_find(hash_map, key, &key_hash, &map_index, &bucket_index, &entry);
 
@@ -499,8 +529,18 @@ rcutils_hash_map_get_next_key_and_data(
   rcutils_hash_map_entry_t * entry = NULL;
   rcutils_ret_t ret = RCUTILS_RET_OK;
 
+  // If there is nothing in the hash map, don't bother computing the key
+  if (hash_map->impl->size == 0) {
+    if (NULL != previous_key) {
+      return RCUTILS_RET_NOT_FOUND;
+    } else {
+      return RCUTILS_RET_HASH_MAP_NO_MORE_ENTRIES;
+    }
+  }
+
   if (NULL != previous_key) {
-    already_exists = hash_map_find(hash_map, key, &key_hash, &map_index, &bucket_index, &entry);
+    already_exists = hash_map_find(
+      hash_map, previous_key, &key_hash, &map_index, &bucket_index, &entry);
     if (!already_exists) {
       return RCUTILS_RET_NOT_FOUND;
     }

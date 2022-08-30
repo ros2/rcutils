@@ -139,6 +139,12 @@ rcutils_char_array_expand_as_needed(rcutils_char_array_t * char_array, size_t ne
     return RCUTILS_RET_OK;
   }
 
+  // Make sure we expand by at least 1.5x the old capacity
+  size_t minimum_size = char_array->buffer_capacity + (char_array->buffer_capacity >> 1);
+  if (new_size < minimum_size) {
+    new_size = minimum_size;
+  }
+
   return rcutils_char_array_resize(char_array, new_size);
 }
 
@@ -213,22 +219,23 @@ rcutils_char_array_strcpy(rcutils_char_array_t * char_array, const char * src)
 rcutils_ret_t
 rcutils_char_array_strncat(rcutils_char_array_t * char_array, const char * src, size_t n)
 {
-  size_t current_strlen = strlen(char_array->buffer);
+  size_t current_strlen;
+  if (char_array->buffer_length == 0) {
+    current_strlen = 0;
+  } else {
+    // The buffer length always contains the trailing \0, so the strlen is one less than that.
+    current_strlen = char_array->buffer_length - 1;
+  }
   size_t new_length = current_strlen + n + 1;
   rcutils_ret_t ret = rcutils_char_array_expand_as_needed(char_array, new_length);
   if (ret != RCUTILS_RET_OK) {
     RCUTILS_SET_ERROR_MSG("char array failed to expand");
     return ret;
   }
-#ifndef _WIN32
-  strncat(char_array->buffer, src, n);
-#else
-  errno_t err = strncat_s(char_array->buffer, new_length, src, n);
-  if (0 != err) {
-    RCUTILS_SET_ERROR_MSG("strncat_s failed");
-    return RCUTILS_RET_ERROR;
-  }
-#endif
+
+  memcpy(char_array->buffer + current_strlen, src, n);
+  char_array->buffer[new_length - 1] = '\0';
+
   char_array->buffer_length = new_length;
   return RCUTILS_RET_OK;
 }

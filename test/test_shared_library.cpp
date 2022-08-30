@@ -20,10 +20,9 @@
 #include "./mocking_utils/patch.hpp"
 
 #include "rcutils/allocator.h"
+#include "rcutils/env.h"
 #include "rcutils/error_handling.h"
 #include "rcutils/shared_library.h"
-
-#include "rcutils/get_env.h"
 
 class TestSharedLibrary : public ::testing::Test
 {
