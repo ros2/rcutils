@@ -416,13 +416,14 @@ static const char * copy_from_orig(
 
 static bool add_handler(token_handler handler, size_t start_offset, size_t end_offset)
 {
-  g_handlers[g_num_log_msg_handlers].handler = handler;
-  g_handlers[g_num_log_msg_handlers].start_offset = start_offset;
-  g_handlers[g_num_log_msg_handlers].end_offset = end_offset;
-  if (g_num_log_msg_handlers >= sizeof(g_handlers) - 1) {
+  if (g_num_log_msg_handlers >= (sizeof(g_handlers) / sizeof(g_handlers[0]))) {
     RCUTILS_SET_ERROR_MSG("Too many substitutions in the logging output format string; truncating");
     return false;
   }
+
+  g_handlers[g_num_log_msg_handlers].handler = handler;
+  g_handlers[g_num_log_msg_handlers].start_offset = start_offset;
+  g_handlers[g_num_log_msg_handlers].end_offset = end_offset;
 
   g_num_log_msg_handlers++;
 
