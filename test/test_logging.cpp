@@ -20,6 +20,7 @@
 #include "./allocator_testing_utils.h"
 #include "osrf_testing_tools_cpp/scope_exit.hpp"
 #include "rcutils/logging.h"
+#include "rcutils/strdup.h"
 
 TEST(TestLogging, test_logging_initialization) {
   EXPECT_FALSE(g_rcutils_logging_initialized);
@@ -44,7 +45,7 @@ TEST(TestLogging, test_logging_initialization) {
   // for the string map relating severity level values to string
   rcutils_allocator_t failing_allocator = get_failing_allocator();
   EXPECT_EQ(
-    RCUTILS_RET_STRING_MAP_INVALID, rcutils_logging_initialize_with_allocator(failing_allocator));
+    RCUTILS_RET_ERROR, rcutils_logging_initialize_with_allocator(failing_allocator));
 }
 
 size_t g_log_calls = 0;
@@ -320,4 +321,167 @@ TEST(TestLogging, test_logger_severity_hierarchy) {
   EXPECT_EQ(
     rcutils_test_logging_cpp_dot_severity,
     rcutils_logging_get_logger_effective_level("rcutils_test_logging_cpp.."));
+}
+
+TEST(TestLogging, test_logger_unset_change_ancestor) {
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_initialize());
+  OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
+  {
+    EXPECT_EQ(RCUTILS_RET_OK, rcutils_logging_shutdown());
+  });
+
+  // check resolving of effective thresholds in hierarchy of loggers
+  rcutils_logging_set_default_logger_level(RCUTILS_LOG_SEVERITY_INFO);
+
+  ASSERT_EQ(
+    RCUTILS_RET_OK,
+    rcutils_logging_set_logger_level(
+      "rcutils_test_logging_cpp", RCUTILS_LOG_SEVERITY_WARN));
+  ASSERT_EQ(
+    RCUTILS_RET_OK,
+    rcutils_logging_set_logger_level(
+      "rcutils_test_logging_cpp.x", RCUTILS_LOG_SEVERITY_UNSET));
+
+  EXPECT_EQ(
+    RCUTILS_LOG_SEVERITY_WARN,
+    rcutils_logging_get_logger_effective_level("rcutils_test_logging_cpp"));
+  EXPECT_EQ(
+    RCUTILS_LOG_SEVERITY_WARN,
+    rcutils_logging_get_logger_effective_level(
+      "rcutils_test_logging_cpp.x"));
+
+  // Now change the logger level of the ancestor.  This should cause the
+  // higher-level one to change as well (since it is unset).
+
+  ASSERT_EQ(
+    RCUTILS_RET_OK,
+    rcutils_logging_set_logger_level(
+      "rcutils_test_logging_cpp", RCUTILS_LOG_SEVERITY_DEBUG));
+
+  EXPECT_EQ(
+    RCUTILS_LOG_SEVERITY_DEBUG,
+    rcutils_logging_get_logger_effective_level("rcutils_test_logging_cpp"));
+  EXPECT_EQ(
+    RCUTILS_LOG_SEVERITY_DEBUG,
+    rcutils_logging_get_logger_effective_level(
+      "rcutils_test_logging_cpp.x"));
+}
+
+TEST(TestLogging, test_logger_set_change_ancestor) {
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_initialize());
+  OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
+  {
+    EXPECT_EQ(RCUTILS_RET_OK, rcutils_logging_shutdown());
+  });
+
+  // check resolving of effective thresholds in hierarchy of loggers
+  rcutils_logging_set_default_logger_level(RCUTILS_LOG_SEVERITY_INFO);
+
+  ASSERT_EQ(
+    RCUTILS_RET_OK,
+    rcutils_logging_set_logger_level(
+      "rcutils_test_logging_cpp", RCUTILS_LOG_SEVERITY_WARN));
+  ASSERT_EQ(
+    RCUTILS_RET_OK,
+    rcutils_logging_set_logger_level(
+      "rcutils_test_logging_cpp.x", RCUTILS_LOG_SEVERITY_FATAL));
+
+  EXPECT_EQ(
+    RCUTILS_LOG_SEVERITY_WARN,
+    rcutils_logging_get_logger_effective_level("rcutils_test_logging_cpp"));
+  EXPECT_EQ(
+    RCUTILS_LOG_SEVERITY_FATAL,
+    rcutils_logging_get_logger_effective_level(
+      "rcutils_test_logging_cpp.x"));
+
+  // Now change the logger level of the ancestor.  This should not change
+  // the level of the descendant, since it was set separately.
+
+  ASSERT_EQ(
+    RCUTILS_RET_OK,
+    rcutils_logging_set_logger_level(
+      "rcutils_test_logging_cpp", RCUTILS_LOG_SEVERITY_DEBUG));
+
+  EXPECT_EQ(
+    RCUTILS_LOG_SEVERITY_DEBUG,
+    rcutils_logging_get_logger_effective_level("rcutils_test_logging_cpp"));
+  EXPECT_EQ(
+    RCUTILS_LOG_SEVERITY_FATAL,
+    rcutils_logging_get_logger_effective_level(
+      "rcutils_test_logging_cpp.x"));
+}
+
+TEST(TestLogging, test_logger_allocated_names) {
+  // This tests whether we properly store and free the logger names inside
+  // of logging implementation.  It's best to run this under valgrind to
+  // see that there are no errors and no leaked memory.
+
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_initialize());
+  OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
+  {
+    EXPECT_EQ(RCUTILS_RET_OK, rcutils_logging_shutdown());
+  });
+
+  rcutils_logging_set_default_logger_level(RCUTILS_LOG_SEVERITY_INFO);
+
+  rcutils_allocator_t allocator = rcutils_get_default_allocator();
+
+  const char * allocated_name = rcutils_strdup("rcutils_test_loggers", allocator);
+
+  // check setting of acceptable severities
+  ASSERT_EQ(
+    RCUTILS_RET_OK,
+    rcutils_logging_set_logger_level(
+      allocated_name, RCUTILS_LOG_SEVERITY_WARN));
+
+  allocator.deallocate(const_cast<char *>(allocated_name), allocator.state);
+
+  ASSERT_EQ(
+    RCUTILS_LOG_SEVERITY_WARN,
+    rcutils_logging_get_logger_level("rcutils_test_loggers"));
+  rcutils_reset_error();
+}
+
+TEST(TestLogging, test_root_logger_after_nonexistent)
+{
+  // This tests whether the root logger remains unset after setting the logger name for a
+  // non-existent logger.
+
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_initialize());
+  OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
+  {
+    EXPECT_EQ(RCUTILS_RET_OK, rcutils_logging_shutdown());
+  });
+
+  int original_severity = rcutils_logging_get_logger_effective_level("my_internal_logger_name");
+
+  ASSERT_EQ(
+    RCUTILS_RET_OK,
+    rcutils_logging_set_logger_level(
+      "my_internal_logger_name", RCUTILS_LOG_SEVERITY_DEBUG));
+
+  EXPECT_EQ(
+    RCUTILS_LOG_SEVERITY_DEBUG,
+    rcutils_logging_get_logger_effective_level("my_internal_logger_name"));
+
+  ASSERT_EQ(
+    RCUTILS_RET_OK,
+    rcutils_logging_set_logger_level(
+      "my_internal_logger_name", original_severity));
+
+  int original_root_severity = rcutils_logging_get_logger_effective_level("");
+
+  ASSERT_EQ(
+    RCUTILS_RET_OK,
+    rcutils_logging_set_logger_level(
+      "", RCUTILS_LOG_SEVERITY_UNSET));
+
+  EXPECT_EQ(
+    RCUTILS_LOG_SEVERITY_UNSET,
+    rcutils_logging_get_logger_effective_level(""));
+
+  ASSERT_EQ(
+    RCUTILS_RET_OK,
+    rcutils_logging_set_logger_level(
+      "", original_root_severity));
 }
