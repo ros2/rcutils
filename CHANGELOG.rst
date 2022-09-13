@@ -2,6 +2,41 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Optimize rcutils_logging_get_logger_effective_level() (`#381 <https://github.com/ros2/rcutils/issues/381>`_)
+* Change syntax __VAR_ARGS_\_ to __VA_ARGS_\_ (`#376 <https://github.com/ros2/rcutils/issues/376>`_)
+* Fix a bug in hash_map_get_next_key_and_data. (`#375 <https://github.com/ros2/rcutils/issues/375>`_)
+* More fixes from review.
+* Fixes from review.
+* Make g_rcutils_logging_output_handler static.
+* Make g_rcutils_logging_default_logger_level static.
+* Optimize rcutils_find_lastn where possible.
+* Don't bother computing the hash_map key if the hash map is empty.
+* Make sure to expand char_array by at least 1.5x.
+* Optimize index computation in hash_map_find.
+* Improve the performance of rcutils_logging_format_message. (`#372 <https://github.com/ros2/rcutils/issues/372>`_)
+* Get rid of unnecessary ret variable.
+* Get rid of unnecessary ifdef cplusplus checks in the C file.
+* Get rid of unnecessary rcutils_custom_add\_{gtest,gmock}
+* Get rid of unnecessary and unused RMW switching for logging tests.
+* Remove unnecessary IS_OUTPUT_COLORIZED macro.
+* Rename logging internal structures to use our new convention.
+* Make all of the logging 'expand' methods static.
+* Fix up error checking for RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED.
+* Cleanup error handling for the RCUTILS_CONSOLE_OUTPUT_FORMAT checks.
+* Revamp error handling in rcutils_logging_initialize_with_allocator.
+* Revamp rcutils_logging_initialize_with_allocator.
+* Make a few logging global variables static.
+* Optimize calls via the RCUTILS_LOG macros. (`#369 <https://github.com/ros2/rcutils/issues/369>`_)
+* time_unix: add zephyr posix time (`#368 <https://github.com/ros2/rcutils/issues/368>`_)
+* Optimize the implementation of rcutils_char_array_strncpy. (`#367 <https://github.com/ros2/rcutils/issues/367>`_)
+* strdup.c: fix arbitrary length overread (`#366 <https://github.com/ros2/rcutils/issues/366>`_)
+* Mirror rolling to master
+* strdup.c: fix 1 byte buffer overread (`#363 <https://github.com/ros2/rcutils/issues/363>`_)
+* Clarify duration arg description in logging macros (`#359 <https://github.com/ros2/rcutils/issues/359>`_)
+* Contributors: Abrar Rahman Protyasha, Audrow Nash, Chris Lalancette, Felipe Neves, Yakumoo, guijan
+
 5.2.0 (2022-04-29)
 ------------------
 * Update rcutils_steady_time_now to return the same data as std::chrono (`#357 <https://github.com/ros2/rcutils/issues/357>`_)
