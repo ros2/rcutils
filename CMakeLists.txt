@@ -80,39 +80,26 @@ set_source_files_properties(
   ${rcutils_sources}
   PROPERTIES language "C")
 
-# "watch" template/inputs for changes
-configure_file(
-  "resource/logging_macros.h.em"
-  "logging_macros.h.em.watch"
-  COPYONLY)
-configure_file(
-  "rcutils/logging.py"
-  "logging.py.watch"
-  COPYONLY)
 # generate header with logging macros
-set(rcutils_module_path ${CMAKE_CURRENT_SOURCE_DIR})
-set(python_code
-  "import em"  # implicitly added ; between python statements due to CMake list
-  "\
-em.invoke( \
-  [ \
-    '-o', 'include/rcutils/logging_macros.h', \
-    '-D', 'rcutils_module_path=\"${rcutils_module_path}\"', \
-    '${CMAKE_CURRENT_SOURCE_DIR}/resource/logging_macros.h.em' \
-  ] \
-)")
-string(REPLACE ";" "$<SEMICOLON>" python_code "${python_code}")
-add_custom_command(OUTPUT include/rcutils/logging_macros.h
-  COMMAND ${CMAKE_COMMAND} -E make_directory "include/rcutils"
-  COMMAND Python3::Interpreter ARGS -c "${python_code}"
+set(GENERATED_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/include/rcutils)
+set(LOGGING_MACROS_H_EM ${CMAKE_CURRENT_SOURCE_DIR}/resource/logging_macros.h.em)
+set(LOGGING_MACROS_H ${GENERATED_INCLUDE_DIR}/logging_macros.h)
+set(RCUTILS_MODULE_PATH rcutils_module_path="${CMAKE_CURRENT_SOURCE_DIR}")
+set(EMPY ${CMAKE_CURRENT_SOURCE_DIR}/scripts/empy)
+add_custom_command(OUTPUT ${LOGGING_MACROS_H}
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${GENERATED_INCLUDE_DIR}
+  COMMAND ${Python_EXECUTABLE} ${EMPY}
+  -o ${LOGGING_MACROS_H}
+  -D ${RCUTILS_MODULE_PATH}
+  ${LOGGING_MACROS_H_EM}
   DEPENDS
-    "${CMAKE_CURRENT_BINARY_DIR}/logging_macros.h.em.watch"
-    "${CMAKE_CURRENT_BINARY_DIR}/logging.py.watch"
+    ${LOGGING_MACROS_H_EM}
+    ${CMAKE_CURRENT_SOURCE_DIR}/rcutils/logging.py
   COMMENT "Expanding logging_macros.h.em"
   VERBATIM
 )
 list(APPEND rcutils_sources
-  include/rcutils/logging_macros.h)
+  ${LOGGING_MACROS_H})
 
 add_library(
   ${PROJECT_NAME}
