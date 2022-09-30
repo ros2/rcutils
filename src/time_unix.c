@@ -30,12 +30,17 @@ extern "C"
 #include <math.h>
 
 #if defined(__ZEPHYR__)
-#include <posix/time.h>  //  Points to Zephyr toolchain posix time implementation
+#include <version.h>
+#if KERNELVERSION >= ZEPHYR_VERSION(3, 1, 0)
+#include <zephyr/posix/time.h>  //  Points to Zephyr toolchain posix time implementation
 #else
+#include <posix/time.h>  //  Points to Zephyr toolchain posix time implementation
+#endif
+#else  //  #if KERNELVERSION >= ZEPHYR_VERSION(3, 1, 0)
 #include <time.h>
 #endif  //  defined(__ZEPHYR__)
-#include <unistd.h>
 
+#include <unistd.h>
 #include "./common.h"
 #include "rcutils/allocator.h"
 #include "rcutils/error_handling.h"
