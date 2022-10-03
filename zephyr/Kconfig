@@ -1,0 +1,7 @@
+# Copyright (c) 2022 Space Cubics, LLC.
+# SPDX-License-Identifier: Apache-2.0
+
+config RCUTILS
+	bool "ROS 2 C Utilities"
+	help
+	  rcutils: ROS 2 C Utilities data structures.

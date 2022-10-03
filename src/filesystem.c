@@ -29,7 +29,7 @@ extern "C"
 #ifndef RCUTILS_NO_FILESYSTEM
 #include <dirent.h>
 #endif
-#include <unistd.h>
+//#include <unistd.h>
 #else
 // When building with MSVC 19.28.29333.0 on Windows 10 (as of 2020-11-11),
 // there appears to be a problem with winbase.h (which is included by
