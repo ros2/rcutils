@@ -35,6 +35,8 @@
 #include "mimick/mimick.h"
 #include "rcutils/macros.h"
 
+#include "remove_noexcept.hpp"
+
 namespace mocking_utils
 {
 
@@ -215,7 +217,9 @@ public:
    *   trampoline, as setup by the dynamic linker.
    * \return a mocking_utils::Patch instance.
    */
-  explicit Patch(const std::string & target, std::function<ReturnT(ArgTs...)> proxy)
+  explicit Patch(
+    const std::string & target,
+    std::function<remove_noexcept_t<ReturnT(ArgTs...)>> proxy)
   : proxy_(proxy)
   {
     auto MMK_MANGLE(mock_type, create) =
@@ -291,9 +295,9 @@ private:
  * \sa mocking_utils::Patch for further reference.
  */
 template<size_t ID, typename SignatureT>
-auto make_patch(const std::string & target, std::function<SignatureT> proxy)
+auto make_patch(const std::string & target, std::function<remove_noexcept_t<SignatureT>> proxy)
 {
-  return Patch<ID, SignatureT>(target, proxy);
+  return Patch<ID, remove_noexcept_t<SignatureT>>(target, proxy);
 }
 
 /// Define a dummy operator `op` for a given `type`.
