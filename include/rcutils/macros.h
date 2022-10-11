@@ -145,7 +145,7 @@ extern "C"
 // Provide the compiler a hint about an argument being nonnull when possible.
 #ifndef _WIN32
 # define RCUTILS_NONNULL __attribute__((__nonnull__))
-# define RCUTILS_NONNULL_ARGS(...) __attribute__((__nonnull__ (__VA_ARGS__)))
+# define RCUTILS_NONNULL_ARGS(...) __attribute__((__nonnull__(__VA_ARGS__)))
 # define RCUTILS_RETURNS_NONNULL __attribute__((__returns_nonnull__))
 # define RCUTILS_HAS_NONNULL 1
 #else
