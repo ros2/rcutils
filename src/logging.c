@@ -796,7 +796,6 @@ static rcutils_ret_t add_key_to_hash_map(const char * name, int level, bool set_
 
   rcutils_ret_t hash_map_ret =
     rcutils_hash_map_set(&g_rcutils_logging_severities_map, &copy_name, &level);
-
   if (hash_map_ret != RCUTILS_RET_OK) {
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
       "Error setting severity level for logger named '%s': %s",
