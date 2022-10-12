@@ -771,13 +771,20 @@ int rcutils_logging_get_logger_level(const char * name)
 
 static rcutils_ret_t add_key_to_hash_map(const char * name, int level, bool set_by_user)
 {
-  // Copy the name that we will store, as there is no guarantee that the caller will keep it around.
+  const char * copy_name = name;
+  // Check if key already exists, to avoid extra memory allocation
+  // If the key already exists, then rcutils_hash_map_set will not maintain the key we give it,
+  // so we do not need to copy the name
+  bool already_exists = rcutils_hash_map_key_exists(&g_rcutils_logging_severities_map, &copy_name);
 
-  char * copy_name = rcutils_strdup(name, g_rcutils_logging_allocator);
-  if (copy_name == NULL) {
-    // Don't report an error to the error handling machinery; some uses of this function are for
-    // caching so this is not necessarily fatal.
-    return RCUTILS_RET_ERROR;
+  if (!already_exists) {
+    // Copy the name to be stored, as there is no guarantee that the caller will keep it around.
+    copy_name = rcutils_strdup(name, g_rcutils_logging_allocator);
+    if (copy_name == NULL) {
+      // Don't report an error to the error handling machinery; some uses of this function are for
+      // caching so this is not necessarily fatal.
+      return RCUTILS_RET_ERROR;
+    }
   }
 
   if (set_by_user) {
@@ -787,17 +794,8 @@ static rcutils_ret_t add_key_to_hash_map(const char * name, int level, bool set_
     level |= 0x1;
   }
 
-  // Check if key already exists, to avoid leaking memory
-  // If the key already exists, then rcutils_hash_map_set will not maintain the key we give it.
-  // so we should free the memory when we're done using it here
-  bool already_exists = rcutils_hash_map_key_exists(&g_rcutils_logging_severities_map, &copy_name);
-
   rcutils_ret_t hash_map_ret =
     rcutils_hash_map_set(&g_rcutils_logging_severities_map, &copy_name, &level);
-
-  if (already_exists) {
-    g_rcutils_logging_allocator.deallocate(copy_name, g_rcutils_logging_allocator.state);
-  }
 
   if (hash_map_ret != RCUTILS_RET_OK) {
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
