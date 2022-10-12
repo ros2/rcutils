@@ -787,8 +787,18 @@ static rcutils_ret_t add_key_to_hash_map(const char * name, int level, bool set_
     level |= 0x1;
   }
 
+  // Check if key already exists, to avoid leaking memory
+  // If the key already exists, then rcutils_hash_map_set will not maintain the key we give it.
+  // so we should free the memory when we're done using it here
+  bool already_exists = rcutils_hash_map_key_exists(&g_rcutils_logging_severities_map, &copy_name);
+
   rcutils_ret_t hash_map_ret =
     rcutils_hash_map_set(&g_rcutils_logging_severities_map, &copy_name, &level);
+
+  if (already_exists) {
+    g_rcutils_logging_allocator.deallocate(copy_name, g_rcutils_logging_allocator.state);
+  }
+
   if (hash_map_ret != RCUTILS_RET_OK) {
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
       "Error setting severity level for logger named '%s': %s",
