@@ -949,9 +949,6 @@ int rcutils_logging_get_logger_effective_level(const char * name)
   // // lookup next time.  If the severity is UNSET, we don't bother because we are going to have to
   // // walk the hierarchy next time anyway.
   // if (severity != RCUTILS_LOG_SEVERITY_UNSET) {
-  //   fprintf(
-  //     stderr, "in optimization of rcutils_logging_get_logger_effective_level('%s') -> %d\n",
-  //     name, severity);
   //   ret = add_key_to_hash_map(name, severity, false);
   //   if (ret != RCUTILS_RET_OK) {
   //     // Continue on if we failed to add the key to the hashmap.
