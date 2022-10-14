@@ -495,7 +495,7 @@ TEST(TestLogging, test_logging_macro_thread_safety)
   // This test is based on an issue found in the optimization of the logging macros,
   // and therefore has a very specific trigger scenario, which is described more
   // in the steps below.
-  // See: FIXME
+  // See: https://github.com/ros2/rcutils/pull/393
 
   // This test is likely to be flakey false-positive, meaning it's possible that
   // it will pass even if the macros are not thread-safe and may require running

@@ -944,7 +944,7 @@ int rcutils_logging_get_logger_effective_level(const char * name)
   }
 
   // TODO(wjwwood): restore or replace this optimization when thread-safety is addressed
-  //   see: FIXME
+  //   see: https://github.com/ros2/rcutils/pull/393
   // // If the calculated severity is anything but UNSET, we place it into the hashmap for speedier
   // // lookup next time.  If the severity is UNSET, we don't bother because we are going to have to
   // // walk the hierarchy next time anyway.
