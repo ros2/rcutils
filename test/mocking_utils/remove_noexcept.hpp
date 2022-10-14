@@ -1,14 +1,22 @@
-// TODO(clalancette): no license until I get a licensing answer from
-// the original author.
+// Copyright 2019 Michael "monkey0506" Rittenhouse
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 // This code originally comes from https://stackoverflow.com/a/55701361,
-// and more specifically from the "live demo" at https://wandbox.org/permlink/bXRiKZBzhjKPaRel .
-// As per the Stackoverflow guidelines, all code contributed on the site since 2018 is
-// licensed under CC BY-SA 4.0 (https://stackoverflow.com/help/licensing).  Unfortunately,
-// this is not specified as compatible with Apache License 2.0
-// (see https://creativecommons.org/share-your-work/licensing-considerations/compatible-licenses/).
-// Therefore, I reached out directly to the original author to get permission to license this
-// as Apache 2.0.  As of 2022-10-13, I'm still waiting for an answer.
+// and more specifically from the "live demo" at https://wandbox.org/permlink/GUqJFwMnczKEKlzX.
+// That code is licensed under the WTFPL license, which allows basically anything.
+// We relicense the code to Apache 2.0 for compatibility with the rest of our code,
+// with Copyright to the original author, Michael "monkey0506" Rittenhouse.
 
 #ifndef MOCKING_UTILS__REMOVE_NOEXCEPT_HPP_
 #define MOCKING_UTILS__REMOVE_NOEXCEPT_HPP_
