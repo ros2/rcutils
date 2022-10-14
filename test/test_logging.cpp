@@ -14,7 +14,9 @@
 
 #include <gtest/gtest.h>
 
+#include <chrono>
 #include <string>
+#include <thread>
 #include <vector>
 
 #include "./allocator_testing_utils.h"
@@ -484,4 +486,53 @@ TEST(TestLogging, test_root_logger_after_nonexistent)
     RCUTILS_RET_OK,
     rcutils_logging_set_logger_level(
       "", original_root_severity));
+}
+
+TEST(TestLogging, test_logging_macro_thread_safety)
+{
+  // This tests whether or not using logging macros from multiple threads is safe or not.
+
+  // This test is based on an issue found in the optimization of the logging macros,
+  // and therefore has a very specific trigger scenario, which is described more
+  // in the steps below.
+  // See: FIXME
+
+  // This test is likely to be flakey false-positive, meaning it's possible that
+  // it will pass even if the macros are not thread-safe and may require running
+  // repeatedly to detect problems.
+
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_initialize());
+  OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
+  {
+    EXPECT_EQ(RCUTILS_RET_OK, rcutils_logging_shutdown());
+  });
+
+  // One of the loggers needs to be set "by the user" to trigger the optimization.
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_set_logger_level("", RCUTILS_LOG_SEVERITY_DEBUG));
+
+  // In threads, in a loop do a log call on many different logger names.
+  // The message doesn't matter.
+  std::size_t loop_count = 10;
+  auto task = [&loop_count](std::size_t thread_number) {
+      for (std::size_t i = 0; i < loop_count; ++i) {
+        rcutils_log_location_t location = {"func", "file", 42u};
+        rcutils_log(
+          &location,
+          RCUTILS_LOG_SEVERITY_DEBUG,
+          ("some_logger_name" + std::to_string(thread_number * i)).c_str(),
+          "message %d", 11);
+      }
+    };
+
+  // Create many thread to increase the chance of collisions.
+  std::vector<std::thread> threads;
+  std::size_t number_of_threads = std::thread::hardware_concurrency() * 10;
+  for (std::size_t i = 0; i < number_of_threads; ++i) {
+    threads.emplace_back(task, i + 1);
+  }
+
+  // Wait for threads to complete.
+  for (auto & thread : threads) {
+    thread.join();
+  }
 }

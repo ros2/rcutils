@@ -952,7 +952,7 @@ int rcutils_logging_get_logger_effective_level(const char * name)
       // Continue on if we failed to add the key to the hashmap.
       // This will affect performance but is not fatal.
       RCUTILS_SAFE_FWRITE_TO_STDERR(
-        "Failed to cache severity; this is not fatal but will impact performance");
+        "Failed to cache severity; this is not fatal but will impact performance\n");
     }
   }
 
