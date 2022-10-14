@@ -943,18 +943,20 @@ int rcutils_logging_get_logger_effective_level(const char * name)
     severity = g_rcutils_logging_default_logger_level;
   }
 
-  // If the calculated severity is anything but UNSET, we place it into the hashmap for speedier
-  // lookup next time.  If the severity is UNSET, we don't bother because we are going to have to
-  // walk the hierarchy next time anyway.
-  if (severity != RCUTILS_LOG_SEVERITY_UNSET) {
-    ret = add_key_to_hash_map(name, severity, false);
-    if (ret != RCUTILS_RET_OK) {
-      // Continue on if we failed to add the key to the hashmap.
-      // This will affect performance but is not fatal.
-      RCUTILS_SAFE_FWRITE_TO_STDERR(
-        "Failed to cache severity; this is not fatal but will impact performance");
-    }
-  }
+  // TODO(wjwwood): restore or replace this optimization when thread-safety is addressed
+  //   see: https://github.com/ros2/rcutils/pull/393
+  // // If the calculated severity is anything but UNSET, we place it into the hashmap for speedier
+  // // lookup next time.  If the severity is UNSET, we don't bother because we are going to have to
+  // // walk the hierarchy next time anyway.
+  // if (severity != RCUTILS_LOG_SEVERITY_UNSET) {
+  //   ret = add_key_to_hash_map(name, severity, false);
+  //   if (ret != RCUTILS_RET_OK) {
+  //     // Continue on if we failed to add the key to the hashmap.
+  //     // This will affect performance but is not fatal.
+  //     RCUTILS_SAFE_FWRITE_TO_STDERR(
+  //       "Failed to cache severity; this is not fatal but will impact performance\n");
+  //   }
+  // }
 
   return severity;
 }
