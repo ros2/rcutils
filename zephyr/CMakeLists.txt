@@ -1,6 +1,6 @@
 set(CMAKE_C_STANDARD 11)
 
-option(RCUTILS_NO_THREAD_SUPPORT "Disable thread support." OFF)
+option(RCUTILS_NO_THREAD_SUPPORT "Disable thread support." ON)
 option(RCUTILS_NO_FILESYSTEM "Disable filesystem usage." ON)
 option(RCUTILS_AVOID_DYNAMIC_ALLOCATION "Disable dynamic allocations." OFF)
 option(RCUTILS_MICROROS "Flag for building micro-ROS." ON)
