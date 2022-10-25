@@ -9,6 +9,9 @@ bool rcutils_set_env(const char * env_name, const char * env_value)
 
 const char* rcutils_get_env(const char * env_name, const char ** env_value)
 {
+	if (NULL == *env_value) {
+		*env_value = "";
+	}
 	return NULL;
 }
 
