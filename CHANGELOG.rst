@@ -2,6 +2,18 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix build on OpenHarmony (`#395 <https://github.com/ros2/rcutils/issues/395>`_)
+* regression of thread-safety for logging macros (`#393 <https://github.com/ros2/rcutils/issues/393>`_)
+* add portable nonnull macros (`#382 <https://github.com/ros2/rcutils/issues/382>`_)
+* Fix memory leak when adding the same key to the logger hash map multiple times (`#391 <https://github.com/ros2/rcutils/issues/391>`_)
+* time_unix: uses ZEPHYR_VERSION_CODE instead (`#390 <https://github.com/ros2/rcutils/issues/390>`_)
+* Cleanup time_unix.c (`#389 <https://github.com/ros2/rcutils/issues/389>`_)
+* time_unix: namespace zephyr headers (`#383 <https://github.com/ros2/rcutils/issues/383>`_)
+* Restrict overmatching MACH ifdef to only trigger on OSX and Mach (`#386 <https://github.com/ros2/rcutils/issues/386>`_)
+* Contributors: AIxWall, Chris Lalancette, Felipe Neves, Jacob Perron, Maximilian Downey Twiss, William Woodall
+
 6.0.0 (2022-09-13)
 ------------------
 * Optimize rcutils_logging_get_logger_effective_level() (`#381 <https://github.com/ros2/rcutils/issues/381>`_)
