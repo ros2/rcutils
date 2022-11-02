@@ -2,8 +2,8 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+6.0.1 (2022-11-02)
+------------------
 * Fix build on OpenHarmony (`#395 <https://github.com/ros2/rcutils/issues/395>`_)
 * regression of thread-safety for logging macros (`#393 <https://github.com/ros2/rcutils/issues/393>`_)
 * add portable nonnull macros (`#382 <https://github.com/ros2/rcutils/issues/382>`_)
