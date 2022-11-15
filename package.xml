@@ -4,9 +4,13 @@
   <name>rcutils</name>
   <version>6.0.1</version>
   <description>Package containing various utility types and functions for C</description>
-  <maintainer email="clalancette@openrobotics.org">Chris Lalancette</maintainer>
+
   <maintainer email="alejandro@openrobotics.org">Alejandro Hernandez Cordero</maintainer>
+  <maintainer email="clalancette@openrobotics.org">Chris Lalancette</maintainer>
+  <maintainer email="william@openrobotics.org">William Woodall</maintainer>
+
   <license>Apache License 2.0</license>
+
   <author email="karsten@osrfoundation.org">Karsten Knese</author>
 
   <buildtool_depend>ament_cmake_ros</buildtool_depend>
