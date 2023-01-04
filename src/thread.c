@@ -76,7 +76,7 @@ rcutils_ret_t configure_native_realtime_thread(
   int policy;
   success &= (pthread_getschedparam(native_handle, &policy, &params) == 0);
   success &= (calculate_os_thread_priority(priority, &params.sched_priority) ==
-              RCUTILS_RET_OK ? 1 : 0);
+    RCUTILS_RET_OK ? 1 : 0);
   success &= (pthread_setschedparam(native_handle, SCHED_FIFO, &params) == 0);
 
 #ifdef __QNXNTO__
@@ -87,7 +87,7 @@ rcutils_ret_t configure_native_realtime_thread(
   // Function used to change thread affinity of thread associated with native_handle
   if (ThreadCtlExt(
       0, native_handle, _NTO_TCTL_RUNMASK,
-      reinterpret_cast<void *>(run_mask)) == -1)
+      (void *)run_mask) == -1)
   {
     success &= 0;
   } else {
@@ -111,4 +111,3 @@ rcutils_ret_t configure_native_realtime_thread(
 #ifdef __cplusplus
 }
 #endif
-
