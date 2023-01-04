@@ -37,14 +37,14 @@ extern "C"
 {
 #endif
 
-int calculate_os_thread_priority(
+rcutils_ret_t calculate_os_thread_priority(
   const int thread_priority,
   int * os_priority)
 {
 #ifdef _WIN32
-  return false;
+  return RCUTILS_RET_ERROR;
 #elif __APPLE__
-  return false;
+  return RCUTILS_RET_ERROR;
 #else
   if (thread_priority == THREAD_PRIORITY_HIGH) {
     *os_priority = sched_get_priority_max(SCHED_FIFO);
@@ -56,26 +56,27 @@ int calculate_os_thread_priority(
     *os_priority =
       (sched_get_priority_min(SCHED_FIFO) + sched_get_priority_max(SCHED_FIFO)) / 2 - 1;
   } else {  // unhandled priority
-    return 0;
+    return RCUTILS_RET_ERROR;
   }
-  return 1;
+  return RCUTILS_RET_OK;
 #endif
 }
 
-int configure_native_realtime_thread(
+rcutils_ret_t configure_native_realtime_thread(
   unsigned long int native_handle, const int priority,
   const unsigned int cpu_bitmask)
 {
   int success = 1;
 #ifdef _WIN32
-  return false;
+  return RCUTILS_RET_ERROR;
 #elif __APPLE__
-  return false;
+  return RCUTILS_RET_ERROR;
 #else  // POSIX systems
   struct sched_param params;
   int policy;
   success &= (pthread_getschedparam(native_handle, &policy, &params) == 0);
-  success &= calculate_os_thread_priority(priority, &params.sched_priority);
+  success &= (calculate_os_thread_priority(priority, &params.sched_priority) ==
+              RCUTILS_RET_OK ? 1 : 0);
   success &= (pthread_setschedparam(native_handle, SCHED_FIFO, &params) == 0);
 
 #ifdef __QNXNTO__
@@ -104,7 +105,7 @@ int configure_native_realtime_thread(
 #endif  // __QNXNTO__
 #endif
 
-  return success;
+  return success ? RCUTILS_RET_OK : RCUTILS_RET_ERROR;
 }
 
 #ifdef __cplusplus

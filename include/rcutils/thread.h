@@ -16,6 +16,7 @@
 #define RCUTILS__THREAD_H_
 
 #include "rcutils/visibility_control.h"
+#include "rcutils/types/rcutils_ret.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -34,10 +35,10 @@ enum ThreadPriority
 /**
  * \param[in] thread_priority thread priority of type ThreadPriority
  * \param[out] os_priority OS specific thread priority
- * \return 1 on systems that support POSIX, else 0
+ * \return RCUTILS_RET_OK on systems that support POSIX
  */
 RCUTILS_LOCAL
-int calculate_os_thread_priority(
+rcutils_ret_t calculate_os_thread_priority(
   const int thread_priority,
   int * os_priority);
 
@@ -52,10 +53,10 @@ int calculate_os_thread_priority(
  * \param[in] native_handle native thread handle
  * \param[in] priority priority of type ThreadPriority to be set for the given thread
  * \param[in] cpu_bitmask cpu core bitmask for the given thread; use (unsigned) -1 for all cores
- * \return 1 on success, 0 on error
+ * \return RCUTILS_RET_OK on success
  */
 RCUTILS_PUBLIC
-int configure_native_realtime_thread(
+rcutils_ret_t configure_native_realtime_thread(
   unsigned long int native_handle, const int priority,
   const unsigned int cpu_bitmask);
 
