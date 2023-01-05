@@ -37,7 +37,7 @@ extern "C"
 {
 #endif
 
-rcutils_ret_t calculate_os_thread_priority(
+rcutils_ret_t calculate_os_fifo_thread_priority(
   const int thread_priority,
   int * os_priority)
 {
@@ -46,15 +46,15 @@ rcutils_ret_t calculate_os_thread_priority(
 #elif __APPLE__
   return RCUTILS_RET_ERROR;
 #else
-  if (thread_priority > THREAD_PRIORITY_HIGH || thread_priority < THREAD_PRIORITY_LOW) {
+  if (thread_priority > THREAD_PRIORITY_HIGHEST || thread_priority < THREAD_PRIORITY_LOWEST) {
     return RCUTILS_RET_ERROR;
   }
   const int max_prio = sched_get_priority_max(SCHED_FIFO);
   const int min_prio = sched_get_priority_min(SCHED_FIFO);
   const int range_prio = max_prio - min_prio;
 
-  int priority = min_prio + (thread_priority - THREAD_PRIORITY_LOW) *
-    range_prio / (THREAD_PRIORITY_HIGH - THREAD_PRIORITY_LOW);
+  int priority = min_prio + (thread_priority - THREAD_PRIORITY_LOWEST) *
+    range_prio / (THREAD_PRIORITY_HIGHEST - THREAD_PRIORITY_LOWEST);
   if (priority > min_prio && priority < max_prio) {
     // on Linux systems THREAD_PRIORITY_MEDIUM should be prio 49 instead of 50
     // in order to not block any interrupt handlers
@@ -80,7 +80,7 @@ rcutils_ret_t configure_native_realtime_thread(
   struct sched_param params;
   int policy;
   success &= (pthread_getschedparam(native_handle, &policy, &params) == 0);
-  success &= (calculate_os_thread_priority(priority, &params.sched_priority) ==
+  success &= (calculate_os_fifo_thread_priority(priority, &params.sched_priority) ==
     RCUTILS_RET_OK ? 1 : 0);
   success &= (pthread_setschedparam(native_handle, SCHED_FIFO, &params) == 0);
 
