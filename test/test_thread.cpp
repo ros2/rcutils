@@ -34,9 +34,9 @@ TEST(test_thread, config_rt_thread) {
   struct sched_param params_self;
   int policy_self;
   EXPECT_EQ(0, pthread_getschedparam(pthread_self(), &policy_self, &params_self));
-  int prio_calculated;
-  EXPECT_EQ(RCUTILS_RET_OK, calculate_os_fifo_thread_priority(priority, &prio_calculated));
-  EXPECT_EQ(prio_calculated, params_self.sched_priority);
+  int os_prio_calculated;
+  EXPECT_EQ(RCUTILS_RET_OK, calculate_os_fifo_thread_priority(priority, &os_prio_calculated));
+  EXPECT_EQ(os_prio_calculated, params_self.sched_priority);
   EXPECT_EQ(SCHED_FIFO, policy_self);
 
   cpu_set_t cpuset_self;
