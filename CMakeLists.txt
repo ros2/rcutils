@@ -562,6 +562,14 @@ if(BUILD_TESTING)
     test/test_macros.cpp
   )
 
+  ament_add_gtest(test_thread
+    test/test_thread.cpp
+    src/thread.c # to test RCUTILS_LOCAL functions
+  )
+  if(TARGET test_thread)
+    target_link_libraries(test_thread ${PROJECT_NAME})
+  endif()
+
   add_performance_test(benchmark_logging test/benchmark/benchmark_logging.cpp)
   if(TARGET benchmark_logging)
     target_link_libraries(benchmark_logging ${PROJECT_NAME})
