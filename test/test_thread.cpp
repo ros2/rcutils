@@ -24,7 +24,7 @@
 TEST(test_thread, config_rt_thread) {
 #ifdef __linux__
   const unsigned cpu_id = 0;
-  const unsigned long cpu_bitmask = 1 << cpu_id;
+  const unsigned long cpu_bitmask = 1 << cpu_id;  // NOLINT
   const int priority = THREAD_PRIORITY_MEDIUM;
   if (configure_native_realtime_thread(pthread_self(), priority, cpu_bitmask) != RCUTILS_RET_OK) {
     GTEST_SKIP() << "Unable to set realtime thread priority.";

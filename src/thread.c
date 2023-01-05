@@ -68,7 +68,7 @@ rcutils_ret_t calculate_os_fifo_thread_priority(
 }
 
 rcutils_ret_t configure_native_realtime_thread(
-  unsigned long int native_handle, const int priority,
+  unsigned long int native_handle, const int priority, // NOLINT
   const unsigned int cpu_bitmask)
 {
   int success = 1;
