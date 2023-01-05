@@ -46,18 +46,23 @@ rcutils_ret_t calculate_os_thread_priority(
 #elif __APPLE__
   return RCUTILS_RET_ERROR;
 #else
-  if (thread_priority == THREAD_PRIORITY_HIGH) {
-    *os_priority = sched_get_priority_max(SCHED_FIFO);
-  } else if (thread_priority == THREAD_PRIORITY_LOW) {
-    *os_priority = sched_get_priority_min(SCHED_FIFO);
-  } else if (thread_priority == THREAD_PRIORITY_MEDIUM) {
-    // Should be a value of 49 on standard Linux platforms, which is just below
-    // the default priority of 50 for threaded interrupt handling.
-    *os_priority =
-      (sched_get_priority_min(SCHED_FIFO) + sched_get_priority_max(SCHED_FIFO)) / 2 - 1;
-  } else {  // unhandled priority
+  if (thread_priority > THREAD_PRIORITY_HIGH || thread_priority < THREAD_PRIORITY_LOW) {
     return RCUTILS_RET_ERROR;
   }
+  const int max_prio = sched_get_priority_max(SCHED_FIFO);
+  const int min_prio = sched_get_priority_min(SCHED_FIFO);
+  const int range_prio = max_prio - min_prio;
+
+  int priority = min_prio + (thread_priority - THREAD_PRIORITY_LOW) *
+    range_prio / (THREAD_PRIORITY_HIGH - THREAD_PRIORITY_LOW);
+  if (priority > min_prio && priority < max_prio) {
+    // on Linux systems THREAD_PRIORITY_MEDIUM should be prio 49 instead of 50
+    // in order to not block any interrupt handlers
+    priority--;
+  }
+
+  *os_priority = priority;
+
   return RCUTILS_RET_OK;
 #endif
 }
