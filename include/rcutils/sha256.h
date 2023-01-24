@@ -18,6 +18,21 @@
 /// Implementation originally copied from Brad Conte
 /// https://github.com/B-Con/crypto-algorithms/blob/master/sha256.c
 
+/// Simple SHA256 implementation
+/*********************************************************************
+* Filename:   sha256.c
+* Author:     Brad Conte (brad AT bradconte.com)
+* Copyright:
+* Disclaimer: This code is presented "as is" without any guarantees.
+* Details:    Implementation of the SHA-256 hashing algorithm.
+              SHA-256 is one of the three algorithms in the SHA2
+              specification. The others, SHA-384 and SHA-512, are not
+              offered in this implementation.
+              Algorithm specification can be found here:
+               * http://csrc.nist.gov/publications/fips/fips180-2/fips180-2withchangenotice.pdf
+              This implementation uses little endian byte order.
+*********************************************************************/
+
 #ifndef RCUTILS__SHA256_H_
 #define RCUTILS__SHA256_H_
 
@@ -34,37 +49,20 @@ extern "C"
 
 typedef struct
 {
-  uint8_t data[64];
-  uint32_t datalen;
-  uint64_t bitlen;
-  uint32_t state[8];
+  unsigned char data[64];
+  unsigned int datalen;
+  unsigned long long bitlen;
+  unsigned int state[8];
 } rcutils_sha256_ctx_t;
-
-/// Simple SHA256 implementation
-/*********************************************************************
-* Filename:   sha256.c
-* Author:     Brad Conte (brad AT bradconte.com)
-* Copyright:
-* Disclaimer: This code is presented "as is" without any guarantees.
-* Details:    Implementation of the SHA-256 hashing algorithm.
-              SHA-256 is one of the three algorithms in the SHA2
-              specification. The others, SHA-384 and SHA-512, are not
-              offered in this implementation.
-              Algorithm specification can be found here:
-               * http://csrc.nist.gov/publications/fips/fips180-2/fips180-2withchangenotice.pdf
-              This implementation uses little endian byte order.
-*********************************************************************/
-
 
 /**
  *
  *
  * \param[inout] ctx
- * \return rcutils_ret_t
+ * \return void
  */
 RCUTILS_PUBLIC
-RCUTILS_WARN_UNUSED
-rcutils_ret_t rcutils_sha256_init(rcutils_sha256_ctx_t * ctx);
+void rcutils_sha256_init(rcutils_sha256_ctx_t * ctx);
 
 /**
  *
@@ -72,22 +70,20 @@ rcutils_ret_t rcutils_sha256_init(rcutils_sha256_ctx_t * ctx);
  * \param ctx
  * \param data
  * \param len
- * \return rcutils_ret_t
+ * \return void
  */
 RCUTILS_PUBLIC
-RCUTILS_WARN_UNUSED
-rcutils_ret_t rcutils_sha256_update(rcutils_sha256_ctx_t * ctx, const uint8_t data[], size_t len);
+void rcutils_sha256_update(rcutils_sha256_ctx_t * ctx, const uint8_t * data, size_t data_len);
 
 /**
  *
  *
  * \param ctx
  * \param hash
- * \return rcutils_ret_t
+ * \return void
  */
 RCUTILS_PUBLIC
-RCUTILS_WARN_UNUSED
-rcutils_ret_t sha256_final(rcutils_sha256_ctx_t * ctx, uint8_t hash[]);
+void rcutils_sha256_final(rcutils_sha256_ctx_t * ctx, uint8_t hash[RCUTILS_SHA256_BLOCK_SIZE]);
 
 #ifdef __cplusplus
 }

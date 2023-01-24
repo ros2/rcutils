@@ -363,6 +363,13 @@ if(BUILD_TESTING)
     target_link_libraries(test_repl_str ${PROJECT_NAME})
   endif()
 
+  ament_add_gtest(test_sha256
+    test/test_sha256.cpp
+  )
+  if(TARGET test_sha256)
+    target_link_libraries(test_sha256 ${PROJECT_NAME})
+  endif()
+
   macro(add_dummy_shared_library target)
     add_library(${target} test/dummy_shared_library/dummy_shared_library.c)
     if(WIN32)

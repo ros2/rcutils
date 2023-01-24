@@ -16,9 +16,9 @@
 
 #include "rcutils/sha256.h"
 
-static inline uint32_t rotright(uint32_t value, uint8_t bits)
+static inline uint32_t rotright(uint32_t a, uint8_t b)
 {
-  return (value >> bits) | (value << (32 - bits));
+  return (a >> b) | (a << (32 - b));
 }
 
 static inline uint32_t ch(uint32_t x, uint32_t y, uint32_t z)
@@ -105,7 +105,7 @@ void sha256_transform(rcutils_sha256_ctx_t * ctx, const uint8_t data[])
   ctx->state[7] += h;
 }
 
-rcutils_ret_t rcutils_sha256_init(rcutils_sha256_ctx_t * ctx)
+void rcutils_sha256_init(rcutils_sha256_ctx_t * ctx)
 {
   ctx->datalen = 0;
   ctx->bitlen = 0;
@@ -117,11 +117,9 @@ rcutils_ret_t rcutils_sha256_init(rcutils_sha256_ctx_t * ctx)
   ctx->state[5] = 0x9b05688c;
   ctx->state[6] = 0x1f83d9ab;
   ctx->state[7] = 0x5be0cd19;
-
-  return RCUTILS_RET_OK;
 }
 
-rcutils_ret_t rcutils_sha256_update(rcutils_sha256_ctx_t * ctx, const uint8_t data[], size_t len)
+void rcutils_sha256_update(rcutils_sha256_ctx_t * ctx, const uint8_t data, size_t len)
 {
   uint32_t i;
 
@@ -134,17 +132,13 @@ rcutils_ret_t rcutils_sha256_update(rcutils_sha256_ctx_t * ctx, const uint8_t da
       ctx->datalen = 0;
     }
   }
-
-  return RCUTILS_RET_OK;
 }
 
-rcutils_ret_t rcutils_sha256_final(rcutils_sha256_ctx_t * ctx, uint8_t hash[])
+void rcutils_sha256_final(rcutils_sha256_ctx_t * ctx, uint8_t hash[RCUTILS_SHA256_BLOCK_SIZE])
 {
-  uint32_t i;
-
+  uint32_t i
   i = ctx->datalen;
 
-  // Pad whatever data is left in the buffer.
   if (ctx->datalen < 56) {
     ctx->data[i++] = 0x80;
     while (i < 56) {
@@ -174,7 +168,7 @@ rcutils_ret_t rcutils_sha256_final(rcutils_sha256_ctx_t * ctx, uint8_t hash[])
   // Since this implementation uses little endian byte ordering and SHA uses big endian,
   // reverse all the bytes when copying the final state to the output hash.
   for (i = 0; i < 4; ++i) {
-    hash[i + 0] = (ctx->state[0] >> (24 - i * 8)) & 0x000000ff;
+    hash[i] = (ctx->state[0] >> (24 - i * 8)) & 0x000000ff;
     hash[i + 4] = (ctx->state[1] >> (24 - i * 8)) & 0x000000ff;
     hash[i + 8] = (ctx->state[2] >> (24 - i * 8)) & 0x000000ff;
     hash[i + 12] = (ctx->state[3] >> (24 - i * 8)) & 0x000000ff;
@@ -183,6 +177,4 @@ rcutils_ret_t rcutils_sha256_final(rcutils_sha256_ctx_t * ctx, uint8_t hash[])
     hash[i + 24] = (ctx->state[6] >> (24 - i * 8)) & 0x000000ff;
     hash[i + 28] = (ctx->state[7] >> (24 - i * 8)) & 0x000000ff;
   }
-
-  return RCUTILS_RET_OK;
 }
