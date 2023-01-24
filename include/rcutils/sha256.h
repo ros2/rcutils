@@ -32,11 +32,12 @@ extern "C"
 
 #define RCUTILS_SHA256_BLOCK_SIZE 32
 
-typedef struct {
-	uint8_t data[64];
-	uint32_t datalen;
-	uint64_t bitlen;
-	uint32_t state[8];
+typedef struct
+{
+  uint8_t data[64];
+  uint32_t datalen;
+  uint64_t bitlen;
+  uint32_t state[8];
 } rcutils_sha256_ctx_t;
 
 /// Simple SHA256 implementation
@@ -92,4 +93,4 @@ rcutils_ret_t sha256_final(rcutils_sha256_ctx_t * ctx, uint8_t hash[]);
 }
 #endif
 
-#endif  // RCUTILS__QSORT_H_
+#endif  // RCUTILS__SHA256_H_
