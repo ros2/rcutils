@@ -18,20 +18,17 @@
 /// Implementation originally copied from Brad Conte
 /// https://github.com/B-Con/crypto-algorithms/blob/master/sha256.c
 
-/// Simple SHA256 implementation
-/*********************************************************************
-* Filename:   sha256.c
-* Author:     Brad Conte (brad AT bradconte.com)
-* Copyright:
-* Disclaimer: This code is presented "as is" without any guarantees.
-* Details:    Implementation of the SHA-256 hashing algorithm.
-              SHA-256 is one of the three algorithms in the SHA2
-              specification. The others, SHA-384 and SHA-512, are not
-              offered in this implementation.
-              Algorithm specification can be found here:
-               * http://csrc.nist.gov/publications/fips/fips180-2/fips180-2withchangenotice.pdf
-              This implementation uses little endian byte order.
-*********************************************************************/
+/** \file sha256.h
+ *  \brief SHA256 implementation
+ *
+ *  This contains an implementation of the SHA256 algorithm
+ *  It was originally copied from Brad Conte
+ *  https://github.com/B-Con/crypto-algorithms/blob/master/sha256.c
+ *  and modified to meet ros2 code formatting and compiler warning requirements.
+ *  Algorithm specification can be found here:
+ *  http://csrc.nist.gov/publications/fips/fips180-2/fips180-2withchangenotice.pdf
+ *  This implementation uses little endian byte order.
+ */
 
 #ifndef RCUTILS__SHA256_H_
 #define RCUTILS__SHA256_H_
@@ -55,8 +52,9 @@ typedef struct
   uint32_t state[8];
 } rcutils_sha256_ctx_t;
 
+/// Initialize the sha256 algorithm context with starting state.
 /**
- *
+ * Call this on any new context before starting to input data.
  *
  * \param[inout] ctx
  * \return void
@@ -64,22 +62,24 @@ typedef struct
 RCUTILS_PUBLIC
 void rcutils_sha256_init(rcutils_sha256_ctx_t * ctx);
 
+/// Add data to the sha256 algorithm
 /**
+ * This may be called repeatedly on an initialized context.
  *
- *
- * \param ctx
- * \param data
- * \param len
+ * \param[inout] ctx Initialized sha256 context struct
+ * \param[in] data Data to add to the total message being hashed
+ * \param[in] data_len Size of the input data.
  * \return void
  */
 RCUTILS_PUBLIC
 void rcutils_sha256_update(rcutils_sha256_ctx_t * ctx, const uint8_t * data, size_t data_len);
 
+/// Finalize and output sha256 hash for all data added.
 /**
+ * Call only once on a context that has been initialized, and optionally updated with data.
  *
- *
- * \param ctx
- * \param hash
+ * \param[inout] ctx Initialized sha256 context struct
+ * \param[out] hash Calculated sha256 message digest
  * \return void
  */
 RCUTILS_PUBLIC
