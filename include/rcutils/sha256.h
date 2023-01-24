@@ -49,10 +49,10 @@ extern "C"
 
 typedef struct
 {
-  unsigned char data[64];
-  unsigned int datalen;
-  unsigned long long bitlen;
-  unsigned int state[8];
+  uint8_t data[64];
+  uint32_t datalen;
+  uint64_t bitlen;
+  uint32_t state[8];
 } rcutils_sha256_ctx_t;
 
 /**
