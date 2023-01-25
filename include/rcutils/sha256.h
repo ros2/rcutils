@@ -79,7 +79,7 @@ void rcutils_sha256_update(rcutils_sha256_ctx_t * ctx, const uint8_t * data, siz
  * Call only once on a context that has been initialized, and optionally updated with data.
  *
  * \param[inout] ctx Initialized sha256 context struct
- * \param[out] hash Calculated sha256 message digest
+ * \param[out] output_hash Calculated sha256 message digest to be filled
  * \return void
  */
 RCUTILS_PUBLIC
