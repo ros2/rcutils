@@ -12,12 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <assert.h>
 #include <string.h>
 
 #include "rcutils/sha256.h"
 
-static inline uint32_t rotright(uint32_t a, uint8_t b)
+static inline size_t min(size_t a, size_t b)
 {
+  return a < b ? a : b;
+}
+
+static inline size_t max(size_t a, size_t b)
+{
+  return a > b ? a : b;
+}
+
+static inline uint32_t rotright(uint32_t a, const uint8_t b)
+{
+  assert(b < 32);
   return (a >> b) | (a << (32 - b));
 }
 
@@ -62,9 +74,10 @@ static const uint32_t k[64] = {
   0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
 };
 
-void sha256_transform(rcutils_sha256_ctx_t * ctx, const uint8_t data[])
+static void sha256_transform(rcutils_sha256_ctx_t * ctx)
 {
   uint32_t a, b, c, d, e, f, g, h, i, j, t1, t2, m[64];
+  uint8_t * data = ctx->data;
 
   for (i = 0, j = 0; i < 16; ++i, j += 4) {
     m[i] = (data[j] << 24) | (data[j + 1] << 16) | (data[j + 2] << 8) | (data[j + 3]);
@@ -119,24 +132,33 @@ void rcutils_sha256_init(rcutils_sha256_ctx_t * ctx)
   ctx->state[7] = 0x5be0cd19;
 }
 
+#include <stdio.h>
 void rcutils_sha256_update(rcutils_sha256_ctx_t * ctx, const uint8_t * data, size_t len)
 {
-  uint32_t i;
+  size_t i, data_remaining, block_remaining, copy_len;
+  i = 0;
 
-  for (i = 0; i < len; ++i) {
-    ctx->data[ctx->datalen] = data[i];
-    ctx->datalen++;
-    if (ctx->datalen == 64) {
-      sha256_transform(ctx, ctx->data);
+  while (i < len) {
+    data_remaining = len - i;
+    block_remaining = 64 - ctx->datalen;
+    copy_len = min(min(block_remaining, data_remaining), 64);
+
+    memcpy(ctx->data + ctx->datalen, data + i, copy_len);
+    ctx->datalen += copy_len;
+    i += copy_len;
+
+    if (ctx->datalen >= 64) {
+      sha256_transform(ctx);
       ctx->bitlen += 512;
       ctx->datalen = 0;
     }
   }
 }
 
-void rcutils_sha256_final(rcutils_sha256_ctx_t * ctx, uint8_t hash[RCUTILS_SHA256_BLOCK_SIZE])
+void rcutils_sha256_final(
+  rcutils_sha256_ctx_t * ctx, uint8_t output_hash[RCUTILS_SHA256_BLOCK_SIZE])
 {
-  uint32_t i = ctx->datalen;
+  size_t i = ctx->datalen;
 
   // Pad whatever data is left in the buffer.
   if (ctx->datalen < 56) {
@@ -149,7 +171,7 @@ void rcutils_sha256_final(rcutils_sha256_ctx_t * ctx, uint8_t hash[RCUTILS_SHA25
     while (i < 64) {
       ctx->data[i++] = 0x00;
     }
-    sha256_transform(ctx, ctx->data);
+    sha256_transform(ctx);
     memset(ctx->data, 0, 56);
   }
 
@@ -163,18 +185,18 @@ void rcutils_sha256_final(rcutils_sha256_ctx_t * ctx, uint8_t hash[RCUTILS_SHA25
   ctx->data[58] = (uint8_t)(ctx->bitlen >> 40);
   ctx->data[57] = (uint8_t)(ctx->bitlen >> 48);
   ctx->data[56] = (uint8_t)(ctx->bitlen >> 56);
-  sha256_transform(ctx, ctx->data);
+  sha256_transform(ctx);
 
   // Since this implementation uses little endian byte ordering and SHA uses big endian,
   // reverse all the bytes when copying the final state to the output hash.
   for (i = 0; i < 4; ++i) {
-    hash[i + 0] = (ctx->state[0] >> (24 - i * 8)) & 0x000000ff;
-    hash[i + 4] = (ctx->state[1] >> (24 - i * 8)) & 0x000000ff;
-    hash[i + 8] = (ctx->state[2] >> (24 - i * 8)) & 0x000000ff;
-    hash[i + 12] = (ctx->state[3] >> (24 - i * 8)) & 0x000000ff;
-    hash[i + 16] = (ctx->state[4] >> (24 - i * 8)) & 0x000000ff;
-    hash[i + 20] = (ctx->state[5] >> (24 - i * 8)) & 0x000000ff;
-    hash[i + 24] = (ctx->state[6] >> (24 - i * 8)) & 0x000000ff;
-    hash[i + 28] = (ctx->state[7] >> (24 - i * 8)) & 0x000000ff;
+    output_hash[i + 0] = (ctx->state[0] >> (24 - i * 8)) & 0x000000ff;
+    output_hash[i + 4] = (ctx->state[1] >> (24 - i * 8)) & 0x000000ff;
+    output_hash[i + 8] = (ctx->state[2] >> (24 - i * 8)) & 0x000000ff;
+    output_hash[i + 12] = (ctx->state[3] >> (24 - i * 8)) & 0x000000ff;
+    output_hash[i + 16] = (ctx->state[4] >> (24 - i * 8)) & 0x000000ff;
+    output_hash[i + 20] = (ctx->state[5] >> (24 - i * 8)) & 0x000000ff;
+    output_hash[i + 24] = (ctx->state[6] >> (24 - i * 8)) & 0x000000ff;
+    output_hash[i + 28] = (ctx->state[7] >> (24 - i * 8)) & 0x000000ff;
   }
 }

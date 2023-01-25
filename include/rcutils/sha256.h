@@ -47,7 +47,7 @@ extern "C"
 typedef struct RCUTILS_PUBLIC_TYPE rcutils_sha256_ctx_s
 {
   uint8_t data[64];
-  uint32_t datalen;
+  size_t datalen;
   uint64_t bitlen;
   uint32_t state[8];
 } rcutils_sha256_ctx_t;
@@ -83,7 +83,7 @@ void rcutils_sha256_update(rcutils_sha256_ctx_t * ctx, const uint8_t * data, siz
  * \return void
  */
 RCUTILS_PUBLIC
-void rcutils_sha256_final(rcutils_sha256_ctx_t * ctx, uint8_t hash[RCUTILS_SHA256_BLOCK_SIZE]);
+void rcutils_sha256_final(rcutils_sha256_ctx_t * ctx, uint8_t output_hash[RCUTILS_SHA256_BLOCK_SIZE]);
 
 #ifdef __cplusplus
 }
