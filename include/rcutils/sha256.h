@@ -38,13 +38,13 @@ extern "C"
 {
 #endif
 
-#include "rcutils/macros.h"
-#include "rcutils/types/rcutils_ret.h"
+#include <stdint.h>
+
 #include "rcutils/visibility_control.h"
 
 #define RCUTILS_SHA256_BLOCK_SIZE 32
 
-typedef struct
+typedef struct RCUTILS_PUBLIC_TYPE rcutils_sha256_ctx_s
 {
   uint8_t data[64];
   uint32_t datalen;
