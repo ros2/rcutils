@@ -19,7 +19,7 @@
 TEST(TestSHA256, test_text1) {
   uint8_t text1[] = {"abc"};
   size_t text1_len = sizeof(text1) - 1;
-  uint8_t hash1[RCUTILS_SHA256_BLOCK_SIZE] = {
+  uint8_t expected_hash1[RCUTILS_SHA256_BLOCK_SIZE] = {
     0xba, 0x78, 0x16, 0xbf, 0x8f, 0x01, 0xcf, 0xea,
     0x41, 0x41, 0x40, 0xde, 0x5d, 0xae, 0x22, 0x23,
     0xb0, 0x03, 0x61, 0xa3, 0x96, 0x17, 0x7a, 0x9c,
@@ -32,13 +32,13 @@ TEST(TestSHA256, test_text1) {
   rcutils_sha256_update(&ctx, text1, text1_len);
   rcutils_sha256_final(&ctx, buf);
 
-  ASSERT_EQ(0, memcmp(hash1, buf, RCUTILS_SHA256_BLOCK_SIZE));
+  ASSERT_EQ(0, memcmp(expected_hash1, buf, RCUTILS_SHA256_BLOCK_SIZE));
 }
 
 TEST(TestSHA256, test_text2) {
   uint8_t text2[] = {"abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"};
   size_t text2_len = sizeof(text2) - 1;
-  uint8_t hash2[RCUTILS_SHA256_BLOCK_SIZE] = {
+  uint8_t expected_hash2[RCUTILS_SHA256_BLOCK_SIZE] = {
     0x24, 0x8d, 0x6a, 0x61, 0xd2, 0x06, 0x38, 0xb8,
     0xe5, 0xc0, 0x26, 0x93, 0x0c, 0x3e, 0x60, 0x39,
     0xa3, 0x3c, 0xe4, 0x59, 0x64, 0xff, 0x21, 0x67,
@@ -50,14 +50,14 @@ TEST(TestSHA256, test_text2) {
   rcutils_sha256_update(&ctx, text2, text2_len);
   rcutils_sha256_final(&ctx, buf);
 
-  ASSERT_EQ(0, memcmp(hash2, buf, RCUTILS_SHA256_BLOCK_SIZE));
+  ASSERT_EQ(0, memcmp(expected_hash2, buf, RCUTILS_SHA256_BLOCK_SIZE));
 }
 
 TEST(TestSHA256, test_multi_update) {
   uint8_t text[] = {"aaaaaaaaaa"};
   size_t text_len = sizeof(text) - 1;
 
-  uint8_t hash[RCUTILS_SHA256_BLOCK_SIZE] = {
+  uint8_t expected_hash[RCUTILS_SHA256_BLOCK_SIZE] = {
     0x28, 0x16, 0x59, 0x78, 0x88, 0xe4, 0xa0, 0xd3,
     0xa3, 0x6b, 0x82, 0xb8, 0x33, 0x16, 0xab, 0x32,
     0x68, 0x0e, 0xb8, 0xf0, 0x0f, 0x8c, 0xd3, 0xb9,
@@ -71,5 +71,5 @@ TEST(TestSHA256, test_multi_update) {
   }
   rcutils_sha256_final(&ctx, buf);
 
-  ASSERT_EQ(0, memcmp(hash, buf, RCUTILS_SHA256_BLOCK_SIZE));
+  ASSERT_EQ(0, memcmp(expected_hash, buf, RCUTILS_SHA256_BLOCK_SIZE));
 }

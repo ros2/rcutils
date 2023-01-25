@@ -132,7 +132,6 @@ void rcutils_sha256_init(rcutils_sha256_ctx_t * ctx)
   ctx->state[7] = 0x5be0cd19;
 }
 
-#include <stdio.h>
 void rcutils_sha256_update(rcutils_sha256_ctx_t * ctx, const uint8_t * data, size_t len)
 {
   size_t i, data_remaining, block_remaining, copy_len;
@@ -163,13 +162,11 @@ void rcutils_sha256_final(
   // Pad whatever data is left in the buffer.
   if (ctx->datalen < 56) {
     ctx->data[i++] = 0x80;
-    while (i < 56) {
-      ctx->data[i++] = 0x00;
-    }
+    memset(ctx->data + i, 0x00, 56 - i);
   } else {
     ctx->data[i++] = 0x80;
-    while (i < 64) {
-      ctx->data[i++] = 0x00;
+    if (i < 64) {
+      memset(ctx->data + i, 0x00, 64 - i);
     }
     sha256_transform(ctx);
     memset(ctx->data, 0, 56);
