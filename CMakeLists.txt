@@ -63,6 +63,7 @@ set(rcutils_sources
   src/process.c
   src/qsort.c
   src/repl_str.c
+  src/sha256.c
   src/shared_library.c
   src/snprintf.c
   src/split.c
@@ -360,6 +361,13 @@ if(BUILD_TESTING)
   )
   if(TARGET test_repl_str)
     target_link_libraries(test_repl_str ${PROJECT_NAME})
+  endif()
+
+  ament_add_gtest(test_sha256
+    test/test_sha256.cpp
+  )
+  if(TARGET test_sha256)
+    target_link_libraries(test_sha256 ${PROJECT_NAME})
   endif()
 
   macro(add_dummy_shared_library target)
