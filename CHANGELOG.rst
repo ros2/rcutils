@@ -2,8 +2,8 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+6.1.0 (2023-02-13)
+------------------
 * Add SHA256 utility implementation (`#408 <https://github.com/ros2/rcutils/issues/408>`_)
 * Upgrade rcutils to C++17. (`#392 <https://github.com/ros2/rcutils/issues/392>`_)
 * [rolling] Update maintainers - 2022-11-07 (`#404 <https://github.com/ros2/rcutils/issues/404>`_)
