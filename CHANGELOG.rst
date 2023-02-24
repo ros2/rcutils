@@ -2,8 +2,8 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+6.1.1 (2023-02-24)
+------------------
 * Add missing stddef include for size_t (`#410 <https://github.com/ros2/rcutils/issues/410>`_)
 * Contributors: Emerson Knapp
 
