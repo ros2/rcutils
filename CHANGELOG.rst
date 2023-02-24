@@ -2,6 +2,11 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add missing stddef include for size_t (`#410 <https://github.com/ros2/rcutils/issues/410>`_)
+* Contributors: Emerson Knapp
+
 6.1.0 (2023-02-13)
 ------------------
 * Add SHA256 utility implementation (`#408 <https://github.com/ros2/rcutils/issues/408>`_)
