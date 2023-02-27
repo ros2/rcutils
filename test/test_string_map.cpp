@@ -1939,3 +1939,64 @@ TEST(test_string_map, strange_keys) {
     EXPECT_STREQ("value1", rcutils_string_map_get(&string_map, "key with spaces"));
   }
 }
+
+static int realloc_counter = 0;
+static int realloc_fail_after = -1;
+
+static void *
+reallocate_fail_after(void * pointer, size_t size, void * state)
+{
+  RCUTILS_UNUSED(state);
+
+  if (realloc_fail_after >= 0 && realloc_counter++ >= realloc_fail_after) {
+    return NULL;
+  }
+
+  return realloc(pointer, size);
+}
+
+TEST(test_string_map, partial_allocation_failures)
+{
+  {
+    rcutils_string_map_t map = rcutils_get_zero_initialized_string_map();
+
+    rcutils_allocator_t allocator = rcutils_get_default_allocator();
+    allocator.reallocate = reallocate_fail_after;
+
+    realloc_counter = 0;
+    realloc_fail_after = 0;
+
+    rcutils_ret_t ret;
+
+    // Since we set realloc_fail_after to 0, that means we'll fail immediately
+    // and hence rcutils_string_map_init should return BAD_ALLOC
+    ret = rcutils_string_map_init(&map, 4, allocator);
+    ASSERT_EQ(ret, RCUTILS_RET_BAD_ALLOC);
+  }
+
+  {
+    rcutils_string_map_t map = rcutils_get_zero_initialized_string_map();
+
+    rcutils_allocator_t allocator = rcutils_get_default_allocator();
+    allocator.reallocate = reallocate_fail_after;
+
+    realloc_counter = 0;
+    realloc_fail_after = 1;
+
+    rcutils_ret_t ret;
+
+    // Since we set realloc_fail_after to 1, that means we'll succeed on the
+    // first allocation, so rcutils_string_map_init should return OK
+    ret = rcutils_string_map_init(&map, 4, allocator);
+    ASSERT_EQ(ret, RCUTILS_RET_OK);
+
+    // but reserve should fail
+    ret = rcutils_string_map_reserve(&map, 2);
+    ASSERT_EQ(ret, RCUTILS_RET_BAD_ALLOC);
+
+    // and we should still be able to fini things without accessing
+    // out-of-bounds memory or leaking.
+    ret = rcutils_string_map_fini(&map);
+    ASSERT_EQ(ret, RCUTILS_RET_OK);
+  }
+}
