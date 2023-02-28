@@ -172,7 +172,6 @@ rcutils_string_map_reserve(rcutils_string_map_t * string_map, size_t capacity)
     return RCUTILS_RET_OK;
   } else if (capacity == 0) {
     // if the requested capacity is zero, then make sure the existing keys and values are free'd
-    __clear_string_map(string_map);
     allocator.deallocate(string_map->impl->key_value_pairs, allocator.state);
     string_map->impl->key_value_pairs = NULL;
     // falls through to normal function end
@@ -181,17 +180,17 @@ rcutils_string_map_reserve(rcutils_string_map_t * string_map, size_t capacity)
     // note that realloc when the pointer is NULL is the same as malloc
     // note also that realloc will shrink the space if needed
 
-    // ensure that reallocate won't overflow capacity
+    // ensure that reallocate won't overflow SIZE_MAX
     if (capacity > (SIZE_MAX / sizeof(key_value_pair_t))) {
       RCUTILS_SET_ERROR_MSG("requested capacity for string_map too large");
       return RCUTILS_RET_BAD_ALLOC;
     }
 
-    // resize the keys, assigning the result only if it succeeds
+    // resize the keys and values, assigning the result only if it succeeds
     key_value_pair_t * new_key_value_pairs = allocator.reallocate(
       string_map->impl->key_value_pairs, capacity * sizeof(key_value_pair_t), allocator.state);
     if (NULL == new_key_value_pairs) {
-      RCUTILS_SET_ERROR_MSG("failed to allocate memory for string_map keys");
+      RCUTILS_SET_ERROR_MSG("failed to allocate memory for string_map key-value pairs");
       return RCUTILS_RET_BAD_ALLOC;
     }
     string_map->impl->key_value_pairs = new_key_value_pairs;
@@ -308,7 +307,7 @@ rcutils_string_map_set_no_resize(
   char * original_value = string_map->impl->key_value_pairs[key_index].value;
   char * new_value = rcutils_strdup(value, allocator);
   if (NULL == new_value) {
-    RCUTILS_SET_ERROR_MSG("failed to allocate memory for key");
+    RCUTILS_SET_ERROR_MSG("failed to allocate memory for value");
     if (should_free_key_on_error) {
       allocator.deallocate(string_map->impl->key_value_pairs[key_index].key, allocator.state);
       string_map->impl->key_value_pairs[key_index].key = NULL;
