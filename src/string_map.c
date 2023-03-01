@@ -145,16 +145,6 @@ __remove_key_and_value_at_index(rcutils_string_map_impl_t * string_map_impl, siz
   string_map_impl->size--;
 }
 
-static void
-__clear_string_map(rcutils_string_map_t * string_map)
-{
-  for (size_t i = 0; i < string_map->impl->capacity; ++i) {
-    if (string_map->impl->key_value_pairs[i].key != NULL) {
-      __remove_key_and_value_at_index(string_map->impl, i);
-    }
-  }
-}
-
 rcutils_ret_t
 rcutils_string_map_reserve(rcutils_string_map_t * string_map, size_t capacity)
 {
@@ -172,6 +162,7 @@ rcutils_string_map_reserve(rcutils_string_map_t * string_map, size_t capacity)
     return RCUTILS_RET_OK;
   } else if (capacity == 0) {
     // if the requested capacity is zero, then make sure the existing keys and values are free'd
+    // size is known to be 0 here because of the recursive call above.
     allocator.deallocate(string_map->impl->key_value_pairs, allocator.state);
     string_map->impl->key_value_pairs = NULL;
     // falls through to normal function end
@@ -215,7 +206,11 @@ rcutils_string_map_clear(rcutils_string_map_t * string_map)
   RCUTILS_CHECK_FOR_NULL_WITH_MSG(
     string_map->impl, "invalid string map", return RCUTILS_RET_STRING_MAP_INVALID);
 
-  __clear_string_map(string_map);
+  for (size_t i = 0; i < string_map->impl->capacity; ++i) {
+    if (string_map->impl->key_value_pairs[i].key != NULL) {
+      __remove_key_and_value_at_index(string_map->impl, i);
+    }
+  }
 
   return RCUTILS_RET_OK;
 }
