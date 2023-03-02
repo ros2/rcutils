@@ -1311,14 +1311,11 @@ void rcutils_logging_console_output_handler(
   }
 
   if (RCUTILS_RET_OK == status) {
-    va_list args_clone;
-    va_copy(args_clone, *args);
-    status = rcutils_char_array_vsprintf(&msg_array, format, args_clone);
+    status = rcutils_char_array_vsprintf(&msg_array, format, *args);
     if (RCUTILS_RET_OK != status) {
       RCUTILS_SAFE_FWRITE_TO_STDERR_WITH_FORMAT_STRING(
         "Error: rcutils_char_array_vsprintf failed with: %d\n", status);
     }
-    va_end(args_clone);
   }
 
   if (RCUTILS_RET_OK == status) {
