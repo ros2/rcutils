@@ -976,7 +976,7 @@ rcutils_ret_t rcutils_logging_set_logger_level(const char * name, int level)
 
   // Convert the severity value into a string for storage.
   if (level < 0 ||
-    level >=
+    level >
     (int)(sizeof(g_rcutils_log_severity_names) / sizeof(g_rcutils_log_severity_names[0])))
   {
     RCUTILS_SET_ERROR_MSG("Invalid severity level specified for logger");
