@@ -2,6 +2,11 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Change syntax __VAR_ARGS_\_ to __VA_ARGS_\_ (`#376 <https://github.com/ros2/rcutils/issues/376>`_) (`#379 <https://github.com/ros2/rcutils/issues/379>`_)
+* Contributors: mergify[bot]
+
 1.1.4 (2022-07-25)
 ------------------
 * Clarify duration arg description in logging macros (`#359 <https://github.com/ros2/rcutils/issues/359>`_) (`#362 <https://github.com/ros2/rcutils/issues/362>`_)
