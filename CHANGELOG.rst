@@ -2,8 +2,8 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.5 (2023-03-16)
+------------------
 * Change syntax __VAR_ARGS_\_ to __VA_ARGS_\_ (`#376 <https://github.com/ros2/rcutils/issues/376>`_) (`#379 <https://github.com/ros2/rcutils/issues/379>`_)
 * Contributors: mergify[bot]
 
