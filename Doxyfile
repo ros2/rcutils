@@ -5,10 +5,8 @@ PROJECT_NUMBER         = master
 PROJECT_BRIEF          = "C API providing common utilities and data structures."
 
 # Use these lines to include the generated logging_macro.h (update install path if needed)
-#INPUT                  = README.md ../../../install_isolated/rcutils/include
-#STRIP_FROM_PATH        = /Users/william/ros2_ws/install_isolated/rcutils/include
 # Otherwise just generate for the local (non-generated header files)
-INPUT                  = README.md ./include
+INPUT                  = CONTRIBUTING.md README.md QUALITY_DECLARATION.md ./include
 EXCLUDE_PATTERNS       = */stdatomic_helper/*
 USE_MDFILE_AS_MAINPAGE = README.md
 RECURSIVE              = YES
@@ -26,6 +24,7 @@ PREDEFINED             += RCUTILS_PUBLIC=
 PREDEFINED             += RCUTILS_PUBLIC_TYPE=
 PREDEFINED             += RCUTILS_WARN_UNUSED=
 PREDEFINED             += RCUTILS_ENABLE_FAULT_INJECTION=
+PREDEFINED             += DOXYGEN_ONLY
 
 # Tag files that do not exist will produce a warning and cross-project linking will not work.
 TAGFILES += "../../../doxygen_tag_files/cppreference-doxygen-web.tag.xml=http://en.cppreference.com/w/"
