@@ -80,7 +80,8 @@ void rcutils_sha256_update(rcutils_sha256_ctx_t * ctx, const uint8_t * data, siz
  * \return void
  */
 #ifdef DOXYGEN_ONLY
-// rosdoc2 doesn't understand uint8_t[], so make it a pointer for documentation purposes
+// One of the tools used by rosdoc2 misunderstands uint8_t[] as a uint8_t,
+// so make it a pointer for documentation purposes.
 RCUTILS_PUBLIC
 void rcutils_sha256_final(
   rcutils_sha256_ctx_t * ctx,
