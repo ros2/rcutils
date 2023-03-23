@@ -31,7 +31,6 @@ The API is a combination of parts:
   - rcutils_get_home_dir()
   - rcutils_set_env()
   - rcutils/env.h
-  - rcutils/get_env.h
 - Extensible logging macros:
   - Some examples (not exhaustive):
     - RCUTILS_LOG_DEBUG()
