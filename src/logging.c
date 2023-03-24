@@ -510,17 +510,29 @@ static void parse_and_create_handlers_list(void)
   }
 }
 
+rcutils_ret_t rcutils_logging_allocator_initialize(
+  const rcutils_allocator_t * allocator)
+{
+  RCUTILS_CHECK_ALLOCATOR_WITH_MSG(
+    allocator, "invalid allocator", return RCUTILS_RET_INVALID_ARGUMENT);
+
+  if (rcutils_allocator_is_valid(&g_rcutils_logging_allocator)) {
+    return RCUTILS_RET_OK;
+  }
+  g_rcutils_logging_allocator = *allocator;
+
+  return RCUTILS_RET_OK;
+}
+
 rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allocator)
 {
   if (g_rcutils_logging_initialized) {
     return RCUTILS_RET_OK;
   }
 
-  if (!rcutils_allocator_is_valid(&allocator)) {
-    RCUTILS_SET_ERROR_MSG("Provided allocator is invalid.");
+  if (rcutils_logging_allocator_initialize(&allocator) != RCUTILS_RET_OK) {
     return RCUTILS_RET_INVALID_ARGUMENT;
   }
-  g_rcutils_logging_allocator = allocator;
 
   g_rcutils_logging_output_handler = &rcutils_logging_console_output_handler;
   g_rcutils_logging_default_logger_level = RCUTILS_DEFAULT_LOGGER_DEFAULT_LEVEL;
@@ -691,6 +703,7 @@ rcutils_ret_t rcutils_logging_shutdown(void)
     g_rcutils_logging_severities_map_valid = false;
   }
   g_num_log_msg_handlers = 0;
+  g_rcutils_logging_allocator = rcutils_get_zero_initialized_allocator();
   g_rcutils_logging_initialized = false;
   return ret;
 }
