@@ -233,14 +233,13 @@ static rcutils_ret_t hash_map_check_and_grow_map(rcutils_hash_map_t * hash_map)
 // Modified from http://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
 static size_t next_power_of_two(size_t v)
 {
-  size_t shf;
+  size_t shf = 0;
   v--;
-  for (size_t i = 0; i <= sizeof(size_t); ++i) {
+  for (size_t i = 0; shf < sizeof(size_t) * 4; ++i) {
     shf = (1 << i);
     v |= v >> shf;
   }
   v++;
-
   return v > 1 ? v : 1;
 }
 
