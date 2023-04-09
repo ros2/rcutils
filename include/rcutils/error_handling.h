@@ -314,6 +314,93 @@ RCUTILS_PUBLIC
 void
 rcutils_reset_error(void);
 
+// Helper macro for nested macro expansion
+#define _RCUTILS_EXPAND(x) x
+
+/// Set the error message, as well as append the current file, line number, and previous error.
+/**
+ * If there is no previous error, has same behavior as RCUTILS_SET_ERROR_MSG.
+ * \param[in] msg The error message to be set.
+ */
+#define RCUTILS_SET_ERROR_MSG_AND_APPEND_PREV_ERROR(msg) \
+  do { \
+    if (rcutils_error_is_set()) { \
+      rcutils_error_string_t error_string = rcutils_get_error_string(); \
+      rcutils_reset_error(); \
+      RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING( \
+        _RCUTILS_EXPAND(msg ":\n%s"), error_string.str); \
+    } else { \
+      RCUTILS_SET_ERROR_MSG(msg); \
+    } \
+  } while (0)
+
+/// Set the error message using a format string, format arguments, and previous error.
+/**
+ * This function sets the error message using the given format string, and appends and resets the
+ * latest error string.
+ * The resulting formatted string is silently truncated at RCUTILS_ERROR_MESSAGE_MAX_LENGTH.
+ *
+ * If there is no previous error, has same behavior as RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING.
+ *
+ * \param[in] format_string The string to be used as the format of the error message.
+ * \param[in] ... Arguments for the format string.
+ */
+#define RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING_AND_APPEND_PREV_ERROR(format_string, ...) \
+  do { \
+    if (rcutils_error_is_set()) { \
+      rcutils_error_string_t error_string = rcutils_get_error_string(); \
+      rcutils_reset_error(); \
+      RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING( \
+        _RCUTILS_EXPAND(format_string ":\n%s"), __VA_ARGS__, error_string.str); \
+    } else { \
+      RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(format_string, __VA_ARGS__); \
+    } \
+  } while (0)
+
+/// Write the given msg out to stderr, limiting the buffer size in the `fwrite`, appending the
+/// previous error.
+/**
+ * This will reset the previous error, if it exists.
+ * If there is no previous error, has same behavior as RCUTILS_SAFE_FWRITE_TO_STDERR.
+ */
+#define RCUTILS_SAFE_FWRITE_TO_STDERR_AND_APPEND_PREV_ERROR(msg) \
+  do { \
+    if (rcutils_error_is_set()) { \
+      rcutils_error_string_t error_string = rcutils_get_error_string(); \
+      rcutils_reset_error(); \
+      RCUTILS_SAFE_FWRITE_TO_STDERR_WITH_FORMAT_STRING( \
+        _RCUTILS_EXPAND(msg ":\n%s"), error_string.str); \
+    } else { \
+      RCUTILS_SAFE_FWRITE_TO_STDERR(msg); \
+    } \
+  } while (0)
+
+/// Set the error message to stderr using a format string and format arguments, appending the
+/// previous error.
+/**
+ * This function sets the error message to stderr using the given format string, appending and
+ * resetting the previous error..
+ * The resulting formatted string is silently truncated at RCUTILS_ERROR_MESSAGE_MAX_LENGTH.
+ *
+ * This will reset the previous error, if it exists.
+ * If there is no previous error, has same behavior as
+ * RCUTILS_SAFE_FWRITE_TO_STDERR_WITH_FORMAT_STRING.
+ *
+ * \param[in] format_string The string to be used as the format of the error message.
+ * \param[in] ... Arguments for the format string.
+ */
+#define RCUTILS_SAFE_FWRITE_TO_STDERR_WITH_FORMAT_STRING_AND_APPEND_PREV_ERROR(format_string, ...) \
+  do { \
+    if (rcutils_error_is_set()) { \
+      rcutils_error_string_t error_string = rcutils_get_error_string(); \
+      rcutils_reset_error(); \
+      RCUTILS_SAFE_FWRITE_TO_STDERR_WITH_FORMAT_STRING( \
+        _RCUTILS_EXPAND(format_string ":\n%s"), __VA_ARGS__, error_string.str); \
+    } else { \
+      RCUTILS_SAFE_FWRITE_TO_STDERR_WITH_FORMAT_STRING(format_string, __VA_ARGS__); \
+    } \
+  } while (0)
+
 #ifdef __cplusplus
 }
 #endif
