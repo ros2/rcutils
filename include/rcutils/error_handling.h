@@ -321,15 +321,10 @@ rcutils_reset_error(void);
  */
 #define RCUTILS_SET_ERROR_MSG_AND_APPEND_PREV_ERROR(msg) \
   do { \
-    if (rcutils_error_is_set()) { \
-      rcutils_error_string_t error_string = rcutils_get_error_string(); \
-      rcutils_reset_error(); \
-      RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING( \
-        RCUTILS_EXPAND(msg ": %s"), error_string.str); \
-    } else { \
-      RCUTILS_SAFE_FWRITE_TO_STDERR("No previous error set\n"); \
-      RCUTILS_SET_ERROR_MSG(msg); \
-    } \
+    rcutils_error_string_t error_string = rcutils_get_error_string(); \
+    rcutils_reset_error(); \
+    RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING( \
+      RCUTILS_EXPAND(msg ": %s"), error_string.str); \
   } while (0)
 
 /// Set the error message with RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING and append the previous
@@ -346,15 +341,10 @@ rcutils_reset_error(void);
  */
 #define RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING_AND_APPEND_PREV_ERROR(format_string, ...) \
   do { \
-    if (rcutils_error_is_set()) { \
-      rcutils_error_string_t error_string = rcutils_get_error_string(); \
-      rcutils_reset_error(); \
-      RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING( \
-        RCUTILS_EXPAND(format_string ": %s"), __VA_ARGS__, error_string.str); \
-    } else { \
-      RCUTILS_SAFE_FWRITE_TO_STDERR("No previous error set\n"); \
-      RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(format_string, __VA_ARGS__); \
-    } \
+    rcutils_error_string_t error_string = rcutils_get_error_string(); \
+    rcutils_reset_error(); \
+    RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING( \
+      RCUTILS_EXPAND(format_string ": %s"), __VA_ARGS__, error_string.str); \
   } while (0)
 
 /// Write the given msg out to stderr, limiting the buffer size in the `fwrite`, appending the
@@ -365,15 +355,10 @@ rcutils_reset_error(void);
  */
 #define RCUTILS_SAFE_FWRITE_TO_STDERR_AND_APPEND_PREV_ERROR(msg) \
   do { \
-    if (rcutils_error_is_set()) { \
-      rcutils_error_string_t error_string = rcutils_get_error_string(); \
-      rcutils_reset_error(); \
-      RCUTILS_SAFE_FWRITE_TO_STDERR(msg); \
-      RCUTILS_SAFE_FWRITE_TO_STDERR_WITH_FORMAT_STRING(": %s", error_string.str); \
-    } else { \
-      RCUTILS_SAFE_FWRITE_TO_STDERR("No previous error set\n"); \
-      RCUTILS_SAFE_FWRITE_TO_STDERR(msg); \
-    } \
+    rcutils_error_string_t error_string = rcutils_get_error_string(); \
+    rcutils_reset_error(); \
+    RCUTILS_SAFE_FWRITE_TO_STDERR(msg); \
+    RCUTILS_SAFE_FWRITE_TO_STDERR_WITH_FORMAT_STRING(": %s", error_string.str); \
   } while (0)
 
 /// Set the error message to stderr using a format string and format arguments, appending the
@@ -392,15 +377,10 @@ rcutils_reset_error(void);
  */
 #define RCUTILS_SAFE_FWRITE_TO_STDERR_WITH_FORMAT_STRING_AND_APPEND_PREV_ERROR(format_string, ...) \
   do { \
-    if (rcutils_error_is_set()) { \
-      rcutils_error_string_t error_string = rcutils_get_error_string(); \
-      rcutils_reset_error(); \
-      RCUTILS_SAFE_FWRITE_TO_STDERR_WITH_FORMAT_STRING(format_string, __VA_ARGS__); \
-      RCUTILS_SAFE_FWRITE_TO_STDERR_WITH_FORMAT_STRING(": %s", error_string.str); \
-    } else { \
-      RCUTILS_SAFE_FWRITE_TO_STDERR("No previous error set\n"); \
-      RCUTILS_SAFE_FWRITE_TO_STDERR_WITH_FORMAT_STRING(format_string, __VA_ARGS__); \
-    } \
+    rcutils_error_string_t error_string = rcutils_get_error_string(); \
+    rcutils_reset_error(); \
+    RCUTILS_SAFE_FWRITE_TO_STDERR_WITH_FORMAT_STRING(format_string, __VA_ARGS__); \
+    RCUTILS_SAFE_FWRITE_TO_STDERR_WITH_FORMAT_STRING(": %s", error_string.str); \
   } while (0)
 
 #ifdef __cplusplus
