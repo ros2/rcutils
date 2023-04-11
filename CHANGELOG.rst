@@ -2,8 +2,8 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+6.2.0 (2023-04-11)
+------------------
 * Add convenience error handling macros (`#421 <https://github.com/ros2/rcutils/issues/421>`_)
 * Calculate the next power-of-two for the user in hash_map_init. (`#420 <https://github.com/ros2/rcutils/issues/420>`_)
 * update cast to modern style (`#418 <https://github.com/ros2/rcutils/issues/418>`_)
