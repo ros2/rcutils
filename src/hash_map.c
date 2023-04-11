@@ -230,6 +230,19 @@ static rcutils_ret_t hash_map_check_and_grow_map(rcutils_hash_map_t * hash_map)
   return ret;
 }
 
+// Modified from http://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
+static size_t next_power_of_two(size_t v)
+{
+  size_t shf = 0;
+  v--;
+  for (size_t i = 0; shf < sizeof(size_t) * 4; ++i) {
+    shf = (((size_t) 1) << i);
+    v |= v >> shf;
+  }
+  v++;
+  return v > 1 ? v : 1;
+}
+
 rcutils_ret_t
 rcutils_hash_map_init(
   rcutils_hash_map_t * hash_map,
@@ -255,11 +268,10 @@ rcutils_hash_map_init(
     return RCUTILS_RET_INVALID_ARGUMENT;
   }
 
-  // Due to an optimization we use during lookup, we can currently only handle power-of-two
-  // capacities.  Enforce that here.
+  // Due to an optimization we use during lookup, the capacity must be a power-of-two.
+  // If the user passed us something that is not power-of-two, round up to the next power-of-two
   if ((initial_capacity & (initial_capacity - 1)) != 0) {
-    RCUTILS_SET_ERROR_MSG("This hashmap only works with power-of-two capacities");
-    return RCUTILS_RET_INVALID_ARGUMENT;
+    initial_capacity = next_power_of_two(initial_capacity);
   }
 
   hash_map->impl = allocator->allocate(sizeof(rcutils_hash_map_impl_t), allocator->state);
