@@ -2,6 +2,18 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add convenience error handling macros (`#421 <https://github.com/ros2/rcutils/issues/421>`_)
+* Calculate the next power-of-two for the user in hash_map_init. (`#420 <https://github.com/ros2/rcutils/issues/420>`_)
+* update cast to modern style (`#418 <https://github.com/ros2/rcutils/issues/418>`_)
+* Remove deprecated header get_env.h (`#417 <https://github.com/ros2/rcutils/issues/417>`_)
+* Updates to rcutils to make rosdoc2 generation happier. (`#416 <https://github.com/ros2/rcutils/issues/416>`_)
+* add RCUTILS_LOGGING_AUTOINIT_WITH_ALLOCATOR. (`#415 <https://github.com/ros2/rcutils/issues/415>`_)
+* Fix memory leak in string_map.c in rcutils (`#411 <https://github.com/ros2/rcutils/issues/411>`_)
+* avoid unnecessary copy for rcutils_char_array_vsprintf. (`#412 <https://github.com/ros2/rcutils/issues/412>`_)
+* Contributors: Chris Lalancette, Emerson Knapp, Mario Prats, Nikolai Morin, Tomoya Fujita, methylDragon
+
 6.1.1 (2023-02-24)
 ------------------
 * Add missing stddef include for size_t (`#410 <https://github.com/ros2/rcutils/issues/410>`_)
