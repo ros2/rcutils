@@ -103,6 +103,8 @@ TEST_F(HashMapBaseTest, init_map_initial_capacity_not_power_of_two) {
   size_t current_capacity = 0;
   ASSERT_EQ(RCUTILS_RET_OK, rcutils_hash_map_get_capacity(&map, &current_capacity));
   EXPECT_EQ(4u, current_capacity);
+  ret = rcutils_hash_map_fini(&map);
+  EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 }
 
 TEST_F(HashMapBaseTest, init_map_key_size_zero_fails) {
