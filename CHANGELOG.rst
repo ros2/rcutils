@@ -2,6 +2,11 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* fix memory leak (`#423 <https://github.com/ros2/rcutils/issues/423>`_)
+* Contributors: Chen Lihui
+
 6.2.0 (2023-04-11)
 ------------------
 * Add convenience error handling macros (`#421 <https://github.com/ros2/rcutils/issues/421>`_)
