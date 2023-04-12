@@ -2,8 +2,8 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+6.2.1 (2023-04-12)
+------------------
 * fix memory leak (`#423 <https://github.com/ros2/rcutils/issues/423>`_)
 * Contributors: Chen Lihui
 
