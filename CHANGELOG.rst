@@ -2,6 +2,11 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+5.1.3 (2023-04-25)
+------------------
+* avoid unnecessary copy for rcutils_char_array_vsprintf. (`#412 <https://github.com/ros2/rcutils/issues/412>`_) (`#413 <https://github.com/ros2/rcutils/issues/413>`_)
+* Contributors: mergify[bot]
+
 5.1.2 (2022-11-07)
 ------------------
 * Change syntax __VAR_ARGS_\_ to __VA_ARGS_\_ (`#376 <https://github.com/ros2/rcutils/issues/376>`_) (`#377 <https://github.com/ros2/rcutils/issues/377>`_)
