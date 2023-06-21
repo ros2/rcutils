@@ -92,6 +92,7 @@ rcutils_thread_attrs_init(
  * \brief Initialize list of thread attributes with a capacity.
  * \param[out] thread_attrs list of thread attributes to be initialized
  * \param[in] allocator memory allocator to be used
+ * \param[in] capacity initial capacity of the list of thread attributes
  * \return #RCUTILS_RET_OK if the structure was initialized succeessfully, or
  * \return #RCUTILS_RET_INVALID_ARGUMENT if any function arguments are invalid, or
  * \return #RCUTILS_RET_BAD_ALLOC if allocating memory failed, or
