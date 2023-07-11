@@ -414,6 +414,99 @@ static const char * copy_from_orig(
   return logging_output->buffer;
 }
 
+// copy buffers and decode the escape characters if they're exists
+static const char * decode_orig(
+  const logging_input_t * logging_input,
+  rcutils_char_array_t * logging_output,
+  size_t start_offset, size_t end_offset)
+{
+  size_t back_slash_index = rcutils_findn(
+    g_rcutils_logging_output_format_string + start_offset, '\\', end_offset - start_offset);
+  if (back_slash_index == SIZE_MAX) {
+    // back slash not found, copy full buffers
+    return copy_from_orig(logging_input, logging_output, start_offset, end_offset);
+  } else {
+    // TODO(anybody): optimize the following if possible
+    size_t end_index = back_slash_index;
+    for (size_t i = start_offset + end_index; i < end_offset; ++i) {
+      if (g_rcutils_logging_output_format_string[i] == '\\') {
+        // found back slash, copy previous buffer if it's available
+        if (end_index != 0) {
+          if (rcutils_char_array_strncat(
+              logging_output,
+              g_rcutils_logging_output_format_string + start_offset,
+              end_index) != RCUTILS_RET_OK)
+          {
+            RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string().str);
+            rcutils_reset_error();
+            RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
+            return NULL;
+          }
+          end_index = 0;
+        }
+
+        if (i + 1 < end_offset) {
+          const char * expected_char = NULL;
+          switch (g_rcutils_logging_output_format_string[i + 1]) {
+            case 'a':  expected_char = "\a"; break;
+            case 'b':  expected_char = "\b"; break;
+            case 'f':  expected_char = "\f"; break;
+            case 'n':  expected_char = "\n"; break;
+            case 'r':  expected_char = "\r"; break;
+            case 't':  expected_char = "\t"; break;
+            case 'v':  expected_char = "\v"; break;
+            case '\\': expected_char = "\\"; break;
+            case '0': expected_char = ""; break;
+            default:
+              start_offset = i;
+              break;
+          }
+
+          if (expected_char) {
+            // ignore the "\0" to make the behavior similar to zsh)
+            if (expected_char[0] != '\0') {
+              if (rcutils_char_array_strncat(
+                  logging_output,
+                  expected_char,
+                  1) != RCUTILS_RET_OK)
+              {
+                RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string().str);
+                rcutils_reset_error();
+                RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
+                return NULL;
+              }
+            }
+
+            start_offset = i + 2;
+          } else {
+            end_index = i - start_offset + 1;
+          }
+
+          ++i;
+        }
+      } else {
+        end_index = i - start_offset + 1;
+      }
+    }
+
+    // copy last
+    if (end_index != 0) {
+      if (rcutils_char_array_strncat(
+          logging_output,
+          g_rcutils_logging_output_format_string + start_offset,
+          end_index) != RCUTILS_RET_OK)
+      {
+        RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string().str);
+        rcutils_reset_error();
+        RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
+        return NULL;
+      }
+    }
+  }
+
+  return logging_output->buffer;
+}
+
 static bool add_handler(token_handler handler, size_t start_offset, size_t end_offset)
 {
   if (g_num_log_msg_handlers >= (sizeof(g_handlers) / sizeof(g_handlers[0]))) {
@@ -451,7 +544,7 @@ static void parse_and_create_handlers_list(void)
     if (chars_to_start_delim > 0) {  // there is stuff before a token start delimiter
       size_t chars_to_copy = chars_to_start_delim >
         remaining_chars ? remaining_chars : chars_to_start_delim;
-      if (!add_handler(copy_from_orig, i, i + chars_to_copy)) {
+      if (!add_handler(decode_orig, i, i + chars_to_copy)) {
         // The error was already set by add_handler
         return;
       }
@@ -475,7 +568,7 @@ static void parse_and_create_handlers_list(void)
     if (chars_to_end_delim > remaining_chars) {
       // No end delimiters found in the remainder of the format string;
       // there won't be any more tokens so shortcut the rest of the checking.
-      if (!add_handler(copy_from_orig, i, i + remaining_chars)) {
+      if (!add_handler(decode_orig, i, i + remaining_chars)) {
         // The error was already set by add_handler
         return;
       }
@@ -492,7 +585,7 @@ static void parse_and_create_handlers_list(void)
     if (!expand_token) {
       // This wasn't a token; print the start delimiter and continue the search as usual
       // (the substring might contain more start delimiters).
-      if (!add_handler(copy_from_orig, i, i + 1)) {
+      if (!add_handler(decode_orig, i, i + 1)) {
         // The error was already set by add_handler
         return;
       }

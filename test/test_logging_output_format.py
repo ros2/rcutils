@@ -72,6 +72,17 @@ def generate_test_description():
     ))
     processes_to_test.append(name)
 
+    env_escape_tokens = dict(os.environ)
+    # This custom output is to check that escape characters work correctly.
+    # Ignore some tests (e.g. "\b", "\r", "\\" etc) because they do not work in the
+    # `launch_testing` framework.
+    env_escape_tokens['RCUTILS_CONSOLE_OUTPUT_FORMAT'] = '{name} 0\a2\ta\nbb\vccc\fddd {message}'
+    name = 'test_logging_output_format_escape'
+    launch_description.add_action(ExecuteProcess(
+        cmd=[executable], env=env_escape_tokens, name=name, output='screen'
+    ))
+    processes_to_test.append(name)
+
     launch_description.add_action(
         launch_testing.actions.ReadyToTest()
     )
