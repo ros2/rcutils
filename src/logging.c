@@ -455,7 +455,7 @@ static const char * decode_orig(
             case 'r':  expected_char = "\r"; break;
             case 't':  expected_char = "\t"; break;
             case 'v':  expected_char = "\v"; break;
-            case '\\': expected_char = "\\"; break;
+            // case '\\': expected_char = "\\"; break;
             case '0': expected_char = ""; break;
             default:
               start_offset = i;
