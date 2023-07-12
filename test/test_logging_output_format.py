@@ -72,21 +72,22 @@ def generate_test_description():
     ))
     processes_to_test.append(name)
 
-    env_escape_tokens = dict(os.environ)
+    env_simple_escape_tokens = dict(os.environ)
     # This custom output is to check that escape characters work correctly.
-    env_escape_tokens['RCUTILS_CONSOLE_OUTPUT_FORMAT'] = '\t{name}\n\t{message}\n'
+    env_simple_escape_tokens['RCUTILS_CONSOLE_OUTPUT_FORMAT'] = '\t{name}\n\t{message}\n'
     name = 'test_logging_output_format_simple_escape'
     launch_description.add_action(ExecuteProcess(
-        cmd=[executable], env=env_escape_tokens, name=name, output='screen'
+        cmd=[executable], env=env_simple_escape_tokens, name=name, output='screen'
     ))
     processes_to_test.append(name)
 
-    env_escape_tokens = dict(os.environ)
+    env_complicated_escape_tokens = dict(os.environ)
     # This custom output is to check that escape characters work correctly.
-    env_escape_tokens['RCUTILS_CONSOLE_OUTPUT_FORMAT'] = '{name} 0\a1\b2\f3\n44\r5\t6\v7 {message}'
+    env_complicated_escape_tokens['RCUTILS_CONSOLE_OUTPUT_FORMAT'] = \
+        '{name} 0\a1\b2\f3\n44\r5\t6\v7 {message}'
     name = 'test_logging_output_format_complicated_escape'
     launch_description.add_action(ExecuteProcess(
-        cmd=[executable], env=env_escape_tokens, name=name, output='screen'
+        cmd=[executable], env=env_complicated_escape_tokens, name=name, output='screen'
     ))
     processes_to_test.append(name)
 
