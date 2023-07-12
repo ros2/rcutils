@@ -92,6 +92,57 @@ rcutils_thread_attrs_fini(rcutils_thread_attrs_t * thread_attrs)
   return RCUTILS_RET_OK;
 }
 
+rcutils_ret_t
+rcutils_thread_attrs_copy(
+  rcutils_thread_attrs_t const * thread_attrs,
+  rcutils_thread_attrs_t * out_thread_attrs)
+{
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(thread_attrs, RCUTILS_RET_INVALID_ARGUMENT);
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(out_thread_attrs, RCUTILS_RET_INVALID_ARGUMENT);
+  RCUTILS_CHECK_ALLOCATOR(&thread_attrs->allocator, return RCUTILS_RET_INVALID_ARGUMENT);
+  if (NULL != out_thread_attrs->attributes) {
+    RCUTILS_SET_ERROR_MSG("The destination must be zero initialized");
+    return RCUTILS_RET_INVALID_ARGUMENT;
+  }
+  if (0 == thread_attrs->num_attributes) {
+    return rcutils_thread_attrs_init(out_thread_attrs, thread_attrs->allocator);
+  }
+
+  rcutils_ret_t ret;
+  size_t i;
+  rcutils_allocator_t allocator = thread_attrs->allocator;
+  size_t new_size = thread_attrs->num_attributes * sizeof(rcutils_thread_attr_t);
+  rcutils_thread_attr_t * new_attrs = allocator.allocate(new_size, allocator.state);
+
+  if (NULL == new_attrs) {
+    ret = RCUTILS_RET_BAD_ALLOC;
+    goto error;
+  }
+
+  for (i = 0; i < thread_attrs->num_attributes; ++i) {
+    char * dup_name = rcutils_strdup(thread_attrs->attributes[i].name, allocator);
+    if (NULL == dup_name) {
+      ret = RCUTILS_RET_BAD_ALLOC;
+      goto error;
+    }
+    new_attrs[i] = thread_attrs->attributes[i];
+    new_attrs[i].name = dup_name;
+  }
+  *out_thread_attrs = *thread_attrs;
+  out_thread_attrs->attributes = new_attrs;
+
+  return RCUTILS_RET_OK;
+
+error:
+  if (NULL != new_attrs) {
+    for (size_t j = 0; j < i; ++j) {
+      allocator.deallocate((char *)new_attrs[i].name, allocator.state);
+    }
+    allocator.deallocate(new_attrs, allocator.state);
+  }
+  return ret;
+}
+
 static inline rcutils_ret_t extend_thread_attrs_capacity(
   rcutils_thread_attrs_t * attrs,
   size_t new_cap)
@@ -150,6 +201,8 @@ rcutils_thread_attrs_add_attr(
   attr->core_affinity = core_affinity;
   attr->priority = priority;
   attr->name = dup_name;
+
+  ++thread_attrs->num_attributes;
 
   return RCUTILS_RET_OK;
 }

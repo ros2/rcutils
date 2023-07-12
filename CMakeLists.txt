@@ -585,6 +585,13 @@ if(BUILD_TESTING)
   if(TARGET test_macros)
     target_link_libraries(test_macros ${PROJECT_NAME})
   endif()
+
+  ament_add_gtest(test_thread_attr
+    test/test_thread_attr.cpp
+  )
+  if(TARGET test_thread_attr)
+    target_link_libraries(test_thread_attr ${PROJECT_NAME})
+  endif()
 endif()
 
 # Export old-style CMake variables

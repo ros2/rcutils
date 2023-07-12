@@ -119,6 +119,19 @@ rcutils_thread_attrs_fini(
   rcutils_thread_attrs_t * thread_attrs);
 
 /**
+ * \brief Copy list of thread attributes
+ * \param[in] thread_attrs Source list of thread attributes
+ * \param[out] out_thread_attrs Destination location
+ * \return #RCUTILS_RET_OK if the source list was succesfully copied to the destination, or
+ * \return #RCUTILS_RET_INVALID_ARGUMENT if may function arguments are invalid, or
+ * \return #RCUTILS_RET_BAD_ALLOC if allocating memory failed
+ */
+rcutils_ret_t
+rcutils_thread_attrs_copy(
+  rcutils_thread_attrs_t const * thread_attrs,
+  rcutils_thread_attrs_t * out_thread_attrs);
+
+/**
  * \brief Add thread attribute to the list of thread attributes.
  * \param[inout] thread_attrs list of thread attributes to add a thread attribute to
  * \param[in] sched_policy thread scheduling policy of adding attribute
