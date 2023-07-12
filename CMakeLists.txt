@@ -63,6 +63,7 @@ set(rcutils_sources
   src/process.c
   src/qsort.c
   src/repl_str.c
+  src/rwlock.c
   src/sha256.c
   src/shared_library.c
   src/snprintf.c
