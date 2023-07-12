@@ -455,34 +455,27 @@ static const char * decode_orig(
             case 'r':  expected_char = "\r"; break;
             case 't':  expected_char = "\t"; break;
             case 'v':  expected_char = "\v"; break;
-            // case '\\': expected_char = "\\"; break;
-            case '0': expected_char = ""; break;
             default:
               start_offset = i;
               break;
           }
 
           if (expected_char) {
-            // ignore the "\0" to make the behavior similar to zsh)
-            if (expected_char[0] != '\0') {
-              if (rcutils_char_array_strncat(
-                  logging_output,
-                  expected_char,
-                  1) != RCUTILS_RET_OK)
-              {
-                RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string().str);
-                rcutils_reset_error();
-                RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
-                return NULL;
-              }
+            if (rcutils_char_array_strncat(
+                logging_output,
+                expected_char,
+                1) != RCUTILS_RET_OK)
+            {
+              RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string().str);
+              rcutils_reset_error();
+              RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
+              return NULL;
             }
-
             start_offset = i + 2;
+            ++i;
           } else {
             end_index = i - start_offset + 1;
           }
-
-          ++i;
         }
       } else {
         end_index = i - start_offset + 1;
