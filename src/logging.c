@@ -50,6 +50,7 @@
 #include "rcutils/types/hash_map.h"
 
 
+#define RCUTILS_LOGGING_BACKSLASH_CHAR '\\'
 #define RCUTILS_LOGGING_SEPARATOR_CHAR '.'
 
 #define RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN (2048)
@@ -421,7 +422,9 @@ static const char * decode_orig(
   size_t start_offset, size_t end_offset)
 {
   size_t back_slash_index = rcutils_findn(
-    g_rcutils_logging_output_format_string + start_offset, '\\', end_offset - start_offset);
+    g_rcutils_logging_output_format_string + start_offset,
+    RCUTILS_LOGGING_BACKSLASH_CHAR,
+    end_offset - start_offset);
   if (back_slash_index == SIZE_MAX) {
     // back slash not found, copy full buffers
     return copy_from_orig(logging_input, logging_output, start_offset, end_offset);
@@ -429,7 +432,7 @@ static const char * decode_orig(
     // TODO(anybody): optimize the following if possible
     size_t end_index = back_slash_index;
     for (size_t i = start_offset + end_index; i < end_offset; ++i) {
-      if (g_rcutils_logging_output_format_string[i] == '\\') {
+      if (g_rcutils_logging_output_format_string[i] == RCUTILS_LOGGING_BACKSLASH_CHAR) {
         // found back slash, copy previous buffer if it's available
         if (end_index != 0) {
           if (rcutils_char_array_strncat(
@@ -448,13 +451,13 @@ static const char * decode_orig(
         if (i + 1 < end_offset) {
           const char * expected_char = NULL;
           switch (g_rcutils_logging_output_format_string[i + 1]) {
-            case 'a':  expected_char = "\a"; break;
-            case 'b':  expected_char = "\b"; break;
-            case 'f':  expected_char = "\f"; break;
-            case 'n':  expected_char = "\n"; break;
-            case 'r':  expected_char = "\r"; break;
-            case 't':  expected_char = "\t"; break;
-            case 'v':  expected_char = "\v"; break;
+            case 'a':  expected_char = "\a"; break;  // alert
+            case 'b':  expected_char = "\b"; break;  // backspace
+            case 'f':  expected_char = "\f"; break;  // form feed
+            case 'n':  expected_char = "\n"; break;  // new line
+            case 'r':  expected_char = "\r"; break;  // carriage return
+            case 't':  expected_char = "\t"; break;  // horizontal tab
+            case 'v':  expected_char = "\v"; break;  // vertical tab
             default:
               start_offset = i;
               break;
