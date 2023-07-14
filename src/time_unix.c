@@ -45,7 +45,7 @@
 // This is an appropriate check for clock_gettime() according to:
 //   http://man7.org/linux/man-pages/man2/clock_gettime.2.html
 # if !defined(_POSIX_TIMERS) || !_POSIX_TIMERS
-#  error no monotonic clock function available
+#  warning no monotonic clock function available
 # endif  // !defined(_POSIX_TIMERS) || !_POSIX_TIMERS
 #endif  // !defined(__MACH__) && !defined(__APPLE__)
 
