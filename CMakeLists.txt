@@ -142,7 +142,9 @@ configure_file(
     "${PROJECT_BINARY_DIR}/include/rcutils/configuration_flags.h"
 )
 
-target_link_libraries(${PROJECT_NAME} ${CMAKE_DL_LIBS})
+if(NOT RCUTILS_NO_FILESYSTEM)
+  target_link_libraries(${PROJECT_NAME} ${CMAKE_DL_LIBS})
+endif()
 
 # Needed if pthread is used for thread local storage.
 if(IOS AND IOS_SDK_VERSION LESS 10.0)
