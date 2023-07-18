@@ -420,85 +420,72 @@ static rcutils_ret_t decode_escape_characters(
   const char * logging_output_format_string,
   size_t length)
 {
-  size_t back_slash_index = rcutils_findn(
-    logging_output_format_string,
-    RCUTILS_LOGGING_BACKSLASH_CHAR,
-    length);
-  if (back_slash_index == SIZE_MAX) {
-    if (memcpy(
-        g_rcutils_logging_output_format_string, logging_output_format_string, length) == NULL)
-    {
-      RCUTILS_SET_ERROR_MSG("Failed to decode escape characters due to memcpy");
-      return RCUTILS_RET_BAD_ALLOC;
-    }
-    g_rcutils_logging_output_format_string[length] = '\0';
-  } else {
-    // TODO(anybody): optimize the following if possible
-    size_t dest_buffer_index = 0;
-    size_t start_offset = 0;
-    size_t end_index = back_slash_index;
-    for (size_t i = end_index; i < length; ++i) {
-      if (logging_output_format_string[i] == RCUTILS_LOGGING_BACKSLASH_CHAR) {
-        // found back slash, copy previous buffer if it's available
-        if (end_index != 0) {
-          if (memcpy(
-              g_rcutils_logging_output_format_string + dest_buffer_index,
-              logging_output_format_string + start_offset, end_index) == NULL)
-          {
-            RCUTILS_SET_ERROR_MSG("Failed to decode escape characters due to memcpy");
-            return RCUTILS_RET_BAD_ALLOC;
-          }
-          dest_buffer_index += end_index;
-          end_index = 0;
-        }
+  // TODO(anybody): optimize the following if possible
+  size_t dest_buffer_index = 0;
+  size_t start_offset = 0;
+  size_t start_offset_previous_not_copy = 0;
+  size_t back_slash_index = 0;
 
-        if (i + 1 < length) {
-          const char * expected_char = NULL;
-          switch (logging_output_format_string[i + 1]) {
-            case 'a':  expected_char = "\a"; break;  // alert
-            case 'b':  expected_char = "\b"; break;  // backspace
-            case 'f':  expected_char = "\f"; break;  // form feed
-            case 'n':  expected_char = "\n"; break;  // new line
-            case 'r':  expected_char = "\r"; break;  // carriage return
-            case 't':  expected_char = "\t"; break;  // horizontal tab
-            case 'v':  expected_char = "\v"; break;  // vertical tab
-            default:
-              start_offset = i;
-              break;
-          }
-
-          if (expected_char) {
-            if (memcpy(
-                g_rcutils_logging_output_format_string + dest_buffer_index,
-                expected_char, 1) == NULL)
-            {
-              RCUTILS_SET_ERROR_MSG("Failed to decode escape characters due to memcpy");
-              return RCUTILS_RET_BAD_ALLOC;
-            }
-            dest_buffer_index += 1;
-            start_offset = i + 2;
-            ++i;
-          } else {
-            end_index = i - start_offset + 1;
-          }
-        }
-      } else {
-        end_index = i - start_offset + 1;
-      }
-    }
-
-    // copy last
-    if (end_index != 0) {
+  for (size_t i = 0; i < length; ) {
+    back_slash_index = rcutils_findn(
+      logging_output_format_string + i, RCUTILS_LOGGING_BACKSLASH_CHAR, length - i);
+    if (back_slash_index == SIZE_MAX) {
       if (memcpy(
           g_rcutils_logging_output_format_string + dest_buffer_index,
-          logging_output_format_string + start_offset, end_index) == NULL)
+          logging_output_format_string + start_offset - start_offset_previous_not_copy,
+          length - start_offset + start_offset_previous_not_copy) == NULL)
       {
         RCUTILS_SET_ERROR_MSG("Failed to decode escape characters due to memcpy");
         return RCUTILS_RET_BAD_ALLOC;
       }
-      dest_buffer_index += end_index;
+      break;
+    } else {
+      const char * expected_char = NULL;
+      switch (logging_output_format_string[i + back_slash_index + 1]) {
+        case 'a':  expected_char = "\a"; break;  // alert
+        case 'b':  expected_char = "\b"; break;  // backspace
+        case 'f':  expected_char = "\f"; break;  // form feed
+        case 'n':  expected_char = "\n"; break;  // new line
+        case 'r':  expected_char = "\r"; break;  // carriage return
+        case 't':  expected_char = "\t"; break;  // horizontal tab
+        case 'v':  expected_char = "\v"; break;  // vertical tab
+        default:
+          break;
+      }
+
+      if (expected_char) {
+        if (back_slash_index > 1) {
+          // copy previous buffer first
+          size_t len = back_slash_index + start_offset_previous_not_copy;
+          if (memcpy(
+              g_rcutils_logging_output_format_string + dest_buffer_index,
+              logging_output_format_string + start_offset,
+              len) == NULL)
+          {
+            RCUTILS_SET_ERROR_MSG("Failed to decode escape characters due to memcpy");
+            return RCUTILS_RET_BAD_ALLOC;
+          }
+          dest_buffer_index += len;
+          start_offset += len;
+          start_offset_previous_not_copy = 0;
+        }
+
+        // copy the decoded character
+        if (memcpy(
+            g_rcutils_logging_output_format_string + dest_buffer_index,
+            expected_char, 1) == NULL)
+        {
+          RCUTILS_SET_ERROR_MSG("Failed to decode escape characters due to memcpy");
+          return RCUTILS_RET_BAD_ALLOC;
+        }
+        dest_buffer_index += 1;
+        start_offset += 2;
+      } else {
+        start_offset_previous_not_copy += (back_slash_index + 2);
+      }
+
+      i += (back_slash_index + 2);
     }
-    g_rcutils_logging_output_format_string[dest_buffer_index] = '\0';
   }
 
   return RCUTILS_RET_OK;
