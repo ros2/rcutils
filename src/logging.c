@@ -453,7 +453,7 @@ static void create_format_string(
       }
 
       if (expected_char) {
-        if (back_slash_index > 1) {
+        if (back_slash_index > 0) {
           // copy previous buffer first
           size_t len = back_slash_index + start_offset_previous_not_copy;
           memcpy(
