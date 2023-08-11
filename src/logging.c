@@ -689,7 +689,6 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
     }
   }
 
-  // decode escape characters
   create_format_string(output_format);
 
   g_rcutils_logging_severities_map = rcutils_get_zero_initialized_hash_map();
