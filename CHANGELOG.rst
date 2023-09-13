@@ -2,6 +2,11 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+6.3.1 (2023-09-07)
+------------------
+* Remove unused 'max' functions from sha256.c (`#429 <https://github.com/ros2/rcutils/issues/429>`_)
+* Contributors: Chris Lalancette
+
 6.3.0 (2023-04-27)
 ------------------
 

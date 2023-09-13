@@ -22,11 +22,6 @@ static inline size_t min(size_t a, size_t b)
   return a < b ? a : b;
 }
 
-static inline size_t max(size_t a, size_t b)
-{
-  return a > b ? a : b;
-}
-
 static inline uint32_t rotright(uint32_t a, const uint8_t b)
 {
   assert(b < 32);
