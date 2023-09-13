@@ -983,6 +983,11 @@ int rcutils_logging_get_logger_effective_level(const char * name)
     severity = g_rcutils_logging_default_logger_level;
   }
 
+#if !defined(RWLOCK_STUB)
+  // If the RWLOCK implementation is a stub, this will definitely cause corruption, even between get
+  // calls, so we skip it (the consequence is that log level lookups are slower).  With a stub
+  // RWLOCK there is still a race between get and set, but that is less common.
+
   // If the calculated severity is anything but UNSET, we place it into the hashmap for speedier
   // lookup next time.  If the severity is UNSET, we don't bother because we are going to have to
   // walk the hierarchy next time anyway.
@@ -995,6 +1000,7 @@ int rcutils_logging_get_logger_effective_level(const char * name)
         "Failed to cache severity; this is not fatal but will impact performance\n");
     }
   }
+#endif
 
   return severity;
 }

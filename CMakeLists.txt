@@ -42,10 +42,24 @@ if(NOT WIN32)
   add_compile_options(-Wall -Wextra -Wconversion -Wno-sign-conversion -Wpedantic)
 endif()
 
+option(FORCE_STUB_RWLOCK "Force the use of a 'stub' rwlock implementation, which makes logging slower and inherently racy." OFF)
+
 if(WIN32)
   set(time_impl_c src/time_win32.c)
+  set(rwlock_impl_c src/rwlock_win32.c)
 else()
   set(time_impl_c src/time_unix.c)
+  find_package(Threads QUIET)
+  if(Threads_FOUND)
+    set(rwlock_impl_c src/rwlock_pthread.c)
+  else()
+    if(FORCE_STUB_RWLOCK)
+      set(rwlock_impl_c src/rwlock_stub.c)
+      add_definitions(-DRWLOCK_STUB)
+    else()
+      message(FATAL "No valid rwlock implementation found!")
+    endif()
+  endif()
 endif()
 
 set(rcutils_sources
@@ -63,7 +77,7 @@ set(rcutils_sources
   src/process.c
   src/qsort.c
   src/repl_str.c
-  src/rwlock.c
+  ${rwlock_impl_c}
   src/sha256.c
   src/shared_library.c
   src/snprintf.c
