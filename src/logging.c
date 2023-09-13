@@ -443,11 +443,9 @@ static void create_format_string(
       switch (logging_output_format_string[i + back_slash_index + 1]) {
         case 'a':  expected_char = "\a"; break;  // alert
         case 'b':  expected_char = "\b"; break;  // backspace
-        case 'f':  expected_char = "\f"; break;  // form feed
         case 'n':  expected_char = "\n"; break;  // new line
         case 'r':  expected_char = "\r"; break;  // carriage return
         case 't':  expected_char = "\t"; break;  // horizontal tab
-        case 'v':  expected_char = "\v"; break;  // vertical tab
         default:
           break;
       }

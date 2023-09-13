@@ -84,7 +84,7 @@ def generate_test_description():
     env_complicated_escape_tokens = dict(os.environ)
     # This custom output is to check that escape characters work correctly.
     env_complicated_escape_tokens['RCUTILS_CONSOLE_OUTPUT_FORMAT'] = \
-        '{name} 0\\a1\\b2\\f3\\n44\\r5\\t6\\v7 {message}'
+        '{name} 0\\a1\\b23\\n44\\r5\\t67 {message}'
     name = 'test_logging_output_format_complicated_escape'
     launch_description.add_action(ExecuteProcess(
         cmd=[executable], env=env_complicated_escape_tokens, name=name, output='screen'
