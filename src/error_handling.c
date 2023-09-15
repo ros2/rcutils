@@ -25,6 +25,7 @@ extern "C"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#define __STDC_WANT_LIB_EXT1__ 1
 #include <string.h>
 
 #include <rcutils/allocator.h>
@@ -198,7 +199,11 @@ rcutils_set_error_state(
   error_state.line_number = line_number;
 #if RCUTILS_REPORT_ERROR_HANDLING_ERRORS
   // Only warn of overwritting if the new error is different from the old ones.
+#ifdef __STDC_LIB_EXT1__
+  size_t characters_to_compare = strnlen_s(error_string, RCUTILS_ERROR_MESSAGE_MAX_LENGTH);
+#else
   size_t characters_to_compare = strnlen(error_string, RCUTILS_ERROR_MESSAGE_MAX_LENGTH);
+#endif
   // assumption is that message length is <= max error string length
   static_assert(
     sizeof(gtls_rcutils_error_state.message) <= sizeof(gtls_rcutils_error_string.str),

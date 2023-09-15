@@ -36,6 +36,7 @@
 #endif
 #include <assert.h>
 #include <stdlib.h>
+#define __STDC_WANT_LIB_EXT1__ 1
 #include <string.h>
 
 #include <rcutils/error_handling.h>
@@ -130,7 +131,11 @@ __rcutils_convert_uint64_t_into_c_str(uint64_t number, char * buffer, size_t buf
   buffer[i] = '\0';
 
   // reverse the string in place
+#ifdef __STDC_LIB_EXT1__
+  __rcutils_reverse_str(buffer, strnlen_s(buffer, 21));
+#else
   __rcutils_reverse_str(buffer, strnlen(buffer, 21));
+#endif
 }
 
 // do not use externally, internal function which is only to be used by error_handling.c
