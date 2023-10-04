@@ -2,6 +2,11 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* make escape characters work (`#426 <https://github.com/ros2/rcutils/issues/426>`_)
+* Contributors: Chen Lihui
+
 6.3.1 (2023-09-07)
 ------------------
 * Remove unused 'max' functions from sha256.c (`#429 <https://github.com/ros2/rcutils/issues/429>`_)
