@@ -2,8 +2,8 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+6.4.0 (2023-10-04)
+------------------
 * make escape characters work (`#426 <https://github.com/ros2/rcutils/issues/426>`_)
 * Contributors: Chen Lihui
 
