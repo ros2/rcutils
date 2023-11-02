@@ -68,7 +68,7 @@ rcutils_time_point_value_as_date_string(
     snprintf(str2, sizeof(str2), "%" PRIu64, nanoseconds);
 
     time_t now_t = (time_t)(seconds);
-    struct tm * ptm = gmtime ( &now_t );
+    struct tm * ptm = localtime(&now_t );
 
     strftime(str, 32, "%Y-%m-%d %H:%M:%S", ptm);
     int position = 19;
