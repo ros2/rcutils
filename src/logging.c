@@ -593,6 +593,13 @@ const char * expand_time(
   APPEND_AND_RETURN_LOG_OUTPUT(numeric_storage);
 }
 
+const char * expand_time_as_date(
+        const logging_input * logging_input,
+        rcutils_char_array_t * logging_output)
+{
+    return expand_time(logging_input, logging_output, rcutils_time_point_value_as_date_string);
+}
+
 const char * expand_time_as_seconds(
   const logging_input * logging_input,
   rcutils_char_array_t * logging_output)
@@ -684,6 +691,7 @@ static const token_map_entry tokens[] = {
   {.token = "function_name", .handler = expand_function_name},
   {.token = "file_name", .handler = expand_file_name},
   {.token = "time", .handler = expand_time_as_seconds},
+  {.token = "date", .handler = expand_time_as_date},
   {.token = "time_as_nanoseconds", .handler = expand_time_as_nanoseconds},
   {.token = "line_number", .handler = expand_line_number},
 };

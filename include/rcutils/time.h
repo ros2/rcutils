@@ -23,6 +23,7 @@ extern "C"
 #endif
 
 #include <stdint.h>
+#include <time.h>
 
 #include "rcutils/macros.h"
 #include "rcutils/types.h"
@@ -142,6 +143,15 @@ rcutils_time_point_value_as_nanoseconds_string(
   const rcutils_time_point_value_t * time_point,
   char * str,
   size_t str_size);
+
+/// Return a time point as a date in a string.
+RCUTILS_PUBLIC
+RCUTILS_WARN_UNUSED
+rcutils_ret_t
+rcutils_time_point_value_as_date_string(
+        const rcutils_time_point_value_t * time_point,
+        char * str,
+        size_t str_size);
 
 /// Return a time point as floating point seconds in a string.
 /**
