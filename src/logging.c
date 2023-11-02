@@ -208,6 +208,17 @@ static const char * expand_time(
   return logging_output->buffer;
 }
 
+static const char * expand_time_as_date(
+  const logging_input_t * logging_input,
+  rcutils_char_array_t * logging_output,
+  size_t start_offset, size_t end_offset)
+{
+  (void)start_offset;
+  (void)end_offset;
+
+  return expand_time(logging_input, logging_output, rcutils_time_point_value_as_date_string);
+}
+
 static const char * expand_time_as_seconds(
   const logging_input_t * logging_input,
   rcutils_char_array_t * logging_output,
@@ -379,6 +390,7 @@ static const token_map_entry_t tokens[] = {
   {.token = "function_name", .handler = expand_function_name},
   {.token = "file_name", .handler = expand_file_name},
   {.token = "time", .handler = expand_time_as_seconds},
+  {.token = "date_time_with_ms", .handler = expand_time_as_date},
   {.token = "time_as_nanoseconds", .handler = expand_time_as_nanoseconds},
   {.token = "line_number", .handler = expand_line_number},
 };
