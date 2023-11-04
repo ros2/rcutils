@@ -172,7 +172,11 @@ rcutils_array_list_remove(rcutils_array_list_t * array_list, size_t index)
   if (copy_count > 0) {
     uint8_t * dst_ptr = rcutils_array_list_get_pointer_for_index(array_list, index);
     uint8_t * src_ptr = rcutils_array_list_get_pointer_for_index(array_list, index + 1);
-    memcpy(dst_ptr, src_ptr, array_list->impl->data_size * copy_count);
+    // If the size of the list is >1 the regions of memory overlap.
+    // POSIX and C standards are explicit that employing memcpy() with overlapping
+    // areas produces undefined behavior. The recomendation is to use memmove.
+    // Reference: https://man7.org/linux/man-pages/man3/memcpy.3.html
+    memmove(dst_ptr, src_ptr, array_list->impl->data_size * copy_count);
   }
 
   array_list->impl->size--;
