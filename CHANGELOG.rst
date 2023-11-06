@@ -2,6 +2,11 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* memmove for overlaping memory (`#434 <https://github.com/ros2/rcutils/issues/434>`_)
+* Contributors: Tyler Weaver
+
 6.4.0 (2023-10-04)
 ------------------
 * make escape characters work (`#426 <https://github.com/ros2/rcutils/issues/426>`_)
