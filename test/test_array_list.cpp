@@ -248,6 +248,30 @@ TEST_F(ArrayListPreInitTest, remove_success_removes_from_list) {
   EXPECT_EQ(size, (size_t)0);
 }
 
+TEST_F(ArrayListPreInitTest, remove_success_removes_from_list_with_multiple_items) {
+  uint32_t data = 22;
+  size_t index = 0;
+  size_t size = 0;
+  rcutils_ret_t ret = RCUTILS_RET_OK;
+
+  // Add a few things first so we know the index isn't out of bounds
+  for (size_t i = 0; i < 3; ++i) {
+    ret = rcutils_array_list_add(&list, &data);
+    ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
+  }
+
+  ret = rcutils_array_list_get_size(&list, &size);
+  ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
+  EXPECT_EQ(size, (size_t)3);
+
+  ret = rcutils_array_list_remove(&list, index);
+  ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
+
+  ret = rcutils_array_list_get_size(&list, &size);
+  ASSERT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
+  EXPECT_EQ(size, (size_t)2);
+}
+
 TEST_F(ArrayListTest, get_list_null_fails) {
   size_t index = 0;
   uint32_t data = 0;
