@@ -50,7 +50,7 @@ rcutils_system_time_now(rcutils_time_point_value_t * now)
   li.LowPart = ft.dwLowDateTime;
   li.HighPart = ft.dwHighDateTime;
   // Adjust for January 1st, 1970, see:
-  //   https://support.microsoft.com/en-us/kb/167296
+  //   https://support.microsoft.com/en-us/topic/bf03df72-96e4-59f3-1d02-b6781002dc7f
   li.QuadPart -= 116444736000000000;
   // Convert to nanoseconds from 100's of nanoseconds.
   *now = li.QuadPart * 100;
