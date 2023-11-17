@@ -2,6 +2,11 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* memmove for overlaping memory (`#436 <https://github.com/ros2/rcutils/issues/436>`_)
+* Contributors: Tyler Weaver
+
 6.2.1 (2023-04-12)
 ------------------
 * fix memory leak (`#423 <https://github.com/ros2/rcutils/issues/423>`_)
