@@ -322,8 +322,7 @@ if(BUILD_TESTING)
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
   )
   if(TARGET test_filesystem)
-    ament_target_dependencies(test_filesystem "osrf_testing_tools_cpp")
-    target_link_libraries(test_filesystem ${PROJECT_NAME} mimick)
+    target_link_libraries(test_filesystem ${PROJECT_NAME} mimick osrf_testing_tools_cpp::memory_tools)
     target_compile_definitions(test_filesystem PRIVATE BUILD_DIR="${CMAKE_CURRENT_BINARY_DIR}")
   endif()
 
@@ -345,8 +344,7 @@ if(BUILD_TESTING)
     test/test_string_map.cpp
   )
   if(TARGET test_string_map)
-    ament_target_dependencies(test_string_map "osrf_testing_tools_cpp")
-    target_link_libraries(test_string_map ${PROJECT_NAME})
+    target_link_libraries(test_string_map ${PROJECT_NAME} osrf_testing_tools_cpp::memory_tools)
   endif()
 
   ament_add_gtest(test_isalnum_no_locale
