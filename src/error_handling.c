@@ -200,7 +200,7 @@ rcutils_set_error_state(
   // Only warn of overwritting if the new error is different from the old ones.
   size_t characters_to_compare = strnlen(error_string, RCUTILS_ERROR_MESSAGE_MAX_LENGTH);
   // assumption is that message length is <= max error string length
-  static_assert(
+  RCUTILS_STATIC_ASSERT(
     sizeof(gtls_rcutils_error_state.message) <= sizeof(gtls_rcutils_error_string.str),
     "expected error state's max message length to be less than or equal to error string max");
   if (

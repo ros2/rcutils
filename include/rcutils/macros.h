@@ -157,6 +157,14 @@ extern "C"
 # define RCUTILS_HAS_NONNULL 0
 #endif  // _WIN32
 
+#ifndef static_assert
+# if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201100L)
+#  define RCUTILS_STATIC_ASSERT(cond, msg) _Static_assert(cond, msg)
+# endif   // defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201100L)
+#else
+# define RCUTILS_STATIC_ASSERT(cond, msg) static_assert(cond, msg)
+#endif
+
 #if defined RCUTILS_ENABLE_FAULT_INJECTION
 #include "rcutils/testing/fault_injection.h"
 

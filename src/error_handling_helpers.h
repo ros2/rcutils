@@ -145,7 +145,7 @@ __rcutils_format_error_string(
   static const char format_1[] = ", at ";
   static const char format_2[] = ":";
   char line_number_buffer[21];
-  static_assert(
+  RCUTILS_STATIC_ASSERT(
     sizeof(error_string->str) == (
       sizeof(error_state->message) +
       sizeof(format_1) - 1 /* minus the null-term */ +
