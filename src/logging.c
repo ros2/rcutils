@@ -440,14 +440,25 @@ static void create_format_string(
       break;
     } else {
       const char * expected_char = NULL;
-      switch (logging_output_format_string[i + back_slash_index + 1]) {
-        case 'a':  expected_char = "\a"; break;  // alert
-        case 'b':  expected_char = "\b"; break;  // backspace
-        case 'n':  expected_char = "\n"; break;  // new line
-        case 'r':  expected_char = "\r"; break;  // carriage return
-        case 't':  expected_char = "\t"; break;  // horizontal tab
-        default:
-          break;
+      int skip_chars = 0;
+
+      if (logging_output_format_string[i + back_slash_index + 1] == 'x' &&
+        logging_output_format_string[i + back_slash_index + 2] == '1' &&
+        logging_output_format_string[i + back_slash_index + 3] == 'b')
+      {
+        // detect escape sequence
+        expected_char = "\x1b";
+        skip_chars = 2;
+      } else {
+        switch (logging_output_format_string[i + back_slash_index + 1]) {
+          case 'a':  expected_char = "\a"; break;  // alert
+          case 'b':  expected_char = "\b"; break;  // backspace
+          case 'n':  expected_char = "\n"; break;  // new line
+          case 'r':  expected_char = "\r"; break;  // carriage return
+          case 't':  expected_char = "\t"; break;  // horizontal tab
+          default:
+            break;
+        }
       }
 
       if (expected_char) {
@@ -466,12 +477,12 @@ static void create_format_string(
         // copy the decoded character
         g_rcutils_logging_output_format_string[dest_buffer_index] = expected_char[0];
         dest_buffer_index += 1;
-        start_offset += 2;
+        start_offset += 2 + skip_chars;
       } else {
         start_offset_previous_not_copy += (back_slash_index + 2);
       }
 
-      i += (back_slash_index + 2);
+      i += (back_slash_index + 2 + skip_chars);
     }
   }
 }
