@@ -2,6 +2,12 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Remove two last uses of ament_target_dependencies. (`#440 <https://github.com/ros2/rcutils/issues/440>`_)
+* time_win32: Update dead link (`#438 <https://github.com/ros2/rcutils/issues/438>`_)
+* Contributors: Chris Lalancette, Silvio Traversaro
+
 6.4.1 (2023-11-06)
 ------------------
 * memmove for overlaping memory (`#434 <https://github.com/ros2/rcutils/issues/434>`_)
