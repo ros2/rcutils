@@ -87,6 +87,8 @@ bool g_rcutils_logging_initialized = false;
 static char g_rcutils_logging_output_format_string[RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN];
 static const char * g_rcutils_logging_default_output_format =
   "[{severity}] [{time}] [{name}]: {message}";
+static DWORD g_original_console_mode = 0;
+static bool g_consol_mode_modified = false;
 
 static rcutils_allocator_t g_rcutils_logging_allocator;
 
@@ -415,6 +417,33 @@ static const char * copy_from_orig(
   return logging_output->buffer;
 }
 
+#ifdef _WIN32
+#define ACTIVATE_VIRTUAL_TERMINAL_PROCESSING() \
+  { \
+    HANDLE std_error_handle = GetStdHandle(STD_ERROR_HANDLE); \
+    if (std_error_handle == INVALID_HANDLE_VALUE) \
+    { \
+        RCUTILS_SET_ERROR_MSG("Could not get error handle to activating virtual terminal."); \
+        return; \
+    } \
+    if (! GetConsoleMode(std_error_handle, &g_original_console_mode)) \
+    { \
+      RCUTILS_SET_ERROR_MSG("Could not get consol mode to activating virtual terminal."); \
+      return; \
+    } \
+    DWORD newDwMode = g_original_console_mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING; \
+    if (! SetConsoleMode(std_error_handle, newDwMode)) \
+    { \
+      RCUTILS_SET_ERROR_MSG("Could not set consol mode to activating virtual terminal."); \
+      return; \
+    } \
+    g_consol_mode_modified = true; \
+  }
+#else
+// nothing todo for non-windows platform
+#define ACTIVATE_VIRTUAL_TERMINAL_PROCESSING()
+#endif
+
 // copy buffers and decode escape characters if they exist
 static void create_format_string(
   const char * logging_output_format_string)
@@ -447,7 +476,10 @@ static void create_format_string(
         logging_output_format_string[i + back_slash_index + 3] == 'b')
       {
         // detect escape sequence
+        ACTIVATE_VIRTUAL_TERMINAL_PROCESSING();
         expected_char = "\x1b";
+        // the 4 char long "\x1b" string literal will become a 2 char long \x1b escape sequence
+        // therefore we need to skip forward in parsing the output format string
         skip_chars = 2;
       } else {
         switch (logging_output_format_string[i + back_slash_index + 1]) {
@@ -760,6 +792,10 @@ rcutils_ret_t rcutils_logging_shutdown(void)
   }
   g_num_log_msg_handlers = 0;
   g_rcutils_logging_initialized = false;
+
+  if (g_consol_mode_modified){
+    SetConsoleMode(GetStdHandle(STD_ERROR_HANDLE), g_original_console_mode);
+  }
   return ret;
 }
 
