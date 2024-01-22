@@ -87,8 +87,10 @@ bool g_rcutils_logging_initialized = false;
 static char g_rcutils_logging_output_format_string[RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN];
 static const char * g_rcutils_logging_default_output_format =
   "[{severity}] [{time}] [{name}]: {message}";
+#ifdef _WIN32
 static DWORD g_original_console_mode = 0;
 static bool g_consol_mode_modified = false;
+#endif 
 
 static rcutils_allocator_t g_rcutils_logging_allocator;
 
@@ -793,9 +795,11 @@ rcutils_ret_t rcutils_logging_shutdown(void)
   g_num_log_msg_handlers = 0;
   g_rcutils_logging_initialized = false;
 
+  #ifdef _WIN32
   if (g_consol_mode_modified){
     SetConsoleMode(GetStdHandle(STD_ERROR_HANDLE), g_original_console_mode);
   }
+  #endif
   return ret;
 }
 
