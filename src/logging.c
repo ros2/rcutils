@@ -90,7 +90,7 @@ static const char * g_rcutils_logging_default_output_format =
 #ifdef _WIN32
 static DWORD g_original_console_mode = 0;
 static bool g_consol_mode_modified = false;
-#endif 
+#endif
 
 static rcutils_allocator_t g_rcutils_logging_allocator;
 
@@ -423,19 +423,16 @@ static const char * copy_from_orig(
 #define ACTIVATE_VIRTUAL_TERMINAL_PROCESSING() \
   { \
     HANDLE std_error_handle = GetStdHandle(STD_ERROR_HANDLE); \
-    if (std_error_handle == INVALID_HANDLE_VALUE) \
-    { \
-        RCUTILS_SET_ERROR_MSG("Could not get error handle to activating virtual terminal."); \
-        return; \
+    if (std_error_handle == INVALID_HANDLE_VALUE) { \
+      RCUTILS_SET_ERROR_MSG("Could not get error handle to activating virtual terminal."); \
+      return; \
     } \
-    if (! GetConsoleMode(std_error_handle, &g_original_console_mode)) \
-    { \
+    if (!GetConsoleMode(std_error_handle, &g_original_console_mode)) { \
       RCUTILS_SET_ERROR_MSG("Could not get consol mode to activating virtual terminal."); \
       return; \
     } \
     DWORD newDwMode = g_original_console_mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING; \
-    if (! SetConsoleMode(std_error_handle, newDwMode)) \
-    { \
+    if (!SetConsoleMode(std_error_handle, newDwMode)) { \
       RCUTILS_SET_ERROR_MSG("Could not set consol mode to activating virtual terminal."); \
       return; \
     } \
@@ -796,7 +793,7 @@ rcutils_ret_t rcutils_logging_shutdown(void)
   g_rcutils_logging_initialized = false;
 
   #ifdef _WIN32
-  if (g_consol_mode_modified){
+  if (g_consol_mode_modified) {
     SetConsoleMode(GetStdHandle(STD_ERROR_HANDLE), g_original_console_mode);
   }
   #endif
