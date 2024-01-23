@@ -127,7 +127,8 @@ class TestLoggingOutputFormatAfterShutdown(unittest.TestCase):
                     path=os.path.join(os.path.dirname(__file__), process_name),
                     encoding='unicode_escape'
                 ),
-                process=process_name
+                process=process_name,
+                strip_ansi_escape_sequences=False
             )
 
     def test_processes_exit_codes(self, proc_info):
