@@ -118,7 +118,7 @@ fail:
   }
 
   RCUTILS_SET_ERROR_MSG("unable to allocate memory for string array data");
-  return RCUTILS_RET_ERROR;
+  return RCUTILS_RET_BAD_ALLOC;
 }
 
 rcutils_ret_t
