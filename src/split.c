@@ -42,7 +42,6 @@ rcutils_split(
     *string_array = rcutils_get_zero_initialized_string_array();
     return RCUTILS_RET_OK;
   }
-  string_array->allocator = allocator;
 
   size_t string_size = strlen(str);
 
@@ -58,15 +57,13 @@ rcutils_split(
     rhs_offset = 1;
   }
 
-  string_array->size = 1;
+  size_t array_size = 1;
   for (size_t i = lhs_offset; i < string_size - rhs_offset; ++i) {
     if (str[i] == delimiter) {
-      ++string_array->size;
+      ++array_size;
     }
   }
-  // TODO(wjwwood): refactor this function so it can use rcutils_string_array_init() instead
-  string_array->data = allocator.allocate(string_array->size * sizeof(char *), allocator.state);
-  if (NULL == string_array->data) {
+  if (rcutils_string_array_init(string_array, array_size, &allocator) != RCUTILS_RET_OK) {
     goto fail;
   }
 
@@ -104,6 +101,9 @@ rcutils_split(
   } else {
     string_array->data[token_counter] =
       allocator.allocate((rhs - lhs + 2) * sizeof(char), allocator.state);
+    if (NULL == string_array->data[token_counter]) {
+      goto fail;
+    }
     snprintf(string_array->data[token_counter], (rhs - lhs + 1), "%s", str + lhs);
   }
 
