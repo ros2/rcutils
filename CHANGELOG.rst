@@ -2,6 +2,11 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Make rcutils_split() return RCUTILS_RET_BAD_ALLOC if alloc fails (`#444 <https://github.com/ros2/rcutils/issues/444>`_)
+* Contributors: Christophe Bedard
+
 6.5.0 (2023-12-26)
 ------------------
 * Remove two last uses of ament_target_dependencies. (`#440 <https://github.com/ros2/rcutils/issues/440>`_)
