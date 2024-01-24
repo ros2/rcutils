@@ -2,8 +2,8 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+6.5.1 (2024-01-24)
+------------------
 * Make rcutils_split() return RCUTILS_RET_BAD_ALLOC if alloc fails (`#444 <https://github.com/ros2/rcutils/issues/444>`_)
 * Contributors: Christophe Bedard
 
