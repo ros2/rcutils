@@ -167,7 +167,7 @@ TEST(test_string_array, string_array_resize) {
   rcutils_reset_error();
 
   // Start with 8 elements
-  rcutils_string_array_t sa0;
+  rcutils_string_array_t sa0 = rcutils_get_zero_initialized_string_array();
   ret = rcutils_string_array_init(&sa0, 8, &allocator);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
 
