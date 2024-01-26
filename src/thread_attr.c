@@ -83,8 +83,8 @@ rcutils_thread_attrs_fini(rcutils_thread_attrs_t * thread_attrs)
   RCUTILS_CHECK_ALLOCATOR(allocator, return RCUTILS_RET_INVALID_ARGUMENT);
   for (size_t i = 0; i < thread_attrs->num_attributes; ++i) {
     rcutils_thread_attr_t * attr = thread_attrs->attributes + i;
-    if (NULL != attr->name) {
-      allocator->deallocate((char *)attr->name, allocator->state);
+    if (NULL != attr->tag) {
+      allocator->deallocate((char *)attr->tag, allocator->state);
     }
   }
   allocator->deallocate(thread_attrs->attributes, allocator->state);
@@ -121,13 +121,13 @@ rcutils_thread_attrs_copy(
   }
 
   for (i = 0; i < thread_attrs->num_attributes; ++i) {
-    char * dup_name = rcutils_strdup(thread_attrs->attributes[i].name, allocator);
-    if (NULL == dup_name) {
+    char * dup_tag = rcutils_strdup(thread_attrs->attributes[i].tag, allocator);
+    if (NULL == dup_tag) {
       ret = RCUTILS_RET_BAD_ALLOC;
       goto error;
     }
     new_attrs[i] = thread_attrs->attributes[i];
-    new_attrs[i].name = dup_name;
+    new_attrs[i].tag = dup_tag;
   }
   *out_thread_attrs = *thread_attrs;
   out_thread_attrs->attributes = new_attrs;
@@ -137,7 +137,7 @@ rcutils_thread_attrs_copy(
 error:
   if (NULL != new_attrs) {
     for (size_t j = 0; j < i; ++j) {
-      allocator.deallocate((char *)new_attrs[i].name, allocator.state);
+      allocator.deallocate((char *)new_attrs[i].tag, allocator.state);
     }
     allocator.deallocate(new_attrs, allocator.state);
   }
@@ -173,14 +173,14 @@ rcutils_thread_attrs_add_attr(
   rcutils_thread_scheduling_policy_t sched_policy,
   rcutils_thread_core_affinity_t const * core_affinity,
   int priority,
-  char const * name)
+  char const * tag)
 {
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(thread_attrs, RCUTILS_RET_INVALID_ARGUMENT);
-  RCUTILS_CHECK_ARGUMENT_FOR_NULL(name, RCUTILS_RET_INVALID_ARGUMENT);
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(tag, RCUTILS_RET_INVALID_ARGUMENT);
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(core_affinity, RCUTILS_RET_INVALID_ARGUMENT);
 
   rcutils_ret_t ret;
-  char const * dup_name = NULL;
+  char const * dup_tag = NULL;
   rcutils_thread_core_affinity_t new_affinity = rcutils_get_zero_initialized_thread_core_affinity();
 
   if (thread_attrs->num_attributes == thread_attrs->capacity_attributes) {
@@ -197,8 +197,8 @@ rcutils_thread_attrs_add_attr(
     }
   }
 
-  dup_name = rcutils_strdup(name, thread_attrs->allocator);
-  if (NULL == dup_name) {
+  dup_tag = rcutils_strdup(tag, thread_attrs->allocator);
+  if (NULL == dup_tag) {
     goto error;
   }
 
@@ -213,15 +213,15 @@ rcutils_thread_attrs_add_attr(
   attr->scheduling_policy = sched_policy;
   attr->core_affinity = new_affinity;
   attr->priority = priority;
-  attr->name = dup_name;
+  attr->tag = dup_tag;
 
   ++thread_attrs->num_attributes;
 
   return RCUTILS_RET_OK;
 
 error:
-  if (NULL != dup_name) {
-    thread_attrs->allocator.deallocate((char *)dup_name, thread_attrs->allocator.state);
+  if (NULL != dup_tag) {
+    thread_attrs->allocator.deallocate((char *)dup_tag, thread_attrs->allocator.state);
   }
   if (0 < new_affinity.core_count) {
     rcutils_ret_t tmp_ret = rcutils_thread_core_affinity_fini(&new_affinity);

@@ -58,8 +58,8 @@ typedef struct rcutils_thread_attr_s
   rcutils_thread_scheduling_policy_t scheduling_policy;
   /// Thread priority.
   int priority;
-  /// Thread name
-  char const * name;
+  /// Thread attribute tag
+  char const * tag;
 } rcutils_thread_attr_t;
 
 /// Hold thread attribute rules.
@@ -148,7 +148,7 @@ rcutils_thread_attrs_copy(
  * \param[in] sched_policy thread scheduling policy of adding attribute
  * \param[in] core_affinity thread core affinity of adding attribute
  * \param[in] priority thread priority of adding attribute
- * \param[in] name thread name of adding attribute
+ * \param[in] tag thread attribute tag of adding attribute
  * \return #RCUTILS_RET_OK if the thread attribute was successfully added, or
  * \return #RCUTILS_RET_INVALID_ARGUMENT if any function arguments are invalid, or
  * \return #RCUTILS_RET_BAD_ALLOC if allocating memory failed, or
@@ -162,7 +162,7 @@ rcutils_thread_attrs_add_attr(
   rcutils_thread_scheduling_policy_t sched_policy,
   rcutils_thread_core_affinity_t const * core_affinity,
   int priority,
-  char const * name);
+  char const * tag);
 
 /**
  * \brief Return a zero-initialized rcutils_thread_core_affinity_t object.

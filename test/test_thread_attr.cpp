@@ -243,11 +243,11 @@ TEST_F(TestThreadAttrs, add_attribute) {
   ret = rcutils_thread_core_affinity_init(&affinity, alloc);
   ret = rcutils_thread_core_affinity_set(&affinity, 0xaa);
 
-  char thread_name[32];
+  char attr_tag[32];
   for (size_t i = 0; i < 100; ++i) {
-    snprintf(thread_name, sizeof(thread_name), "thread name %lu", i);
+    snprintf(attr_tag, sizeof(attr_tag), "attr tag %lu", i);
     ret = rcutils_thread_attrs_add_attr(
-      &attrs, RCUTILS_THREAD_SCHEDULING_POLICY_FIFO, &affinity, 0xbb, thread_name);
+      &attrs, RCUTILS_THREAD_SCHEDULING_POLICY_FIFO, &affinity, 0xbb, attr_tag);
     EXPECT_EQ(RCUTILS_RET_OK, ret);
     ASSERT_NE(nullptr, attrs.attributes);
     ASSERT_LE(i + 1, attrs.capacity_attributes);
@@ -257,14 +257,14 @@ TEST_F(TestThreadAttrs, add_attribute) {
   for (size_t i = 0; i < 100; ++i) {
     rcutils_thread_attr_t attr = attrs.attributes[i];
 
-    snprintf(thread_name, sizeof(thread_name), "thread name %lu", i);
+    snprintf(attr_tag, sizeof(attr_tag), "attr tag %lu", i);
     EXPECT_EQ(RCUTILS_THREAD_SCHEDULING_POLICY_FIFO, attr.scheduling_policy);
     EXPECT_NE(affinity.set, attr.core_affinity.set);
     EXPECT_EQ(affinity.core_count, attr.core_affinity.core_count);
     EXPECT_EQ(0, memcmp(affinity.set, attr.core_affinity.set, affinity.core_count / CHAR_BIT));
     EXPECT_EQ(0xbb, attr.priority);
-    EXPECT_NE(thread_name, attr.name);
-    EXPECT_STREQ(thread_name, attr.name);
+    EXPECT_NE(attr_tag, attr.tag);
+    EXPECT_STREQ(attr_tag, attr.tag);
   }
 
   ret = rcutils_thread_attrs_fini(&attrs);
@@ -277,11 +277,11 @@ TEST_F(TestThreadAttrs, copy) {
   ret = rcutils_thread_core_affinity_init(&affinity, alloc);
   ret = rcutils_thread_core_affinity_set(&affinity, 0xaa);
 
-  char thread_name[32];
+  char attr_tag[32];
   for (size_t i = 0; i < 100; ++i) {
-    snprintf(thread_name, sizeof(thread_name), "thread name %lu", i);
+    snprintf(attr_tag, sizeof(attr_tag), "attr tag %lu", i);
     ret = rcutils_thread_attrs_add_attr(
-      &attrs, RCUTILS_THREAD_SCHEDULING_POLICY_FIFO, &affinity, 0xbb, thread_name);
+      &attrs, RCUTILS_THREAD_SCHEDULING_POLICY_FIFO, &affinity, 0xbb, attr_tag);
     ASSERT_EQ(RCUTILS_RET_OK, ret);
   }
 
@@ -296,8 +296,8 @@ TEST_F(TestThreadAttrs, copy) {
     EXPECT_EQ(RCUTILS_THREAD_SCHEDULING_POLICY_FIFO, attr.scheduling_policy);
     EXPECT_EQ(0, memcmp(affinity.set, attr.core_affinity.set, affinity.core_count / CHAR_BIT));
     EXPECT_EQ(0xbb, attr.priority);
-    EXPECT_NE(attrs.attributes[i].name, attr.name);
-    EXPECT_STREQ(attrs.attributes[i].name, attr.name);
+    EXPECT_NE(attrs.attributes[i].tag, attr.tag);
+    EXPECT_STREQ(attrs.attributes[i].tag, attr.tag);
   }
 
   ret = rcutils_thread_attrs_fini(&attrs);
