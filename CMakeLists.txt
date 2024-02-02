@@ -416,7 +416,7 @@ if(BUILD_TESTING)
   endmacro()
 
   ament_add_gtest(test_shared_library_preloaded test/test_shared_library.cpp)
-  if(TARGET test_shared_library_in_load_paths)
+  if(TARGET test_shared_library_preloaded)
     add_dummy_shared_library(dummy_shared_library_preloaded)
     set_target_properties(dummy_shared_library_preloaded PROPERTIES
       LIBRARY_OUTPUT_DIRECTORY ${test_libraries_dir})
