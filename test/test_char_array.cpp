@@ -20,8 +20,6 @@
 #include "rcutils/error_handling.h"
 #include "rcutils/types/char_array.h"
 
-#include "./mocking_utils/patch.hpp"
-
 class ArrayCharTest : public ::testing::Test
 {
 protected:

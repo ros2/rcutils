@@ -197,7 +197,7 @@ if(BUILD_TESTING)
     osrf_testing_tools_cpp::memory_tools LIBRARY_PRELOAD_ENVIRONMENT_IS_AVAILABLE)
 
   ament_add_gtest(test_logging test/test_logging.cpp)
-  target_link_libraries(test_logging ${PROJECT_NAME} mimick osrf_testing_tools_cpp::memory_tools)
+  target_link_libraries(test_logging ${PROJECT_NAME} osrf_testing_tools_cpp::memory_tools)
 
   add_executable(test_logging_long_messages test/test_logging_long_messages.cpp)
   target_link_libraries(test_logging_long_messages ${PROJECT_NAME})
@@ -242,7 +242,7 @@ if(BUILD_TESTING)
     test/test_char_array.cpp
   )
   if(TARGET test_char_array)
-    target_link_libraries(test_char_array ${PROJECT_NAME} mimick)
+    target_link_libraries(test_char_array ${PROJECT_NAME})
   endif()
 
   # Can't use C++ with stdatomic_helper.h
@@ -283,7 +283,7 @@ if(BUILD_TESTING)
     test/test_split.cpp
   )
   if(TARGET test_split)
-    target_link_libraries(test_split ${PROJECT_NAME} mimick)
+    target_link_libraries(test_split ${PROJECT_NAME})
   endif()
 
   ament_add_gtest(test_find
@@ -337,7 +337,7 @@ if(BUILD_TESTING)
     test/test_format_string.cpp
   )
   if(TARGET test_format_string)
-    target_link_libraries(test_format_string ${PROJECT_NAME} mimick)
+    target_link_libraries(test_format_string ${PROJECT_NAME})
   endif()
 
   ament_add_gtest(test_string_map
@@ -388,7 +388,7 @@ if(BUILD_TESTING)
       # documentation says otherwise, so here we fallback to DT_RPATH entries.
       target_link_libraries(test_shared_library_in_run_paths "-Wl,--disable-new-dtags")
     endif()
-    target_link_libraries(test_shared_library_in_run_paths ${PROJECT_NAME} mimick)
+    target_link_libraries(test_shared_library_in_run_paths ${PROJECT_NAME})
   endif()
 
   set(project_binary_dir "$<TARGET_FILE_DIR:${PROJECT_NAME}>")
@@ -405,7 +405,7 @@ if(BUILD_TESTING)
       LIBRARY_OUTPUT_DIRECTORY ${test_libraries_dir})
     target_compile_definitions(test_shared_library_in_load_paths PRIVATE
       "SHARED_LIBRARY_UNDER_TEST=dummy_shared_library_in_load_paths")
-    target_link_libraries(test_shared_library_in_load_paths ${PROJECT_NAME} mimick)
+    target_link_libraries(test_shared_library_in_load_paths ${PROJECT_NAME})
   endif()
 
   include(CheckCXXCompilerFlag)
@@ -438,7 +438,7 @@ if(BUILD_TESTING)
       endif()
     endif()
     target_link_libraries(test_shared_library_preloaded dummy_shared_library_preloaded)
-    target_link_libraries(test_shared_library_preloaded ${PROJECT_NAME} mimick)
+    target_link_libraries(test_shared_library_preloaded ${PROJECT_NAME})
   endif()
 
   ament_add_gtest(test_time
