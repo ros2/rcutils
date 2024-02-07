@@ -2,6 +2,14 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Clean up unused references to mimick/mocking in tests (`#450 <https://github.com/ros2/rcutils/issues/450>`_)
+* Fix if(TARGET ...) condition for test (`#447 <https://github.com/ros2/rcutils/issues/447>`_)
+* Zero-initialize rcutils_string_array_t in test_string_array (`#446 <https://github.com/ros2/rcutils/issues/446>`_)
+* Use rcutils_string_array_init in rcutils_split & handle alloc fail (`#445 <https://github.com/ros2/rcutils/issues/445>`_)
+* Contributors: Christophe Bedard
+
 6.5.1 (2024-01-24)
 ------------------
 * Make rcutils_split() return RCUTILS_RET_BAD_ALLOC if alloc fails (`#444 <https://github.com/ros2/rcutils/issues/444>`_)
