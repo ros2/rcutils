@@ -94,7 +94,7 @@ def generate_test_description():
     env_escape_sequence = dict(os.environ)
     # This custom output is to check that escape characters work correctly.
     env_escape_sequence['RCUTILS_CONSOLE_OUTPUT_FORMAT'] = \
-        r'{name} \x1b[0m {message}'
+        '{name} \x1b[0m {message}'
     name = 'test_logging_output_format_escape_sequence'
     launch_description.add_action(ExecuteProcess(
         cmd=[executable], env=env_escape_sequence, name=name, output='screen'
