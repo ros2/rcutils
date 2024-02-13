@@ -91,6 +91,16 @@ def generate_test_description():
     ))
     processes_to_test.append(name)
 
+    env_escape_sequence = dict(os.environ)
+    # This custom output is to check that escape characters work correctly.
+    env_escape_sequence['RCUTILS_CONSOLE_OUTPUT_FORMAT'] = \
+        '{name} \x1b[0m {message}'
+    name = 'test_logging_output_format_escape_sequence'
+    launch_description.add_action(ExecuteProcess(
+        cmd=[executable], env=env_escape_sequence, name=name, output='screen'
+    ))
+    processes_to_test.append(name)
+
     launch_description.add_action(
         launch_testing.actions.ReadyToTest()
     )
@@ -117,7 +127,8 @@ class TestLoggingOutputFormatAfterShutdown(unittest.TestCase):
                     path=os.path.join(os.path.dirname(__file__), process_name),
                     encoding='unicode_escape'
                 ),
-                process=process_name
+                process=process_name,
+                strip_ansi_escape_sequences=False
             )
 
     def test_processes_exit_codes(self, proc_info):
