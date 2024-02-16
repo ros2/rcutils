@@ -4,7 +4,7 @@ This document is a declaration of software quality for the `rcutils` package, ba
 
 The package `rcutils` claims to be in the **Quality Level 1** category.
 
-Below are the rationales, notes, and caveats for this claim, organized by each requirement listed in the [Package Quality Categories in REP-2004](https://www.ros.org/reps/rep-2004.html) of the ROS2 developer guide.
+Below are the rationales, notes, and caveats for this claim, organized by each requirement listed in the [Package Requirements for Quality Level 1 in REP-2004](https://www.ros.org/reps/rep-2004.html).
 
 ## Version Policy [1]
 
@@ -89,7 +89,7 @@ There is an automated test which runs a linter that ensures each file has at lea
 
 ### Feature Testing [4.i]
 
-Each feature in `rcutils` has corresponding tests which simulate typical usage, and they are located in the [`test`](https://github.com/ros2/rcutils/tree/master/test) directory.
+Each feature in `rcutils` has corresponding tests which simulate typical usage, and they are located in the [`test`](https://github.com/ros2/rcutils/tree/rolling/test) directory.
 New features are required to have tests before being added.
 Currently nightly test results can be seen here:
 * [linux-aarch64_release](https://ci.ros2.org/view/nightly/job/nightly_linux-aarch64_release/lastBuild/testReport/rcutils/)
@@ -129,7 +129,7 @@ Changes that introduce regressions in performance must be adequately justified i
 
 ### Linters and Static Analysis [4.v]
 
-`rcutils` uses and passes all the ROS2 standard linters and static analysis tools for a C package as described in the [ROS 2 Developer Guide](https://docs.ros.org/en/rolling/Contributing/Developer-Guide.html#linters-and-static-analysis). Passing implies there are no linter/static errors when testing against CI of supported platforms.
+`rcutils` uses and passes all the ROS 2 standard linters and static analysis tools for a C package as described in the [ROS 2 Developer Guide](https://docs.ros.org/en/rolling/Contributing/Developer-Guide.html#linters-and-static-analysis). Passing implies there are no linter/static errors when testing against CI of supported platforms.
 
 Currently nightly test results can be seen here:
 * [linux-aarch64_release](https://ci.ros2.org/view/nightly/job/nightly_linux-aarch64_release/lastBuild/testReport/rcutils/)
