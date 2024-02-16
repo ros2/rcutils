@@ -72,6 +72,7 @@ set(rcutils_sources
   src/strerror.c
   src/string_array.c
   src/string_map.c
+  src/thread_attr.c
   src/testing/fault_injection.c
   src/time.c
   ${time_impl_c}
@@ -581,6 +582,13 @@ if(BUILD_TESTING)
 
   if(TARGET test_macros)
     target_link_libraries(test_macros ${PROJECT_NAME})
+  endif()
+
+  ament_add_gtest(test_thread_attr
+    test/test_thread_attr.cpp
+  )
+  if(TARGET test_thread_attr)
+    target_link_libraries(test_thread_attr ${PROJECT_NAME})
   endif()
 endif()
 
