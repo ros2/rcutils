@@ -20,14 +20,7 @@
 #include "rcutils/split.h"
 #include "rcutils/types/string_array.h"
 
-#define ENABLE_LOGGING 1
-
-#if ENABLE_LOGGING
-#define LOG(expected, actual) { \
-    printf("Expected: %s Actual: %s\n", expected, actual);}
-#else
-#define LOG(X, arg) {}
-#endif
+#define LOG(expected, actual) printf("Expected: %s Actual: %s\n", expected, actual);
 
 rcutils_string_array_t test_split(const char * str, char delimiter, size_t expected_token_size)
 {
