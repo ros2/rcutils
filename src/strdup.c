@@ -40,10 +40,10 @@ rcutils_strndup(const char * str, size_t max_length, rcutils_allocator_t allocat
 {
   RCUTILS_CAN_RETURN_WITH_ERROR_OF(NULL);
 
-  RCUTILS_CHECK_ALLOCATOR(&allocator, return NULL);
   if (NULL == str) {
     return NULL;
   }
+  RCUTILS_CHECK_ALLOCATOR(&allocator, return NULL);
   char * p = memchr(str, '\0', max_length);
   size_t string_length = p == NULL ? max_length : (size_t)(p - str);
   char * new_string = allocator.allocate(string_length + 1, allocator.state);

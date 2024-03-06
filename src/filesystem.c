@@ -179,7 +179,6 @@ rcutils_join_path(
   const char * right_hand_path,
   rcutils_allocator_t allocator)
 {
-  RCUTILS_CHECK_ALLOCATOR(&allocator, return NULL);
   if (NULL == left_hand_path) {
     return NULL;
   }
@@ -198,7 +197,6 @@ rcutils_to_native_path(
   const char * path,
   rcutils_allocator_t allocator)
 {
-  RCUTILS_CHECK_ALLOCATOR(&allocator, return NULL);
   if (NULL == path) {
     return NULL;
   }
@@ -209,7 +207,6 @@ rcutils_to_native_path(
 char *
 rcutils_expand_user(const char * path, rcutils_allocator_t allocator)
 {
-  RCUTILS_CHECK_ALLOCATOR(&allocator, return NULL);
   if (NULL == path) {
     return NULL;
   }
@@ -352,7 +349,6 @@ rcutils_calculate_directory_size_with_recursion(
   rcutils_ret_t ret = RCUTILS_RET_OK;
   rcutils_dir_iter_t * iter = NULL;
 
-  RCUTILS_CHECK_ALLOCATOR(&allocator, return RCUTILS_RET_INVALID_ARGUMENT);
   if (NULL == directory_path) {
     RCUTILS_SAFE_FWRITE_TO_STDERR("directory_path is NULL !");
     return RCUTILS_RET_INVALID_ARGUMENT;
@@ -369,6 +365,7 @@ rcutils_calculate_directory_size_with_recursion(
     return RCUTILS_RET_ERROR;
   }
 
+  RCUTILS_CHECK_ALLOCATOR(&allocator, return RCUTILS_RET_INVALID_ARGUMENT);
   dir_list = allocator.zero_allocate(1, sizeof(dir_list_t), allocator.state);
   if (NULL == dir_list) {
     RCUTILS_SAFE_FWRITE_TO_STDERR("Failed to allocate memory !\n");
