@@ -365,6 +365,7 @@ rcutils_calculate_directory_size_with_recursion(
     return RCUTILS_RET_ERROR;
   }
 
+  RCUTILS_CHECK_ALLOCATOR(&allocator, return RCUTILS_RET_INVALID_ARGUMENT);
   dir_list = allocator.zero_allocate(1, sizeof(dir_list_t), allocator.state);
   if (NULL == dir_list) {
     RCUTILS_SAFE_FWRITE_TO_STDERR("Failed to allocate memory !\n");
@@ -508,6 +509,8 @@ rcutils_dir_iter_end(rcutils_dir_iter_t * iter)
   }
 
   rcutils_allocator_t allocator = iter->allocator;
+  RCUTILS_CHECK_ALLOCATOR_WITH_MSG(
+    &allocator, "allocator is invalid", return );
   rcutils_dir_iter_state_t * state = (rcutils_dir_iter_state_t *)iter->state;
   if (NULL != state) {
 #ifdef _WIN32

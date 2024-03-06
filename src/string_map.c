@@ -101,6 +101,8 @@ rcutils_string_map_fini(rcutils_string_map_t * string_map)
     return ret;
   }
   rcutils_allocator_t allocator = string_map->impl->allocator;
+  RCUTILS_CHECK_ALLOCATOR_WITH_MSG(
+    &allocator, "allocator is invalid", return RCUTILS_RET_INVALID_ARGUMENT);
 
   allocator.deallocate(string_map->impl, allocator.state);
   string_map->impl = NULL;
@@ -152,6 +154,8 @@ rcutils_string_map_reserve(rcutils_string_map_t * string_map, size_t capacity)
   RCUTILS_CHECK_FOR_NULL_WITH_MSG(
     string_map->impl, "invalid string map", return RCUTILS_RET_STRING_MAP_INVALID);
   rcutils_allocator_t allocator = string_map->impl->allocator;
+  RCUTILS_CHECK_ALLOCATOR_WITH_MSG(
+    &allocator, "allocator is invalid", return RCUTILS_RET_INVALID_ARGUMENT);
   // short circuit, if requested capacity is less than the size of the map
   if (capacity < string_map->impl->size) {
     // set the capacity to the current size instead
@@ -276,6 +280,8 @@ rcutils_string_map_set_no_resize(
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(key, RCUTILS_RET_INVALID_ARGUMENT);
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(value, RCUTILS_RET_INVALID_ARGUMENT);
   rcutils_allocator_t allocator = string_map->impl->allocator;
+  RCUTILS_CHECK_ALLOCATOR_WITH_MSG(
+    &allocator, "allocator is invalid", return RCUTILS_RET_INVALID_ARGUMENT);
   size_t key_index;
   bool should_free_key_on_error = false;
   bool key_exists = __get_index_of_key_if_exists(string_map->impl, key, strlen(key), &key_index);
