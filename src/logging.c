@@ -155,6 +155,8 @@ static enum rcutils_get_env_retval rcutils_get_env_var_zero_or_one(
   const char * one_semantic)
 {
   const char * env_var_value = NULL;
+  (void)one_semantic;
+  (void)zero_semantic;
   const char * ret_str = rcutils_get_env(name, &env_var_value);
   if (NULL != ret_str) {
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
@@ -1268,6 +1270,12 @@ rcutils_ret_t rcutils_logging_format_message(
 # define COLOR_GREEN 2
 # define COLOR_YELLOW 6
 # define IS_STREAM_A_TTY(stream) (_isatty(_fileno(stream)) != 0)
+#elif defined(__ZEPHYR__)
+# define COLOR_NORMAL 0
+# define COLOR_RED 0
+# define COLOR_GREEN 0
+# define COLOR_YELLOW 0
+# define IS_STREAM_A_TTY(stream) false
 #else
 # define COLOR_NORMAL "\033[0m"
 # define COLOR_RED "\033[31m"
@@ -1369,6 +1377,8 @@ rcutils_ret_t rcutils_logging_format_message(
   }
 # define SET_STANDARD_COLOR_IN_STREAM(is_colorized, status)
 #endif
+static  char msg_buf[1024] = ""; 
+static  char output_buf[1024] = ""; 
 
 void rcutils_logging_console_output_handler(
   const rcutils_log_location_t * location,
@@ -1405,7 +1415,6 @@ void rcutils_logging_console_output_handler(
     is_colorized = IS_STREAM_A_TTY(g_output_stream);
   }
 
-  char msg_buf[1024] = "";
   rcutils_char_array_t msg_array = {
     .buffer = msg_buf,
     .owns_buffer = false,
@@ -1414,7 +1423,6 @@ void rcutils_logging_console_output_handler(
     .allocator = g_rcutils_logging_allocator
   };
 
-  char output_buf[1024] = "";
   rcutils_char_array_t output_array = {
     .buffer = output_buf,
     .owns_buffer = false,
