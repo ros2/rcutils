@@ -1377,8 +1377,6 @@ rcutils_ret_t rcutils_logging_format_message(
   }
 # define SET_STANDARD_COLOR_IN_STREAM(is_colorized, status)
 #endif
-static  char msg_buf[1024] = ""; 
-static  char output_buf[1024] = ""; 
 
 void rcutils_logging_console_output_handler(
   const rcutils_log_location_t * location,
@@ -1415,6 +1413,7 @@ void rcutils_logging_console_output_handler(
     is_colorized = IS_STREAM_A_TTY(g_output_stream);
   }
 
+  char msg_buf[1024] = "";
   rcutils_char_array_t msg_array = {
     .buffer = msg_buf,
     .owns_buffer = false,
@@ -1423,6 +1422,7 @@ void rcutils_logging_console_output_handler(
     .allocator = g_rcutils_logging_allocator
   };
 
+  char output_buf[1024] = "";
   rcutils_char_array_t output_array = {
     .buffer = output_buf,
     .owns_buffer = false,
