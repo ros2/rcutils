@@ -155,6 +155,8 @@ static enum rcutils_get_env_retval rcutils_get_env_var_zero_or_one(
   const char * one_semantic)
 {
   const char * env_var_value = NULL;
+  (void)one_semantic;
+  (void)zero_semantic;
   const char * ret_str = rcutils_get_env(name, &env_var_value);
   if (NULL != ret_str) {
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
@@ -1268,6 +1270,12 @@ rcutils_ret_t rcutils_logging_format_message(
 # define COLOR_GREEN 2
 # define COLOR_YELLOW 6
 # define IS_STREAM_A_TTY(stream) (_isatty(_fileno(stream)) != 0)
+#elif defined(__ZEPHYR__)
+# define COLOR_NORMAL 0
+# define COLOR_RED 0
+# define COLOR_GREEN 0
+# define COLOR_YELLOW 0
+# define IS_STREAM_A_TTY(stream) false
 #else
 # define COLOR_NORMAL "\033[0m"
 # define COLOR_RED "\033[31m"
