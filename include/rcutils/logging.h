@@ -46,8 +46,30 @@ extern "C"
 RCUTILS_PUBLIC
 extern bool g_rcutils_logging_initialized;
 
+/// Initialize the logging allocator.
+/**
+ * This function is called automatically when using the logging macros.
+ * Initialize the logging allocator only if it is not initialized yet.
+ *
+ * <hr>
+ * Attribute          | Adherence
+ * ------------------ | -------------
+ * Allocates Memory   | No
+ * Thread-Safe        | No
+ * Uses Atomics       | No
+ * Lock-Free          | Yes
+ *
+ * \return #RCUTILS_RET_OK if successful initialized, or
+ * \return #RCUTILS_RET_INVALID_ARGUMENT if the allocator is invalid.
+ */
+RCUTILS_PUBLIC
+RCUTILS_WARN_UNUSED
+rcutils_ret_t rcutils_logging_allocator_initialize(
+  const rcutils_allocator_t * allocator);
+
 /// Initialize the logging system using the specified allocator.
 /**
+ * Call rcutils_logging_allocator_initialize() using allocator argument.
  * Initialize the logging system only if it was not in an initialized state.
  *
  * If an invalid allocator is passed, the initialization will fail.
