@@ -22,9 +22,6 @@ extern "C"
 {
 #endif
 
-#ifndef __STDC_WANT_LIB_EXT1__
-#define __STDC_WANT_LIB_EXT1__ 1  // indicate we would like strnlen_s if available
-#endif
 #include <assert.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -36,23 +33,18 @@ extern "C"
 #include "rcutils/allocator.h"
 #include "rcutils/macros.h"
 #include "rcutils/snprintf.h"
+#include "rcutils/strnlen.h"
 #include "rcutils/testing/fault_injection.h"
 #include "rcutils/types/rcutils_ret.h"
 #include "rcutils/visibility_control.h"
 
-#ifdef __STDC_LIB_EXT1__
 /// Write the given msg out to stderr, limiting the buffer size in the `fwrite`.
 /**
  * This ensures that there is an upper bound to a buffer overrun if `msg` is
  * non-null terminated.
  */
 #define RCUTILS_SAFE_FWRITE_TO_STDERR(msg) \
-  do {fwrite(msg, sizeof(char), strnlen_s(msg, 4096), stderr);} while (0)
-#else
-/// Write the given msg out to stderr.
-#define RCUTILS_SAFE_FWRITE_TO_STDERR(msg) \
-  do {fwrite(msg, sizeof(char), strlen(msg), stderr);} while (0)
-#endif
+  do {fwrite(msg, sizeof(char), rcutils_strnlen(msg, 4096), stderr);} while (0)
 
 /// Set the error message to stderr using a format string and format arguments.
 /**
