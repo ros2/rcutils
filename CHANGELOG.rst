@@ -2,8 +2,8 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+6.6.0 (2024-03-28)
+------------------
 * feat: Add human readable date to logging formats (`#441 <https://github.com/ros2/rcutils/issues/441>`_)
 * Updates for uncrustify 0.78. (`#454 <https://github.com/ros2/rcutils/issues/454>`_)
 * Set hints to find the python version we actually want. (`#451 <https://github.com/ros2/rcutils/issues/451>`_)
