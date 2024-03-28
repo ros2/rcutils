@@ -2,6 +2,16 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* feat: Add human readable date to logging formats (`#441 <https://github.com/ros2/rcutils/issues/441>`_)
+* Updates for uncrustify 0.78. (`#454 <https://github.com/ros2/rcutils/issues/454>`_)
+* Set hints to find the python version we actually want. (`#451 <https://github.com/ros2/rcutils/issues/451>`_)
+* Bring ament_add_gtest/target_link_libraries back together (`#452 <https://github.com/ros2/rcutils/issues/452>`_)
+* Change 'ROS2' to 'ROS 2' in quality declaration (`#453 <https://github.com/ros2/rcutils/issues/453>`_)
+* Allow parsing of escape sequence in log format (`#443 <https://github.com/ros2/rcutils/issues/443>`_)
+* Contributors: Chris Lalancette, Christophe Bedard, Kaju-Bubanja, Marc Bestmann
+
 6.5.2 (2024-02-07)
 ------------------
 * Clean up unused references to mimick/mocking in tests (`#450 <https://github.com/ros2/rcutils/issues/450>`_)
