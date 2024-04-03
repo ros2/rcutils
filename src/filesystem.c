@@ -22,13 +22,9 @@ extern "C"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifndef RCUTILS_NO_FILESYSTEM
 #include <sys/stat.h>
-#endif
 #ifndef _WIN32
-#ifndef RCUTILS_NO_FILESYSTEM
 #include <dirent.h>
-#endif
 #include <unistd.h>
 #else
 // When building with MSVC 19.28.29333.0 on Windows 10 (as of 2020-11-11),
@@ -58,9 +54,6 @@ extern "C"
 # define RCUTILS_PATH_DELIMITER "/"
 #endif  // _WIN32
 
-#ifdef RCUTILS_NO_FILESYSTEM
-typedef int DIR;
-#endif  // _RCUTILS_NO_FILESYSTEM
 typedef struct rcutils_dir_iter_state_t
 {
 #ifdef _WIN32
@@ -74,12 +67,6 @@ typedef struct rcutils_dir_iter_state_t
 bool
 rcutils_get_cwd(char * buffer, size_t max_length)
 {
-#ifdef RCUTILS_NO_FILESYSTEM
-  (void) buffer;
-  (void) max_length;
-  RCUTILS_SET_ERROR_MSG("not available filesystem");
-  return false;
-#else
   if (NULL == buffer || max_length == 0) {
     return false;
   }
@@ -93,17 +80,11 @@ rcutils_get_cwd(char * buffer, size_t max_length)
   }
 #endif  // _WIN32
   return true;
-#endif  // _RCUTILS_NO_FILESYSTEM
 }
 
 bool
 rcutils_is_directory(const char * abs_path)
 {
-#ifdef RCUTILS_NO_FILESYSTEM
-  (void) abs_path;
-  RCUTILS_SET_ERROR_MSG("not available filesystem");
-  return false;
-#else
   struct stat buf;
   if (stat(abs_path, &buf) < 0) {
     return false;
@@ -113,17 +94,11 @@ rcutils_is_directory(const char * abs_path)
 #else
   return S_ISDIR(buf.st_mode);
 #endif  // _WIN32
-#endif  // _RCUTILS_NO_FILESYSTEM
 }
 
 bool
 rcutils_is_file(const char * abs_path)
 {
-#ifdef RCUTILS_NO_FILESYSTEM
-  (void) abs_path;
-  RCUTILS_SET_ERROR_MSG("not available filesystem");
-  return false;
-#else
   struct stat buf;
   if (stat(abs_path, &buf) < 0) {
     return false;
@@ -133,33 +108,21 @@ rcutils_is_file(const char * abs_path)
 #else
   return S_ISREG(buf.st_mode);
 #endif  // _WIN32
-#endif  // _RCUTILS_NO_FILESYSTEM
 }
 
 bool
 rcutils_exists(const char * abs_path)
 {
-#ifdef RCUTILS_NO_FILESYSTEM
-  (void) abs_path;
-  RCUTILS_SET_ERROR_MSG("not available filesystem");
-  return false;
-#else
   struct stat buf;
   if (stat(abs_path, &buf) < 0) {
     return false;
   }
   return true;
-#endif  // _RCUTILS_NO_FILESYSTEM
 }
 
 bool
 rcutils_is_readable(const char * abs_path)
 {
-#ifdef RCUTILS_NO_FILESYSTEM
-  (void) abs_path;
-  RCUTILS_SET_ERROR_MSG("not available filesystem");
-  return false;
-#else
   struct stat buf;
   if (stat(abs_path, &buf) < 0) {
     return false;
@@ -172,17 +135,11 @@ rcutils_is_readable(const char * abs_path)
     return false;
   }
   return true;
-#endif  // _RCUTILS_NO_FILESYSTEM
 }
 
 bool
 rcutils_is_writable(const char * abs_path)
 {
-#ifdef RCUTILS_NO_FILESYSTEM
-  (void) abs_path;
-  RCUTILS_SET_ERROR_MSG("not available filesystem");
-  return false;
-#else
   struct stat buf;
   if (stat(abs_path, &buf) < 0) {
     return false;
@@ -195,17 +152,11 @@ rcutils_is_writable(const char * abs_path)
     return false;
   }
   return true;
-#endif  // _RCUTILS_NO_FILESYSTEM
 }
 
 bool
 rcutils_is_readable_and_writable(const char * abs_path)
 {
-#ifdef RCUTILS_NO_FILESYSTEM
-  (void) abs_path;
-  RCUTILS_SET_ERROR_MSG("not available filesystem");
-  return false;
-#else
   struct stat buf;
   if (stat(abs_path, &buf) < 0) {
     return false;
@@ -220,7 +171,6 @@ rcutils_is_readable_and_writable(const char * abs_path)
     return false;
   }
   return true;
-#endif  // _RCUTILS_NO_FILESYSTEM
 }
 
 char *
@@ -229,13 +179,6 @@ rcutils_join_path(
   const char * right_hand_path,
   rcutils_allocator_t allocator)
 {
-#ifdef RCUTILS_NO_FILESYSTEM
-  (void) left_hand_path;
-  (void) right_hand_path;
-  (void) allocator;
-  RCUTILS_SET_ERROR_MSG("not available filesystem");
-  return NULL;
-#else
   if (NULL == left_hand_path) {
     return NULL;
   }
@@ -247,7 +190,6 @@ rcutils_join_path(
     allocator,
     "%s%s%s",
     left_hand_path, RCUTILS_PATH_DELIMITER, right_hand_path);
-#endif  // _RCUTILS_NO_FILESYSTEM
 }
 
 char *
@@ -255,29 +197,16 @@ rcutils_to_native_path(
   const char * path,
   rcutils_allocator_t allocator)
 {
-#ifdef RCUTILS_NO_FILESYSTEM
-  (void) path;
-  (void) allocator;
-  RCUTILS_SET_ERROR_MSG("not available filesystem");
-  return NULL;
-#else
   if (NULL == path) {
     return NULL;
   }
 
   return rcutils_repl_str(path, "/", RCUTILS_PATH_DELIMITER, &allocator);
-#endif  // _RCUTILS_NO_FILESYSTEM
 }
 
 char *
 rcutils_expand_user(const char * path, rcutils_allocator_t allocator)
 {
-#ifdef RCUTILS_NO_FILESYSTEM
-  (void) path;
-  (void) allocator;
-  RCUTILS_SET_ERROR_MSG("not available filesystem");
-  return NULL;
-#else
   if (NULL == path) {
     return NULL;
   }
@@ -296,17 +225,11 @@ rcutils_expand_user(const char * path, rcutils_allocator_t allocator)
     "%s%s",
     homedir,
     path + 1);
-#endif  // _RCUTILS_NO_FILESYSTEM
 }
 
 bool
 rcutils_mkdir(const char * abs_path)
 {
-#ifdef RCUTILS_NO_FILESYSTEM
-  (void) abs_path;
-  RCUTILS_SET_ERROR_MSG("not available filesystem");
-  return false;
-#else
   if (NULL == abs_path) {
     return false;
   }
@@ -334,7 +257,6 @@ rcutils_mkdir(const char * abs_path)
   }
 
   return success;
-#endif  // _RCUTILS_NO_FILESYSTEM
 }
 
 rcutils_ret_t
@@ -353,7 +275,6 @@ typedef struct dir_list_t
   struct dir_list_t * next;
 } dir_list_t;
 
-#ifndef RCUTILS_NO_FILESYSTEM
 static void free_dir_list(dir_list_t * dir_list, rcutils_allocator_t allocator)
 {
   dir_list_t * next_dir;
@@ -416,7 +337,6 @@ static rcutils_ret_t check_and_calculate_size(
 
   return RCUTILS_RET_OK;
 }
-#endif  // _RCUTILS_NO_FILESYSTEM
 
 rcutils_ret_t
 rcutils_calculate_directory_size_with_recursion(
@@ -425,14 +345,6 @@ rcutils_calculate_directory_size_with_recursion(
   uint64_t * size,
   rcutils_allocator_t allocator)
 {
-#ifdef RCUTILS_NO_FILESYSTEM
-  (void) directory_path;
-  (void) max_depth;
-  (void) size;
-  (void) allocator;
-  RCUTILS_SET_ERROR_MSG("not available filesystem");
-  return RCUTILS_RET_ERROR;
-#else
   dir_list_t * dir_list = NULL;
   rcutils_ret_t ret = RCUTILS_RET_OK;
   rcutils_dir_iter_t * iter = NULL;
@@ -446,8 +358,6 @@ rcutils_calculate_directory_size_with_recursion(
     RCUTILS_SAFE_FWRITE_TO_STDERR("size pointer is NULL !");
     return RCUTILS_RET_INVALID_ARGUMENT;
   }
-
-  size_t dir_size = 0;
 
   if (!rcutils_is_directory(directory_path)) {
     RCUTILS_SAFE_FWRITE_TO_STDERR_WITH_FORMAT_STRING(
@@ -497,18 +407,11 @@ fail:
   rcutils_dir_iter_end(iter);
   free_dir_list(dir_list, allocator);
   return ret;
-#endif  // _RCUTILS_NO_FILESYSTEM
 }
 
 rcutils_dir_iter_t *
 rcutils_dir_iter_start(const char * directory_path, const rcutils_allocator_t allocator)
 {
-#ifdef RCUTILS_NO_FILESYSTEM
-  (void) directory_path;
-  (void) allocator;
-  RCUTILS_SET_ERROR_MSG("not available filesystem");
-  return NULL;
-#else
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(directory_path, NULL);
   RCUTILS_CHECK_ALLOCATOR_WITH_MSG(
     &allocator, "allocator is invalid", return NULL);
@@ -570,17 +473,11 @@ rcutils_dir_iter_start(const char * directory_path, const rcutils_allocator_t al
 rcutils_dir_iter_start_fail:
   rcutils_dir_iter_end(iter);
   return NULL;
-#endif  // _RCUTILS_NO_FILESYSTEM
 }
 
 bool
 rcutils_dir_iter_next(rcutils_dir_iter_t * iter)
 {
-#ifdef RCUTILS_NO_FILESYSTEM
-  (void) iter;
-  RCUTILS_SET_ERROR_MSG("not available filesystem");
-  return false;
-#else
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(iter, false);
   rcutils_dir_iter_state_t * state = (rcutils_dir_iter_state_t *)iter->state;
   RCUTILS_CHECK_FOR_NULL_WITH_MSG(state, "iter is invalid", false);
@@ -601,16 +498,11 @@ rcutils_dir_iter_next(rcutils_dir_iter_t * iter)
 
   iter->entry_name = NULL;
   return false;
-#endif  // _RCUTILS_NO_FILESYSTEM
 }
 
 void
 rcutils_dir_iter_end(rcutils_dir_iter_t * iter)
 {
-#ifdef RCUTILS_NO_FILESYSTEM
-  (void) iter;
-  RCUTILS_SET_ERROR_MSG("not available filesystem");
-#else
   if (NULL == iter) {
     return;
   }
@@ -630,18 +522,11 @@ rcutils_dir_iter_end(rcutils_dir_iter_t * iter)
   }
 
   allocator.deallocate(iter, allocator.state);
-#endif  // _RCUTILS_NO_FILESYSTEM
 }
 
 size_t
 rcutils_get_file_size(const char * file_path)
 {
-
-#ifdef RCUTILS_NO_FILESYSTEM
-  (void) file_path;
-  RCUTILS_SET_ERROR_MSG("not available filesystem");
-  return 0;
-#else
   if (!rcutils_is_file(file_path)) {
     RCUTILS_SAFE_FWRITE_TO_STDERR_WITH_FORMAT_STRING(
       "Path is not a file: %s\n", file_path);
@@ -651,7 +536,6 @@ rcutils_get_file_size(const char * file_path)
   struct stat stat_buffer;
   int rc = stat(file_path, &stat_buffer);
   return rc == 0 ? (size_t)(stat_buffer.st_size) : 0;
-#endif  // _RCUTILS_NO_FILESYSTEM
 }
 
 #ifdef __cplusplus

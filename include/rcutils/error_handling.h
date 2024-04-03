@@ -39,9 +39,8 @@ extern "C"
 #include "rcutils/testing/fault_injection.h"
 #include "rcutils/types/rcutils_ret.h"
 #include "rcutils/visibility_control.h"
-#include "rcutils/configuration_flags.h"
 
-#if defined(__STDC_LIB_EXT1__) && !defined(RCUTILS_NO_FILESYSTEM)
+#ifdef __STDC_LIB_EXT1__
 /// Write the given msg out to stderr, limiting the buffer size in the `fwrite`.
 /**
  * This ensures that there is an upper bound to a buffer overrun if `msg` is
@@ -49,11 +48,10 @@ extern "C"
  */
 #define RCUTILS_SAFE_FWRITE_TO_STDERR(msg) \
   do {fwrite(msg, sizeof(char), strnlen_s(msg, 4096), stderr);} while (0)
-#elif !defined(RCUTILS_NO_FILESYSTEM)
+#else
+/// Write the given msg out to stderr.
 #define RCUTILS_SAFE_FWRITE_TO_STDERR(msg) \
   do {fwrite(msg, sizeof(char), strlen(msg), stderr);} while (0)
-#else
-  #define RCUTILS_SAFE_FWRITE_TO_STDERR(msg)
 #endif
 
 /// Set the error message to stderr using a format string and format arguments.
@@ -65,8 +63,6 @@ extern "C"
  * \param[in] format_string The string to be used as the format of the error message.
  * \param[in] ... Arguments for the format string.
  */
-
-#if !defined(RCUTILS_AVOID_DYNAMIC_ALLOCATION)
 #define RCUTILS_SAFE_FWRITE_TO_STDERR_WITH_FORMAT_STRING(format_string, ...) \
   do { \
     char output_msg[RCUTILS_ERROR_MESSAGE_MAX_LENGTH]; \
@@ -77,11 +73,7 @@ extern "C"
       RCUTILS_SAFE_FWRITE_TO_STDERR(output_msg); \
     } \
   } while (0)
-#else
-#define RCUTILS_SAFE_FWRITE_TO_STDERR_WITH_FORMAT_STRING(format_string, ...)
-#endif
 
-#if !defined(RCUTILS_AVOID_DYNAMIC_ALLOCATION)
 /// The maximum length a formatted number is allowed to have.
 #define RCUTILS_ERROR_STATE_LINE_NUMBER_STR_MAX_LENGTH 20  // "18446744073709551615"
 
@@ -108,13 +100,6 @@ extern "C"
     RCUTILS_ERROR_STATE_LINE_NUMBER_STR_MAX_LENGTH - \
     RCUTILS_ERROR_FORMATTING_CHARACTERS - \
     1)
-#else
-#define RCUTILS_ERROR_STATE_LINE_NUMBER_STR_MAX_LENGTH 1
-#define RCUTILS_ERROR_FORMATTING_CHARACTERS 1
-#define RCUTILS_ERROR_MESSAGE_MAX_LENGTH 1
-#define RCUTILS_ERROR_STATE_MESSAGE_MAX_LENGTH 1
-#define RCUTILS_ERROR_STATE_FILE_MAX_LENGTH 1
-#endif  // RCUTILS_AVOID_DYNAMIC_ALLOCATION
 
 /// Struct wrapping a fixed-size c string used for returning the formatted error string.
 typedef struct rcutils_error_string_s
@@ -136,7 +121,7 @@ typedef struct rcutils_error_state_s
 } rcutils_error_state_t;
 
 // make sure our math is right...
-#if __STDC_VERSION__ >= 201112L && !defined(RCUTILS_AVOID_DYNAMIC_ALLOCATION)
+#if __STDC_VERSION__ >= 201112L
 static_assert(
   sizeof(rcutils_error_string_t) == (
     RCUTILS_ERROR_STATE_MESSAGE_MAX_LENGTH +
@@ -248,12 +233,8 @@ rcutils_set_error_state(const char * error_string, const char * file, size_t lin
  *
  * \param[in] msg The error message to be set.
  */
-#ifdef RCUTILS_AVOID_DYNAMIC_ALLOCATION
-  #define RCUTILS_SET_ERROR_MSG(msg)
-#else
 #define RCUTILS_SET_ERROR_MSG(msg) \
   do {rcutils_set_error_state(msg, __FILE__, __LINE__);} while (0)
-#endif // RCUTILS_AVOID_DYNAMIC_ALLOCATION
 
 /// Set the error message using a format string and format arguments.
 /**
@@ -264,9 +245,6 @@ rcutils_set_error_state(const char * error_string, const char * file, size_t lin
  * \param[in] format_string The string to be used as the format of the error message.
  * \param[in] ... Arguments for the format string.
  */
-#ifdef RCUTILS_AVOID_DYNAMIC_ALLOCATION
-  #define RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(format_string, ...)
-#else
 #define RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(format_string, ...) \
   do { \
     char output_msg[RCUTILS_ERROR_MESSAGE_MAX_LENGTH]; \
@@ -277,8 +255,6 @@ rcutils_set_error_state(const char * error_string, const char * file, size_t lin
       RCUTILS_SET_ERROR_MSG(output_msg); \
     } \
   } while (0)
-#endif // RCUTILS_AVOID_DYNAMIC_ALLOCATION
-
 
 /// Indicate that the function intends to set an error message and return an error value.
 /**
