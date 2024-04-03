@@ -1,6 +1,12 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.12)
 
 project(rcutils)
+
+option(RCUTILS_NO_THREAD_SUPPORT "Disable thread support." OFF)
+option(RCUTILS_NO_FILESYSTEM "Disable filesystem usage." OFF)
+option(RCUTILS_AVOID_DYNAMIC_ALLOCATION "Disable dynamic allocations." OFF)
+option(RCUTILS_NO_64_ATOMIC "Enable alternative support for 64 bits atomic operations in platforms with no native support." OFF)
+option(RCUTILS_MICROROS "Flag for building micro-ROS." ON)
 
 # Default to C11
 if(NOT CMAKE_C_STANDARD)
@@ -16,21 +22,6 @@ include(CheckLibraryExists)
 find_package(ament_cmake_python REQUIRED)
 find_package(ament_cmake_ros REQUIRED)
 
-# By default, without the settings below, find_package(Python3) will attempt
-# to find the newest python version it can, and additionally will find the
-# most specific version.  For instance, on a system that has
-# /usr/bin/python3.10, /usr/bin/python3.11, and /usr/bin/python3, it will find
-# /usr/bin/python3.11, even if /usr/bin/python3 points to /usr/bin/python3.10.
-# The behavior we want is to prefer the "system" installed version unless the
-# user specifically tells us othewise through the Python3_EXECUTABLE hint.
-# Setting CMP0094 to NEW means that the search will stop after the first
-# python version is found.  Setting Python3_FIND_UNVERSIONED_NAMES means that
-# the search will prefer /usr/bin/python3 over /usr/bin/python3.11.  And that
-# latter functionality is only available in CMake 3.20 or later, so we need
-# at least that version.
-cmake_policy(SET CMP0094 NEW)
-set(Python3_FIND_UNVERSIONED_NAMES FIRST)
-
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
 ament_python_install_package(${PROJECT_NAME})
@@ -45,7 +36,7 @@ if(UNIX AND NOT APPLE)
   endif()
 endif()
 
-if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+if(NOT RCUTILS_MICROROS AND (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
   # enables building a static library but later link it into a dynamic library
   add_compile_options(-fPIC)
 endif()
@@ -91,6 +82,7 @@ set(rcutils_sources
   src/time.c
   ${time_impl_c}
   src/uint8_array.c
+  $<$<BOOL:${RCUTILS_NO_64_ATOMIC}>:src/atomic_64bits.c>
 )
 set_source_files_properties(
   ${rcutils_sources}
@@ -145,8 +137,14 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE "RCUTILS_BUILDING_DLL")
 if(BUILD_TESTING AND NOT RCUTILS_DISABLE_FAULT_INJECTION)
   target_compile_definitions(${PROJECT_NAME} PUBLIC RCUTILS_ENABLE_FAULT_INJECTION)
 endif()
+configure_file(
+    "${PROJECT_SOURCE_DIR}/include/rcutils/configuration_flags.h.in"
+    "${PROJECT_BINARY_DIR}/include/rcutils/configuration_flags.h"
+)
 
-target_link_libraries(${PROJECT_NAME} ${CMAKE_DL_LIBS})
+if(NOT RCUTILS_NO_FILESYSTEM)
+  target_link_libraries(${PROJECT_NAME} ${CMAKE_DL_LIBS})
+endif()
 
 # Needed if pthread is used for thread local storage.
 if(IOS AND IOS_SDK_VERSION LESS 10.0)

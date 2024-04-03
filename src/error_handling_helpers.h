@@ -108,6 +108,7 @@ static
 void
 __rcutils_convert_uint64_t_into_c_str(uint64_t number, char * buffer, size_t buffer_size)
 {
+#if !defined(RCUTILS_AVOID_DYNAMIC_ALLOCATION)
   assert(buffer != NULL);
   assert(buffer_size >= 21);
   (void)buffer_size;  // prevent warning in release builds where there is no assert(...)
@@ -131,6 +132,7 @@ __rcutils_convert_uint64_t_into_c_str(uint64_t number, char * buffer, size_t buf
 
   // reverse the string in place
   __rcutils_reverse_str(buffer, strnlen(buffer, 21));
+#endif
 }
 
 // do not use externally, internal function which is only to be used by error_handling.c
@@ -140,6 +142,7 @@ __rcutils_format_error_string(
   rcutils_error_string_t * error_string,
   const rcutils_error_state_t * error_state)
 {
+#if !defined(RCUTILS_AVOID_DYNAMIC_ALLOCATION)
   assert(error_string != NULL);
   assert(error_state != NULL);
   static const char format_1[] = ", at ";
@@ -173,6 +176,7 @@ __rcutils_format_error_string(
   written = __rcutils_copy_string(offset, bytes_left, line_number_buffer);
   offset += written;
   offset[0] = '\0';
+#endif
 }
 
 #ifdef __cplusplus
