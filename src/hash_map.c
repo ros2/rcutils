@@ -402,6 +402,8 @@ rcutils_hash_map_set(rcutils_hash_map_t * hash_map, const void * key, const void
   } else {
     // We need to create a new entry in the map
     rcutils_allocator_t * allocator = &hash_map->impl->allocator;
+    RCUTILS_CHECK_ALLOCATOR_WITH_MSG(
+      allocator, "allocator is invalid", return RCUTILS_RET_INVALID_ARGUMENT);
 
     // Start by trying to allocate the memory we need for the new entry
     entry = allocator->allocate(sizeof(rcutils_hash_map_entry_t), allocator->state);

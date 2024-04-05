@@ -49,6 +49,7 @@ rcutils_repl_str(
   const char * to,
   const rcutils_allocator_t * allocator)
 {
+  RCUTILS_CHECK_ALLOCATOR(allocator, return NULL);
   /* Adjust each of the below values to suit your needs. */
 
   /* Increment positions cache size initially by this number. */
