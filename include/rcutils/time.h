@@ -36,7 +36,10 @@ extern "C"
 #define RCUTILS_US_TO_NS(microseconds) ((microseconds) * 1000LL)
 
 /// Convenience macro to convert nanoseconds to seconds.
-#define RCUTILS_NS_TO_S(nanoseconds) ((nanoseconds) / (1000LL * 1000LL * 1000LL))
+#define RCUTILS_NS_TO_S(nanoseconds) \
+((1e-9 * (double)((int32_t)(nanoseconds % 1000000000l))) + \
+((double)((int32_t)((nanoseconds - ((int32_t)(nanoseconds % 1000000000l))) / 1000000000l))))
+
 /// Convenience macro to convert nanoseconds to milliseconds.
 #define RCUTILS_NS_TO_MS(nanoseconds) ((nanoseconds) / (1000LL * 1000LL))
 /// Convenience macro to convert nanoseconds to microseconds.
