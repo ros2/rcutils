@@ -2,6 +2,16 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+6.7.0 (2024-04-16)
+------------------
+* validate the allocator before use. (`#455 <https://github.com/ros2/rcutils/issues/455>`_)
+  * validate the allocator before use.
+  * address review comments.
+  - validate allocator only if the function specifically uses.
+  - argument null check comes before validation of value.
+  ---------
+* Contributors: Tomoya Fujita
+
 6.6.0 (2024-03-28)
 ------------------
 * feat: Add human readable date to logging formats (`#441 <https://github.com/ros2/rcutils/issues/441>`_)
