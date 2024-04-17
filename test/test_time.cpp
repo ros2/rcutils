@@ -91,9 +91,12 @@ TEST_F(TestTimeFixture, test_rcutils_time_conversion_macros) {
     9007199254740992.);  // value is truncated!
 
   // nanoseconds to seconds
-  EXPECT_EQ(RCUTILS_NS_TO_S(1000000000ll), 1ll);  // int64_t
-  EXPECT_EQ(RCUTILS_NS_TO_S(1000000042ll), 1ll);  // int64_t (truncated)
-  EXPECT_EQ(RCUTILS_NS_TO_S(-1999999999ll), -1ll);  // int64_t (truncated)
+  EXPECT_EQ(RCUTILS_NS_TO_S(1000000000ll), 1.0);  // int64_t
+  EXPECT_EQ(RCUTILS_NS_TO_S(1000000042ll), 1.000000042);  // int64_t
+  EXPECT_EQ(RCUTILS_NS_TO_S(-1999999999ll), -1.999999999);  // int64_t
+  EXPECT_EQ(RCUTILS_NS_TO_S(1 + 1), 0.000000002);  // sum of two int64_ts
+  EXPECT_EQ(RCUTILS_NS_TO_S(9007199254740992ll),
+    9007199.254740992);  // maximum precision int64_t
 
   // nanoseconds to milliseconds
   EXPECT_EQ(RCUTILS_NS_TO_MS(1000000ll), 1ll);  // int64_t
