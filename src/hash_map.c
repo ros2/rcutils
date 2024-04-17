@@ -75,7 +75,7 @@ int rcutils_hash_map_string_cmp_func(const void * val1, const void * val2)
 }
 
 rcutils_hash_map_t
-rcutils_get_zero_initialized_hash_map()
+rcutils_get_zero_initialized_hash_map(void)
 {
   static rcutils_hash_map_t zero_initialized_hash_map = {NULL};
   return zero_initialized_hash_map;

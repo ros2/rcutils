@@ -42,8 +42,10 @@
   } while (0)
 
 int
-main()
+main(int argc, char * argv[])
 {
+  (void)argc;
+  (void)argv;
   TEST_ATOMIC_TYPE(_Bool, atomic_bool);
   TEST_ATOMIC_TYPE(char, atomic_char);
   TEST_ATOMIC_TYPE(signed char, atomic_schar);
