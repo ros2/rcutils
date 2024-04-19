@@ -2,6 +2,11 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix if(TARGET ...) condition for test (`#449 <https://github.com/ros2/rcutils/issues/449>`_)
+* Contributors: Christophe Bedard
+
 6.2.2 (2023-11-17)
 ------------------
 * memmove for overlaping memory (`#436 <https://github.com/ros2/rcutils/issues/436>`_)
