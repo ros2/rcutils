@@ -2,8 +2,8 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+6.2.3 (2024-04-19)
+------------------
 * Fix if(TARGET ...) condition for test (`#449 <https://github.com/ros2/rcutils/issues/449>`_)
 * Contributors: Christophe Bedard
 
