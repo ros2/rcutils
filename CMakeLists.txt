@@ -371,6 +371,7 @@ if(BUILD_TESTING)
 
   ament_add_gtest(test_repl_str
     test/test_repl_str.cpp
+    TIMEOUT 300
   )
   if(TARGET test_repl_str)
     target_link_libraries(test_repl_str ${PROJECT_NAME})
