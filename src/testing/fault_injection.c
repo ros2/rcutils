@@ -23,14 +23,14 @@ void rcutils_fault_injection_set_count(int_least64_t count)
   rcutils_atomic_store(&g_rcutils_fault_injection_count, count);
 }
 
-int_least64_t rcutils_fault_injection_get_count()
+int_least64_t rcutils_fault_injection_get_count(void)
 {
   int_least64_t count = 0;
   rcutils_atomic_load(&g_rcutils_fault_injection_count, count);
   return count;
 }
 
-bool rcutils_fault_injection_is_test_complete()
+bool rcutils_fault_injection_is_test_complete(void)
 {
 #ifndef RCUTILS_ENABLE_FAULT_INJECTION
   return true;
@@ -39,7 +39,7 @@ bool rcutils_fault_injection_is_test_complete()
 #endif  // RCUTILS_ENABLE_FAULT_INJECTION
 }
 
-int_least64_t _rcutils_fault_injection_maybe_fail()
+int_least64_t _rcutils_fault_injection_maybe_fail(void)
 {
   bool set_atomic_success = false;
   int_least64_t current_count = rcutils_fault_injection_get_count();

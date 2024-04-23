@@ -76,7 +76,7 @@ rcutils_get_zero_initialized_allocator(void)
 }
 
 rcutils_allocator_t
-rcutils_get_default_allocator()
+rcutils_get_default_allocator(void)
 {
   static rcutils_allocator_t default_allocator = {
     .allocate = __default_allocate,
