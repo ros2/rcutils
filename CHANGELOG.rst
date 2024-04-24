@@ -2,8 +2,8 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+6.7.1 (2024-04-24)
+------------------
 * Removed warnings - strict-prototypes (`#461 <https://github.com/ros2/rcutils/issues/461>`_) (`#465 <https://github.com/ros2/rcutils/issues/465>`_)
 * Increase timeout repl_str test (`#463 <https://github.com/ros2/rcutils/issues/463>`_) (`#464 <https://github.com/ros2/rcutils/issues/464>`_)
 * Contributors: mergify[bot]
