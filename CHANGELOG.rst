@@ -2,6 +2,12 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Removed warnings - strict-prototypes (`#461 <https://github.com/ros2/rcutils/issues/461>`_)
+* Increase timeout repl_str test (`#463 <https://github.com/ros2/rcutils/issues/463>`_)
+* Contributors: Alejandro Hernández Cordero
+
 6.7.0 (2024-04-16)
 ------------------
 * validate the allocator before use. (`#455 <https://github.com/ros2/rcutils/issues/455>`_)
