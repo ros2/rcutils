@@ -311,6 +311,7 @@ if(BUILD_TESTING)
   ament_add_gtest(test_strerror
     test/test_strerror.cpp
   )
+  ament_add_test_label(test_strerror mimick)
   if(TARGET test_strerror)
     target_link_libraries(test_strerror ${PROJECT_NAME} mimick)
   endif()
@@ -336,6 +337,7 @@ if(BUILD_TESTING)
     test/test_filesystem.cpp
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
   )
+  ament_add_test_label(test_filesystem mimick)
   if(TARGET test_filesystem)
     target_link_libraries(test_filesystem ${PROJECT_NAME} mimick osrf_testing_tools_cpp::memory_tools)
     target_compile_definitions(test_filesystem PRIVATE BUILD_DIR="${CMAKE_CURRENT_BINARY_DIR}")
@@ -460,6 +462,7 @@ if(BUILD_TESTING)
   ament_add_gtest(test_time
     test/test_time.cpp
     ENV ${memory_tools_test_env_vars})
+  ament_add_test_label(test_time mimick)
   if(TARGET test_time)
     target_link_libraries(test_time ${PROJECT_NAME} mimick osrf_testing_tools_cpp::memory_tools)
   endif()
@@ -522,6 +525,7 @@ if(BUILD_TESTING)
       RCUTILS_LOGGING_USE_STDOUT=1
       RCUTILS_COLORIZED_OUTPUT=1
   )
+  ament_add_test_label(test_logging_custom_env mimick)
   if(TARGET test_logging_custom_env)
     target_link_libraries(test_logging_custom_env ${PROJECT_NAME} osrf_testing_tools_cpp::memory_tools mimick)
   endif()
@@ -539,6 +543,7 @@ if(BUILD_TESTING)
       RCUTILS_LOGGING_USE_STDOUT=0
       RCUTILS_COLORIZED_OUTPUT=0
   )
+  ament_add_test_label(test_logging_custom_env2 mimick)
   if(TARGET test_logging_custom_env2)
     target_link_libraries(test_logging_custom_env2 ${PROJECT_NAME} osrf_testing_tools_cpp::memory_tools mimick)
   endif()
