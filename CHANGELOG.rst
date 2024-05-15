@@ -2,6 +2,11 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+5.1.6 (2024-05-15)
+------------------
+* update cast to modern style (`#418 <https://github.com/ros2/rcutils/issues/418>`_) (`#462 <https://github.com/ros2/rcutils/issues/462>`_)
+* Contributors: mergify[bot]
+
 5.1.5 (2024-02-16)
 ------------------
 * Fix if(TARGET ...) condition for test (`#447 <https://github.com/ros2/rcutils/issues/447>`_) (`#448 <https://github.com/ros2/rcutils/issues/448>`_)
