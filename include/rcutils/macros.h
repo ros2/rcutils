@@ -22,11 +22,11 @@ extern "C"
 {
 #endif
 
-#ifndef _WIN32
+#ifndef _MSC_VER
 /// A macro to make the compiler warn when the return value of a function is not used.
 #define RCUTILS_WARN_UNUSED __attribute__((warn_unused_result))
 #else
-/// A macro to make the compiler warn when the return value of a function is not used.
+/// A macro to make the compiler (MSVC) warn when the return value of a function is not used.
 #define RCUTILS_WARN_UNUSED _Check_return_
 #endif
 
