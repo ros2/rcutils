@@ -486,7 +486,6 @@ rcutils_dir_iter_next(rcutils_dir_iter_t * iter)
     iter->entry_name = iter->state->data.cFileName;
     return true;
   }
-  FindClose(iter->state->handle);
 #else
   struct dirent * entry = readdir(iter->state->dir);
   if (NULL != entry) {
