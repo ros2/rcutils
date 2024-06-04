@@ -12,10 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
 #include "rcutils/filesystem.h"
 
 #include <errno.h>
@@ -537,7 +533,3 @@ rcutils_get_file_size(const char * file_path)
   int rc = stat(file_path, &stat_buffer);
   return rc == 0 ? (size_t)(stat_buffer.st_size) : 0;
 }
-
-#ifdef __cplusplus
-}
-#endif
