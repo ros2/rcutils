@@ -33,7 +33,7 @@ TEST(TestProcess, test_get_executable_name) {
   EXPECT_STREQ(NULL, rcutils_get_executable_name(time_bomb_allocator));
 
   // Allocating intermediate fails. This allocation doesn't happen on windows
-#if defined __APPLE__ || defined __FreeBSD__ || defined __GNUC__
+#if defined __APPLE__ || defined __FreeBSD__ || (defined __GNUC__ && !defined(__MINGW64__))
   set_time_bomb_allocator_malloc_count(time_bomb_allocator, 1);
   EXPECT_STREQ(NULL, rcutils_get_executable_name(time_bomb_allocator));
 #endif
