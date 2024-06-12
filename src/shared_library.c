@@ -319,6 +319,19 @@ rcutils_get_platform_library_name(
     }
   }
 #elif _WIN32
+#ifdef __MINGW64__
+  if (debug) {
+    if (buffer_size >= (strlen(library_name) + 9)) {
+      written = rcutils_snprintf(
+        library_name_platform, strlen(library_name) + 9, "lib%sd.dll", library_name);
+    }
+  } else {
+    if (buffer_size >= (strlen(library_name) + 8)) {
+      written = rcutils_snprintf(
+        library_name_platform, strlen(library_name) + 8, "lib%s.dll", library_name);
+    }
+  }
+#else
   if (debug) {
     if (buffer_size >= (strlen(library_name) + 6)) {
       written = rcutils_snprintf(
@@ -330,6 +343,7 @@ rcutils_get_platform_library_name(
         library_name_platform, strlen(library_name) + 5, "%s.dll", library_name);
     }
   }
+#endif // __MINGW64__
 #endif
   if (written <= 0) {
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
