@@ -24,6 +24,18 @@
 #include "rcutils/logging.h"
 #include "rcutils/strdup.h"
 
+TEST(TestLogging, test_logging_allocator_initialization) {
+  rcutils_allocator_t allocator = rcutils_get_default_allocator();
+  rcutils_allocator_t invalid_allocator = rcutils_get_zero_initialized_allocator();
+
+  ASSERT_EQ(RCUTILS_RET_INVALID_ARGUMENT, rcutils_logging_allocator_initialize(NULL));
+  ASSERT_EQ(RCUTILS_RET_INVALID_ARGUMENT, rcutils_logging_allocator_initialize(&invalid_allocator));
+
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_allocator_initialize(&allocator));
+  // 2nd time will also succeed.
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_allocator_initialize(&allocator));
+}
+
 TEST(TestLogging, test_logging_initialization) {
   EXPECT_FALSE(g_rcutils_logging_initialized);
   ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_initialize());
