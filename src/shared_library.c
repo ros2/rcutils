@@ -343,7 +343,7 @@ rcutils_get_platform_library_name(
         library_name_platform, strlen(library_name) + 5, "%s.dll", library_name);
     }
   }
-#endif // __MINGW64__
+#endif  // __MINGW64__
 #endif
   if (written <= 0) {
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
