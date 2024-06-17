@@ -2,6 +2,14 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* load dll built by MINGW with lib prefix (`#470 <https://github.com/ros2/rcutils/issues/470>`_)
+* add mingw support (`#468 <https://github.com/ros2/rcutils/issues/468>`_)
+* Fix filesystem iteration on Windows (`#469 <https://github.com/ros2/rcutils/issues/469>`_)
+* Add 'mimick' label to tests which use Mimick (`#466 <https://github.com/ros2/rcutils/issues/466>`_)
+* Contributors: Chris Lalancette, Felix F Xu, Scott K Logan
+
 6.8.0 (2024-04-26)
 ------------------
 * Removed warnings - strict-prototypes (`#461 <https://github.com/ros2/rcutils/issues/461>`_)
