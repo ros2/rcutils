@@ -2,8 +2,8 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+6.9.0 (2024-06-17)
+------------------
 * load dll built by MINGW with lib prefix (`#470 <https://github.com/ros2/rcutils/issues/470>`_)
 * add mingw support (`#468 <https://github.com/ros2/rcutils/issues/468>`_)
 * Fix filesystem iteration on Windows (`#469 <https://github.com/ros2/rcutils/issues/469>`_)
