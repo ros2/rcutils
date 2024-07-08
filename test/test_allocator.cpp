@@ -21,13 +21,6 @@
 #include "osrf_testing_tools_cpp/memory_tools/memory_tools.hpp"
 #include "osrf_testing_tools_cpp/scope_exit.hpp"
 
-#ifdef RMW_IMPLEMENTATION
-# define CLASSNAME_(NAME, SUFFIX) NAME ## __ ## SUFFIX
-# define CLASSNAME(NAME, SUFFIX) CLASSNAME_(NAME, SUFFIX)
-#else
-# define CLASSNAME(NAME, SUFFIX) NAME
-#endif
-
 using osrf_testing_tools_cpp::memory_tools::disable_monitoring_in_all_threads;
 using osrf_testing_tools_cpp::memory_tools::enable_monitoring_in_all_threads;
 using osrf_testing_tools_cpp::memory_tools::on_unexpected_calloc;
@@ -35,10 +28,10 @@ using osrf_testing_tools_cpp::memory_tools::on_unexpected_free;
 using osrf_testing_tools_cpp::memory_tools::on_unexpected_malloc;
 using osrf_testing_tools_cpp::memory_tools::on_unexpected_realloc;
 
-class CLASSNAME (TestAllocatorFixture, RMW_IMPLEMENTATION) : public ::testing::Test
+class TestAllocatorFixture : public ::testing::Test
 {
 public:
-  CLASSNAME(TestAllocatorFixture, RMW_IMPLEMENTATION)() {}
+  TestAllocatorFixture() {}
 
   void SetUp()
   {
@@ -55,7 +48,8 @@ public:
 
 /* Tests the default allocator.
  */
-TEST_F(CLASSNAME(TestAllocatorFixture, RMW_IMPLEMENTATION), test_default_allocator_normal) {
+TEST_F(TestAllocatorFixture, test_default_allocator_normal)
+{
   size_t mallocs = 0;
   size_t reallocs = 0;
   size_t callocs = 0;
