@@ -36,10 +36,7 @@ extern "C"
 #define RCUTILS_US_TO_NS(microseconds) ((microseconds) * 1000LL)
 
 /// Convenience macro to convert nanoseconds to seconds.
-#define RCUTILS_NS_TO_S(nanoseconds) \
-  ((1e-9 * (double)((int32_t)(nanoseconds % 1000000000l))) + \
-  ((double)((int32_t)((nanoseconds - ((int32_t)(nanoseconds % 1000000000l))) / 1000000000l))))
-
+#define RCUTILS_NS_TO_S(nanoseconds) ((nanoseconds) / (1000LL * 1000LL * 1000LL))
 /// Convenience macro to convert nanoseconds to milliseconds.
 #define RCUTILS_NS_TO_MS(nanoseconds) ((nanoseconds) / (1000LL * 1000LL))
 /// Convenience macro to convert nanoseconds to microseconds.
@@ -51,6 +48,69 @@ extern "C"
 typedef int64_t rcutils_time_point_value_t;
 /// A duration of time, measured in nanoseconds.
 typedef int64_t rcutils_duration_value_t;
+
+/**
+ * This function returns an accurate conversion from nanoseconds to seconds.
+ *
+ * The nanoseconds argument has to be an int64_t to ensure exact division
+ *
+ * <hr>
+ * Attribute          | Adherence
+ * ------------------ | -------------
+ * Allocates Memory   | No
+ * Thread-Safe        | Yes
+ * Uses Atomics       | No
+ * Lock-Free          | Yes
+ *
+ * \param[in] nanoseconds The int64_t needed for conversion
+ * \return double That nanoseconds number as seconds.
+ */
+RCUTILS_PUBLIC
+RCUTILS_WARN_UNUSED
+double
+rcutils_nanoseconds_to_seconds(const int64_t nanoseconds);
+
+/**
+ * This function returns an accurate conversion from nanoseconds to milliseconds.
+ *
+ * The nanoseconds argument has to be an int64_t to ensure exact division
+ *
+ * <hr>
+ * Attribute          | Adherence
+ * ------------------ | -------------
+ * Allocates Memory   | No
+ * Thread-Safe        | Yes
+ * Uses Atomics       | No
+ * Lock-Free          | Yes
+ *
+ * \param[in] nanoseconds The int64_t needed for conversion
+ * \return double That nanoseconds number as milliseconds.
+ */
+RCUTILS_PUBLIC
+RCUTILS_WARN_UNUSED
+double
+rcutils_nanoseconds_to_milliseconds(const int64_t nanoseconds);
+
+/**
+ * This function returns an accurate conversion from nanoseconds to microseconds.
+ *
+ * The nanoseconds argument has to be an int64_t to ensure exact division
+ *
+ * <hr>
+ * Attribute          | Adherence
+ * ------------------ | -------------
+ * Allocates Memory   | No
+ * Thread-Safe        | Yes
+ * Uses Atomics       | No
+ * Lock-Free          | Yes
+ *
+ * \param[in] nanoseconds The int64_t needed for conversion
+ * \return double That nanoseconds number as microseconds.
+ */
+RCUTILS_PUBLIC
+RCUTILS_WARN_UNUSED
+double
+rcutils_nanoseconds_to_microseconds(const int64_t nanoseconds);
 
 /**
  * This function returns the time from a system clock.

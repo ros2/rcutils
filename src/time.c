@@ -28,6 +28,48 @@ extern "C"
 #include "rcutils/error_handling.h"
 #include "rcutils/snprintf.h"
 
+double
+rcutils_nanoseconds_to_seconds(const int64_t nanoseconds)
+{
+  // scale the nanoseconds separately for improved accuracy
+  int64_t sec, nsec;
+  nsec = (nanoseconds % 1000000000l);
+  sec = ((nanoseconds - nsec) / 1000000000l);
+
+  double sec_double, nsec_double;
+  nsec_double = 1e-9 * (double)(nsec);
+  sec_double = (double)(sec);
+  return sec_double + nsec_double;
+}
+
+double
+rcutils_nanoseconds_to_milliseconds(const int64_t nanoseconds)
+{
+  // scale the nanoseconds separately for improved accuracy
+  int64_t sec, nsec;
+  nsec = (nanoseconds % 1000000l);
+  sec = ((nanoseconds - nsec) / 1000000l);
+
+  double sec_double, nsec_double;
+  nsec_double = 1e-6 * (double)(nsec);
+  sec_double = (double)(sec);
+  return sec_double + nsec_double;
+}
+
+double
+rcutils_nanoseconds_to_microseconds(const int64_t nanoseconds)
+{
+  // scale the nanoseconds separately for improved accuracy
+  int64_t sec, nsec;
+  nsec = (nanoseconds % 1000l);
+  sec = ((nanoseconds - nsec) / 1000l);
+
+  double sec_double, nsec_double;
+  nsec_double = 1e-3 * (double)(nsec);
+  sec_double = (double)(sec);
+  return sec_double + nsec_double;
+}
+
 rcutils_ret_t
 rcutils_time_point_value_as_nanoseconds_string(
   const rcutils_time_point_value_t * time_point,
