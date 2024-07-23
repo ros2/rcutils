@@ -33,8 +33,8 @@ rcutils_nanoseconds_to_seconds(const int64_t nanoseconds)
 {
   // scale the nanoseconds separately for improved accuracy
   int64_t sec, nsec;
-  nsec = (nanoseconds % 1000000000l);
-  sec = ((nanoseconds - nsec) / 1000000000l);
+  nsec = (nanoseconds % RCUTILS_NANOSECONDS_PER_SEC);
+  sec = ((nanoseconds - nsec) / RCUTILS_NANOSECONDS_PER_SEC);
 
   double sec_double, nsec_double;
   nsec_double = 1e-9 * (double)(nsec);
@@ -47,8 +47,8 @@ rcutils_nanoseconds_to_milliseconds(const int64_t nanoseconds)
 {
   // scale the nanoseconds separately for improved accuracy
   int64_t sec, nsec;
-  nsec = (nanoseconds % 1000000l);
-  sec = ((nanoseconds - nsec) / 1000000l);
+  nsec = (nanoseconds % RCUTILS_NANOSECONDS_PER_MILLISEC);
+  sec = ((nanoseconds - nsec) / RCUTILS_NANOSECONDS_PER_MILLISEC);
 
   double sec_double, nsec_double;
   nsec_double = 1e-6 * (double)(nsec);
@@ -61,8 +61,8 @@ rcutils_nanoseconds_to_microseconds(const int64_t nanoseconds)
 {
   // scale the nanoseconds separately for improved accuracy
   int64_t sec, nsec;
-  nsec = (nanoseconds % 1000l);
-  sec = ((nanoseconds - nsec) / 1000l);
+  nsec = (nanoseconds % RCUTILS_NANOSECONDS_PER_MICROSEC);
+  sec = ((nanoseconds - nsec) / RCUTILS_NANOSECONDS_PER_MICROSEC);
 
   double sec_double, nsec_double;
   nsec_double = 1e-3 * (double)(nsec);
