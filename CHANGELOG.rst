@@ -2,6 +2,11 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Remove completely unnecessary use of CLASSNAME. (`#471 <https://github.com/ros2/rcutils/issues/471>`_)
+* Contributors: Chris Lalancette
+
 6.9.0 (2024-06-17)
 ------------------
 * load dll built by MINGW with lib prefix (`#470 <https://github.com/ros2/rcutils/issues/470>`_)
