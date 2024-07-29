@@ -2,8 +2,8 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+6.9.1 (2024-07-29)
+------------------
 * Remove completely unnecessary use of CLASSNAME. (`#471 <https://github.com/ros2/rcutils/issues/471>`_)
 * Contributors: Chris Lalancette
 
