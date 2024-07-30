@@ -25,7 +25,7 @@ extern "C"
 #include "rcutils/error_handling.h"
 
 bool
-rcutils_set_env(const char * env_name, const char * env_value)
+rcutils_set_env_overwrite(const char * env_name, const char * env_value, bool overwrite)
 {
   RCUTILS_CAN_RETURN_WITH_ERROR_OF(false);
 
@@ -47,7 +47,7 @@ rcutils_set_env(const char * env_name, const char * env_value)
       return false;
     }
   } else {
-    if (0 != setenv(env_name, env_value, 1)) {
+    if (0 != setenv(env_name, env_value, (int) overwrite)) {
       RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("setenv failed: %d", errno);
       return false;
     }
@@ -55,6 +55,12 @@ rcutils_set_env(const char * env_name, const char * env_value)
 #endif
 
   return true;
+}
+
+bool
+rcutils_set_env(const char * env_name, const char * env_value)
+{
+  return rcutils_set_env_overwrite(env_name, env_value, true);
 }
 
 #ifdef _WIN32

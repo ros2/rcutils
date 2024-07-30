@@ -55,6 +55,24 @@ RCUTILS_WARN_UNUSED
 bool
 rcutils_set_env(const char * env_name, const char * env_value);
 
+/// Set or un-set a process-scoped environment variable while specifying overwrite behavior.
+/**
+ * Documentation inherited from rcutils_set_env.
+ *
+ * \param[in] env_name Name of the environment variable to modify.
+ * \param[in] env_value Value to set the environment variable to, or `NULL` to
+ *   un-set.
+ * \param[in] overwrite If true, the environemnt variable value will not be overwritten
+ *   by env_value if it has been previously set.
+ * \return `true` if success, or
+ * \return `false` if env_name is invalid or NULL, or
+ * \return `false` on failure.
+ */
+RCUTILS_PUBLIC
+RCUTILS_WARN_UNUSED
+bool
+rcutils_set_env_overwrite(const char * env_name, const char * env_value, bool overwrite);
+
 /// Retrieve the value of the given environment variable if it exists, or "".
 /** The c-string which is returned in the env_value output parameter is only
  * valid until the next time this function is called, because it is a direct
