@@ -25,9 +25,15 @@ rcutils_get_zero_initialized_char_array(void)
     .buffer = NULL,
     .owns_buffer = true,
     .buffer_length = 0u,
-    .buffer_capacity = 0u
+    .buffer_capacity = 0u,
+    .allocator = {
+      .allocate = NULL,
+      .deallocate = NULL,
+      .reallocate = NULL,
+      .zero_allocate = NULL,
+      .state = NULL
+    }
   };
-  char_array.allocator = rcutils_get_zero_initialized_allocator();
   return char_array;
 }
 

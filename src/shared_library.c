@@ -56,10 +56,18 @@ C_ASSERT(sizeof(char) == sizeof(TCHAR));
 rcutils_shared_library_t
 rcutils_get_zero_initialized_shared_library(void)
 {
-  rcutils_shared_library_t zero_initialized_shared_library;
-  zero_initialized_shared_library.library_path = NULL;
-  zero_initialized_shared_library.lib_pointer = NULL;
-  zero_initialized_shared_library.allocator = rcutils_get_zero_initialized_allocator();
+  static rcutils_shared_library_t zero_initialized_shared_library = {
+    .library_path = NULL,
+    .lib_pointer = NULL,
+    .allocator = {
+      .allocate = NULL,
+      .deallocate = NULL,
+      .reallocate = NULL,
+      .zero_allocate = NULL,
+      .state = NULL
+    }
+  };
+
   return zero_initialized_shared_library;
 }
 
