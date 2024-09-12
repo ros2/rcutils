@@ -18,18 +18,7 @@
 rcutils_uint8_array_t
 rcutils_get_zero_initialized_uint8_array(void)
 {
-  static rcutils_uint8_array_t uint8_array = {
-    .buffer = NULL,
-    .buffer_length = 0lu,
-    .buffer_capacity = 0lu,
-    .allocator = {
-      .allocate = NULL,
-      .deallocate = NULL,
-      .reallocate = NULL,
-      .zero_allocate = NULL,
-      .state = NULL
-    }
-  };
+  static rcutils_uint8_array_t uint8_array = {0};
   return uint8_array;
 }
 

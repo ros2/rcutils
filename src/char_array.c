@@ -21,19 +21,7 @@
 rcutils_char_array_t
 rcutils_get_zero_initialized_char_array(void)
 {
-  static rcutils_char_array_t char_array = {
-    .buffer = NULL,
-    .owns_buffer = true,
-    .buffer_length = 0u,
-    .buffer_capacity = 0u,
-    .allocator = {
-      .allocate = NULL,
-      .deallocate = NULL,
-      .reallocate = NULL,
-      .zero_allocate = NULL,
-      .state = NULL
-    }
-  };
+  static rcutils_char_array_t char_array = {0};
   return char_array;
 }
 

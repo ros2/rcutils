@@ -28,17 +28,7 @@ extern "C"
 rcutils_string_array_t
 rcutils_get_zero_initialized_string_array(void)
 {
-  static rcutils_string_array_t array = {
-    .size = 0,
-    .data = NULL,
-    .allocator = {
-      .allocate = NULL,
-      .deallocate = NULL,
-      .reallocate = NULL,
-      .zero_allocate = NULL,
-      .state = NULL
-    }
-  };
+  static rcutils_string_array_t array = {0};
   return array;
 }
 
