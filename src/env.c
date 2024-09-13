@@ -27,32 +27,39 @@ extern "C"
 bool
 rcutils_set_env(const char * env_name, const char * env_value)
 {
+  return rcutils_set_env_overwrite(env_name, env_value, true);
+}
+
+bool
+rcutils_set_env_overwrite(const char * env_name, const char * env_value, bool overwrite)
+{
   RCUTILS_CAN_RETURN_WITH_ERROR_OF(false);
 
   RCUTILS_CHECK_FOR_NULL_WITH_MSG(
     env_name, "env_name is null", return false);
 
+  if ((int)overwrite == 0 && getenv(env_name) != NULL) {
+    return true;
+  }
+
+  int set_ret;
 #ifdef _WIN32
   if (NULL == env_value) {
     env_value = "";
   }
-  if (0 != _putenv_s(env_name, env_value)) {
-    RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("_putenv_s failed: %d", errno);
-    return false;
-  }
+  set_ret = _putenv_s(env_name, env_value);
 #else
   if (NULL == env_value) {
-    if (0 != unsetenv(env_name)) {
-      RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("unsetenv failed: %d", errno);
-      return false;
-    }
+    set_ret = unsetenv(env_name);
   } else {
-    if (0 != setenv(env_name, env_value, 1)) {
-      RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("setenv failed: %d", errno);
-      return false;
-    }
+    set_ret = setenv(env_name, env_value, (int) overwrite);
   }
 #endif
+
+  if (set_ret != 0) {
+    RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("setting environment variable failed: %d", errno);
+    return false;
+  }
 
   return true;
 }
