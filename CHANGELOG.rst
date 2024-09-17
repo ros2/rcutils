@@ -2,6 +2,13 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+6.7.2 (2024-09-17)
+------------------
+* Add new API to set envar while specifying overwrite (`#473 <https://github.com/ros2/rcutils/issues/473>`_) (`#480 <https://github.com/ros2/rcutils/issues/480>`_)
+  (cherry picked from commit ea3675f63b0ce95dc81dc4a4aa3e263a75615c22)
+  Co-authored-by: Yadu <yadunund@intrinsic.ai>
+* Contributors: mergify[bot]
+
 6.7.1 (2024-04-24)
 ------------------
 * Removed warnings - strict-prototypes (`#461 <https://github.com/ros2/rcutils/issues/461>`_) (`#465 <https://github.com/ros2/rcutils/issues/465>`_)
