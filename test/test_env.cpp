@@ -84,6 +84,32 @@ TEST(TestEnv, test_get_env) {
   EXPECT_STREQ("", env);
 }
 
+/* Tests rcutils_get_env.
+ *
+ * Expected environment variables must be set by the calling code:
+ *
+ *   - EMPTY_TEST=
+ *   - NORMAL_TEST=foo
+ *
+ * These are set in the call to `ament_add_gtest()` in the `CMakeLists.txt`.
+ */
+TEST(TestEnv, test_set_env_overwrite) {
+  const char * env;
+  const char * ret;
+
+  // Do not overwrite environment variable if preset if overwrite is set false.
+  EXPECT_TRUE(rcutils_set_env_overwrite("NORMAL_TEST", "NewEnvValue", false));
+  ret = rcutils_get_env("NORMAL_TEST", &env);
+  EXPECT_TRUE(NULL == ret);
+  EXPECT_STREQ("foo", env);
+
+  // Overwrite environment variable if present if overwrite is set true.
+  EXPECT_TRUE(rcutils_set_env_overwrite("NORMAL_TEST", "NewEnvValue", true));
+  ret = rcutils_get_env("NORMAL_TEST", &env);
+  EXPECT_TRUE(NULL == ret);
+  EXPECT_STREQ("NewEnvValue", env);
+}
+
 TEST(TestEnv, test_get_home) {
   EXPECT_STRNE(NULL, rcutils_get_home_dir());
   const char * home = NULL;
