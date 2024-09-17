@@ -46,8 +46,7 @@ typedef struct rcutils_string_map_impl_s
 rcutils_string_map_t
 rcutils_get_zero_initialized_string_map(void)
 {
-  static rcutils_string_map_t zero_initialized_string_map;
-  zero_initialized_string_map.impl = NULL;
+  static rcutils_string_map_t zero_initialized_string_map = {0};
   return zero_initialized_string_map;
 }
 

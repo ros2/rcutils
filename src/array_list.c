@@ -44,7 +44,7 @@ typedef struct rcutils_array_list_impl_s
 rcutils_array_list_t
 rcutils_get_zero_initialized_array_list(void)
 {
-  static rcutils_array_list_t zero_initialized_array_list = {NULL};
+  static rcutils_array_list_t zero_initialized_array_list = {0};
   return zero_initialized_array_list;
 }
 
