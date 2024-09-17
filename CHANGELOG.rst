@@ -2,6 +2,14 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+6.2.4 (2024-09-17)
+------------------
+* Add new API to set envar while specifying overwrite (backport `#473 <https://github.com/ros2/rcutils/issues/473>`_) (`#481 <https://github.com/ros2/rcutils/issues/481>`_)
+  (cherry picked from commit ea3675f63b0ce95dc81dc4a4aa3e263a75615c22)
+  Co-authored-by: Yadu <yadunund@intrinsic.ai>
+  Co-authored-by: Alejandro Hernández Cordero <ahcorde@gmail.com>
+* Contributors: mergify[bot]
+
 6.2.3 (2024-04-19)
 ------------------
 * Fix if(TARGET ...) condition for test (`#449 <https://github.com/ros2/rcutils/issues/449>`_)
