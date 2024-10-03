@@ -2,6 +2,11 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix setting allocator to NULL. (`#478 <https://github.com/ros2/rcutils/issues/478>`_)
+* Contributors: Chris Lalancette
+
 6.9.2 (2024-09-16)
 ------------------
 * Add new API to set envar while specifying overwrite (`#473 <https://github.com/ros2/rcutils/issues/473>`_)
