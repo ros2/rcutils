@@ -2,8 +2,8 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+6.9.3 (2024-10-03)
+------------------
 * Fix setting allocator to NULL. (`#478 <https://github.com/ros2/rcutils/issues/478>`_)
 * Contributors: Chris Lalancette
 
