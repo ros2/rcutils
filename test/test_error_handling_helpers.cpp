@@ -18,6 +18,8 @@
 
 #include "osrf_testing_tools_cpp/memory_tools/gtest_quickstart.hpp"
 
+#include "rcutils/strnlen.h"
+
 #include "../src/error_handling_helpers.h"
 
 TEST(test_error_handling, copy_string) {
@@ -32,7 +34,7 @@ TEST(test_error_handling, copy_string) {
     written = __rcutils_copy_string(buffer, 3, "0123456789");
   });
   EXPECT_EQ(written, 2u);
-  EXPECT_EQ(strnlen(buffer, sizeof(buffer)), 2u);
+  EXPECT_EQ(rcutils_strnlen(buffer, sizeof(buffer)), 2u);
   EXPECT_STREQ(buffer, "01");
 
   // normal truncation, 1 short of buffer length
@@ -41,7 +43,7 @@ TEST(test_error_handling, copy_string) {
     written = __rcutils_copy_string(buffer, 9, "0123456789");
   });
   EXPECT_EQ(written, 8u);
-  EXPECT_EQ(strnlen(buffer, sizeof(buffer)), 8u);
+  EXPECT_EQ(rcutils_strnlen(buffer, sizeof(buffer)), 8u);
   EXPECT_STREQ(buffer, "01234567");
 
   // input smaller than buffer, 1 short of buffer length
@@ -50,7 +52,7 @@ TEST(test_error_handling, copy_string) {
     written = __rcutils_copy_string(buffer, 9, "");
   });
   EXPECT_EQ(written, 0u);
-  EXPECT_EQ(strnlen(buffer, sizeof(buffer)), 0u);
+  EXPECT_EQ(rcutils_strnlen(buffer, sizeof(buffer)), 0u);
   EXPECT_STREQ(buffer, "");
 
   // copy where src and dst overlap (testing use of memmove vs memcpy)
@@ -65,7 +67,7 @@ TEST(test_error_handling, copy_string) {
     written = __rcutils_copy_string(buffer, sizeof(buffer), buffer + 3);
   });
   EXPECT_EQ(written, 6u);
-  EXPECT_EQ(strnlen(buffer, sizeof(buffer)), (sizeof(buffer) - 1) - 3);
+  EXPECT_EQ(rcutils_strnlen(buffer, sizeof(buffer)), (sizeof(buffer) - 1) - 3);
   EXPECT_STREQ(buffer, "456789");
 }
 
@@ -75,7 +77,7 @@ TEST(test_error_handling, reverse_str) {
     char buffer[] = "even";
     EXPECT_NO_MEMORY_OPERATIONS(
     {
-      __rcutils_reverse_str(buffer, strnlen(buffer, sizeof(buffer)));
+      __rcutils_reverse_str(buffer, rcutils_strnlen(buffer, sizeof(buffer)));
     });
     EXPECT_STREQ(buffer, "neve");
   }
@@ -83,7 +85,7 @@ TEST(test_error_handling, reverse_str) {
     char buffer[] = "reverseme";
     EXPECT_NO_MEMORY_OPERATIONS(
     {
-      __rcutils_reverse_str(buffer, strnlen(buffer, sizeof(buffer)));
+      __rcutils_reverse_str(buffer, rcutils_strnlen(buffer, sizeof(buffer)));
     });
     EXPECT_STREQ(buffer, "emesrever");
   }
@@ -91,7 +93,7 @@ TEST(test_error_handling, reverse_str) {
     char buffer[] = "a";
     EXPECT_NO_MEMORY_OPERATIONS(
     {
-      __rcutils_reverse_str(buffer, strnlen(buffer, sizeof(buffer)));
+      __rcutils_reverse_str(buffer, rcutils_strnlen(buffer, sizeof(buffer)));
     });
     EXPECT_STREQ(buffer, "a");
   }
