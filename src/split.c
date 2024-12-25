@@ -63,8 +63,10 @@ rcutils_split(
       ++array_size;
     }
   }
-  if (rcutils_string_array_init(string_array, array_size, &allocator) != RCUTILS_RET_OK) {
-    goto fail;
+  rcutils_ret_t ret = rcutils_string_array_init(string_array, array_size, &allocator);
+  if (ret != RCUTILS_RET_OK) {
+    // rcutils_string_array_init already set the error
+    return ret;
   }
 
   size_t token_counter = 0;

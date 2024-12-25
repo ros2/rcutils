@@ -42,12 +42,14 @@ TEST(TestLogging, test_logging_initialization) {
   rcutils_allocator_t empty_allocator = rcutils_get_zero_initialized_allocator();
   EXPECT_EQ(
     RCUTILS_RET_INVALID_ARGUMENT, rcutils_logging_initialize_with_allocator(empty_allocator));
+  rcutils_reset_error();
 
   // Testing with a bad allocator fails when allocating internal memory
   // for the string map relating severity level values to string
   rcutils_allocator_t failing_allocator = get_failing_allocator();
   EXPECT_EQ(
     RCUTILS_RET_ERROR, rcutils_logging_initialize_with_allocator(failing_allocator));
+  rcutils_reset_error();
 }
 
 size_t g_log_calls = 0;

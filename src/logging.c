@@ -748,7 +748,7 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
     &g_rcutils_logging_severities_map, 2, sizeof(const char *), sizeof(int),
     rcutils_hash_map_string_hash_func, rcutils_hash_map_string_cmp_func, &allocator);
   if (hash_map_ret != RCUTILS_RET_OK) {
-    // If an error message was set it will have been overwritten by rcutils_hash_map_init.
+    rcutils_reset_error();
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
       "Failed to initialize map for logger severities [%s]. Severities will not be configurable.",
       rcutils_get_error_string().str);
