@@ -13,7 +13,8 @@
 
   <author email="karsten@osrfoundation.org">Karsten Knese</author>
 
-  <buildtool_depend>ament_cmake_ros</buildtool_depend>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>ament_cmake_ros_core</buildtool_depend>
   <buildtool_depend>python3-empy</buildtool_depend>
 
   <depend>libatomic</depend>

@@ -13,8 +13,9 @@ endif()
 
 include(CheckLibraryExists)
 
+find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_python REQUIRED)
-find_package(ament_cmake_ros REQUIRED)
+find_package(ament_cmake_ros_core REQUIRED)
 
 # By default, without the settings below, find_package(Python3) will attempt
 # to find the newest python version it can, and additionally will find the
