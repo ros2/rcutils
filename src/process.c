@@ -36,11 +36,13 @@ extern "C"
 #pragma warning(pop)
 #else
 #include <libgen.h>
+#include <sys/wait.h>
 #include <unistd.h>
 #endif
 
 #include "rcutils/allocator.h"
 #include "rcutils/error_handling.h"
+#include "rcutils/join.h"
 #include "rcutils/process.h"
 #include "rcutils/strdup.h"
 
@@ -109,6 +111,144 @@ char * rcutils_get_executable_name(rcutils_allocator_t allocator)
 #endif
 
   return executable_name;
+}
+
+rcutils_process_t *
+rcutils_start_process(
+  const rcutils_string_array_t * args,
+  rcutils_allocator_t * allocator)
+{
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(args, NULL);
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(allocator, NULL);
+  if (args->size < 1) {
+    RCUTILS_SET_ERROR_MSG("args list is empty");
+    return NULL;
+  }
+  RCUTILS_CHECK_ALLOCATOR_WITH_MSG(
+    allocator, "allocator is invalid", return NULL);
+
+  rcutils_process_t * process = allocator->zero_allocate(
+    1, sizeof(rcutils_process_t), allocator->state);
+  if (NULL == process) {
+    return NULL;
+  }
+  process->allocator = *allocator;
+
+#if defined _WIN32 || defined __CYGWIN__
+  LPSTR cmd = rcutils_join(args, " ", *allocator);
+  if (NULL == cmd) {
+    rcutils_process_close(process);
+    return NULL;
+  }
+
+  STARTUPINFO start_info = {sizeof(start_info)};
+  PROCESS_INFORMATION process_info = {0};
+  if (!CreateProcess(
+          NULL, cmd, NULL, NULL, TRUE, 0,
+          NULL, NULL, &start_info, &process_info))
+  {
+    RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("Failed to create process: %lu", GetLastError());
+    allocator->deallocate(cmd, &allocator->state);
+    rcutils_process_close(process);
+    return NULL;
+  }
+
+  allocator->deallocate(cmd, &allocator->state);
+
+  CloseHandle(process_info.hThread);
+
+  process->handle = process_info.hProcess;
+  process->pid = process_info.dwProcessId;
+
+  return process;
+#else
+  char **argv = allocator->zero_allocate(args->size + 1, sizeof(*argv), &allocator->state);
+  if (NULL == argv) {
+    return NULL;
+  }
+  memcpy(argv, args->data, args->size * sizeof(*argv));
+
+  process->pid = fork();
+  if (-1 == process->pid) {
+    int error = errno;
+    RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
+      "Failed to fork process: %d (%s)", error, strerror(error));
+    allocator->deallocate(argv, &allocator->state);
+    rcutils_process_close(process);
+    return NULL;
+  } else if (0 != process->pid) {
+    allocator->deallocate(argv, &allocator->state);
+    return process;
+  }
+
+  (void)execvp(argv[0], argv);
+
+  int error = errno;
+  RCUTILS_SAFE_FWRITE_TO_STDERR_WITH_FORMAT_STRING(
+    "Failed to execute process: %d (%s)", error, strerror(error));
+  allocator->deallocate(argv, &allocator->state);
+  exit(127);
+#endif
+}
+
+void
+rcutils_process_close(rcutils_process_t * process)
+{
+  if (NULL == process) {
+    return;
+  }
+
+  rcutils_allocator_t allocator = process->allocator;
+  RCUTILS_CHECK_ALLOCATOR_WITH_MSG(
+    &allocator, "allocator is invalid", return );
+
+#if defined _WIN32 || defined __CYGWIN__
+  CloseHandle(process->handle);
+#endif
+
+  allocator.deallocate(process, allocator.state);
+}
+
+rcutils_ret_t
+rcutils_process_wait(const rcutils_process_t * process, int * exit_code)
+{
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(process, RCUTILS_RET_INVALID_ARGUMENT);
+
+#if defined _WIN32 || defined __CYGWIN__
+  DWORD status;
+
+  if (WAIT_FAILED == WaitForSingleObject(process->handle, INFINITE)) {
+    return RCUTILS_RET_ERROR;
+  }
+
+  if (NULL != exit_code) {
+    if (!GetExitCodeProcess(process->handle, &status)) {
+      return RCUTILS_RET_ERROR;
+    }
+    *exit_code = status;
+  }
+#else
+  int status;
+
+  int ret = waitpid(process->pid, &status, 0);
+  if (-1 == ret) {
+    return RCUTILS_RET_ERROR;
+  }
+
+  if (NULL != exit_code) {
+    if (WIFSIGNALED(status)) {
+      *exit_code = -WTERMSIG(status);
+    } else if (WIFEXITED(status)) {
+      *exit_code = WEXITSTATUS(status);
+    } else if (WIFSTOPPED(status)) {
+      *exit_code = -WSTOPSIG(status);
+    } else {
+      return RCUTILS_RET_ERROR;
+    }
+  }
+#endif
+
+  return RCUTILS_RET_OK;
 }
 
 #ifdef __cplusplus
