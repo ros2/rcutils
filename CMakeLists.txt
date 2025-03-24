@@ -75,6 +75,7 @@ set(rcutils_sources
   src/find.c
   src/format_string.c
   src/hash_map.c
+  src/join.c
   src/logging.c
   src/process.c
   src/qsort.c
@@ -300,6 +301,13 @@ if(BUILD_TESTING)
   )
   if(TARGET test_split)
     target_link_libraries(test_split ${PROJECT_NAME})
+  endif()
+
+  ament_add_gtest(test_join
+    test/test_join.cpp
+  )
+  if(TARGET test_join)
+    target_link_libraries(test_join ${PROJECT_NAME})
   endif()
 
   ament_add_gtest(test_find
