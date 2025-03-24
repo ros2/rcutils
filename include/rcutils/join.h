@@ -37,7 +37,7 @@ extern "C"
 RCUTILS_PUBLIC
 char *
 rcutils_join(
-  rcutils_string_array_t * string_array,
+  const rcutils_string_array_t * string_array,
   const char * separator,
   rcutils_allocator_t allocator);
 
