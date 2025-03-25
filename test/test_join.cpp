@@ -27,12 +27,17 @@ TEST(test_join, join) {
   rcutils_allocator_t bad_allocator = rcutils_get_zero_initialized_allocator();
   rcutils_allocator_t time_bomb_allocator = get_time_bomb_allocator();
   rcutils_string_array_t tokens0 = rcutils_get_zero_initialized_string_array();
+  rcutils_string_array_t tokens1 = rcutils_get_zero_initialized_string_array();
   rcutils_string_array_t tokens2 = rcutils_get_zero_initialized_string_array();
   char * new_string;
 
   ASSERT_EQ(
     RCUTILS_RET_OK,
     rcutils_string_array_init(&tokens0, 0, &allocator));
+  ASSERT_EQ(
+    RCUTILS_RET_OK,
+    rcutils_string_array_init(&tokens1, 1, &allocator));
+  tokens1.data[0] = strdup("hallo");
   ASSERT_EQ(
     RCUTILS_RET_OK,
     rcutils_string_array_init(&tokens2, 2, &allocator));
@@ -63,19 +68,23 @@ TEST(test_join, join) {
 
   new_string = rcutils_join(&tokens0, " ", allocator);
   EXPECT_STREQ("", new_string);
-  free(new_string);
+  allocator.deallocate(new_string, &allocator.state);
+
+  new_string = rcutils_join(&tokens1, " ", allocator);
+  EXPECT_STREQ("hallo", new_string);
+  allocator.deallocate(new_string, &allocator.state);
 
   new_string = rcutils_join(&tokens2, "", allocator);
   EXPECT_STREQ("helloworld", new_string);
-  free(new_string);
+  allocator.deallocate(new_string, &allocator.state);
 
   new_string = rcutils_join(&tokens2, " ", allocator);
   EXPECT_STREQ("hello world", new_string);
-  free(new_string);
+  allocator.deallocate(new_string, &allocator.state);
 
   new_string = rcutils_join(&tokens2, " ... ", allocator);
   EXPECT_STREQ("hello ... world", new_string);
-  free(new_string);
+  allocator.deallocate(new_string, &allocator.state);
 
   EXPECT_EQ(
     RCUTILS_RET_OK,

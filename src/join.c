@@ -25,7 +25,6 @@ extern "C"
 #include "rcutils/strdup.h"
 #include "rcutils/types.h"
 
-
 char *
 rcutils_join(
   const rcutils_string_array_t * string_array,
