@@ -232,6 +232,9 @@ rcutils_process_wait(const rcutils_process_t * process, int * exit_code)
 
   int ret = waitpid(process->pid, &status, 0);
   if (-1 == ret) {
+    int error = errno;
+    RCUTILS_SAFE_FWRITE_TO_STDERR_WITH_FORMAT_STRING(
+      "Failed to wait for process %d: %d (%s)", process->pid, error, strerror(error));
     return RCUTILS_RET_ERROR;
   }
 
