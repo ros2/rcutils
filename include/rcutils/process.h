@@ -17,6 +17,14 @@
 #ifndef RCUTILS__PROCESS_H_
 #define RCUTILS__PROCESS_H_
 
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+
 #ifdef __cplusplus
 extern "C"
 {
