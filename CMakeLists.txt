@@ -523,6 +523,9 @@ if(BUILD_TESTING)
   )
   if(TARGET test_process)
     target_link_libraries(test_process ${PROJECT_NAME})
+    target_compile_definitions(test_process PRIVATE
+      "CMAKE_COMMAND=${CMAKE_COMMAND}")
+    file(TOUCH "${CMAKE_CURRENT_BINARY_DIR}/file with space.txt")
   endif()
 
   ament_add_gtest(test_logging_custom_env test/test_logging_custom_env.cpp

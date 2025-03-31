@@ -113,6 +113,115 @@ char * rcutils_get_executable_name(rcutils_allocator_t allocator)
   return executable_name;
 }
 
+#if defined _WIN32 || defined __CYGWIN__
+static
+rcutils_ret_t
+append_backslashes(rcutils_char_array_t * char_array, size_t n)
+{
+  if (n <= 0) {
+    return RCUTILS_RET_OK;
+  }
+
+  size_t current_strlen;
+  if (char_array->buffer_length == 0) {
+    current_strlen = 0;
+  } else {
+    // The buffer length always contains the trailing \0, so the strlen is one less than that.
+    current_strlen = char_array->buffer_length - 1;
+  }
+
+  size_t new_length = current_strlen + n + 1;
+  rcutils_ret_t ret = rcutils_char_array_expand_as_needed(char_array, new_length);
+  if (RCUTILS_RET_OK != ret) {
+    return ret;
+  }
+
+  memset(char_array->buffer + current_strlen, '\\', n);
+  char_array->buffer[new_length - 1] = '\0';
+
+  char_array->buffer_length = new_length;
+
+  return RCUTILS_RET_OK;
+}
+
+/**
+ * This algorithm is based on the MSDN blog "everyone quotes command line arguments the wrong way".
+ * See https://learn.microsoft.com/en-us/archive/blogs/twistylittlepassagesallalike/everyone-quotes-command-line-arguments-the-wrong-way
+ */
+static
+rcutils_ret_t
+build_command_line(
+  const rcutils_string_array_t * string_array,
+  rcutils_char_array_t * char_array)
+{
+  rcutils_ret_t ret;
+
+  for (size_t i = 0; i < string_array->size; i++) {
+    // Append argument separator
+    if (i != 0) {
+      ret = rcutils_char_array_strncat(char_array, " ", 1);
+      if (RCUTILS_RET_OK != ret) {
+        return ret;
+      }
+    }
+
+    // Append argument which doesn't need to be quoted
+    size_t arg_length = strlen(string_array->data[i]);
+    if (strcspn(string_array->data[i], " \t\n\v\"") >= arg_length) {
+      ret = rcutils_char_array_strncat(char_array, string_array->data[i], arg_length);
+      if (RCUTILS_RET_OK != ret) {
+        return ret;
+      }
+      continue;
+    }
+
+    // Append opening quote
+    ret = rcutils_char_array_strncat(char_array, "\"", 1);
+    if (RCUTILS_RET_OK != ret) {
+      return ret;
+    }
+
+    for (const char * c = string_array->data[i]; ; c++) {
+      size_t backslash_count = 0;
+      while ('\\' == *c) {
+        backslash_count++;
+        c++;
+      }
+
+      if ('\0' == *c) {
+        ret = append_backslashes(char_array, backslash_count * 2);
+        if (RCUTILS_RET_OK != ret) {
+          return ret;
+        }
+        break;
+      }
+
+      if ('"' == *c) {
+        backslash_count = backslash_count * 2 + 1;
+      }
+
+      ret = append_backslashes(char_array, backslash_count);
+      if (RCUTILS_RET_OK != ret) {
+        return ret;
+      }
+
+      ret = rcutils_char_array_strncat(char_array, c, 1);
+      if (RCUTILS_RET_OK != ret) {
+        return ret;
+      }
+    }
+
+    // Append closing quote
+    ret = rcutils_char_array_strncat(char_array, "\"", 1);
+    if (RCUTILS_RET_OK != ret) {
+      return ret;
+    }
+  }
+
+  return RCUTILS_RET_OK;
+}
+#endif
+
 rcutils_process_t *
 rcutils_start_process(
   const rcutils_string_array_t * args,
@@ -135,8 +244,18 @@ rcutils_start_process(
   process->allocator = *allocator;
 
 #if defined _WIN32 || defined __CYGWIN__
-  LPSTR cmd = rcutils_join(args, " ", *allocator);
-  if (NULL == cmd) {
+  rcutils_char_array_t cmd = rcutils_get_zero_initialized_char_array();
+  rcutils_ret_t ret = rcutils_char_array_init(&cmd, 0, allocator);
+  if (RCUTILS_RET_OK != ret) {
+    rcutils_process_close(process);
+    return NULL;
+  }
+
+  ret = build_command_line(args, &cmd);
+  if (RCUTILS_RET_OK != ret) {
+    if (RCUTILS_RET_OK != rcutils_char_array_fini(&cmd)) {
+      RCUTILS_SAFE_FWRITE_TO_STDERR("Failed to fini array.\n");
+    }
     rcutils_process_close(process);
     return NULL;
   }
@@ -144,16 +263,20 @@ rcutils_start_process(
   STARTUPINFO start_info = {sizeof(start_info)};
   PROCESS_INFORMATION process_info = {0};
   if (!CreateProcess(
-          NULL, cmd, NULL, NULL, TRUE, 0,
+          NULL, cmd.buffer, NULL, NULL, TRUE, 0,
           NULL, NULL, &start_info, &process_info))
   {
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("Failed to create process: %lu", GetLastError());
-    allocator->deallocate(cmd, &allocator->state);
+    if (RCUTILS_RET_OK != rcutils_char_array_fini(&cmd)) {
+      RCUTILS_SAFE_FWRITE_TO_STDERR("Failed to fini array.\n");
+    }
     rcutils_process_close(process);
     return NULL;
   }
 
-  allocator->deallocate(cmd, &allocator->state);
+  if (RCUTILS_RET_OK != rcutils_char_array_fini(&cmd)) {
+    RCUTILS_SAFE_FWRITE_TO_STDERR("Failed to fini array.\n");
+  }
 
   CloseHandle(process_info.hThread);
 
