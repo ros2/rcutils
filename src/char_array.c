@@ -194,20 +194,25 @@ rcutils_char_array_vsprintf(rcutils_char_array_t * char_array, const char * form
 rcutils_ret_t
 rcutils_char_array_memcpy(rcutils_char_array_t * char_array, const char * src, size_t n)
 {
-  rcutils_ret_t ret = rcutils_char_array_expand_as_needed(char_array, n);
+  size_t new_length = n;
+  if (n > 0 && '\0' != src[n - 1]) {
+    new_length += 1;
+  }
+  rcutils_ret_t ret = rcutils_char_array_expand_as_needed(char_array, new_length);
   if (ret != RCUTILS_RET_OK) {
     // rcutils_char_array_expand_as needed already set the error
     return ret;
   }
   memcpy(char_array->buffer, src, n);
-  char_array->buffer_length = n;
+  char_array->buffer[new_length - 1] = '\0';  // always have an ending
+  char_array->buffer_length = new_length;
   return RCUTILS_RET_OK;
 }
 
 rcutils_ret_t
 rcutils_char_array_strcpy(rcutils_char_array_t * char_array, const char * src)
 {
-  return rcutils_char_array_memcpy(char_array, src, strlen(src) + 1);
+  return rcutils_char_array_memcpy(char_array, src, strlen(src));
 }
 
 rcutils_ret_t

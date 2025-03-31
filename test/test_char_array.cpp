@@ -130,6 +130,27 @@ TEST_F(ArrayCharTest, vsprintf_fail) {
   EXPECT_EQ(RCUTILS_RET_OK, rcutils_char_array_fini(&char_array));
 }
 
+TEST_F(ArrayCharTest, memcpy) {
+  rcutils_allocator_t failing_allocator = get_failing_allocator();
+  rcutils_ret_t ret = rcutils_char_array_init(&char_array, 8, &allocator);
+  ASSERT_EQ(RCUTILS_RET_OK, ret);
+
+  EXPECT_EQ(RCUTILS_RET_OK, rcutils_char_array_memcpy(&char_array, "1234", 4));
+  EXPECT_STREQ("1234", char_array.buffer);
+  EXPECT_EQ(5lu, char_array.buffer_length);
+
+  EXPECT_EQ(RCUTILS_RET_OK, rcutils_char_array_memcpy(&char_array, "1234", 5));
+  EXPECT_STREQ("1234", char_array.buffer);
+  EXPECT_EQ(5lu, char_array.buffer_length);
+
+  char_array.allocator = failing_allocator;
+  EXPECT_EQ(RCUTILS_RET_BAD_ALLOC, rcutils_char_array_memcpy(&char_array, "123456789", 9));
+  rcutils_reset_error();
+
+  char_array.allocator = allocator;
+  EXPECT_EQ(RCUTILS_RET_OK, rcutils_char_array_fini(&char_array));
+}
+
 TEST_F(ArrayCharTest, strcpy) {
   rcutils_allocator_t failing_allocator = get_failing_allocator();
   rcutils_ret_t ret = rcutils_char_array_init(&char_array, 8, &allocator);

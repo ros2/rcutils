@@ -208,7 +208,8 @@ rcutils_char_array_strcat(rcutils_char_array_t * char_array, const char * src);
 /// Copy memory to buffer.
 /**
  * This function is equivalent to `memcpy(char_array->buffer, src, n)` except that the buffer
- * grows as needed so a user doesn't have to worry about overflow.
+ * grows as needed so a user doesn't have to worry about overflow and a null byte is appended if
+ * necessary.
  *
  * \param[inout] char_array pointer to the instance of rcutils_char_array_t which is being resized
  * \param[in] src the memory to be copied from
