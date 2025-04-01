@@ -116,9 +116,9 @@ char * rcutils_get_executable_name(rcutils_allocator_t allocator)
 #if defined _WIN32 || defined __CYGWIN__
 static
 rcutils_ret_t
-append_backslashes(rcutils_char_array_t * char_array, size_t n)
+append_backslashes(rcutils_char_array_t * char_array, size_t num_backslashes)
 {
-  if (n <= 0) {
+  if (num_backslashes <= 0) {
     return RCUTILS_RET_OK;
   }
 
@@ -130,13 +130,13 @@ append_backslashes(rcutils_char_array_t * char_array, size_t n)
     current_strlen = char_array->buffer_length - 1;
   }
 
-  size_t new_length = current_strlen + n + 1;
+  size_t new_length = current_strlen + num_backslashes + 1;
   rcutils_ret_t ret = rcutils_char_array_expand_as_needed(char_array, new_length);
   if (RCUTILS_RET_OK != ret) {
     return ret;
   }
 
-  memset(char_array->buffer + current_strlen, '\\', n);
+  memset(char_array->buffer + current_strlen, '\\', num_backslashes);
   char_array->buffer[new_length - 1] = '\0';
 
   char_array->buffer_length = new_length;
