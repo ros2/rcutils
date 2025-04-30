@@ -97,5 +97,4 @@ TEST(test_join, join) {
   EXPECT_EQ(
     RCUTILS_RET_OK,
     rcutils_string_array_fini(&tokens2));
-
 }
