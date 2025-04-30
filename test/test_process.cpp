@@ -83,6 +83,8 @@ TEST(TestProcess, test_process_creation) {
 
   rcutils_process_close(process);
 
+  ret = rcutils_string_array_fini(&args);
+
   // cmake -E cat "file with space.txt" (returns 0)
   ret = rcutils_string_array_resize(&args, 4);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
@@ -99,6 +101,8 @@ TEST(TestProcess, test_process_creation) {
   EXPECT_EQ(0, exit_code);
 
   rcutils_process_close(process);
+
+  ret = rcutils_string_array_fini(&args);
 
   // cmake -E false (returns 1)
   ret = rcutils_string_array_resize(&args, 3);
