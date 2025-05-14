@@ -81,8 +81,27 @@ rcutils_get_env(const char * env_name, const char ** env_value)
     return "argument env_value is null";
   }
 
-  // TODO(Suyash458): getenv is deprecated on Windows; consider using getenv_s instead
+#ifdef _WIN32
+  size_t requiredSize = 0;
+  char *buffer = NULL;
+  if (getenv_s(&requiredSize, NULL, 0, env_name) == 0 && requiredSize > 0) {
+    buffer = (char *)malloc(requiredSize * sizeof(char));
+    if (buffer != NULL) {
+      if (getenv_s(&requiredSize, buffer, requiredSize, env_name) == 0) {
+        *env_value = buffer;
+      } else {
+        free(buffer);
+        *env_value = NULL;
+      }
+    } else {
+      *env_value = NULL;
+    }
+  } else {
+    *env_value = NULL;
+  }
+#else
   *env_value = getenv(env_name);
+#endif
 
   if (NULL == *env_value) {
     *env_value = "";
