@@ -15,13 +15,11 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
   <buildtool_depend>ament_cmake_ros_core</buildtool_depend>
-  <buildtool_depend>python3-empy</buildtool_depend>
 
   <depend>libatomic</depend>
 
   <test_depend>ament_cmake_gmock</test_depend>
   <test_depend>ament_cmake_gtest</test_depend>
-  <test_depend>ament_cmake_pytest</test_depend>
   <test_depend>ament_lint_common</test_depend>
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>mimick_vendor</test_depend>

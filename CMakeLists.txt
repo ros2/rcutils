@@ -14,27 +14,7 @@ endif()
 include(CheckLibraryExists)
 
 find_package(ament_cmake REQUIRED)
-find_package(ament_cmake_python REQUIRED)
 find_package(ament_cmake_ros_core REQUIRED)
-
-# By default, without the settings below, find_package(Python3) will attempt
-# to find the newest python version it can, and additionally will find the
-# most specific version.  For instance, on a system that has
-# /usr/bin/python3.10, /usr/bin/python3.11, and /usr/bin/python3, it will find
-# /usr/bin/python3.11, even if /usr/bin/python3 points to /usr/bin/python3.10.
-# The behavior we want is to prefer the "system" installed version unless the
-# user specifically tells us othewise through the Python3_EXECUTABLE hint.
-# Setting CMP0094 to NEW means that the search will stop after the first
-# python version is found.  Setting Python3_FIND_UNVERSIONED_NAMES means that
-# the search will prefer /usr/bin/python3 over /usr/bin/python3.11.  And that
-# latter functionality is only available in CMake 3.20 or later, so we need
-# at least that version.
-cmake_policy(SET CMP0094 NEW)
-set(Python3_FIND_UNVERSIONED_NAMES FIRST)
-
-find_package(Python3 REQUIRED COMPONENTS Interpreter)
-
-ament_python_install_package(${PROJECT_NAME})
 
 if(UNIX AND NOT APPLE)
   include(cmake/check_c_compiler_uses_glibc.cmake)
@@ -98,46 +78,11 @@ set_source_files_properties(
   ${rcutils_sources}
   PROPERTIES language "C")
 
-# "watch" template/inputs for changes
-configure_file(
-  "resource/logging_macros.h.em"
-  "logging_macros.h.em.watch"
-  COPYONLY)
-configure_file(
-  "rcutils/logging.py"
-  "logging.py.watch"
-  COPYONLY)
-# generate header with logging macros
-set(rcutils_module_path ${CMAKE_CURRENT_SOURCE_DIR})
-set(python_code
-  "import em"  # implicitly added ; between python statements due to CMake list
-  "\
-em.invoke( \
-  [ \
-    '-o', 'include/rcutils/logging_macros.h', \
-    '-D', 'rcutils_module_path=\"${rcutils_module_path}\"', \
-    '${CMAKE_CURRENT_SOURCE_DIR}/resource/logging_macros.h.em' \
-  ] \
-)")
-string(REPLACE ";" "$<SEMICOLON>" python_code "${python_code}")
-add_custom_command(OUTPUT include/rcutils/logging_macros.h
-  COMMAND ${CMAKE_COMMAND} -E make_directory "include/rcutils"
-  COMMAND Python3::Interpreter ARGS -c "${python_code}"
-  DEPENDS
-    "${CMAKE_CURRENT_BINARY_DIR}/logging_macros.h.em.watch"
-    "${CMAKE_CURRENT_BINARY_DIR}/logging.py.watch"
-  COMMENT "Expanding logging_macros.h.em"
-  VERBATIM
-)
-list(APPEND rcutils_sources
-  include/rcutils/logging_macros.h)
-
 add_library(
   ${PROJECT_NAME}
   ${rcutils_sources})
 target_include_directories(${PROJECT_NAME} PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-  "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>"
   "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>")
 
 # Causes the visibility macros to use dllexport rather than dllimport,
@@ -165,7 +110,6 @@ if(BUILD_TESTING)
 
   find_package(ament_cmake_gmock REQUIRED)
   find_package(ament_cmake_gtest REQUIRED)
-  find_package(ament_cmake_pytest REQUIRED)
   find_package(ament_lint_auto REQUIRED)
   # cppcheck 1.90 doesn't understand some of the syntax in remove_noexcept.hpp
   # Since we already have cppcheck disabled on Linux, just disable it completely
@@ -182,27 +126,6 @@ if(BUILD_TESTING)
   if(HAVE_LIBATOMICS AND NOT WIN32)
     # Exporting link flag since it won't pass ament_export_libraries() existance check
     ament_export_link_flags("-latomic")
-  endif()
-
-  if(ament_cmake_cppcheck_FOUND)
-    ament_cppcheck(
-      TESTNAME "cppcheck_logging_macros"
-      "${CMAKE_CURRENT_BINARY_DIR}/include/rcutils/logging_macros.h")
-  endif()
-  if(ament_cmake_cpplint_FOUND)
-    ament_cpplint(
-      TESTNAME "cpplint_logging_macros"
-      # the generated code might contain longer lines for templated types
-      MAX_LINE_LENGTH 999
-      ROOT "${CMAKE_CURRENT_BINARY_DIR}/include"
-      "${CMAKE_CURRENT_BINARY_DIR}/include/rcutils/logging_macros.h")
-  endif()
-  if(ament_cmake_uncrustify_FOUND)
-    ament_uncrustify(
-      TESTNAME "uncrustify_logging_macros"
-      # the generated code might contain longer lines for templated types
-      MAX_LINE_LENGTH 0
-      "${CMAKE_CURRENT_BINARY_DIR}/include/rcutils/logging_macros.h")
   endif()
 
   find_package(mimick_vendor REQUIRED)
@@ -628,5 +551,5 @@ ament_export_dependencies(ament_cmake)
 ament_package()
 
 install(
-  DIRECTORY include/ ${CMAKE_CURRENT_BINARY_DIR}/include/
+  DIRECTORY include/
   DESTINATION include/${PROJECT_NAME})
