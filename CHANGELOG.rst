@@ -2,6 +2,12 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+6.9.6 (2025-07-07)
+------------------
+* Use getenv_s instead of getenv for Windows (`#499 <https://github.com/ros2/rcutils/issues/499>`_) (`#500 <https://github.com/ros2/rcutils/issues/500>`_)
+* Clean memory in test_process.cpp (backport `#495 <https://github.com/ros2/rcutils/issues/495>`_) (`#496 <https://github.com/ros2/rcutils/issues/496>`_)
+* Contributors: Alejandro Hernandez Cordero, Tomoya Fujita
+
 6.9.5 (2025-04-02)
 ------------------
 * Handle spaces in start_process arguments on Windows (`#494 <https://github.com/ros2/rcutils/issues/494>`_)
