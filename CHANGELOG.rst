@@ -2,6 +2,22 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Revert "use getenv_s instead of getenv for Windows. (`#499 <https://github.com/ros2/rcutils/issues/499>`_)" (`#504 <https://github.com/ros2/rcutils/issues/504>`_) (`#506 <https://github.com/ros2/rcutils/issues/506>`_)
+  This reverts commit 46ab4d4eeb555a2e9e880157b97f0a867d3a256c.
+  (cherry picked from commit 3a4beda924bfcf766803d25752cbbf911f445e99)
+  Co-authored-by: Chris Lalancette <clalancette@gmail.com>
+* use getenv_s instead of getenv for Windows. (`#499 <https://github.com/ros2/rcutils/issues/499>`_) (`#501 <https://github.com/ros2/rcutils/issues/501>`_)
+  (cherry picked from commit 46ab4d4eeb555a2e9e880157b97f0a867d3a256c)
+  Co-authored-by: Tomoya Fujita <Tomoya.Fujita@sony.com>
+* Remove CODEOWNERS and mirror-rolling-to-master workflow. (`#483 <https://github.com/ros2/rcutils/issues/483>`_) (`#484 <https://github.com/ros2/rcutils/issues/484>`_)
+  They are both out-of-date, and no longer serving their
+  intended purpose.  Delete them.
+  (cherry picked from commit f662ccae73e367d8074a481f854adfb5d6541c53)
+  Co-authored-by: Chris Lalancette <clalancette@gmail.com>
+* Contributors: mergify[bot]
+
 6.7.2 (2024-09-17)
 ------------------
 * Add new API to set envar while specifying overwrite (`#473 <https://github.com/ros2/rcutils/issues/473>`_) (`#480 <https://github.com/ros2/rcutils/issues/480>`_)
