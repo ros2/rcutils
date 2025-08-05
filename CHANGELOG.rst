@@ -2,8 +2,8 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+6.7.3 (2025-08-05)
+------------------
 * Revert "use getenv_s instead of getenv for Windows. (`#499 <https://github.com/ros2/rcutils/issues/499>`_)" (`#504 <https://github.com/ros2/rcutils/issues/504>`_) (`#506 <https://github.com/ros2/rcutils/issues/506>`_)
   This reverts commit 46ab4d4eeb555a2e9e880157b97f0a867d3a256c.
   (cherry picked from commit 3a4beda924bfcf766803d25752cbbf911f445e99)
