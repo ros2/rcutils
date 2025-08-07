@@ -2,6 +2,12 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+7.0.1 (2025-07-14)
+------------------
+* Revert "use getenv_s instead of getenv for Windows. (`#499 <https://github.com/ros2/rcutils/issues/499>`_)" (`#504 <https://github.com/ros2/rcutils/issues/504>`_)
+  This reverts commit 46ab4d4eeb555a2e9e880157b97f0a867d3a256c.
+* Contributors: Chris Lalancette
+
 7.0.0 (2025-07-01)
 ------------------
 * Hand-code logging_macros.h (`#502 <https://github.com/ros2/rcutils/issues/502>`_)
