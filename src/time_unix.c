@@ -16,6 +16,7 @@
 # error time_unix.c is not intended to be used with win32 based systems
 #endif  // defined(_WIN32)
 
+#include "rcutils/logging_macros.h"
 #include "rcutils/time.h"
 
 #if defined(__MACH__) && defined(__APPLE__)
@@ -109,6 +110,9 @@ rcutils_raw_steady_time_now(rcutils_time_point_value_t * now)
   clockid_t monotonic_raw_clock = CLOCK_MONOTONIC_RAW;
 #else
   clockid_t monotonic_raw_clock = CLOCK_MONOTONIC;
+  RCUTILS_LOG_WARN_ONCE(
+    "CLOCK_MONOTONIC_RAW is not supported by the platform, using CLOCK_MONOTONIC "
+    "instead. This may not provide the desired raw steady time behavior.");
 #endif
 
   if (clock_gettime(monotonic_raw_clock, &timespec_now) < 0) {
