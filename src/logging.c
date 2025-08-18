@@ -1217,8 +1217,75 @@ void rcutils_log(
   const rcutils_log_location_t * location,
   int severity, const char * name, const char * format, ...)
 {
+<<<<<<< HEAD
   if (!rcutils_logging_logger_is_enabled_for(name, severity)) {
     return;
+=======
+  const char * name;
+  const rcutils_log_location_t * location;
+  const char * msg;
+  int severity;
+  rcutils_time_point_value_t timestamp;
+} logging_input;
+
+typedef const char * (* token_handler)(
+  const logging_input * logging_input,
+  rcutils_char_array_t * logging_output);
+
+typedef struct token_map_entry
+{
+  const char * token;
+  token_handler handler;
+} token_map_entry;
+
+const char * expand_time(
+  const logging_input * logging_input, rcutils_char_array_t * logging_output,
+  rcutils_ret_t (* time_func)(const rcutils_time_point_value_t *, char *, size_t))
+{
+  // Temporary, local storage for integer/float conversion to string
+  // Note:
+  //   32 characters enough, because the most it can be is 20 characters
+  //   for the 19 possible digits in a signed 64-bit number plus the optional
+  //   decimal point in the floating point seconds version
+  char numeric_storage[32];
+  OK_OR_RETURN_NULL(time_func(&logging_input->timestamp, numeric_storage, sizeof(numeric_storage)));
+  APPEND_AND_RETURN_LOG_OUTPUT(numeric_storage);
+}
+
+const char * expand_time_as_date(
+  const logging_input * logging_input,
+  rcutils_char_array_t * logging_output)
+{
+  return expand_time(logging_input, logging_output, rcutils_time_point_value_as_date_string);
+}
+
+const char * expand_time_as_seconds(
+  const logging_input * logging_input,
+  rcutils_char_array_t * logging_output)
+{
+  return expand_time(logging_input, logging_output, rcutils_time_point_value_as_seconds_string);
+}
+
+const char * expand_time_as_nanoseconds(
+  const logging_input * logging_input,
+  rcutils_char_array_t * logging_output)
+{
+  return expand_time(logging_input, logging_output, rcutils_time_point_value_as_nanoseconds_string);
+}
+
+const char * expand_line_number(
+  const logging_input * logging_input,
+  rcutils_char_array_t * logging_output)
+{
+  // Allow 9 digits for the expansion of the line number (otherwise, truncate).
+  char line_number_expansion[10];
+
+  const rcutils_log_location_t * location = logging_input->location;
+
+  if (!location) {
+    OK_OR_RETURN_NULL(rcutils_char_array_strcpy(logging_output, "0"));
+    return logging_output->buffer;
+>>>>>>> 1f961e2 (feat: Add human readable date to logging formats. (#510))
   }
 
   va_list args;
@@ -1231,10 +1298,74 @@ void rcutils_log_internal(
   const rcutils_log_location_t * location,
   int severity, const char * name, const char * format, ...)
 {
+<<<<<<< HEAD
   va_list args;
   va_start(args, format);
   vrcutils_log_internal(location, severity, name, format, &args);
   va_end(args);
+=======
+  const char * severity_string = g_rcutils_log_severity_names[logging_input->severity];
+  APPEND_AND_RETURN_LOG_OUTPUT(severity_string);
+}
+
+const char * expand_name(const logging_input * logging_input, rcutils_char_array_t * logging_output)
+{
+  if (NULL != logging_input->name) {
+    APPEND_AND_RETURN_LOG_OUTPUT(logging_input->name);
+  }
+  return logging_output->buffer;
+}
+
+const char * expand_message(
+  const logging_input * logging_input,
+  rcutils_char_array_t * logging_output)
+{
+  OK_OR_RETURN_NULL(rcutils_char_array_strcat(logging_output, logging_input->msg));
+  return logging_output->buffer;
+}
+
+const char * expand_function_name(
+  const logging_input * logging_input,
+  rcutils_char_array_t * logging_output)
+{
+  if (logging_input->location) {
+    APPEND_AND_RETURN_LOG_OUTPUT(logging_input->location->function_name);
+  }
+  return logging_output->buffer;
+}
+
+const char * expand_file_name(
+  const logging_input * logging_input,
+  rcutils_char_array_t * logging_output)
+{
+  if (logging_input->location) {
+    APPEND_AND_RETURN_LOG_OUTPUT(logging_input->location->file_name);
+  }
+  return logging_output->buffer;
+}
+
+static const token_map_entry tokens[] = {
+  {.token = "severity", .handler = expand_severity},
+  {.token = "name", .handler = expand_name},
+  {.token = "message", .handler = expand_message},
+  {.token = "function_name", .handler = expand_function_name},
+  {.token = "file_name", .handler = expand_file_name},
+  {.token = "time", .handler = expand_time_as_seconds},
+  {.token = "time_as_nanoseconds", .handler = expand_time_as_nanoseconds},
+  {.token = "line_number", .handler = expand_line_number},
+  {.token = "date_time_with_ms", .handler = expand_time_as_date},
+};
+
+token_handler find_token_handler(const char * token)
+{
+  int token_number = sizeof(tokens) / sizeof(tokens[0]);
+  for (int token_index = 0; token_index < token_number; token_index++) {
+    if (strcmp(token, tokens[token_index].token) == 0) {
+      return tokens[token_index].handler;
+    }
+  }
+  return NULL;
+>>>>>>> 1f961e2 (feat: Add human readable date to logging formats. (#510))
 }
 
 rcutils_ret_t rcutils_logging_format_message(
