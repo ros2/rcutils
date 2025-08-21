@@ -54,6 +54,7 @@ The API is a combination of parts:
 - Portable implementations of "get system time" and "get steady time":
   - rcutils_system_time_now()
   - rcutils_steady_time_now()
+  - rcutils_raw_steady_time_now()
   - rcutils/time.h
 - Some useful data structures:
   - A "string array" data structure (analogous to `std::vector<std::string>`):
