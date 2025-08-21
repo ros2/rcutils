@@ -191,6 +191,47 @@ TEST_F(TestTimeFixture, test_rcutils_steady_time_now) {
     llabs(steady_diff - sc_diff), RCUTILS_MS_TO_NS(k_tolerance_ms)) << "steady_clock differs";
 }
 
+// Tests the rcutils_raw_steady_time_now() function.
+TEST_F(TestTimeFixture, test_rcutils_raw_steady_time_now) {
+  rcutils_ret_t ret;
+  // Check for invalid argument error condition (allowed to alloc).
+  ret = rcutils_raw_steady_time_now(nullptr);
+  EXPECT_EQ(ret, RCUTILS_RET_INVALID_ARGUMENT) << rcutils_get_error_string().str;
+  rcutils_reset_error();
+  // Check for normal operation (not allowed to alloc).
+  rcutils_time_point_value_t now = 0;
+  EXPECT_NO_MEMORY_OPERATIONS(
+  {
+    ret = rcutils_raw_steady_time_now(&now);
+  });
+  EXPECT_EQ(ret, RCUTILS_RET_OK) << rcutils_get_error_string().str;
+  EXPECT_NE(0u, now);
+  // Compare to std::chrono::steady_clock difference of two times (within a second).
+  now = 0;
+  EXPECT_NO_MEMORY_OPERATIONS(
+  {
+    ret = rcutils_raw_steady_time_now(&now);
+  });
+  std::chrono::steady_clock::time_point now_sc = std::chrono::steady_clock::now();
+  EXPECT_EQ(ret, RCUTILS_RET_OK) << rcutils_get_error_string().str;
+  // Wait for a little while.
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  // Then take a new timestamp with each and compare.
+  rcutils_time_point_value_t later;
+  EXPECT_NO_MEMORY_OPERATIONS(
+  {
+    ret = rcutils_raw_steady_time_now(&later);
+  });
+  std::chrono::steady_clock::time_point later_sc = std::chrono::steady_clock::now();
+  EXPECT_EQ(ret, RCUTILS_RET_OK) << rcutils_get_error_string().str;
+  int64_t steady_diff = later - now;
+  int64_t sc_diff =
+    std::chrono::duration_cast<std::chrono::nanoseconds>(later_sc - now_sc).count();
+  const int k_tolerance_ms = 1;
+  EXPECT_LE(
+    llabs(steady_diff - sc_diff), RCUTILS_MS_TO_NS(k_tolerance_ms)) << "steady_clock differs";
+}
+
 #if !defined(_WIN32)
 
 TEST_F(TestTimeFixture, test_rcutils_with_bad_system_clocks) {
@@ -211,6 +252,10 @@ TEST_F(TestTimeFixture, test_rcutils_with_bad_system_clocks) {
     ret = rcutils_steady_time_now(&now);
     EXPECT_EQ(RCUTILS_RET_ERROR, ret);
     rcutils_reset_error();
+
+    ret = rcutils_raw_steady_time_now(&now);
+    EXPECT_EQ(RCUTILS_RET_ERROR, ret);
+    rcutils_reset_error();
   }
   {
     auto mock = mocking_utils::patch(
@@ -227,6 +272,10 @@ TEST_F(TestTimeFixture, test_rcutils_with_bad_system_clocks) {
     rcutils_reset_error();
 
     ret = rcutils_steady_time_now(&now);
+    EXPECT_EQ(RCUTILS_RET_ERROR, ret);
+    rcutils_reset_error();
+
+    ret = rcutils_raw_steady_time_now(&now);
     EXPECT_EQ(RCUTILS_RET_ERROR, ret);
     rcutils_reset_error();
   }
