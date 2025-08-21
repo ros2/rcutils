@@ -16,15 +16,12 @@
 # error time_unix.c is not intended to be used with win32 based systems
 #endif  // defined(_WIN32)
 
-<<<<<<< HEAD
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-=======
 #include "rcutils/logging_macros.h"
->>>>>>> 89264ce (Add rcutils_raw_steady_time_now method for slew-free clock (#507))
 #include "rcutils/time.h"
 
 #if defined(__MACH__)
@@ -106,11 +103,6 @@ rcutils_steady_time_now(rcutils_time_point_value_t * now)
   return RCUTILS_RET_OK;
 }
 
-<<<<<<< HEAD
-#ifdef __cplusplus
-}
-#endif
-=======
 rcutils_ret_t
 rcutils_raw_steady_time_now(rcutils_time_point_value_t * now)
 {
@@ -137,4 +129,7 @@ rcutils_raw_steady_time_now(rcutils_time_point_value_t * now)
   *now = RCUTILS_S_TO_NS((int64_t)timespec_now.tv_sec) + timespec_now.tv_nsec;
   return RCUTILS_RET_OK;
 }
->>>>>>> 89264ce (Add rcutils_raw_steady_time_now method for slew-free clock (#507))
+
+#ifdef __cplusplus
+}
+#endif
