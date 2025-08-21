@@ -84,6 +84,15 @@ rcutils_steady_time_now(rcutils_time_point_value_t * now)
   return RCUTILS_RET_OK;
 }
 
+rcutils_ret_t
+rcutils_raw_steady_time_now(rcutils_time_point_value_t * now)
+{
+  // On Windows, there is no difference between steady and raw steady time.
+  // The QueryPerformanceCounter function provides a high-resolution timer
+  // that is not affected by system clock changes.
+  return rcutils_steady_time_now(now);
+}
+
 #ifdef __cplusplus
 }
 #endif
