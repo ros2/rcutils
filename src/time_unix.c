@@ -16,11 +16,15 @@
 # error time_unix.c is not intended to be used with win32 based systems
 #endif  // defined(_WIN32)
 
+<<<<<<< HEAD
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
+=======
+#include "rcutils/logging_macros.h"
+>>>>>>> 89264ce (Add rcutils_raw_steady_time_now method for slew-free clock (#507))
 #include "rcutils/time.h"
 
 #if defined(__MACH__)
@@ -102,6 +106,35 @@ rcutils_steady_time_now(rcutils_time_point_value_t * now)
   return RCUTILS_RET_OK;
 }
 
+<<<<<<< HEAD
 #ifdef __cplusplus
 }
 #endif
+=======
+rcutils_ret_t
+rcutils_raw_steady_time_now(rcutils_time_point_value_t * now)
+{
+  RCUTILS_CHECK_ARGUMENT_FOR_NULL(now, RCUTILS_RET_INVALID_ARGUMENT);
+  struct timespec timespec_now;
+
+#if defined(CLOCK_MONOTONIC_RAW)
+  clockid_t monotonic_raw_clock = CLOCK_MONOTONIC_RAW;
+#else
+  clockid_t monotonic_raw_clock = CLOCK_MONOTONIC;
+  RCUTILS_LOG_WARN_ONCE(
+    "CLOCK_MONOTONIC_RAW is not supported by the platform, using CLOCK_MONOTONIC "
+    "instead. This may not provide the desired raw steady time behavior.");
+#endif
+
+  if (clock_gettime(monotonic_raw_clock, &timespec_now) < 0) {
+    RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("Failed to get raw steady time: %d", errno);
+    return RCUTILS_RET_ERROR;
+  }
+  if (would_be_negative(&timespec_now)) {
+    RCUTILS_SET_ERROR_MSG("unexpected negative time");
+    return RCUTILS_RET_ERROR;
+  }
+  *now = RCUTILS_S_TO_NS((int64_t)timespec_now.tv_sec) + timespec_now.tv_nsec;
+  return RCUTILS_RET_OK;
+}
+>>>>>>> 89264ce (Add rcutils_raw_steady_time_now method for slew-free clock (#507))
