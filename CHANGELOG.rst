@@ -2,6 +2,12 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+5.1.7 (2025-08-22)
+------------------
+* Add rcutils_raw_steady_time_now method for slew-free clock (backport `#507 <https://github.com/ros2/rcutils/issues/507>`_) (`#515 <https://github.com/ros2/rcutils/issues/515>`_)
+* feat: Add human readable date to logging formats. (`#510 <https://github.com/ros2/rcutils/issues/510>`_)
+* Contributors: Tomoya Fujita, mergify[bot]
+
 5.1.6 (2024-05-15)
 ------------------
 * update cast to modern style (`#418 <https://github.com/ros2/rcutils/issues/418>`_) (`#462 <https://github.com/ros2/rcutils/issues/462>`_)
