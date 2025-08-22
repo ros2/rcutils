@@ -28,6 +28,7 @@ extern "C"
 #include <mach/clock.h>
 #include <mach/mach.h>
 #endif  // defined(__MACH__)
+#include <errno.h>
 #include <math.h>
 #include <time.h>
 #include <unistd.h>
@@ -122,7 +123,7 @@ rcutils_raw_steady_time_now(rcutils_time_point_value_t * now)
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("Failed to get raw steady time: %d", errno);
     return RCUTILS_RET_ERROR;
   }
-  if (would_be_negative(&timespec_now)) {
+  if (__WOULD_BE_NEGATIVE(timespec_now.tv_sec, timespec_now.tv_nsec)) {
     RCUTILS_SET_ERROR_MSG("unexpected negative time");
     return RCUTILS_RET_ERROR;
   }
