@@ -2,6 +2,11 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+6.7.4 (2025-08-22)
+------------------
+* Add rcutils_raw_steady_time_now method for slew-free clock (`#507 <https://github.com/ros2/rcutils/issues/507>`_) (`#514 <https://github.com/ros2/rcutils/issues/514>`_)
+* Contributors: mergify[bot]
+
 6.7.3 (2025-08-05)
 ------------------
 * Revert "use getenv_s instead of getenv for Windows. (`#499 <https://github.com/ros2/rcutils/issues/499>`_)" (`#504 <https://github.com/ros2/rcutils/issues/504>`_) (`#506 <https://github.com/ros2/rcutils/issues/506>`_)
