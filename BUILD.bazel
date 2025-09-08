@@ -1,0 +1,1478 @@
+
+# Copyright 2025 Open Source Robotics Foundation, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Imports
+
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test")
+
+package(default_visibility = ["//visibility:public"])
+
+# ROS C/C++ libraries
+
+# cc_library(
+#     name = "dummy_shared_library_in_load_paths",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/dummy_shared_library/dummy_shared_library.c",
+#     ],
+#     copts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu11",
+#     ],
+#     defines = [
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "_GNU_SOURCE",
+#         "dummy_shared_library_in_load_paths_EXPORTS",
+#     ],
+# )
+
+# cc_library(
+#     name = "dummy_shared_library_in_run_paths",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/dummy_shared_library/dummy_shared_library.c",
+#     ],
+#     copts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu11",
+#     ],
+#     defines = [
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "_GNU_SOURCE",
+#         "dummy_shared_library_in_run_paths_EXPORTS",
+#     ],
+# )
+
+# cc_library(
+#     name = "dummy_shared_library_preloaded",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/dummy_shared_library/dummy_shared_library.c",
+#     ],
+#     copts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu11",
+#     ],
+#     defines = [
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "_GNU_SOURCE",
+#         "dummy_shared_library_preloaded_EXPORTS",
+#     ],
+# )
+
+cc_library(
+    name = "rcutils",
+    srcs = glob(["src/**/*.h", "src/**/*.c"], exclude = ["src/time_win32.c"]),
+    hdrs = glob(["include/**/*.h"]),
+    includes = ["include"],
+    local_defines = [
+        "ROS_PACKAGE_NAME=\\\"rcutils\\\"",
+        "_GNU_SOURCE",  # Required to get 'program_invocation_name'
+    ],
+)
+
+# # ROS C/C++ binaries
+
+# cc_binary(
+#     name = "benchmark_err_handle",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/benchmark/benchmark_error_handling.cpp",
+#     ],
+#     includes = [
+#         "include",
+#     ],
+#     cxxopts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu++17",
+#     ],
+#     defines = [
+#         "RCUTILS_ENABLE_FAULT_INJECTION",
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "_GNU_SOURCE",
+#     ],
+#     linkopts = [
+#         "-ldl",
+#     ],
+#     deps = [
+#         ":rcutils",
+#         "@google_benchmark",
+#         "@osrf_testing_tools_cpp",
+#         "@osrf_testing_tools_cpp//:memory_tools",
+#         "@performance_test_fixture",
+#     ],
+# )
+
+# cc_binary(
+#     name = "benchmark_logging",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/benchmark/benchmark_logging.cpp",
+#     ],
+#     includes = [
+#         "include",
+#     ],
+#     cxxopts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu++17",
+#     ],
+#     defines = [
+#         "RCUTILS_ENABLE_FAULT_INJECTION",
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "_GNU_SOURCE",
+#     ],
+#     linkopts = [
+#         "-ldl",
+#     ],
+#     deps = [
+#         ":rcutils",
+#         "@google_benchmark",
+#         "@osrf_testing_tools_cpp",
+#         "@osrf_testing_tools_cpp//:memory_tools",
+#         "@performance_test_fixture",
+#     ],
+# )
+
+# cc_binary(
+#     name = "test_atomics_executable",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/test_atomics.c",
+#     ],
+#     includes = [
+#         "include",
+#     ],
+#     copts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu11",
+#     ],
+#     defines = [
+#         "RCUTILS_ENABLE_FAULT_INJECTION",
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "_GNU_SOURCE",
+#     ],
+#     linkopts = [
+#         "-ldl",
+#     ],
+#     deps = [
+#         "-latomic",
+#         ":rcutils",
+#     ],
+# )
+
+# cc_binary(
+#     name = "test_logging_long_messages",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/test_logging_long_messages.cpp",
+#     ],
+#     includes = [
+#         "include",
+#     ],
+#     cxxopts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu++17",
+#     ],
+#     defines = [
+#         "RCUTILS_ENABLE_FAULT_INJECTION",
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "_GNU_SOURCE",
+#     ],
+#     linkopts = [
+#         "-ldl",
+#     ],
+#     deps = [
+#         ":rcutils",
+#     ],
+# )
+
+# cc_binary(
+#     name = "test_logging_macros_c",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/test_logging_macros.c",
+#     ],
+#     includes = [
+#         "include",
+#     ],
+#     copts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu11",
+#     ],
+#     defines = [
+#         "RCUTILS_ENABLE_FAULT_INJECTION",
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "_GNU_SOURCE",
+#     ],
+#     linkopts = [
+#         "-ldl",
+#     ],
+#     deps = [
+#         ":rcutils",
+#     ],
+# )
+
+# # ROS C/C++ tests
+
+# cc_test(
+#     name = "test_allocator",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/test_allocator.cpp",
+#     ],
+#     cxxopts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu++17",
+#     ],
+#     defines = [
+#         "RCUTILS_ENABLE_FAULT_INJECTION",
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "_GNU_SOURCE",
+#     ],
+#     linkopts = [
+#         "-ldl",
+#         "-pthread",
+#     ],
+#     deps = [
+#         ":rcutils",
+#         "@googletest//:gtest",
+#         "@googletest//:gtest_main",
+#         "@osrf_testing_tools_cpp",
+#         "@osrf_testing_tools_cpp//:memory_tools",
+#     ],
+# )
+
+# cc_test(
+#     name = "test_array_list",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/test_array_list.cpp",
+#     ],
+#     cxxopts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu++17",
+#     ],
+#     defines = [
+#         "RCUTILS_ENABLE_FAULT_INJECTION",
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "_GNU_SOURCE",
+#     ],
+#     linkopts = [
+#         "-ldl",
+#         "-pthread",
+#     ],
+#     deps = [
+#         ":rcutils",
+#         "@googletest//:gtest",
+#         "@googletest//:gtest_main",
+#     ],
+# )
+
+# cc_test(
+#     name = "test_char_array",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/test_char_array.cpp",
+#     ],
+#     cxxopts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu++17",
+#     ],
+#     defines = [
+#         "RCUTILS_ENABLE_FAULT_INJECTION",
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "_GNU_SOURCE",
+#     ],
+#     linkopts = [
+#         "-ldl",
+#         "-pthread",
+#     ],
+#     deps = [
+#         ":rcutils",
+#         "@googletest//:gtest",
+#         "@googletest//:gtest_main",
+#     ],
+# )
+
+# cc_test(
+#     name = "test_cmdline_parser",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/test_cmdline_parser.cpp",
+#     ],
+#     cxxopts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu++17",
+#     ],
+#     defines = [
+#         "RCUTILS_ENABLE_FAULT_INJECTION",
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "_GNU_SOURCE",
+#     ],
+#     linkopts = [
+#         "-ldl",
+#         "-pthread",
+#     ],
+#     deps = [
+#         ":rcutils",
+#         "@googletest//:gtest",
+#         "@googletest//:gtest_main",
+#     ],
+# )
+
+# cc_test(
+#     name = "test_env",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/test_env.cpp",
+#     ],
+#     cxxopts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu++17",
+#     ],
+#     defines = [
+#         "RCUTILS_ENABLE_FAULT_INJECTION",
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "_GNU_SOURCE",
+#     ],
+#     linkopts = [
+#         "-ldl",
+#         "-pthread",
+#     ],
+#     deps = [
+#         ":rcutils",
+#         "@googletest//:gtest",
+#         "@googletest//:gtest_main",
+#     ],
+# )
+
+# cc_test(
+#     name = "test_error_handling",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/test_error_handling.cpp",
+#     ],
+#     cxxopts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu++17",
+#     ],
+#     defines = [
+#         "RCUTILS_ENABLE_FAULT_INJECTION",
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "_GNU_SOURCE",
+#     ],
+#     linkopts = [
+#         "-ldl",
+#         "-pthread",
+#     ],
+#     deps = [
+#         ":rcutils",
+#         "@googletest//:gtest",
+#         "@googletest//:gtest_main",
+#         "@osrf_testing_tools_cpp",
+#         "@osrf_testing_tools_cpp//:memory_tools",
+#     ],
+# )
+
+# cc_test(
+#     name = "test_error_handling_helpers",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/test_error_handling_helpers.cpp",
+#     ],
+#     cxxopts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu++17",
+#     ],
+#     defines = [
+#         "RCUTILS_ENABLE_FAULT_INJECTION",
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "_GNU_SOURCE",
+#     ],
+#     linkopts = [
+#         "-ldl",
+#         "-pthread",
+#     ],
+#     deps = [
+#         ":rcutils",
+#         "@googletest//:gtest",
+#         "@googletest//:gtest_main",
+#         "@osrf_testing_tools_cpp",
+#         "@osrf_testing_tools_cpp//:memory_tools",
+#     ],
+# )
+
+# cc_test(
+#     name = "test_filesystem",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/test_filesystem.cpp",
+#     ],
+#     cxxopts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu++17",
+#     ],
+#     defines = [
+#         "BUILD_DIR=/home/ros/workspaces/ros-central-registry/workspace/build/rcutils",
+#         "RCUTILS_ENABLE_FAULT_INJECTION",
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "_GNU_SOURCE",
+#     ],
+#     linkopts = [
+#         "-ldl",
+#         "-pthread",
+#     ],
+#     deps = [
+#         ":rcutils",
+#         "@googletest//:gtest",
+#         "@googletest//:gtest_main",
+#         "@mimick",
+#         "@osrf_testing_tools_cpp",
+#         "@osrf_testing_tools_cpp//:memory_tools",
+#     ],
+# )
+
+# cc_test(
+#     name = "test_find",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/test_find.cpp",
+#     ],
+#     cxxopts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu++17",
+#     ],
+#     defines = [
+#         "RCUTILS_ENABLE_FAULT_INJECTION",
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "_GNU_SOURCE",
+#     ],
+#     linkopts = [
+#         "-ldl",
+#         "-pthread",
+#     ],
+#     deps = [
+#         ":rcutils",
+#         "@googletest//:gtest",
+#         "@googletest//:gtest_main",
+#     ],
+# )
+
+# cc_test(
+#     name = "test_format_string",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/test_format_string.cpp",
+#     ],
+#     cxxopts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu++17",
+#     ],
+#     defines = [
+#         "RCUTILS_ENABLE_FAULT_INJECTION",
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "_GNU_SOURCE",
+#     ],
+#     linkopts = [
+#         "-ldl",
+#         "-pthread",
+#     ],
+#     deps = [
+#         ":rcutils",
+#         "@googletest//:gtest",
+#         "@googletest//:gtest_main",
+#     ],
+# )
+
+# cc_test(
+#     name = "test_hash_map",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/test_hash_map.cpp",
+#     ],
+#     cxxopts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu++17",
+#     ],
+#     defines = [
+#         "RCUTILS_ENABLE_FAULT_INJECTION",
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "_GNU_SOURCE",
+#     ],
+#     linkopts = [
+#         "-ldl",
+#         "-pthread",
+#     ],
+#     deps = [
+#         ":rcutils",
+#         "@googletest//:gtest",
+#         "@googletest//:gtest_main",
+#     ],
+# )
+
+# cc_test(
+#     name = "test_isalnum_no_locale",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/test_isalnum_no_locale.cpp",
+#     ],
+#     cxxopts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu++17",
+#     ],
+#     defines = [
+#         "RCUTILS_ENABLE_FAULT_INJECTION",
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "_GNU_SOURCE",
+#     ],
+#     linkopts = [
+#         "-ldl",
+#         "-pthread",
+#     ],
+#     deps = [
+#         ":rcutils",
+#         "@googletest//:gtest",
+#         "@googletest//:gtest_main",
+#     ],
+# )
+
+# cc_test(
+#     name = "test_join",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/test_join.cpp",
+#     ],
+#     cxxopts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu++17",
+#     ],
+#     defines = [
+#         "RCUTILS_ENABLE_FAULT_INJECTION",
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "_GNU_SOURCE",
+#     ],
+#     linkopts = [
+#         "-ldl",
+#         "-pthread",
+#     ],
+#     deps = [
+#         ":rcutils",
+#         "@googletest//:gtest",
+#         "@googletest//:gtest_main",
+#     ],
+# )
+
+# cc_test(
+#     name = "test_logging",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/test_logging.cpp",
+#     ],
+#     cxxopts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu++17",
+#     ],
+#     defines = [
+#         "RCUTILS_ENABLE_FAULT_INJECTION",
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "_GNU_SOURCE",
+#     ],
+#     linkopts = [
+#         "-ldl",
+#         "-pthread",
+#     ],
+#     deps = [
+#         ":rcutils",
+#         "@googletest//:gtest",
+#         "@googletest//:gtest_main",
+#         "@osrf_testing_tools_cpp",
+#         "@osrf_testing_tools_cpp//:memory_tools",
+#     ],
+# )
+
+# cc_test(
+#     name = "test_logging_bad_env",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/test_logging_bad_env.cpp",
+#     ],
+#     cxxopts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu++17",
+#     ],
+#     defines = [
+#         "RCUTILS_ENABLE_FAULT_INJECTION",
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "_GNU_SOURCE",
+#     ],
+#     linkopts = [
+#         "-ldl",
+#         "-pthread",
+#     ],
+#     deps = [
+#         ":rcutils",
+#         "@googletest//:gtest",
+#         "@googletest//:gtest_main",
+#     ],
+# )
+
+# cc_test(
+#     name = "test_logging_bad_env2",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/test_logging_bad_env.cpp",
+#     ],
+#     cxxopts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu++17",
+#     ],
+#     defines = [
+#         "RCUTILS_ENABLE_FAULT_INJECTION",
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "_GNU_SOURCE",
+#     ],
+#     linkopts = [
+#         "-ldl",
+#         "-pthread",
+#     ],
+#     deps = [
+#         ":rcutils",
+#         "@googletest//:gtest",
+#         "@googletest//:gtest_main",
+#     ],
+# )
+
+# cc_test(
+#     name = "test_logging_bad_env3",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/test_logging_bad_env.cpp",
+#     ],
+#     cxxopts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu++17",
+#     ],
+#     defines = [
+#         "RCUTILS_ENABLE_FAULT_INJECTION",
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "_GNU_SOURCE",
+#     ],
+#     linkopts = [
+#         "-ldl",
+#         "-pthread",
+#     ],
+#     deps = [
+#         ":rcutils",
+#         "@googletest//:gtest",
+#         "@googletest//:gtest_main",
+#     ],
+# )
+
+# cc_test(
+#     name = "test_logging_console_output_handler",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/test_logging_console_output_handler.cpp",
+#     ],
+#     cxxopts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu++17",
+#     ],
+#     defines = [
+#         "RCUTILS_ENABLE_FAULT_INJECTION",
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "_GNU_SOURCE",
+#     ],
+#     linkopts = [
+#         "-ldl",
+#         "-pthread",
+#     ],
+#     deps = [
+#         ":rcutils",
+#         "@googletest//:gtest",
+#         "@googletest//:gtest_main",
+#         "@osrf_testing_tools_cpp",
+#         "@osrf_testing_tools_cpp//:memory_tools",
+#     ],
+# )
+
+# cc_test(
+#     name = "test_logging_custom_env",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/test_logging_custom_env.cpp",
+#     ],
+#     cxxopts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu++17",
+#     ],
+#     defines = [
+#         "RCUTILS_ENABLE_FAULT_INJECTION",
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "_GNU_SOURCE",
+#     ],
+#     linkopts = [
+#         "-ldl",
+#         "-pthread",
+#     ],
+#     deps = [
+#         ":rcutils",
+#         "@googletest//:gtest",
+#         "@googletest//:gtest_main",
+#         "@mimick",
+#         "@osrf_testing_tools_cpp",
+#         "@osrf_testing_tools_cpp//:memory_tools",
+#     ],
+# )
+
+# cc_test(
+#     name = "test_logging_custom_env2",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/test_logging_custom_env.cpp",
+#     ],
+#     cxxopts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu++17",
+#     ],
+#     defines = [
+#         "RCUTILS_ENABLE_FAULT_INJECTION",
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "_GNU_SOURCE",
+#     ],
+#     linkopts = [
+#         "-ldl",
+#         "-pthread",
+#     ],
+#     deps = [
+#         ":rcutils",
+#         "@googletest//:gtest",
+#         "@googletest//:gtest_main",
+#         "@mimick",
+#         "@osrf_testing_tools_cpp",
+#         "@osrf_testing_tools_cpp//:memory_tools",
+#     ],
+# )
+
+# cc_test(
+#     name = "test_logging_enable_for",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/test_logging_enable_for.cpp",
+#     ],
+#     cxxopts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu++17",
+#     ],
+#     defines = [
+#         "RCUTILS_ENABLE_FAULT_INJECTION",
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "_GNU_SOURCE",
+#     ],
+#     linkopts = [
+#         "-ldl",
+#         "-pthread",
+#     ],
+#     deps = [
+#         ":rcutils",
+#         "@googletest//:gtest",
+#         "@googletest//:gtest_main",
+#         "@osrf_testing_tools_cpp",
+#         "@osrf_testing_tools_cpp//:memory_tools",
+#     ],
+# )
+
+# cc_test(
+#     name = "test_logging_macros",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/test_logging_macros.cpp",
+#     ],
+#     cxxopts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu++17",
+#     ],
+#     defines = [
+#         "RCUTILS_ENABLE_FAULT_INJECTION",
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "_GNU_SOURCE",
+#     ],
+#     linkopts = [
+#         "-ldl",
+#         "-pthread",
+#     ],
+#     deps = [
+#         ":rcutils",
+#         "@googletest//:gtest",
+#         "@googletest//:gtest_main",
+#     ],
+# )
+
+# cc_test(
+#     name = "test_macros",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/test_macros.cpp",
+#     ],
+#     cxxopts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu++17",
+#     ],
+#     defines = [
+#         "RCUTILS_ENABLE_FAULT_INJECTION",
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "_GNU_SOURCE",
+#     ],
+#     linkopts = [
+#         "-ldl",
+#         "-pthread",
+#     ],
+#     deps = [
+#         ":rcutils",
+#         "@googletest//:gtest",
+#         "@googletest//:gtest_main",
+#     ],
+# )
+
+# cc_test(
+#     name = "test_process",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/test_process.cpp",
+#     ],
+#     cxxopts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu++17",
+#     ],
+#     defines = [
+#         "CMAKE_COMMAND=/usr/bin/cmake",
+#         "RCUTILS_ENABLE_FAULT_INJECTION",
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "_GNU_SOURCE",
+#     ],
+#     linkopts = [
+#         "-ldl",
+#         "-pthread",
+#     ],
+#     deps = [
+#         ":rcutils",
+#         "@googletest//:gtest",
+#         "@googletest//:gtest_main",
+#     ],
+# )
+
+# cc_test(
+#     name = "test_repl_str",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/test_repl_str.cpp",
+#     ],
+#     cxxopts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu++17",
+#     ],
+#     defines = [
+#         "RCUTILS_ENABLE_FAULT_INJECTION",
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "_GNU_SOURCE",
+#     ],
+#     linkopts = [
+#         "-ldl",
+#         "-pthread",
+#     ],
+#     deps = [
+#         ":rcutils",
+#         "@googletest//:gtest",
+#         "@googletest//:gtest_main",
+#     ],
+# )
+
+# cc_test(
+#     name = "test_sha256",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/test_sha256.cpp",
+#     ],
+#     cxxopts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu++17",
+#     ],
+#     defines = [
+#         "RCUTILS_ENABLE_FAULT_INJECTION",
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "_GNU_SOURCE",
+#     ],
+#     linkopts = [
+#         "-ldl",
+#         "-pthread",
+#     ],
+#     deps = [
+#         ":rcutils",
+#         "@googletest//:gtest",
+#         "@googletest//:gtest_main",
+#     ],
+# )
+
+# cc_test(
+#     name = "test_shared_library_in_load_paths",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/test_shared_library.cpp",
+#     ],
+#     cxxopts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu++17",
+#     ],
+#     defines = [
+#         "RCUTILS_ENABLE_FAULT_INJECTION",
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "SHARED_LIBRARY_UNDER_TEST=dummy_shared_library_in_load_paths",
+#         "_GNU_SOURCE",
+#     ],
+#     linkopts = [
+#         "-ldl",
+#         "-pthread",
+#     ],
+#     deps = [
+#         ":rcutils",
+#         "@googletest//:gtest",
+#         "@googletest//:gtest_main",
+#     ],
+# )
+
+# cc_test(
+#     name = "test_shared_library_in_run_paths",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/test_shared_library.cpp",
+#     ],
+#     cxxopts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu++17",
+#     ],
+#     defines = [
+#         "RCUTILS_ENABLE_FAULT_INJECTION",
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "SHARED_LIBRARY_UNDER_TEST=dummy_shared_library_in_run_paths",
+#         "_GNU_SOURCE",
+#     ],
+#     linkopts = [
+#         "-ldl",
+#         "-pthread",
+#     ],
+#     deps = [
+#         ":rcutils",
+#         "@googletest//:gtest",
+#         "@googletest//:gtest_main",
+#     ],
+# )
+
+# cc_test(
+#     name = "test_shared_library_preloaded",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/test_shared_library.cpp",
+#     ],
+#     cxxopts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu++17",
+#     ],
+#     defines = [
+#         "RCUTILS_ENABLE_FAULT_INJECTION",
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "SHARED_LIBRARY_UNDER_TEST=dummy_shared_library_preloaded",
+#         "_GNU_SOURCE",
+#     ],
+#     linkopts = [
+#         "-ldl",
+#         "-pthread",
+#     ],
+#     deps = [
+#         ":dummy_shared_library_preloaded",
+#         ":rcutils",
+#         "@googletest//:gtest",
+#         "@googletest//:gtest_main",
+#     ],
+# )
+
+# cc_test(
+#     name = "test_snprintf",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/test_snprintf.cpp",
+#     ],
+#     cxxopts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu++17",
+#     ],
+#     defines = [
+#         "RCUTILS_ENABLE_FAULT_INJECTION",
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "_GNU_SOURCE",
+#     ],
+#     linkopts = [
+#         "-ldl",
+#         "-pthread",
+#     ],
+#     deps = [
+#         ":rcutils",
+#         "@googletest//:gtest",
+#         "@googletest//:gtest_main",
+#     ],
+# )
+
+# cc_test(
+#     name = "test_split",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/test_split.cpp",
+#     ],
+#     cxxopts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu++17",
+#     ],
+#     defines = [
+#         "RCUTILS_ENABLE_FAULT_INJECTION",
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "_GNU_SOURCE",
+#     ],
+#     linkopts = [
+#         "-ldl",
+#         "-pthread",
+#     ],
+#     deps = [
+#         ":rcutils",
+#         "@googletest//:gtest",
+#         "@googletest//:gtest_main",
+#     ],
+# )
+
+# cc_test(
+#     name = "test_strcasecmp",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/test_strcasecmp.cpp",
+#     ],
+#     cxxopts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu++17",
+#     ],
+#     defines = [
+#         "RCUTILS_ENABLE_FAULT_INJECTION",
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "_GNU_SOURCE",
+#     ],
+#     linkopts = [
+#         "-ldl",
+#         "-pthread",
+#     ],
+#     deps = [
+#         ":rcutils",
+#         "@googletest//:gtest",
+#         "@googletest//:gtest_main",
+#     ],
+# )
+
+# cc_test(
+#     name = "test_strdup",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/test_strdup.cpp",
+#     ],
+#     cxxopts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu++17",
+#     ],
+#     defines = [
+#         "RCUTILS_ENABLE_FAULT_INJECTION",
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "_GNU_SOURCE",
+#     ],
+#     linkopts = [
+#         "-ldl",
+#         "-pthread",
+#     ],
+#     deps = [
+#         ":rcutils",
+#         "@googletest//:gtest",
+#         "@googletest//:gtest_main",
+#     ],
+# )
+
+# cc_test(
+#     name = "test_strerror",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/test_strerror.cpp",
+#     ],
+#     cxxopts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu++17",
+#     ],
+#     defines = [
+#         "RCUTILS_ENABLE_FAULT_INJECTION",
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "_GNU_SOURCE",
+#     ],
+#     linkopts = [
+#         "-ldl",
+#         "-pthread",
+#     ],
+#     deps = [
+#         ":rcutils",
+#         "@googletest//:gtest",
+#         "@googletest//:gtest_main",
+#         "@mimick",
+#     ],
+# )
+
+# cc_test(
+#     name = "test_string_array",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/test_string_array.cpp",
+#     ],
+#     cxxopts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu++17",
+#     ],
+#     defines = [
+#         "RCUTILS_ENABLE_FAULT_INJECTION",
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "_GNU_SOURCE",
+#     ],
+#     linkopts = [
+#         "-ldl",
+#         "-pthread",
+#     ],
+#     deps = [
+#         ":rcutils",
+#         "@googletest//:gtest",
+#         "@googletest//:gtest_main",
+#     ],
+# )
+
+# cc_test(
+#     name = "test_string_map",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/test_string_map.cpp",
+#     ],
+#     cxxopts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu++17",
+#     ],
+#     defines = [
+#         "RCUTILS_ENABLE_FAULT_INJECTION",
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "_GNU_SOURCE",
+#     ],
+#     linkopts = [
+#         "-ldl",
+#         "-pthread",
+#     ],
+#     deps = [
+#         ":rcutils",
+#         "@googletest//:gtest",
+#         "@googletest//:gtest_main",
+#         "@osrf_testing_tools_cpp",
+#         "@osrf_testing_tools_cpp//:memory_tools",
+#     ],
+# )
+
+# cc_test(
+#     name = "test_time",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/test_time.cpp",
+#     ],
+#     cxxopts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu++17",
+#     ],
+#     defines = [
+#         "RCUTILS_ENABLE_FAULT_INJECTION",
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "_GNU_SOURCE",
+#     ],
+#     linkopts = [
+#         "-ldl",
+#         "-pthread",
+#     ],
+#     deps = [
+#         ":rcutils",
+#         "@googletest//:gtest",
+#         "@googletest//:gtest_main",
+#         "@mimick",
+#         "@osrf_testing_tools_cpp",
+#         "@osrf_testing_tools_cpp//:memory_tools",
+#     ],
+# )
+
+# cc_test(
+#     name = "test_uint8_array",
+#     visibility = ["//visibility:public"],
+#     srcs = [
+#         "test/test_uint8_array.cpp",
+#     ],
+#     cxxopts = [
+#         "-Wall",
+#         "-Wconversion",
+#         "-Wextra",
+#         "-Wno-sign-conversion",
+#         "-Wpedantic",
+#         "-fPIC",
+#         "-std=gnu++17",
+#     ],
+#     defines = [
+#         "RCUTILS_ENABLE_FAULT_INJECTION",
+#         "ROS_PACKAGE_NAME=rcutils",
+#         "_GNU_SOURCE",
+#     ],
+#     linkopts = [
+#         "-ldl",
+#         "-pthread",
+#     ],
+#     deps = [
+#         ":rcutils",
+#         "@googletest//:gtest",
+#         "@googletest//:gtest_main",
+#     ],
+# )
