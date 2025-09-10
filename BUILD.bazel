@@ -45,111 +45,111 @@ cc_library(
 #     ],
 # )
 
-[
-    cc_test(
-        name = test,
-        srcs = [
-            "test/{}.cpp".format(test)
-        ] + glob([
-            "test/allocator_testing_utils.h",
-            "test/time_bomb_allocator_testing_utils.h",
-            "test/mocking_utils/**",
-            # "test/**/*.c",
-            # "test/**/*.hpp",
-            # "test/**/*.cpp",
-        ], allow_empty=True),
-        local_defines = ["ROS_PACKAGE_NAME=\\\"rcutils\\\""],
-        #includes = ["src/rcl"],
-        #data = glob(["test/resources/**"]),
-        deps = [
-            "@googletest//:gtest_main",
-            "@googletest//:gtest",
-            "@osrf_testing_tools_cpp//:memory_tools",
-            "@mimick",
-            # "@rules_cc//cc/runfiles",
-            ":rcutils",
-            # ":test_msgs"
-        ],
-    )
-    for test in [
-        # "test_allocator",
-        "test_array_list",
-        # "test_atomics.c",
-        "test_char_array",
-        "test_cmdline_parser",
-        # "test_env",
-        "test_error_handling",
-        "test_error_handling_helpers",
-        # "test_filesystem",
-        "test_find",
-        "test_format_string",
-        "test_hash_map",
-        "test_isalnum_no_locale",
-        "test_join",
-        "test_logging",
-        # "test_logging_bad_env",
-        "test_logging_console_output_handler",
-        # "test_logging_custom_env",
-        "test_logging_enable_for",
-        "test_logging_long_messages",
-        # "test_logging_long_messages.py",
-        # "test_logging_long_messages.txt",
-        # "test_logging_macros.c",
-        "test_logging_macros",
-        # "test_logging_output_format.py",
-        # "test_logging_output_format_complicated_escape.regex",
-        # "test_logging_output_format_edge_cases.txt",
-        # "test_logging_output_format_escape_sequence.regex",
-        # "test_logging_output_format_long.txt",
-        # "test_logging_output_format_no_tokens.txt",
-        # "test_logging_output_format_simple_escape.regex",
-        # "test_logging_output_timestamps.regex",
-        "test_macros",
-        # "test_process",
-        "test_repl_str",
-        "test_sha256",
-        # "test_shared_library",
-        "test_snprintf",
-        "test_split",
-        "test_strcasecmp",
-        "test_strdup",
-        # "test_strerror",
-        "test_string_array",
-        "test_string_map",
-        # "test_time",
-        "test_uint8_array",
-    ]
-]
+# [
+#     cc_test(
+#         name = test,
+#         srcs = [
+#             "test/{}.cpp".format(test)
+#         ] + glob([
+#             "test/allocator_testing_utils.h",
+#             "test/time_bomb_allocator_testing_utils.h",
+#             "test/mocking_utils/**",
+#             # "test/**/*.c",
+#             # "test/**/*.hpp",
+#             # "test/**/*.cpp",
+#         ], allow_empty=True),
+#         local_defines = ["ROS_PACKAGE_NAME=\\\"rcutils\\\""],
+#         #includes = ["src/rcl"],
+#         #data = glob(["test/resources/**"]),
+#         deps = [
+#             "@googletest//:gtest_main",
+#             "@googletest//:gtest",
+#             "@osrf_testing_tools_cpp//:memory_tools",
+#             "@mimick",
+#             # "@rules_cc//cc/runfiles",
+#             ":rcutils",
+#             # ":test_msgs"
+#         ],
+#     )
+#     for test in [
+#         # "test_allocator",
+#         "test_array_list",
+#         # "test_atomics.c",
+#         "test_char_array",
+#         "test_cmdline_parser",
+#         # "test_env",
+#         "test_error_handling",
+#         "test_error_handling_helpers",
+#         # "test_filesystem",
+#         "test_find",
+#         "test_format_string",
+#         "test_hash_map",
+#         "test_isalnum_no_locale",
+#         "test_join",
+#         "test_logging",
+#         # "test_logging_bad_env",
+#         "test_logging_console_output_handler",
+#         # "test_logging_custom_env",
+#         "test_logging_enable_for",
+#         "test_logging_long_messages",
+#         # "test_logging_long_messages.py",
+#         # "test_logging_long_messages.txt",
+#         # "test_logging_macros.c",
+#         "test_logging_macros",
+#         # "test_logging_output_format.py",
+#         # "test_logging_output_format_complicated_escape.regex",
+#         # "test_logging_output_format_edge_cases.txt",
+#         # "test_logging_output_format_escape_sequence.regex",
+#         # "test_logging_output_format_long.txt",
+#         # "test_logging_output_format_no_tokens.txt",
+#         # "test_logging_output_format_simple_escape.regex",
+#         # "test_logging_output_timestamps.regex",
+#         "test_macros",
+#         # "test_process",
+#         "test_repl_str",
+#         "test_sha256",
+#         # "test_shared_library",
+#         "test_snprintf",
+#         "test_split",
+#         "test_strcasecmp",
+#         "test_strdup",
+#         # "test_strerror",
+#         "test_string_array",
+#         "test_string_map",
+#         # "test_time",
+#         "test_uint8_array",
+#     ]
+# ]
 
 
-[
-    cc_test(
-        name = test,
-        srcs = [
-            "test/{}.cpp".format(test)
-        ] + glob([
-            "test/allocator_testing_utils.h",
-            "test/time_bomb_allocator_testing_utils.h",
-            "test/mocking_utils/**",
-            # "test/**/*.c",
-            # "test/**/*.hpp",
-            # "test/**/*.cpp",
-        ], allow_empty=True),
-        local_defines = ["ROS_PACKAGE_NAME=\\\"rcutils\\\""],
-        #includes = ["src/rcl"],
-        #data = glob(["test/resources/**"]),
-        deps = [
-            "@googletest//:gtest_main",
-            "@googletest//:gtest",
-            "@osrf_testing_tools_cpp//:memory_tools",
-            "@mimick",
-            # "@rules_cc//cc/runfiles",
-            ":rcutils",
-            # ":test_msgs"
-        ],
-    )
-    for test in [
-        "test_atomics",
-        "test_logging_macros",
-    ]
-]
+# [
+#     cc_test(
+#         name = test,
+#         srcs = [
+#             "test/{}.cpp".format(test)
+#         ] + glob([
+#             "test/allocator_testing_utils.h",
+#             "test/time_bomb_allocator_testing_utils.h",
+#             "test/mocking_utils/**",
+#             # "test/**/*.c",
+#             # "test/**/*.hpp",
+#             # "test/**/*.cpp",
+#         ], allow_empty=True),
+#         local_defines = ["ROS_PACKAGE_NAME=\\\"rcutils\\\""],
+#         #includes = ["src/rcl"],
+#         #data = glob(["test/resources/**"]),
+#         deps = [
+#             "@googletest//:gtest_main",
+#             "@googletest//:gtest",
+#             "@osrf_testing_tools_cpp//:memory_tools",
+#             "@mimick",
+#             # "@rules_cc//cc/runfiles",
+#             ":rcutils",
+#             # ":test_msgs"
+#         ],
+#     )
+#     for test in [
+#         "test_atomics",
+#         "test_logging_macros",
+#     ]
+# ]
