@@ -23,10 +23,12 @@ module(
 
 # Dependencies
 
+bazel_dep(name = "googletest", version = "1.17.0")
 bazel_dep(name = "ros", version = "0.0.0")
 bazel_dep(name = "rules_cc", version = "0.1.4")
 
 # bazel_dep(name = "launch", version = "3.9.1")
 # bazel_dep(name = "launch_testing", version = "3.9.1")
-# bazel_dep(name = "osrf_testing_tools_cpp", version = "2.3.0")
+bazel_dep(name = "mimick", version = "2.3.0")
+bazel_dep(name = "osrf_testing_tools_cpp", version = "2.3.0")
 # bazel_dep(name = "performance_test_fixture", version = "0.4.0")
