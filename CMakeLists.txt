@@ -150,6 +150,14 @@ endif()
 
 target_link_libraries(${PROJECT_NAME} ${CMAKE_DL_LIBS})
 
+check_library_exists(atomic __atomic_load_8 "" HAVE_LIBATOMICS)
+
+if(HAVE_LIBATOMICS AND NOT WIN32)
+  # Exporting link flag since it won't pass ament_export_libraries() existence check
+  ament_export_link_flags("-latomic")
+  target_link_libraries(${PROJECT_NAME} atomic)
+endif()
+
 # Needed if pthread is used for thread local storage.
 if(IOS AND IOS_SDK_VERSION LESS 10.0)
   ament_export_libraries(pthread)
@@ -177,6 +185,7 @@ if(BUILD_TESTING)
 
   find_package(launch_testing_ament_cmake REQUIRED)
 
+<<<<<<< HEAD
   check_library_exists(atomic __atomic_load_8 "" HAVE_LIBATOMICS)
 
   if(HAVE_LIBATOMICS AND NOT WIN32)
@@ -205,6 +214,8 @@ if(BUILD_TESTING)
       "${CMAKE_CURRENT_BINARY_DIR}/include/rcutils/logging_macros.h")
   endif()
 
+=======
+>>>>>>> 1879f2c (Export -latomic even if BUILD_TESTING is disabled. (#516))
   find_package(mimick_vendor REQUIRED)
 
   find_package(osrf_testing_tools_cpp REQUIRED)
