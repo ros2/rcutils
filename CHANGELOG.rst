@@ -2,6 +2,11 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+7.0.3 (2025-09-17)
+------------------
+* Export -latomic even if BUILD_TESTING is disabled. (`#516 <https://github.com/ros2/rcutils/issues/516>`_)
+* Contributors: Tomoya Fujita
+
 7.0.2 (2025-08-22)
 ------------------
 * Add rcutils_raw_steady_time_now method for slew-free clock (`#507 <https://github.com/ros2/rcutils/issues/507>`_)
