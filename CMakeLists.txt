@@ -165,14 +165,6 @@ if(BUILD_TESTING)
 
   find_package(launch_testing_ament_cmake REQUIRED)
 
-<<<<<<< HEAD
-  check_library_exists(atomic __atomic_load_8 "" HAVE_LIBATOMICS)
-
-  if(HAVE_LIBATOMICS AND NOT WIN32)
-    # Exporting link flag since it won't pass ament_export_libraries() existance check
-    ament_export_link_flags("-latomic")
-  endif()
-
   if(ament_cmake_cppcheck_FOUND)
     ament_cppcheck(
       TESTNAME "cppcheck_logging_macros"
@@ -194,8 +186,6 @@ if(BUILD_TESTING)
       "${CMAKE_CURRENT_BINARY_DIR}/include/rcutils/logging_macros.h")
   endif()
 
-=======
->>>>>>> 1879f2c (Export -latomic even if BUILD_TESTING is disabled. (#516))
   find_package(mimick_vendor REQUIRED)
 
   find_package(osrf_testing_tools_cpp REQUIRED)
