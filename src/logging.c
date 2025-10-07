@@ -651,7 +651,31 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
   }
 
   g_rcutils_logging_output_handler = &rcutils_logging_console_output_handler;
-  g_rcutils_logging_default_logger_level = RCUTILS_DEFAULT_LOGGER_DEFAULT_LEVEL;
+  // Check for the environment variable for default logger level
+  const char * env_default_level;
+  const char * ret_str_level =
+    rcutils_get_env("RCUTILS_DEFAULT_LOGGER_DEFAULT_LEVEL", &env_default_level);
+  if (NULL != ret_str_level) {
+    RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
+      "Error getting environment variable RCUTILS_DEFAULT_LOGGER_DEFAULT_LEVEL: %s", ret_str_level);
+    g_rcutils_logging_default_logger_level = RCUTILS_DEFAULT_LOGGER_DEFAULT_LEVEL;
+  } else if (strcmp(env_default_level, "") == 0) {
+    // Environment variable is empty, use default
+    g_rcutils_logging_default_logger_level = RCUTILS_DEFAULT_LOGGER_DEFAULT_LEVEL;
+  } else {
+    // Try to convert the environment variable value to a severity level
+    int env_severity;
+    rcutils_ret_t severity_ret = rcutils_logging_severity_level_from_string(
+      env_default_level, g_rcutils_logging_allocator, &env_severity);
+    if (severity_ret == RCUTILS_RET_OK) {
+      g_rcutils_logging_default_logger_level = env_severity;
+    } else {
+      RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
+        "Invalid severity level '%s' in RCUTILS_DEFAULT_LOGGER_DEFAULT_LEVEL. Using default.",
+        env_default_level);
+      g_rcutils_logging_default_logger_level = RCUTILS_DEFAULT_LOGGER_DEFAULT_LEVEL;
+    }
+  }
 
   const char * line_buffered = NULL;
   const char * ret_str = rcutils_get_env("RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED", &line_buffered);
