@@ -2,6 +2,11 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+7.0.4 (2025-10-16)
+------------------
+* rcutils_logging_allocator_initialize() support. (`#419 <https://github.com/ros2/rcutils/issues/419>`_)
+* Contributors: Tomoya Fujita
+
 7.0.3 (2025-09-17)
 ------------------
 * Export -latomic even if BUILD_TESTING is disabled. (`#516 <https://github.com/ros2/rcutils/issues/516>`_)
