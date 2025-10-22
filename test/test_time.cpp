@@ -194,7 +194,8 @@ TEST_F(TestTimeFixture, test_rcutils_steady_time_now) {
 
 #if !defined(_WIN32)
 
-TEST_F(TestTimeFixture, test_rcutils_with_bad_system_clocks) {
+// TODO(asymingt): re-enable when mocking can be done on upstream symbols.
+TEST_F(TestTimeFixture, DISABLED_test_rcutils_with_bad_system_clocks) {
   {
     auto mock = mocking_utils::patch(
       "lib:rcutils", clock_gettime,

@@ -49,7 +49,8 @@ TEST(TestLoggingCustomEnv, test_logging) {
   EXPECT_EQ(RCUTILS_RET_OK, rcutils_char_array_fini(&msg_buf));
 }
 
-TEST(TestLoggingCustomEnv, test_logging_with_buffering_issues) {
+// TODO(asymingt): re-enable when mocking can be done on upstream symbols.
+TEST(TestLoggingCustomEnv, DISABLED_test_logging_with_buffering_issues) {
   auto mock = mocking_utils::patch("lib:rcutils", setvbuf, [](auto && ...) {return -1;});
   EXPECT_FALSE(g_rcutils_logging_initialized);
   EXPECT_EQ(RCUTILS_RET_ERROR, rcutils_logging_initialize());

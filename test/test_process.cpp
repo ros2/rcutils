@@ -15,12 +15,12 @@
 #include <gtest/gtest.h>
 
 #include "./allocator_testing_utils.h"
+#include "./locate_test_assets.h"
 #include "./time_bomb_allocator_testing_utils.h"
 #include "rcutils/allocator.h"
+#include "rcutils/filesystem.h"
 #include "rcutils/error_handling.h"
 #include "rcutils/process.h"
-
-static const char * const g_cmake_command = RCUTILS_STRINGIFY(CMAKE_COMMAND);
 
 TEST(TestProcess, test_get_pid) {
   EXPECT_NE(rcutils_get_pid(), 0);
@@ -54,12 +54,10 @@ TEST(TestProcess, test_process_creation) {
   rcutils_ret_t ret = RCUTILS_RET_OK;
   int exit_code = 42;
 
-  ret = rcutils_string_array_init(&args, 4, &allocator);
+  ret = rcutils_string_array_init(&args, 2, &allocator);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
-  args.data[0] = strdup(g_cmake_command);
-  args.data[1] = strdup("-E");
-  args.data[2] = strdup("echo");
-  args.data[3] = strdup("");
+  args.data[0] = strdup("echo");
+  args.data[1] = strdup("");
 
   EXPECT_EQ(nullptr, rcutils_start_process(NULL, &allocator));
   rcutils_reset_error();
@@ -85,13 +83,15 @@ TEST(TestProcess, test_process_creation) {
 
   ret = rcutils_string_array_fini(&args);
 
-  // cmake -E cat "file with space.txt" (returns 0)
-  ret = rcutils_string_array_resize(&args, 4);
+  // Make sure that paths with spaces work as expected.
+  char test_path[1024];
+  ASSERT_TRUE(get_test_asset_dir(test_path, sizeof(test_path)));
+  char * file_with_space_path = rcutils_join_path(test_path, "file with space.txt", allocator);
+
+  ret = rcutils_string_array_resize(&args, 2);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
-  args.data[0] = strdup(g_cmake_command);
-  args.data[1] = strdup("-E");
-  args.data[2] = strdup("cat");
-  args.data[3] = strdup("file with space.txt");
+  args.data[0] = strdup("cat");
+  args.data[1] = strdup(file_with_space_path);
 
   process = rcutils_start_process(&args, &allocator);
   EXPECT_NE(nullptr, process);
@@ -105,12 +105,9 @@ TEST(TestProcess, test_process_creation) {
   ret = rcutils_string_array_fini(&args);
 
   // cmake -E false (returns 1)
-  ret = rcutils_string_array_resize(&args, 3);
+  ret = rcutils_string_array_resize(&args, 1);
   ASSERT_EQ(RCUTILS_RET_OK, ret);
-  args.data[0] = strdup(g_cmake_command);
-  args.data[1] = strdup("-E");
-  allocator.deallocate(args.data[2], &allocator.state);
-  args.data[2] = strdup("false");
+  args.data[0] = strdup("false");
 
   process = rcutils_start_process(&args, &allocator);
   EXPECT_NE(nullptr, process);
