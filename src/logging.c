@@ -381,6 +381,12 @@ static const char * expand_file_name(
   return logging_output->buffer;
 }
 
+// Forward declare expand_serverity_with_color to associate it with tokens.
+static const char * expand_severity_with_color(
+  const logging_input_t * logging_input,
+  rcutils_char_array_t * logging_output,
+  size_t start_offset, size_t end_offset);
+
 typedef struct token_map_entry_s
 {
   const char * token;
@@ -389,6 +395,7 @@ typedef struct token_map_entry_s
 
 static const token_map_entry_t tokens[] = {
   {.token = "severity", .handler = expand_severity},
+  {.token = "severity_with_color", .handler = expand_severity_with_color},
   {.token = "name", .handler = expand_name},
   {.token = "message", .handler = expand_message},
   {.token = "function_name", .handler = expand_function_name},
@@ -1407,13 +1414,24 @@ rcutils_ret_t rcutils_logging_format_message(
 # define SET_STANDARD_COLOR_IN_STREAM(is_colorized, status)
 #endif
 
+static bool rcutils_logging_is_colorized()
+{
+  if (g_colorized_output == RCUTILS_COLORIZED_OUTPUT_FORCE_ENABLE) {
+    return true;
+  }
+  if (g_colorized_output == RCUTILS_COLORIZED_OUTPUT_FORCE_DISABLE) {
+    return false;
+  }
+  return IS_STREAM_A_TTY(g_output_stream);
+}
+
 void rcutils_logging_console_output_handler(
   const rcutils_log_location_t * location,
   int severity, const char * name, rcutils_time_point_value_t timestamp,
   const char * format, va_list * args)
 {
   rcutils_ret_t status = RCUTILS_RET_OK;
-  bool is_colorized = false;
+  bool is_colorized = rcutils_logging_is_colorized();
 
   if (!g_rcutils_logging_initialized) {
     RCUTILS_SAFE_FWRITE_TO_STDERR(
@@ -1432,14 +1450,6 @@ void rcutils_logging_console_output_handler(
       RCUTILS_SAFE_FWRITE_TO_STDERR_WITH_FORMAT_STRING(
         "unknown severity level: %d\n", severity);
       return;
-  }
-
-  if (g_colorized_output == RCUTILS_COLORIZED_OUTPUT_FORCE_ENABLE) {
-    is_colorized = true;
-  } else if (g_colorized_output == RCUTILS_COLORIZED_OUTPUT_FORCE_DISABLE) {
-    is_colorized = false;
-  } else {
-    is_colorized = IS_STREAM_A_TTY(g_output_stream);
   }
 
   char msg_buf[1024] = "";
@@ -1500,4 +1510,52 @@ void rcutils_logging_console_output_handler(
   if (RCUTILS_RET_OK != status) {
     RCUTILS_SAFE_FWRITE_TO_STDERR("Failed to fini array.\n");
   }
+}
+
+static const char * expand_severity_with_color(
+  const logging_input_t * logging_input,
+  rcutils_char_array_t * logging_output,
+  size_t start_offset, size_t end_offset)
+{
+  (void)start_offset;
+  (void)end_offset;
+
+  if (rcutils_logging_is_colorized()) {
+    // The entire message is colorized, so we don't need to colorize the severity.
+    return expand_severity(logging_input, logging_output, start_offset, end_offset);
+  }
+
+  rcutils_ret_t status = RCUTILS_RET_OK;
+
+  SET_OUTPUT_COLOR_WITH_SEVERITY(status, logging_input->severity, *logging_output)
+  if (RCUTILS_RET_OK != status) {
+    RCUTILS_SAFE_FWRITE_TO_STDERR("Failed to set color on severity.\n");
+    return NULL;
+  }
+
+  const char * severity_string = g_rcutils_log_severity_names[logging_input->severity];
+  if (rcutils_char_array_strcat(logging_output, severity_string) != RCUTILS_RET_OK) {
+    RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string().str);
+    rcutils_reset_error();
+    RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
+    return NULL;
+  }
+
+  // If the severity is 4 characters long, add another space to line it up with the 5 character severities.
+  if (strlen(severity_string) == 4) {
+    if (rcutils_char_array_strcat(logging_output, " ") != RCUTILS_RET_OK) {
+      RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string().str);
+      rcutils_reset_error();
+      RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
+      return NULL;
+    }
+  }
+
+  SET_STANDARD_COLOR_IN_BUFFER(true, status, *logging_output)
+  if (RCUTILS_RET_OK != status) {
+    RCUTILS_SAFE_FWRITE_TO_STDERR("Failed to reset color after severity.\n");
+    return NULL;
+  }
+
+  return logging_output->buffer;
 }

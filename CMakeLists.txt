@@ -150,6 +150,15 @@ if(BUILD_TESTING)
     TIMEOUT 10
   )
 
+  add_executable(test_logging_severity_with_color test/test_logging_severity_with_color.cpp)
+  target_link_libraries(test_logging_severity_with_color ${PROJECT_NAME})
+  add_launch_test(
+    "test/test_logging_severity_with_color.py"
+    TARGET test_logging_severity_with_color
+    WORKING_DIRECTORY "$<TARGET_FILE_DIR:test_logging_severity_with_color>"
+    TIMEOUT 10
+  )
+
   add_launch_test(
     "test/test_logging_output_format.py"
     TARGET test_logging_output_format
