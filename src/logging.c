@@ -1541,7 +1541,8 @@ static const char * expand_severity_with_color(
     return NULL;
   }
 
-  // If the severity is 4 characters long, add another space to line it up with the 5 character severities.
+  // If the severity is 4 characters long, add another space to line it up with the
+  // 5 character severities.
   if (strlen(severity_string) == 4) {
     if (rcutils_char_array_strcat(logging_output, " ") != RCUTILS_RET_OK) {
       RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string().str);

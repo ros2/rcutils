@@ -27,7 +27,7 @@ import launch_testing.markers
 
 @launch_testing.markers.keep_alive
 def generate_test_description():
-    test_process_name='test_logging_severity_with_color'
+    test_process_name = 'test_logging_severity_with_color'
     launch_description = LaunchDescription()
     # Set the output format to a "verbose" format that is expected by the executable output
     launch_description.add_action(
@@ -60,7 +60,7 @@ def generate_test_description():
 class TestLoggingSeverityWithColor(unittest.TestCase):
 
     def test_wait_for_shutdown(self, proc_info, proc_output, process_name):
-        """Wait for the process to complete so that the log messages will be available to inspect."""
+        """Wait for the process to complete so the log messages will be available to inspect."""
         proc_info.assertWaitForShutdown(process=process_name, timeout=10)
 
 
