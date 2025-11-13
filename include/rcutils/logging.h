@@ -90,6 +90,9 @@ rcutils_ret_t rcutils_logging_allocator_initialize(
  *   - `message`, the message string after it has been formatted
  *   - `name`, the full logger name
  *   - `severity`, the name of the severity level, e.g. `INFO`
+ *   - `severity_with_color`, the name of the severity level with colours. If the
+ *      `RCUTILS_COLORIZED_OUTPUT` environment variable is set to `1`, `severity_with_color` is
+ *      the same as `severity`.
  *   - `time`, the timestamp of log message in floating point seconds
  *   - `time_as_nanoseconds`, the timestamp of log message in integer nanoseconds
  *
