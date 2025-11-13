@@ -22,13 +22,13 @@ int main(int, char **)
 {
   rcutils_ret_t ret = rcutils_logging_initialize();
   if (ret != RCUTILS_RET_OK) {
-    fprintf(stderr, "error initializing logging: %s\n", rcutils_get_error_string().str);
+    std::cerr << "error initializing logging: " << rcutils_get_error_string().str << std::endl;
     return -1;
   }
 
   rcutils_ret_t status = rcutils_logging_set_logger_level("name", RCUTILS_LOG_SEVERITY_DEBUG);
   if (status != RCUTILS_RET_OK) {
-    fprintf(stderr, "error setting logger level: %s\n", rcutils_get_error_string().str);
+    std::cerr << "error setting logger level: " << rcutils_get_error_string().str << std::endl;
     return -1;
   }
 
