@@ -1422,6 +1422,9 @@ static bool rcutils_logging_is_colorized()
   if (g_colorized_output == RCUTILS_COLORIZED_OUTPUT_FORCE_DISABLE) {
     return false;
   }
+  if (g_output_stream == NULL) {
+    return false;
+  }
   return IS_STREAM_A_TTY(g_output_stream);
 }
 
