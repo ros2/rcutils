@@ -42,7 +42,7 @@ rcutils_uint8_array_init(
       RCUTILS_SET_ERROR_MSG("requested capacity for uint8_array too large");
       uint8_array->buffer_capacity = 0lu;
       uint8_array->buffer_length = 0lu;
-      return RCUTILS_RET_INVALID_ARGUMENT;
+      return RCUTILS_RET_BAD_ALLOC;
     }
     uint8_array->buffer = (uint8_t *)allocator->allocate(
       buffer_capacity * sizeof(uint8_t), allocator->state);
@@ -92,7 +92,7 @@ rcutils_uint8_array_resize(rcutils_uint8_array_t * uint8_array, size_t new_size)
   }
   if (new_size >= SIZE_MAX) {
     RCUTILS_SET_ERROR_MSG("requested size for uint8_array too large");
-    return RCUTILS_RET_INVALID_ARGUMENT;
+    return RCUTILS_RET_BAD_ALLOC;
   }
 
   uint8_array->buffer = rcutils_reallocf(
