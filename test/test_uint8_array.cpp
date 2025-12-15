@@ -22,6 +22,8 @@ TEST(test_uint8_array, default_initialization) {
   auto uint8_array = rcutils_get_zero_initialized_uint8_array();
 
   auto allocator = rcutils_get_default_allocator();
+  EXPECT_EQ(RCUTILS_RET_BAD_ALLOC,
+    rcutils_uint8_array_init(&uint8_array, SIZE_MAX, &allocator));
   EXPECT_EQ(RCUTILS_RET_OK, rcutils_uint8_array_init(&uint8_array, 0, &allocator));
   EXPECT_EQ(0lu, uint8_array.buffer_capacity);
   EXPECT_EQ(RCUTILS_RET_OK, rcutils_uint8_array_fini(&uint8_array));
@@ -43,6 +45,11 @@ TEST(test_uint8_array, resize) {
   for (size_t i = 0; i < uint8_array.buffer_length; ++i) {
     EXPECT_EQ(0xFF, uint8_array.buffer[i]);
   }
+
+  ret = rcutils_uint8_array_resize(&uint8_array, SIZE_MAX);
+  ASSERT_EQ(RCUTILS_RET_BAD_ALLOC, ret);
+  EXPECT_EQ(5lu, uint8_array.buffer_capacity);
+  EXPECT_EQ(5lu, uint8_array.buffer_length);
 
   ret = rcutils_uint8_array_resize(&uint8_array, 0);
   ASSERT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret);
