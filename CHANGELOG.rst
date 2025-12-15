@@ -2,6 +2,12 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+7.0.5 (2025-12-15)
+------------------
+* Check SIZE_MAX for array initialization. (`#527 <https://github.com/ros2/rcutils/issues/527>`_)
+* Do not export dl in rcutils_LIBRARIES (`#522 <https://github.com/ros2/rcutils/issues/522>`_)
+* Contributors: Shane Loretz, Tomoya Fujita
+
 7.0.4 (2025-10-16)
 ------------------
 * rcutils_logging_allocator_initialize() support. (`#419 <https://github.com/ros2/rcutils/issues/419>`_)
