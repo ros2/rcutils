@@ -22,7 +22,8 @@ TEST(test_uint8_array, default_initialization) {
   auto uint8_array = rcutils_get_zero_initialized_uint8_array();
 
   auto allocator = rcutils_get_default_allocator();
-  EXPECT_EQ(RCUTILS_RET_BAD_ALLOC,
+  EXPECT_EQ(
+    RCUTILS_RET_BAD_ALLOC,
     rcutils_uint8_array_init(&uint8_array, SIZE_MAX, &allocator));
   EXPECT_EQ(RCUTILS_RET_OK, rcutils_uint8_array_init(&uint8_array, 0, &allocator));
   EXPECT_EQ(0lu, uint8_array.buffer_capacity);
