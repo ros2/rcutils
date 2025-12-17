@@ -2,6 +2,12 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+6.7.5 (2025-12-17)
+------------------
+* Check SIZE_MAX for array initialization. (`#527 <https://github.com/ros2/rcutils/issues/527>`_) (`#530 <https://github.com/ros2/rcutils/issues/530>`_)
+* Export -latomic even if BUILD_TESTING is disabled. (backport `#516 <https://github.com/ros2/rcutils/issues/516>`_) (`#518 <https://github.com/ros2/rcutils/issues/518>`_)
+* Contributors: mergify[bot]
+
 6.7.4 (2025-08-22)
 ------------------
 * Add rcutils_raw_steady_time_now method for slew-free clock (`#507 <https://github.com/ros2/rcutils/issues/507>`_) (`#514 <https://github.com/ros2/rcutils/issues/514>`_)
