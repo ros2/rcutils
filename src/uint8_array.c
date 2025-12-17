@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <stdint.h>
+
 #include "rcutils/error_handling.h"
 #include "rcutils/types/uint8_array.h"
 
@@ -36,6 +38,12 @@ rcutils_uint8_array_init(
   uint8_array->allocator = *allocator;
 
   if (buffer_capacity > 0lu) {
+    if (buffer_capacity >= SIZE_MAX) {
+      RCUTILS_SET_ERROR_MSG("requested capacity for uint8_array too large");
+      uint8_array->buffer_capacity = 0lu;
+      uint8_array->buffer_length = 0lu;
+      return RCUTILS_RET_BAD_ALLOC;
+    }
     uint8_array->buffer = (uint8_t *)allocator->allocate(
       buffer_capacity * sizeof(uint8_t), allocator->state);
     RCUTILS_CHECK_FOR_NULL_WITH_MSG(
@@ -81,6 +89,10 @@ rcutils_uint8_array_resize(rcutils_uint8_array_t * uint8_array, size_t new_size)
   if (new_size == uint8_array->buffer_capacity) {
     // nothing to do here
     return RCUTILS_RET_OK;
+  }
+  if (new_size >= SIZE_MAX) {
+    RCUTILS_SET_ERROR_MSG("requested size for uint8_array too large");
+    return RCUTILS_RET_BAD_ALLOC;
   }
 
   uint8_array->buffer = rcutils_reallocf(
