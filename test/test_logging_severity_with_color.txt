@@ -1,5 +1,5 @@
 [\033[32mDEBUG\033[0m] [name]: Debug message (func() at file:42)
-[\033[0mINFO \033[0m] [name]: Info message (func() at file:42)
-[\033[33mWARN \033[0m] [name]: Warn message (func() at file:42)
+[\033[0mINFO\033[0m] [name]: Info message (func() at file:42)
+[\033[33mWARN\033[0m] [name]: Warn message (func() at file:42)
 [\033[31mERROR\033[0m] [name]: Error message (func() at file:42)
 [\033[31mFATAL\033[0m] [name]: Fatal message (func() at file:42)

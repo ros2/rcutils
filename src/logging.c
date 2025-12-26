@@ -1414,7 +1414,7 @@ rcutils_ret_t rcutils_logging_format_message(
 # define SET_STANDARD_COLOR_IN_STREAM(is_colorized, status)
 #endif
 
-static bool rcutils_logging_is_colorized()
+static bool rcutils_logging_is_colorized(void)
 {
   if (g_colorized_output == RCUTILS_COLORIZED_OUTPUT_FORCE_ENABLE) {
     return true;
@@ -1542,17 +1542,6 @@ static const char * expand_severity_with_color(
     rcutils_reset_error();
     RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
     return NULL;
-  }
-
-  // If the severity is 4 characters long, add another space to line it up with the
-  // 5 character severities.
-  if (strlen(severity_string) == 4) {
-    if (rcutils_char_array_strcat(logging_output, " ") != RCUTILS_RET_OK) {
-      RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string().str);
-      rcutils_reset_error();
-      RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
-      return NULL;
-    }
   }
 
   SET_STANDARD_COLOR_IN_BUFFER(true, status, *logging_output)
