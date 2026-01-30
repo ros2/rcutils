@@ -30,7 +30,7 @@ TEST(TestBase64, DecodeBase64Valid) {
 
   // Test case 1: "Hello"
   const char * base64_str = "SGVsbG8=";
-  ASSERT_EQ(RCUTILS_RET_OK, decode_base64(base64_str, &byte_array, &allocator));
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_decode_base64(base64_str, &byte_array, &allocator));
   ASSERT_EQ(5u, byte_array.buffer_length);
   EXPECT_EQ('H', byte_array.buffer[0]);
   EXPECT_EQ('e', byte_array.buffer[1]);
@@ -42,7 +42,7 @@ TEST(TestBase64, DecodeBase64Valid) {
   // Test case 2: "Hello World"
   byte_array = rcutils_get_zero_initialized_uint8_array();
   base64_str = "SGVsbG8gV29ybGQ=";
-  ASSERT_EQ(RCUTILS_RET_OK, decode_base64(base64_str, &byte_array, &allocator));
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_decode_base64(base64_str, &byte_array, &allocator));
   ASSERT_EQ(11u, byte_array.buffer_length);
   EXPECT_EQ(0, memcmp(byte_array.buffer, "Hello World", 11));
   ASSERT_EQ(RCUTILS_RET_OK, rcutils_uint8_array_fini(&byte_array));
@@ -50,7 +50,7 @@ TEST(TestBase64, DecodeBase64Valid) {
   // Test case 3: "ABC"
   byte_array = rcutils_get_zero_initialized_uint8_array();
   base64_str = "QUJD";
-  ASSERT_EQ(RCUTILS_RET_OK, decode_base64(base64_str, &byte_array, &allocator));
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_decode_base64(base64_str, &byte_array, &allocator));
   ASSERT_EQ(3u, byte_array.buffer_length);
   EXPECT_EQ('A', byte_array.buffer[0]);
   EXPECT_EQ('B', byte_array.buffer[1]);
@@ -60,7 +60,7 @@ TEST(TestBase64, DecodeBase64Valid) {
   // Test case 4: Single byte "A"
   byte_array = rcutils_get_zero_initialized_uint8_array();
   base64_str = "QQ==";
-  ASSERT_EQ(RCUTILS_RET_OK, decode_base64(base64_str, &byte_array, &allocator));
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_decode_base64(base64_str, &byte_array, &allocator));
   ASSERT_EQ(1u, byte_array.buffer_length);
   EXPECT_EQ('A', byte_array.buffer[0]);
   ASSERT_EQ(RCUTILS_RET_OK, rcutils_uint8_array_fini(&byte_array));
@@ -68,7 +68,7 @@ TEST(TestBase64, DecodeBase64Valid) {
   // Test case 5: Two bytes "AB"
   byte_array = rcutils_get_zero_initialized_uint8_array();
   base64_str = "QUI=";
-  ASSERT_EQ(RCUTILS_RET_OK, decode_base64(base64_str, &byte_array, &allocator));
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_decode_base64(base64_str, &byte_array, &allocator));
   ASSERT_EQ(2u, byte_array.buffer_length);
   EXPECT_EQ('A', byte_array.buffer[0]);
   EXPECT_EQ('B', byte_array.buffer[1]);
@@ -77,7 +77,7 @@ TEST(TestBase64, DecodeBase64Valid) {
   // Test case 6: Binary data {0x00, 0xFF, 0x80, 0x7F}
   byte_array = rcutils_get_zero_initialized_uint8_array();
   base64_str = "AP+Afw==";
-  ASSERT_EQ(RCUTILS_RET_OK, decode_base64(base64_str, &byte_array, &allocator));
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_decode_base64(base64_str, &byte_array, &allocator));
   ASSERT_EQ(4u, byte_array.buffer_length);
   EXPECT_EQ(0x00, byte_array.buffer[0]);
   EXPECT_EQ(0xFF, byte_array.buffer[1]);
@@ -92,7 +92,7 @@ TEST(TestBase64, DecodeBase64EmptyString) {
   rcutils_uint8_array_t byte_array = rcutils_get_zero_initialized_uint8_array();
 
   const char * base64_str = "";
-  ASSERT_EQ(RCUTILS_RET_OK, decode_base64(base64_str, &byte_array, &allocator));
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_decode_base64(base64_str, &byte_array, &allocator));
   EXPECT_EQ(0u, byte_array.buffer_length);
   EXPECT_EQ(nullptr, byte_array.buffer);
 }
@@ -104,15 +104,15 @@ TEST(TestBase64, DecodeBase64NullInputs) {
   const char * base64_str = "SGVsbG8=";
 
   // NULL base64_str
-  EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, decode_base64(nullptr, &byte_array, &allocator));
+  EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, rcutils_decode_base64(nullptr, &byte_array, &allocator));
   rcutils_reset_error();
 
   // NULL byte_array
-  EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, decode_base64(base64_str, nullptr, &allocator));
+  EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, rcutils_decode_base64(base64_str, nullptr, &allocator));
   rcutils_reset_error();
 
   // NULL allocator
-  EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, decode_base64(base64_str, &byte_array, nullptr));
+  EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, rcutils_decode_base64(base64_str, &byte_array, nullptr));
   rcutils_reset_error();
 }
 
@@ -126,7 +126,8 @@ TEST(TestBase64, DecodeBase64NonZeroInitializedArray) {
   ASSERT_EQ(RCUTILS_RET_OK, rcutils_uint8_array_init(&byte_array, 10, &allocator));
 
   // This should fail because byte_array is not zero-initialized
-  EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, decode_base64(base64_str, &byte_array, &allocator));
+  EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT,
+    rcutils_decode_base64(base64_str, &byte_array, &allocator));
   rcutils_reset_error();
 
   ASSERT_EQ(RCUTILS_RET_OK, rcutils_uint8_array_fini(&byte_array));
@@ -139,7 +140,7 @@ TEST(TestBase64, DecodeBase64InvalidLength) {
 
   // Length not multiple of 4
   const char * base64_str = "SGVsbG";  // Length 6
-  EXPECT_EQ(RCUTILS_RET_ERROR, decode_base64(base64_str, &byte_array, &allocator));
+  EXPECT_EQ(RCUTILS_RET_ERROR, rcutils_decode_base64(base64_str, &byte_array, &allocator));
   EXPECT_EQ(byte_array.buffer, nullptr);
   EXPECT_EQ(byte_array.buffer_length, 0u);
   rcutils_reset_error();
@@ -152,7 +153,7 @@ TEST(TestBase64, DecodeBase64InvalidCharacters) {
 
   // Invalid character '@'
   const char * base64_str = "SGVs@G8=";
-  EXPECT_EQ(RCUTILS_RET_ERROR, decode_base64(base64_str, &byte_array, &allocator));
+  EXPECT_EQ(RCUTILS_RET_ERROR, rcutils_decode_base64(base64_str, &byte_array, &allocator));
   EXPECT_EQ(byte_array.buffer, nullptr);
   EXPECT_EQ(byte_array.buffer_length, 0u);
   rcutils_reset_error();
@@ -160,7 +161,7 @@ TEST(TestBase64, DecodeBase64InvalidCharacters) {
   // Invalid character with space
   byte_array = rcutils_get_zero_initialized_uint8_array();
   base64_str = "SGVs bG8=";
-  EXPECT_EQ(RCUTILS_RET_ERROR, decode_base64(base64_str, &byte_array, &allocator));
+  EXPECT_EQ(RCUTILS_RET_ERROR, rcutils_decode_base64(base64_str, &byte_array, &allocator));
   EXPECT_EQ(byte_array.buffer, nullptr);
   EXPECT_EQ(byte_array.buffer_length, 0u);
   rcutils_reset_error();
@@ -173,13 +174,13 @@ TEST(TestBase64, DecodeBase64InvalidPadding) {
 
   // Padding in wrong position
   const char * base64_str = "SG=sbG8=";
-  EXPECT_EQ(RCUTILS_RET_ERROR, decode_base64(base64_str, &byte_array, &allocator));
+  EXPECT_EQ(RCUTILS_RET_ERROR, rcutils_decode_base64(base64_str, &byte_array, &allocator));
   rcutils_reset_error();
 
   // Invalid padding sequence
   byte_array = rcutils_get_zero_initialized_uint8_array();
   base64_str = "SGVs=G8=";
-  EXPECT_EQ(RCUTILS_RET_ERROR, decode_base64(base64_str, &byte_array, &allocator));
+  EXPECT_EQ(RCUTILS_RET_ERROR, rcutils_decode_base64(base64_str, &byte_array, &allocator));
   EXPECT_EQ(byte_array.buffer, nullptr);
   EXPECT_EQ(byte_array.buffer_length, 0u);
   rcutils_reset_error();
@@ -187,7 +188,7 @@ TEST(TestBase64, DecodeBase64InvalidPadding) {
   // More than 2 padding characters
   byte_array = rcutils_get_zero_initialized_uint8_array();
   base64_str = "SGVs===";  // Not valid length anyway
-  EXPECT_EQ(RCUTILS_RET_ERROR, decode_base64(base64_str, &byte_array, &allocator));
+  EXPECT_EQ(RCUTILS_RET_ERROR, rcutils_decode_base64(base64_str, &byte_array, &allocator));
   EXPECT_EQ(byte_array.buffer, nullptr);
   EXPECT_EQ(byte_array.buffer_length, 0u);
   rcutils_reset_error();
@@ -205,7 +206,7 @@ TEST(TestBase64, EncodeBase64Valid) {
   memcpy(byte_array.buffer, data1, 5);
   byte_array.buffer_length = 5;
 
-  ASSERT_EQ(RCUTILS_RET_OK, encode_base64(&byte_array, &base64_str, &allocator));
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_encode_base64(&byte_array, &base64_str, &allocator));
   EXPECT_STREQ("SGVsbG8=", base64_str);
   allocator.deallocate(base64_str, allocator.state);
   ASSERT_EQ(RCUTILS_RET_OK, rcutils_uint8_array_fini(&byte_array));
@@ -218,7 +219,7 @@ TEST(TestBase64, EncodeBase64Valid) {
   byte_array.buffer_length = 11;
 
   base64_str = nullptr;
-  ASSERT_EQ(RCUTILS_RET_OK, encode_base64(&byte_array, &base64_str, &allocator));
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_encode_base64(&byte_array, &base64_str, &allocator));
   EXPECT_STREQ("SGVsbG8gV29ybGQ=", base64_str);
   allocator.deallocate(base64_str, allocator.state);
   ASSERT_EQ(RCUTILS_RET_OK, rcutils_uint8_array_fini(&byte_array));
@@ -231,7 +232,7 @@ TEST(TestBase64, EncodeBase64Valid) {
   byte_array.buffer_length = 3;
 
   base64_str = nullptr;
-  ASSERT_EQ(RCUTILS_RET_OK, encode_base64(&byte_array, &base64_str, &allocator));
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_encode_base64(&byte_array, &base64_str, &allocator));
   EXPECT_STREQ("QUJD", base64_str);
   allocator.deallocate(base64_str, allocator.state);
   ASSERT_EQ(RCUTILS_RET_OK, rcutils_uint8_array_fini(&byte_array));
@@ -244,7 +245,7 @@ TEST(TestBase64, EncodeBase64Valid) {
   byte_array.buffer_length = 1;
 
   base64_str = nullptr;
-  ASSERT_EQ(RCUTILS_RET_OK, encode_base64(&byte_array, &base64_str, &allocator));
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_encode_base64(&byte_array, &base64_str, &allocator));
   EXPECT_STREQ("QQ==", base64_str);
   allocator.deallocate(base64_str, allocator.state);
   ASSERT_EQ(RCUTILS_RET_OK, rcutils_uint8_array_fini(&byte_array));
@@ -257,7 +258,7 @@ TEST(TestBase64, EncodeBase64Valid) {
   byte_array.buffer_length = 2;
 
   base64_str = nullptr;
-  ASSERT_EQ(RCUTILS_RET_OK, encode_base64(&byte_array, &base64_str, &allocator));
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_encode_base64(&byte_array, &base64_str, &allocator));
   EXPECT_STREQ("QUI=", base64_str);
   allocator.deallocate(base64_str, allocator.state);
   ASSERT_EQ(RCUTILS_RET_OK, rcutils_uint8_array_fini(&byte_array));
@@ -270,7 +271,7 @@ TEST(TestBase64, EncodeBase64Valid) {
   byte_array.buffer_length = 4;
 
   base64_str = nullptr;
-  ASSERT_EQ(RCUTILS_RET_OK, encode_base64(&byte_array, &base64_str, &allocator));
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_encode_base64(&byte_array, &base64_str, &allocator));
   EXPECT_STREQ("AP+Afw==", base64_str);
   allocator.deallocate(base64_str, allocator.state);
   ASSERT_EQ(RCUTILS_RET_OK, rcutils_uint8_array_fini(&byte_array));
@@ -286,7 +287,8 @@ TEST(TestBase64, EncodeBase64EmptyArray) {
   byte_array.buffer_length = 0;
 
   // Empty array (buffer_length = 0) should return error
-  EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, encode_base64(&byte_array, &base64_str, &allocator));
+  EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT,
+    rcutils_encode_base64(&byte_array, &base64_str, &allocator));
   rcutils_reset_error();
   ASSERT_EQ(RCUTILS_RET_OK, rcutils_uint8_array_fini(&byte_array));
 }
@@ -303,15 +305,15 @@ TEST(TestBase64, EncodeBase64NullInputs) {
   byte_array.buffer_length = 3;
 
   // NULL byte_array
-  EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, encode_base64(nullptr, &base64_str, &allocator));
+  EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, rcutils_encode_base64(nullptr, &base64_str, &allocator));
   rcutils_reset_error();
 
   // NULL base64_str
-  EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, encode_base64(&byte_array, nullptr, &allocator));
+  EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, rcutils_encode_base64(&byte_array, nullptr, &allocator));
   rcutils_reset_error();
 
   // NULL allocator
-  EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, encode_base64(&byte_array, &base64_str, nullptr));
+  EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, rcutils_encode_base64(&byte_array, &base64_str, nullptr));
   rcutils_reset_error();
 
   ASSERT_EQ(RCUTILS_RET_OK, rcutils_uint8_array_fini(&byte_array));
@@ -327,7 +329,8 @@ TEST(TestBase64, EncodeBase64NullBuffer) {
   byte_array.buffer = nullptr;
   byte_array.buffer_length = 5;
 
-  EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, encode_base64(&byte_array, &base64_str, &allocator));
+  EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT,
+    rcutils_encode_base64(&byte_array, &base64_str, &allocator));
   rcutils_reset_error();
 }
 
@@ -355,12 +358,11 @@ TEST(TestBase64, RoundTripEncodeDecode) {
     byte_array.buffer_length = test_str.size();
 
     char * base64_str = nullptr;
-    ASSERT_EQ(RCUTILS_RET_OK, encode_base64(&byte_array, &base64_str, &allocator));
+    ASSERT_EQ(RCUTILS_RET_OK, rcutils_encode_base64(&byte_array, &base64_str, &allocator));
 
     // Decode
     rcutils_uint8_array_t decoded_array = rcutils_get_zero_initialized_uint8_array();
-    ASSERT_EQ(RCUTILS_RET_OK, decode_base64(base64_str, &decoded_array, &allocator));
-
+    ASSERT_EQ(RCUTILS_RET_OK, rcutils_decode_base64(base64_str, &decoded_array, &allocator));
     // Verify
     EXPECT_EQ(byte_array.buffer_length, decoded_array.buffer_length);
     EXPECT_EQ(0, memcmp(byte_array.buffer, decoded_array.buffer, byte_array.buffer_length));
@@ -396,12 +398,11 @@ TEST(TestBase64, RoundTripBinaryData) {
     byte_array.buffer_length = data.size();
 
     char * base64_str = nullptr;
-    ASSERT_EQ(RCUTILS_RET_OK, encode_base64(&byte_array, &base64_str, &allocator));
+    ASSERT_EQ(RCUTILS_RET_OK, rcutils_encode_base64(&byte_array, &base64_str, &allocator));
 
     // Decode
     rcutils_uint8_array_t decoded_array = rcutils_get_zero_initialized_uint8_array();
-    ASSERT_EQ(RCUTILS_RET_OK, decode_base64(base64_str, &decoded_array, &allocator));
-
+    ASSERT_EQ(RCUTILS_RET_OK, rcutils_decode_base64(base64_str, &decoded_array, &allocator));
     // Verify
     EXPECT_EQ(data.size(), decoded_array.buffer_length);
     EXPECT_EQ(0, memcmp(data.data(), decoded_array.buffer, data.size()));
@@ -430,7 +431,7 @@ TEST(TestBase64, EncodeDecodeLargeData) {
 
   // Encode
   char * base64_str = nullptr;
-  ASSERT_EQ(RCUTILS_RET_OK, encode_base64(&byte_array, &base64_str, &allocator));
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_encode_base64(&byte_array, &base64_str, &allocator));
 
   // Verify encoded length
   size_t expected_encoded_len = ((data_size + 2) / 3) * 4;
@@ -438,7 +439,7 @@ TEST(TestBase64, EncodeDecodeLargeData) {
 
   // Decode
   rcutils_uint8_array_t decoded_array = rcutils_get_zero_initialized_uint8_array();
-  ASSERT_EQ(RCUTILS_RET_OK, decode_base64(base64_str, &decoded_array, &allocator));
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_decode_base64(base64_str, &decoded_array, &allocator));
 
   // Verify
   EXPECT_EQ(data_size, decoded_array.buffer_length);

@@ -17,12 +17,14 @@ extern "C"
 {
 #endif
 
+#include <pthread.h>
 #include <stdint.h>
 #include <string.h>
 
 #include "rcutils/allocator.h"
 #include "rcutils/base64.h"
 #include "rcutils/error_handling.h"
+#include "rcutils/strnlen.h"
 #include "rcutils/types.h"
 #include "rcutils/types/uint8_array.h"
 
@@ -30,14 +32,10 @@ extern "C"
 
 // Initialize the base64 lookup table
 static uint8_t base64_map[256];
-static int base64_map_initialized = 0;
+static pthread_once_t base64_map_initialization_once = PTHREAD_ONCE_INIT;
 
 static void initialize_base64_map(void)
 {
-  if (base64_map_initialized) {
-    return;
-  }
-
   // Initialize all values to invalid
   for (int i = 0; i < 256; i++) {
     base64_map[i] = BASE64_INVALID;
@@ -61,16 +59,14 @@ static void initialize_base64_map(void)
   base64_map['0'] = 52; base64_map['1'] = 53; base64_map['2'] = 54; base64_map['3'] = 55;
   base64_map['4'] = 56; base64_map['5'] = 57; base64_map['6'] = 58; base64_map['7'] = 59;
   base64_map['8'] = 60; base64_map['9'] = 61; base64_map['+'] = 62; base64_map['/'] = 63;
-
-  base64_map_initialized = 1;
 }
 
-rcutils_ret_t decode_base64(
+rcutils_ret_t rcutils_decode_base64(
   const char * base64_str,
   rcutils_uint8_array_t * byte_array,
   const rcutils_allocator_t * allocator)
 {
-  initialize_base64_map();
+  pthread_once(&base64_map_initialization_once, initialize_base64_map);
 
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(base64_str, RCUTILS_RET_INVALID_ARGUMENT);
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(byte_array, RCUTILS_RET_INVALID_ARGUMENT);
@@ -87,8 +83,8 @@ rcutils_ret_t decode_base64(
     return RCUTILS_RET_INVALID_ARGUMENT;
   }
 
-  size_t input_str_len = strnlen(base64_str, DECODE_BASE64_STRING_LENGTH_LIMIT);
-  if (DECODE_BASE64_STRING_LENGTH_LIMIT == input_str_len) {
+  size_t input_str_len = rcutils_strnlen(base64_str, RCUTILS_BASE64_ENCODED_MAX_LENGTH);
+  if (RCUTILS_BASE64_ENCODED_MAX_LENGTH == input_str_len) {
     RCUTILS_SET_ERROR_MSG("base64 string length exceeds limit");
     return RCUTILS_RET_ERROR;
   }
@@ -202,7 +198,7 @@ err:
   return RCUTILS_RET_ERROR;
 }
 
-rcutils_ret_t encode_base64(
+rcutils_ret_t rcutils_encode_base64(
   const rcutils_uint8_array_t * byte_array,
   char ** base64_str,
   const rcutils_allocator_t * allocator)
@@ -223,6 +219,15 @@ rcutils_ret_t encode_base64(
     return RCUTILS_RET_INVALID_ARGUMENT);
 
   *base64_str = NULL;
+
+  // Check for input size limit to prevent integer overflow
+  // The maximum input size should ensure the encoded output fits within reasonable limits
+  // Base64 encoding: 3 bytes -> 4 chars, so max input = (LIMIT / 4) * 3
+  size_t max_input_len = (RCUTILS_BASE64_ENCODED_MAX_LENGTH / 4) * 3;
+  if (byte_array->buffer_length > max_input_len) {
+    RCUTILS_SET_ERROR_MSG("byte_array length exceeds limit for base64 encoding");
+    return RCUTILS_RET_ERROR;
+  }
 
   // Calculate the encoded output size
   // Each 3-byte block encodes to 4 characters, plus padding if necessary
