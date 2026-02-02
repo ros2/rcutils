@@ -708,10 +708,6 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
     case RCUTILS_GET_ENV_ONE:
       g_output_stream = stdout;
       break;
-    default:
-      RCUTILS_SET_ERROR_MSG(
-        "Invalid return from environment fetch");
-      return RCUTILS_RET_ERROR;
   }
 
   // Allow the user to choose how buffering on the stream works by setting
@@ -757,10 +753,6 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
     case RCUTILS_GET_ENV_ONE:
       g_colorized_output = RCUTILS_COLORIZED_OUTPUT_FORCE_ENABLE;
       break;
-    default:
-      RCUTILS_SET_ERROR_MSG(
-        "Invalid return from environment fetch");
-      return RCUTILS_RET_ERROR;
   }
 
   // Check for the environment variable for custom output formatting
