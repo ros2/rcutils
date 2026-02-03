@@ -17,7 +17,11 @@ extern "C"
 {
 #endif
 
+#ifdef _WIN32
+#include <windows.h>
+#else
 #include <pthread.h>
+#endif
 #include <stdint.h>
 #include <string.h>
 
@@ -32,7 +36,22 @@ extern "C"
 
 // Initialize the base64 lookup table
 static uint8_t base64_map[256];
+#ifdef _WIN32
+static INIT_ONCE base64_map_initialization_once = INIT_ONCE_STATIC_INIT;
+
+static void initialize_base64_map(void);
+
+BOOL CALLBACK initialize_base64_map_callback(
+  PINIT_ONCE InitOnce,
+  PVOID Parameter,
+  PVOID *lpContext)
+{
+  initialize_base64_map();
+  return TRUE;
+}
+#else
 static pthread_once_t base64_map_initialization_once = PTHREAD_ONCE_INIT;
+#endif
 
 static void initialize_base64_map(void)
 {
@@ -66,7 +85,15 @@ rcutils_ret_t rcutils_decode_base64(
   rcutils_uint8_array_t * byte_array,
   const rcutils_allocator_t * allocator)
 {
+#ifdef _WIN32
+  InitOnceExecuteOnce(
+    &base64_map_initialization_once,
+    initialize_base64_map_callback,
+    NULL,
+    NULL);
+#else
   pthread_once(&base64_map_initialization_once, initialize_base64_map);
+#endif
 
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(base64_str, RCUTILS_RET_INVALID_ARGUMENT);
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(byte_array, RCUTILS_RET_INVALID_ARGUMENT);
