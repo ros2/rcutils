@@ -51,6 +51,7 @@ endif()
 set(rcutils_sources
   src/allocator.c
   src/array_list.c
+  src/base64.c
   src/char_array.c
   src/cmdline_parser.c
   src/env.c
@@ -580,8 +581,16 @@ if(BUILD_TESTING)
     target_link_libraries(benchmark_err_handle ${PROJECT_NAME})
   endif()
 
+<<<<<<< HEAD
   if(TARGET test_macros)
     target_link_libraries(test_macros ${PROJECT_NAME})
+=======
+  ament_add_gtest(test_base64
+    test/test_base64.cpp
+  )
+  if(TARGET test_base64)
+    target_link_libraries(test_base64 ${PROJECT_NAME})
+>>>>>>> f322436 (Add base64 encoding and decoding functions with tests (#533))
   endif()
 endif()
 
