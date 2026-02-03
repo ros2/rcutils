@@ -47,6 +47,7 @@ endif()
 set(rcutils_sources
   src/allocator.c
   src/array_list.c
+  src/base64.c
   src/char_array.c
   src/cmdline_parser.c
   src/env.c
@@ -538,6 +539,13 @@ if(BUILD_TESTING)
   add_performance_test(benchmark_err_handle test/benchmark/benchmark_error_handling.cpp)
   if(TARGET benchmark_err_handle)
     target_link_libraries(benchmark_err_handle ${PROJECT_NAME})
+  endif()
+
+  ament_add_gtest(test_base64
+    test/test_base64.cpp
+  )
+  if(TARGET test_base64)
+    target_link_libraries(test_base64 ${PROJECT_NAME})
   endif()
 endif()
 
