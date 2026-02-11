@@ -161,6 +161,7 @@ genrule(
             ":rcutils",
         ],
         timeout = "moderate",
+        tags = ["exclusive"],
     )
     for test in [
         "benchmark_error_handling",
