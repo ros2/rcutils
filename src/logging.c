@@ -381,6 +381,41 @@ static const char * expand_file_name(
   return logging_output->buffer;
 }
 
+static const char * expand_short_file_name(
+  const logging_input_t * logging_input,
+  rcutils_char_array_t * logging_output,
+  size_t start_offset, size_t end_offset)
+{
+  (void)start_offset;
+  (void)end_offset;
+
+  if (logging_input->location) {
+    const char * file_name = logging_input->location->file_name;
+    const char * basename = file_name;
+    const char * last_sep = strrchr(file_name, '/');
+    if (last_sep != NULL) {
+      basename = last_sep + 1;
+    }
+#ifdef _WIN32
+    const char * last_backslash = strrchr(file_name, '\\');
+    if (last_backslash != NULL && last_backslash > last_sep) {
+      basename = last_backslash + 1;
+    }
+#endif
+    if (rcutils_char_array_strcat(
+        logging_output,
+        basename) != RCUTILS_RET_OK)
+    {
+      RCUTILS_SAFE_FWRITE_TO_STDERR(rcutils_get_error_string().str);
+      rcutils_reset_error();
+      RCUTILS_SAFE_FWRITE_TO_STDERR("\n");
+      return NULL;
+    }
+  }
+
+  return logging_output->buffer;
+}
+
 typedef struct token_map_entry_s
 {
   const char * token;
@@ -393,6 +428,7 @@ static const token_map_entry_t tokens[] = {
   {.token = "message", .handler = expand_message},
   {.token = "function_name", .handler = expand_function_name},
   {.token = "file_name", .handler = expand_file_name},
+  {.token = "short_file_name", .handler = expand_short_file_name},
   {.token = "time", .handler = expand_time_as_seconds},
   {.token = "date_time_with_ms", .handler = expand_time_as_date},
   {.token = "time_as_nanoseconds", .handler = expand_time_as_nanoseconds},
