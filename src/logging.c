@@ -343,7 +343,7 @@ static const char * expand_function_name(
   (void)start_offset;
   (void)end_offset;
 
-  if (logging_input->location) {
+  if (logging_input->location && logging_input->location->function_name) {
     if (rcutils_char_array_strcat(
         logging_output,
         logging_input->location->function_name) != RCUTILS_RET_OK)
@@ -366,7 +366,7 @@ static const char * expand_file_name(
   (void)start_offset;
   (void)end_offset;
 
-  if (logging_input->location) {
+  if (logging_input->location && logging_input->location->file_name) {
     if (rcutils_char_array_strcat(
         logging_output,
         logging_input->location->file_name) != RCUTILS_RET_OK)
@@ -389,7 +389,7 @@ static const char * expand_short_file_name(
   (void)start_offset;
   (void)end_offset;
 
-  if (logging_input->location) {
+  if (logging_input->location && logging_input->location->file_name) {
     const char * file_name = logging_input->location->file_name;
     const char * basename = file_name;
     const char * last_sep = strrchr(file_name, '/');
@@ -398,7 +398,7 @@ static const char * expand_short_file_name(
     }
 #ifdef _WIN32
     const char * last_backslash = strrchr(file_name, '\\');
-    if (last_backslash != NULL && last_backslash > last_sep) {
+    if (last_backslash != NULL && (last_sep == NULL || last_backslash > last_sep)) {
       basename = last_backslash + 1;
     }
 #endif
@@ -427,8 +427,8 @@ static const token_map_entry_t tokens[] = {
   {.token = "name", .handler = expand_name},
   {.token = "message", .handler = expand_message},
   {.token = "function_name", .handler = expand_function_name},
-  {.token = "file_name", .handler = expand_file_name},
   {.token = "short_file_name", .handler = expand_short_file_name},
+  {.token = "file_name", .handler = expand_file_name},
   {.token = "time", .handler = expand_time_as_seconds},
   {.token = "date_time_with_ms", .handler = expand_time_as_date},
   {.token = "time_as_nanoseconds", .handler = expand_time_as_nanoseconds},
