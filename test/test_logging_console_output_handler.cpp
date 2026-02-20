@@ -22,6 +22,14 @@
 #include "rcutils/logging.h"
 #include "rcutils/types/char_array.h"
 
+#ifdef _WIN32
+#define test_setenv(name, value) _putenv_s(name, value)
+#define test_unsetenv(name) _putenv_s(name, "")
+#else
+#define test_setenv(name, value) setenv(name, value, 1)
+#define test_unsetenv(name) unsetenv(name)
+#endif
+
 static void call_handler(
   const rcutils_log_location_t * location,
   int severity, const char * name, rcutils_time_point_value_t timestamp,
@@ -100,10 +108,10 @@ TEST(TestLoggingConsoleOutputHandler, bad_inputs) {
 
 TEST(TestLoggingConsoleOutputHandler, short_file_name_extracts_basename) {
   // Set the output format to use {short_file_name} before initializing
-  setenv("RCUTILS_CONSOLE_OUTPUT_FORMAT", "{short_file_name}", 1);
+  test_setenv("RCUTILS_CONSOLE_OUTPUT_FORMAT", "{short_file_name}");
   OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
   {
-    unsetenv("RCUTILS_CONSOLE_OUTPUT_FORMAT");
+    test_unsetenv("RCUTILS_CONSOLE_OUTPUT_FORMAT");
   });
 
   ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_initialize());
@@ -140,10 +148,10 @@ TEST(TestLoggingConsoleOutputHandler, short_file_name_extracts_basename) {
 }
 
 TEST(TestLoggingConsoleOutputHandler, short_file_name_without_path_unchanged) {
-  setenv("RCUTILS_CONSOLE_OUTPUT_FORMAT", "{short_file_name}", 1);
+  test_setenv("RCUTILS_CONSOLE_OUTPUT_FORMAT", "{short_file_name}");
   OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
   {
-    unsetenv("RCUTILS_CONSOLE_OUTPUT_FORMAT");
+    test_unsetenv("RCUTILS_CONSOLE_OUTPUT_FORMAT");
   });
 
   ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_initialize());
