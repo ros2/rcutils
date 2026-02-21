@@ -85,6 +85,7 @@ rcutils_ret_t rcutils_logging_allocator_initialize(
  * the output format of messages logged to the console.
  * Available tokens are:
  *   - `file_name`, the full file name of the caller including the path
+ *   - `short_file_name`, the file name of the caller without the path (basename only)
  *   - `function_name`, the function name of the caller
  *   - `line_number`, the line number of the caller
  *   - `message`, the message string after it has been formatted
