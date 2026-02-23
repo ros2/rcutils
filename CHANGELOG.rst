@@ -2,6 +2,11 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+6.9.10 (2026-02-23)
+-------------------
+* Add {short_file_name} as log format option (`#541 <https://github.com/ros2/rcutils/issues/541>`_) (`#543 <https://github.com/ros2/rcutils/issues/543>`_)
+* Contributors: mergify[bot]
+
 6.9.9 (2025-12-17)
 ------------------
 * Check SIZE_MAX for array initialization. (`#527 <https://github.com/ros2/rcutils/issues/527>`_) (`#529 <https://github.com/ros2/rcutils/issues/529>`_)
