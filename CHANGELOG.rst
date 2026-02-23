@@ -2,6 +2,13 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+7.0.6 (2026-02-23)
+------------------
+* Add {short_file_name} as log format option (`#541 <https://github.com/ros2/rcutils/issues/541>`_)
+* Add base64 encoding and decoding functions with tests (`#533 <https://github.com/ros2/rcutils/issues/533>`_)
+* remove default: so that compiler can detect the missing case. (`#534 <https://github.com/ros2/rcutils/issues/534>`_)
+* Contributors: Barry Xu, Tomoya Fujita, Tony Najjar
+
 7.0.5 (2025-12-15)
 ------------------
 * Check SIZE_MAX for array initialization. (`#527 <https://github.com/ros2/rcutils/issues/527>`_)
