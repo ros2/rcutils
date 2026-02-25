@@ -18,7 +18,24 @@ extern "C"
 #endif
 
 #ifdef _WIN32
+/*
+ * It was determined the warning C5105 ("macro expansion producing 'defined' has undefined
+ * behavior") occurs when using /std:c11 or /std:c17 with older Windows SDKs (10.0.19041.0)
+ * because the C99 preprocessor is activated.
+ * See:
+ * https://developercommunity.visualstudio.com/t/stdc17-generates-warning-compiling-windowsh/1249671
+ * The current solution is to temporarily disable the C5105 warning. If the used version of Windows
+ * SDK is higher than 10.0.20348.0 which fixs this issue, the workaround can be removed.
+ */
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable: 5105)
+#endif
 #include <windows.h>
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
+
 #else
 #include <pthread.h>
 #endif
