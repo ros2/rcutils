@@ -24,8 +24,8 @@ extern "C"
  * because the C99 preprocessor is activated.
  * See:
  * https://developercommunity.visualstudio.com/t/stdc17-generates-warning-compiling-windowsh/1249671
- * The current solution is to temporarily disable the C5105 warning. If The used version of Windows
- * SDK is higher than 10.0.20348.0 which fix this issue, the workaround can be removed.
+ * The current solution is to temporarily disable the C5105 warning. If the used version of Windows
+ * SDK is higher than 10.0.20348.0 which fixs this issue, the workaround can be removed.
  */
 #if defined(_MSC_VER)
 #pragma warning(push)
