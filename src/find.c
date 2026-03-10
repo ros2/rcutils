@@ -60,7 +60,7 @@ rcutils_find_lastn(const char * str, char delimiter, size_t string_length)
     return SIZE_MAX;
   }
 
-#if defined(_GNU_SOURCE)
+#if defined(_GNU_SOURCE) && !defined(__APPLE__)
   const char * ptr = memrchr(str, delimiter, string_length);
   if (ptr == NULL) {
     return SIZE_MAX;
