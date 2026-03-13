@@ -102,8 +102,7 @@ check_library_exists(atomic __atomic_load_8 "" HAVE_LIBATOMICS)
 if(HAVE_LIBATOMICS AND NOT WIN32)
   # Link libatomic into rcutils for fault injection atomic operations.
   # Don't export it - downstream packages get atomic symbols transitively
-  # through librcutils.so, avoiding library resolution issues in containerized
-  # environments. See https://github.com/ros2/rcutils/issues/525
+  # through librcutils.so. See https://github.com/ros2/rcutils/issues/525
   target_link_libraries(${PROJECT_NAME} atomic)
 endif()
 
