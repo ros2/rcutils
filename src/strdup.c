@@ -44,7 +44,7 @@ rcutils_strndup(const char * str, size_t max_length, rcutils_allocator_t allocat
     return NULL;
   }
   RCUTILS_CHECK_ALLOCATOR(&allocator, return NULL);
-  char * p = memchr(str, '\0', max_length);
+  const char * p = memchr(str, '\0', max_length);
   size_t string_length = p == NULL ? max_length : (size_t)(p - str);
   char * new_string = allocator.allocate(string_length + 1, allocator.state);
   if (NULL == new_string) {
