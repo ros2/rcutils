@@ -2,6 +2,12 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+7.0.7 (2026-03-17)
+------------------
+* Fix gcc 15.2.1 warning for discarding 'const' qualifier (`#547 <https://github.com/ros2/rcutils/issues/547>`_)
+* Disable warning C5105 for older Windows SDKs in base64.c (`#544 <https://github.com/ros2/rcutils/issues/544>`_)
+* Contributors: Barry Xu, EddyGharib
+
 7.0.6 (2026-02-23)
 ------------------
 * Add {short_file_name} as log format option (`#541 <https://github.com/ros2/rcutils/issues/541>`_)
