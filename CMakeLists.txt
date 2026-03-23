@@ -2,19 +2,12 @@ cmake_minimum_required(VERSION 3.20)
 
 project(rcutils)
 
-# Default to C11
-if(NOT CMAKE_C_STANDARD)
-  set(CMAKE_C_STANDARD 11)
-endif()
-# Default to C++17
-if(NOT CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 17)
-endif()
-
 include(CheckLibraryExists)
 
 find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_ros_core REQUIRED)
+
+ament_set_default_language_standards()
 
 if(UNIX AND NOT APPLE)
   include(cmake/check_c_compiler_uses_glibc.cmake)
