@@ -5,7 +5,6 @@ project(rcutils)
 include(CheckLibraryExists)
 
 find_package(ament_cmake REQUIRED)
-find_package(ament_cmake_ros REQUIRED)
 find_package(ament_cmake_ros_core REQUIRED)
 
 if(UNIX AND NOT APPLE)
