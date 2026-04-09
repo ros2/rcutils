@@ -2,6 +2,11 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+7.0.8 (2026-04-09)
+------------------
+* Fix missing include for std::get_time (`#549 <https://github.com/ros2/rcutils/issues/549>`_)
+* Contributors: Shane Loretz
+
 7.0.7 (2026-03-17)
 ------------------
 * Fix gcc 15.2.1 warning for discarding 'const' qualifier (`#547 <https://github.com/ros2/rcutils/issues/547>`_)
