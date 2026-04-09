@@ -114,7 +114,6 @@ install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}
 
 if(BUILD_TESTING)
   find_package(performance_test_fixture REQUIRED)
-
   find_package(ament_cmake_gmock REQUIRED)
   find_package(ament_cmake_gtest REQUIRED)
   find_package(ament_lint_auto REQUIRED)
@@ -189,10 +188,10 @@ if(BUILD_TESTING)
   )
   if(TARGET test_allocator)
     target_link_libraries(test_allocator
-    ${PROJECT_NAME}
-    osrf_testing_tools_cpp::memory_tools
-    ament_cmake_ros_core::ament_ros_defaults
-  )
+      ${PROJECT_NAME}
+      osrf_testing_tools_cpp::memory_tools
+      ament_cmake_ros_core::ament_ros_defaults
+    )
   endif()
 
   ament_add_gtest(test_char_array
