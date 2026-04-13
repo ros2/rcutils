@@ -94,8 +94,9 @@ target_link_libraries(${PROJECT_NAME}
 check_library_exists(atomic __atomic_load_8 "" HAVE_LIBATOMICS)
 
 if(HAVE_LIBATOMICS AND NOT WIN32)
-  # Exporting link flag since it won't pass ament_export_libraries() existence check
-  ament_export_link_flags("-latomic")
+  # Link libatomic into rcutils for fault injection atomic operations.
+  # Don't export it - downstream packages get atomic symbols transitively
+  # through librcutils.so. See https://github.com/ros2/rcutils/issues/525
   target_link_libraries(${PROJECT_NAME}
     atomic
     ament_cmake_ros_core::ament_ros_defaults
