@@ -2,6 +2,14 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+7.0.9 (2026-04-14)
+------------------
+
+* Remove ``ament_export_link_flags()`` for atomic operations (`#528 <https://github.com/ros2/rcutils/issues/528>`_)
+* Use less common variable name in macro (`#550 <https://github.com/ros2/rcutils/issues/550>`_)
+
+* Contributors: Shane Loretz, Tomoya Fujita
+
 7.0.8 (2026-04-09)
 ------------------
 * Fix missing include for std::get_time (`#549 <https://github.com/ros2/rcutils/issues/549>`_)
