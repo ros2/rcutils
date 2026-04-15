@@ -58,8 +58,9 @@ extern "C"
 #define RCUTILS_SAFE_FWRITE_TO_STDERR_WITH_FORMAT_STRING(format_string, ...) \
   do { \
     char output_msg[RCUTILS_ERROR_MESSAGE_MAX_LENGTH]; \
-    int ret = rcutils_snprintf(output_msg, sizeof(output_msg), format_string, __VA_ARGS__); \
-    if (ret < 0) { \
+    int __rcutils_snprintf_ret = \
+      rcutils_snprintf(output_msg, sizeof(output_msg), format_string, __VA_ARGS__); \
+    if (__rcutils_snprintf_ret < 0) { \
       RCUTILS_SAFE_FWRITE_TO_STDERR("Failed to call snprintf for error message formatting\n"); \
     } else { \
       RCUTILS_SAFE_FWRITE_TO_STDERR(output_msg); \
