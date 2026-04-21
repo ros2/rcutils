@@ -2,6 +2,15 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
+* Remove ATOMIC_VAR_INIT (`#556 <https://github.com/ros2/rcutils/issues/556>`_)
+* Use ``ament_set_default_language_standards`` from ``ament_cmake_core`` (`#548 <https://github.com/ros2/rcutils/issues/548>`_)
+* Use uncommon variable name in macro to avoid being overwritten (`#551 <https://github.com/ros2/rcutils/issues/551>`_)
+
+* Contributors: Alejandro Hernández Cordero, Shane Loretz, Tomoya Fujita
+
 7.0.9 (2026-04-14)
 ------------------
 
