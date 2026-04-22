@@ -2,8 +2,8 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+7.1.1 (2026-04-22)
+------------------
 * Add buildtool_export_depend on ament_cmake_ros_core (`#558 <https://github.com/ros2/rcutils/issues/558>`_)
 * fix: typo in parameter documentation for overwrite (`#557 <https://github.com/ros2/rcutils/issues/557>`_)
 * Contributors: Miguel Company, Shane Loretz
