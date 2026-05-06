@@ -2,6 +2,9 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 7.1.1 (2026-04-22)
 ------------------
 * Add buildtool_export_depend on ament_cmake_ros_core (`#558 <https://github.com/ros2/rcutils/issues/558>`_)
