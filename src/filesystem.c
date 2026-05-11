@@ -480,8 +480,12 @@ bool
 rcutils_dir_iter_next(rcutils_dir_iter_t * iter)
 {
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(iter, false);
+<<<<<<< HEAD
   rcutils_dir_iter_state_t * state = (rcutils_dir_iter_state_t *)iter->state;
   RCUTILS_CHECK_FOR_NULL_WITH_MSG(state, "iter is invalid", false);
+=======
+  RCUTILS_CHECK_FOR_NULL_WITH_MSG(iter->state, "iter is invalid", return false);
+>>>>>>> e04f58b (address warning: statement with no effect. (#559))
 
 #ifdef _WIN32
   if (FindNextFile(state->handle, &state->data)) {
