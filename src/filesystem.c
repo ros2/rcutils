@@ -482,7 +482,7 @@ rcutils_dir_iter_next(rcutils_dir_iter_t * iter)
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(iter, false);
   rcutils_dir_iter_state_t * state = (rcutils_dir_iter_state_t *)iter->state;
   RCUTILS_CHECK_FOR_NULL_WITH_MSG(state, "iter is invalid", return false);
-  
+
 #ifdef _WIN32
   if (FindNextFile(state->handle, &state->data)) {
     iter->entry_name = state->data.cFileName;
