@@ -152,21 +152,10 @@ target_link_libraries(${PROJECT_NAME} ${CMAKE_DL_LIBS})
 
 check_library_exists(atomic __atomic_load_8 "" HAVE_LIBATOMICS)
 
-<<<<<<< HEAD
-if(HAVE_LIBATOMICS AND NOT WIN32)
+if(HAVE_LIBATOMICS AND NOT WIN32 AND NOT APPLE)
   # Exporting link flag since it won't pass ament_export_libraries() existence check
   ament_export_link_flags("-latomic")
   target_link_libraries(${PROJECT_NAME} atomic)
-=======
-if(HAVE_LIBATOMICS AND NOT WIN32 AND NOT APPLE)
-  # Link libatomic into rcutils for fault injection atomic operations.
-  # Don't export it - downstream packages get atomic symbols transitively
-  # through librcutils.so. See https://github.com/ros2/rcutils/issues/525
-  target_link_libraries(${PROJECT_NAME}
-    atomic
-    ament_cmake_ros_core::ament_ros_defaults
-  )
->>>>>>> 45756eb (skip libatomic if mac (#565))
 endif()
 
 # Needed if pthread is used for thread local storage.
