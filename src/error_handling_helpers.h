@@ -31,9 +31,6 @@
 #define RCUTILS_WARN_ON_TRUNCATION 1
 #endif
 
-#ifndef __STDC_WANT_LIB_EXT1__
-#define __STDC_WANT_LIB_EXT1__ 1  // indicate we would like memmove_s if available
-#endif
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
