@@ -150,7 +150,7 @@ target_link_libraries(${PROJECT_NAME} ${CMAKE_DL_LIBS})
 
 check_library_exists(atomic __atomic_load_8 "" HAVE_LIBATOMICS)
 
-if(HAVE_LIBATOMICS AND NOT WIN32)
+if(HAVE_LIBATOMICS AND NOT WIN32 AND NOT APPLE)
   # Exporting link flag since it won't pass ament_export_libraries() existence check
   ament_export_link_flags("-latomic")
   target_link_libraries(${PROJECT_NAME} atomic)
