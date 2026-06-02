@@ -2,8 +2,8 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+6.7.6 (2026-06-02)
+------------------
 * skip libatomic if mac (backport `#565 <https://github.com/ros2/rcutils/issues/565>`_) (`#568 <https://github.com/ros2/rcutils/issues/568>`_)
   (cherry picked from commit 45756eb6a4c532bfa06b7c8865d00be3afabca24)
   Co-authored-by: Griffin Tabor <tabor473@gmail.com>
