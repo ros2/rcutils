@@ -2,6 +2,19 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* skip libatomic if mac (backport `#565 <https://github.com/ros2/rcutils/issues/565>`_) (`#568 <https://github.com/ros2/rcutils/issues/568>`_)
+  (cherry picked from commit 45756eb6a4c532bfa06b7c8865d00be3afabca24)
+  Co-authored-by: Griffin Tabor <tabor473@gmail.com>
+  Co-authored-by: Tomoya.Fujita <tomoya.fujita825@gmail.com>
+* address warning: statement with no effect. (backport `#559 <https://github.com/ros2/rcutils/issues/559>`_) (`#562 <https://github.com/ros2/rcutils/issues/562>`_)
+  (cherry picked from commit e04f58b43e153bf575ba89f44d946eb22676b61f)
+  Co-authored-by: Tomoya Fujita <Tomoya.Fujita@sony.com>
+  Co-authored-by: Tomoya.Fujita <tomoya.fujita825@gmail.com>
+  Co-authored-by: Alejandro Hernandez Cordero <ahcorde@gmail.com>
+* Contributors: mergify[bot]
+
 6.7.5 (2025-12-17)
 ------------------
 * Check SIZE_MAX for array initialization. (`#527 <https://github.com/ros2/rcutils/issues/527>`_) (`#530 <https://github.com/ros2/rcutils/issues/530>`_)
