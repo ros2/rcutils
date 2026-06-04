@@ -196,6 +196,7 @@ enum RCUTILS_LOG_SEVERITY
   RCUTILS_LOG_SEVERITY_UNSET = 0,  ///< The unset log level
   RCUTILS_LOG_SEVERITY_DEBUG = 10,  ///< The debug log level
   RCUTILS_LOG_SEVERITY_INFO = 20,  ///< The info log level
+  RCUTILS_LOG_SEVERITY_SUCCESS = 26,  ///< The success log level
   RCUTILS_LOG_SEVERITY_WARN = 30,  ///< The warn log level
   RCUTILS_LOG_SEVERITY_ERROR = 40,  ///< The error log level
   RCUTILS_LOG_SEVERITY_FATAL = 50,  ///< The fatal log level

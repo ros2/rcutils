@@ -27,10 +27,11 @@ extern "C"
 // These are used for compiling out logging macros lower than a minimum severity.
 #define RCUTILS_LOG_MIN_SEVERITY_DEBUG 0
 #define RCUTILS_LOG_MIN_SEVERITY_INFO 1
-#define RCUTILS_LOG_MIN_SEVERITY_WARN 2
-#define RCUTILS_LOG_MIN_SEVERITY_ERROR 3
-#define RCUTILS_LOG_MIN_SEVERITY_FATAL 4
-#define RCUTILS_LOG_MIN_SEVERITY_NONE 5
+#define RCUTILS_LOG_MIN_SEVERITY_SUCCESS 2
+#define RCUTILS_LOG_MIN_SEVERITY_WARN 3
+#define RCUTILS_LOG_MIN_SEVERITY_ERROR 4
+#define RCUTILS_LOG_MIN_SEVERITY_FATAL 5
+#define RCUTILS_LOG_MIN_SEVERITY_NONE 6
 
 /**
  * \def RCUTILS_LOG_MIN_SEVERITY
@@ -539,6 +540,123 @@ extern "C"
 # define RCUTILS_LOG_INFO_SKIPFIRST_THROTTLE_NAMED(get_time_point, duration, name, ...) \
   RCUTILS_LOG_SKIPFIRST_THROTTLE_NAMED(RCUTILS_LOG_SEVERITY_INFO, get_time_point, duration, name, \
     __VA_ARGS__)
+#endif
+
+#if (RCUTILS_LOG_MIN_SEVERITY > RCUTILS_LOG_MIN_SEVERITY_INFO)
+// empty logging macros for severity SUCCESS when disabled at compile time
+/// Empty logging macro due to the preprocessor definition of RCUTILS_LOG_MIN_SEVERITY.
+# define RCUTILS_LOG_SUCCESS(format, ...)
+/// Empty logging macro due to the preprocessor definition of RCUTILS_LOG_MIN_SEVERITY.
+# define RCUTILS_LOG_SUCCESS_NAMED(name, format, ...)
+/// Empty logging macro due to the preprocessor definition of RCUTILS_LOG_MIN_SEVERITY.
+# define RCUTILS_LOG_SUCCESS_ONCE(format, ...)
+/// Empty logging macro due to the preprocessor definition of RCUTILS_LOG_MIN_SEVERITY.
+# define RCUTILS_LOG_SUCCESS_ONCE_NAMED(name, format, ...)
+/// Empty logging macro due to the preprocessor definition of RCUTILS_LOG_MIN_SEVERITY.
+# define RCUTILS_LOG_SUCCESS_EXPRESSION(expression, format, ...)
+/// Empty logging macro due to the preprocessor definition of RCUTILS_LOG_MIN_SEVERITY.
+# define RCUTILS_LOG_SUCCESS_EXPRESSION_NAMED(expression, name, format, ...)
+/// Empty logging macro due to the preprocessor definition of RCUTILS_LOG_MIN_SEVERITY.
+# define RCUTILS_LOG_SUCCESS_FUNCTION(function, format, ...)
+/// Empty logging macro due to the preprocessor definition of RCUTILS_LOG_MIN_SEVERITY.
+# define RCUTILS_LOG_SUCCESS_FUNCTION_NAMED(function, name, format, ...)
+/// Empty logging macro due to the preprocessor definition of RCUTILS_LOG_MIN_SEVERITY.
+# define RCUTILS_LOG_SUCCESS_SKIPFIRST(format, ...)
+/// Empty logging macro due to the preprocessor definition of RCUTILS_LOG_MIN_SEVERITY.
+# define RCUTILS_LOG_SUCCESS_SKIPFIRST_NAMED(name, format, ...)
+/// Empty logging macro due to the preprocessor definition of RCUTILS_LOG_MIN_SEVERITY.
+# define RCUTILS_LOG_SUCCESS_THROTTLE(get_time_point, duration, format, ...)
+/// Empty logging macro due to the preprocessor definition of RCUTILS_LOG_MIN_SEVERITY.
+# define RCUTILS_LOG_SUCCESS_SKIPFIRST_THROTTLE(get_time_point, duration, format, ...)
+/// Empty logging macro due to the preprocessor definition of RCUTILS_LOG_MIN_SEVERITY.
+# define RCUTILS_LOG_SUCCESS_THROTTLE_NAMED(get_time_point, duration, name, format, ...)
+/// Empty logging macro due to the preprocessor definition of RCUTILS_LOG_MIN_SEVERITY.
+# define RCUTILS_LOG_SUCCESS_SKIPFIRST_THROTTLE_NAMED(get_time_point, duration, name, format, ...)
+#else
+/**
+ * \def RCUTILS_LOG_SUCCESS
+ * Log a message with severity SUCCESS.
+ * \copydoc RCUTILS_LOG
+ */
+# define RCUTILS_LOG_SUCCESS(...) RCUTILS_LOG(RCUTILS_LOG_SEVERITY_SUCCESS, __VA_ARGS__)
+/**
+ * \def RCUTILS_LOG_SUCCESS_NAMED
+ * \copydoc RCUTILS_LOG_NAMED
+ */
+# define RCUTILS_LOG_SUCCESS_NAMED(name, ...) \
+  RCUTILS_LOG_NAMED(RCUTILS_LOG_SEVERITY_SUCCESS, name, __VA_ARGS__)
+/**
+ * \def RCUTILS_LOG_SUCCESS_ONCE
+ * \copydoc RCUTILS_LOG_ONCE
+ */
+# define RCUTILS_LOG_SUCCESS_ONCE(...) RCUTILS_LOG_ONCE(RCUTILS_LOG_SEVERITY_SUCCESS, __VA_ARGS__)
+/**
+ * \def RCUTILS_LOG_SUCCESS_ONCE_NAMED
+ * \copydoc RCUTILS_LOG_ONCE_NAMED
+ */
+# define RCUTILS_LOG_SUCCESS_ONCE_NAMED(name, ...) \
+  RCUTILS_LOG_ONCE_NAMED(RCUTILS_LOG_SEVERITY_SUCCESS, name, __VA_ARGS__)
+/**
+ * \def RCUTILS_LOG_SUCCESS_EXPRESSION
+ * \copydoc RCUTILS_LOG_EXPRESSION
+ */
+# define RCUTILS_LOG_SUCCESS_EXPRESSION(expression, ...) \
+  RCUTILS_LOG_EXPRESSION(RCUTILS_LOG_SEVERITY_SUCCESS, expression, __VA_ARGS__)
+/**
+ * \def RCUTILS_LOG_SUCCESS_EXPRESSION_NAMED
+ * \copydoc RCUTILS_LOG_EXPRESSION_NAMED
+ */
+# define RCUTILS_LOG_SUCCESS_EXPRESSION_NAMED(expression, name, ...) \
+  RCUTILS_LOG_EXPRESSION_NAMED(RCUTILS_LOG_SEVERITY_SUCCESS, expression, name, __VA_ARGS__)
+/**
+ * \def RCUTILS_LOG_SUCCESS_FUNCTION
+ * \copydoc RCUTILS_LOG_FUNCTION
+ */
+# define RCUTILS_LOG_SUCCESS_FUNCTION(function, ...) \
+  RCUTILS_LOG_FUNCTION(RCUTILS_LOG_SEVERITY_SUCCESS, function, __VA_ARGS__)
+/**
+ * \def RCUTILS_LOG_SUCCESS_FUNCTION_NAMED
+ * \copydoc RCUTILS_LOG_FUNCTION_NAMED
+ */
+# define RCUTILS_LOG_SUCCESS_FUNCTION_NAMED(function, name, ...) \
+  RCUTILS_LOG_FUNCTION_NAMED(RCUTILS_LOG_SEVERITY_SUCCESS, function, name, __VA_ARGS__)
+/**
+ * \def RCUTILS_LOG_SUCCESS_SKIPFIRST
+ * \copydoc RCUTILS_LOG_SKIPFIRST
+ */
+# define RCUTILS_LOG_SUCCESS_SKIPFIRST(...) \
+  RCUTILS_LOG_SKIPFIRST(RCUTILS_LOG_SEVERITY_SUCCESS, __VA_ARGS__)
+/**
+ * \def RCUTILS_LOG_SUCCESS_SKIPFIRST_NAMED
+ * \copydoc RCUTILS_LOG_SKIPFIRST_NAMED
+ */
+# define RCUTILS_LOG_SUCCESS_SKIPFIRST_NAMED(name, ...) \
+  RCUTILS_LOG_SKIPFIRST_NAMED(RCUTILS_LOG_SEVERITY_SUCCESS, name, __VA_ARGS__)
+/**
+ * \def RCUTILS_LOG_SUCCESS_THROTTLE
+ * \copydoc RCUTILS_LOG_THROTTLE
+ */
+# define RCUTILS_LOG_SUCCESS_THROTTLE(get_time_point, duration, ...) \
+  RCUTILS_LOG_THROTTLE(RCUTILS_LOG_SEVERITY_SUCCESS, get_time_point, duration, __VA_ARGS__)
+/**
+ * \def RCUTILS_LOG_SUCCESS_THROTTLE_NAMED
+ * \copydoc RCUTILS_LOG_THROTTLE_NAMED
+ */
+# define RCUTILS_LOG_SUCCESS_THROTTLE_NAMED(get_time_point, duration, name, ...) \
+  RCUTILS_LOG_THROTTLE_NAMED(RCUTILS_LOG_SEVERITY_SUCCESS, get_time_point, duration, name, __VA_ARGS__)
+/**
+ * \def RCUTILS_LOG_SUCCESS_SKIPFIRST_THROTTLE
+ * \copydoc RCUTILS_LOG_SKIPFIRST_THROTTLE
+ */
+# define RCUTILS_LOG_SUCCESS_SKIPFIRST_THROTTLE(get_time_point, duration, ...) \
+  RCUTILS_LOG_SKIPFIRST_THROTTLE(RCUTILS_LOG_SEVERITY_SUCCESS, get_time_point, duration, __VA_ARGS__)
+/**
+ * \def RCUTILS_LOG_SUCCESS_SKIPFIRST_THROTTLE_NAMED
+ * \copydoc RCUTILS_LOG_SKIPFIRST_THROTTLE_NAMED
+ */
+# define RCUTILS_LOG_SUCCESS_SKIPFIRST_THROTTLE_NAMED(get_time_point, duration, name, ...) \
+  RCUTILS_LOG_SKIPFIRST_THROTTLE_NAMED(RCUTILS_LOG_SEVERITY_SUCCESS, get_time_point, duration, \
+    name, __VA_ARGS__)
 #endif
 
 #if (RCUTILS_LOG_MIN_SEVERITY > RCUTILS_LOG_MIN_SEVERITY_WARN)
