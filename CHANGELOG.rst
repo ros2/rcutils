@@ -2,6 +2,12 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+7.1.2 (2026-07-02)
+------------------
+* skip libatomic if mac (`#565 <https://github.com/ros2/rcutils/issues/565>`_) (`#566 <https://github.com/ros2/rcutils/issues/566>`_)
+* address warning: statement with no effect. (`#559 <https://github.com/ros2/rcutils/issues/559>`_) (`#560 <https://github.com/ros2/rcutils/issues/560>`_)
+* Contributors: mergify[bot]
+
 7.1.1 (2026-04-22)
 ------------------
 * Add buildtool_export_depend on ament_cmake_ros_core (`#558 <https://github.com/ros2/rcutils/issues/558>`_)
