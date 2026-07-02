@@ -2,6 +2,12 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+6.9.11 (2026-07-02)
+-------------------
+* skip libatomic if mac (backport `#565 <https://github.com/ros2/rcutils/issues/565>`_) (`#567 <https://github.com/ros2/rcutils/issues/567>`_)
+* address warning: statement with no effect. (`#559 <https://github.com/ros2/rcutils/issues/559>`_) (`#561 <https://github.com/ros2/rcutils/issues/561>`_)
+* Contributors: mergify[bot]
+
 6.9.10 (2026-02-23)
 -------------------
 * Add {short_file_name} as log format option (`#541 <https://github.com/ros2/rcutils/issues/541>`_) (`#543 <https://github.com/ros2/rcutils/issues/543>`_)
