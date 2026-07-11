@@ -107,6 +107,22 @@ TEST_F(HashMapBaseTest, init_map_initial_capacity_not_power_of_two) {
   EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
 }
 
+TEST_F(HashMapBaseTest, init_map_initial_capacity_overflow_fails) {
+  rcutils_ret_t ret = rcutils_hash_map_init(
+    &map, SIZE_MAX, sizeof(uint32_t), sizeof(uint32_t),
+    test_hash_map_uint32_hash_func, test_uint32_cmp, &allocator);
+  EXPECT_EQ(RCUTILS_RET_BAD_ALLOC, ret) << rcutils_get_error_string().str;
+  EXPECT_EQ(nullptr, map.impl);
+}
+
+TEST_F(HashMapBaseTest, init_map_allocation_size_overflow_fails) {
+  rcutils_ret_t ret = rcutils_hash_map_init(
+    &map, (SIZE_MAX >> 1) + 1, sizeof(uint32_t), sizeof(uint32_t),
+    test_hash_map_uint32_hash_func, test_uint32_cmp, &allocator);
+  EXPECT_EQ(RCUTILS_RET_BAD_ALLOC, ret) << rcutils_get_error_string().str;
+  EXPECT_EQ(nullptr, map.impl);
+}
+
 TEST_F(HashMapBaseTest, init_map_key_size_zero_fails) {
   rcutils_ret_t ret = rcutils_hash_map_init(
     &map, 2, 0, sizeof(uint32_t),

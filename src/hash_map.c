@@ -19,6 +19,7 @@ extern "C"
 
 #include <string.h>
 #include <stdio.h>
+#include <stdint.h>
 
 #include "rcutils/allocator.h"
 #include "rcutils/error_handling.h"
@@ -86,7 +87,10 @@ static rcutils_ret_t hash_map_allocate_new_map(
   rcutils_array_list_t ** map, size_t capacity,
   const rcutils_allocator_t * allocator)
 {
-  *map = allocator->allocate(capacity * sizeof(rcutils_hash_map_impl_t), allocator->state);
+  if (0 == capacity || capacity > SIZE_MAX / sizeof(rcutils_array_list_t)) {
+    return RCUTILS_RET_BAD_ALLOC;
+  }
+  *map = allocator->allocate(capacity * sizeof(rcutils_array_list_t), allocator->state);
   if (NULL == *map) {
     return RCUTILS_RET_BAD_ALLOC;
   }
@@ -240,7 +244,7 @@ static size_t next_power_of_two(size_t v)
     v |= v >> shf;
   }
   v++;
-  return v > 1 ? v : 1;
+  return v;
 }
 
 rcutils_ret_t
