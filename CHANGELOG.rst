@@ -2,6 +2,11 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+5.1.9 (2026-07-15)
+------------------
+* address warning: statement with no effect. (backport `#559 <https://github.com/ros2/rcutils/issues/559>`_) (`#563 <https://github.com/ros2/rcutils/issues/563>`_)
+* Contributors: mergify[bot]
+
 5.1.8 (2025-12-17)
 ------------------
 * Check SIZE_MAX for array initialization. (backport `#527 <https://github.com/ros2/rcutils/issues/527>`_) (`#531 <https://github.com/ros2/rcutils/issues/531>`_)
