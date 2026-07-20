@@ -6,6 +6,7 @@ include(CheckLibraryExists)
 
 find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_ros_core REQUIRED)
+find_package(Threads REQUIRED)
 
 if(UNIX AND NOT APPLE)
   include(cmake/check_c_compiler_uses_glibc.cmake)
@@ -89,8 +90,10 @@ endif()
 
 target_link_libraries(${PROJECT_NAME}
   ${CMAKE_DL_LIBS}
+  Threads::Threads
   ament_cmake_ros_core::ament_ros_defaults
 )
+ament_export_dependencies(Threads)
 
 check_library_exists(atomic __atomic_load_8 "" HAVE_LIBATOMICS)
 
