@@ -90,9 +90,11 @@ if(BUILD_TESTING AND NOT RCUTILS_DISABLE_FAULT_INJECTION)
 endif()
 
 target_link_libraries(${PROJECT_NAME}
-  ${CMAKE_DL_LIBS}
-  Threads::Threads
-  ament_cmake_ros_core::ament_ros_defaults
+  PUBLIC
+    ${CMAKE_DL_LIBS}
+    ament_cmake_ros_core::ament_ros_defaults
+  PRIVATE
+    Threads::Threads
 )
 
 check_library_exists(atomic __atomic_load_8 "" HAVE_LIBATOMICS)
@@ -102,8 +104,9 @@ if(HAVE_LIBATOMICS AND NOT WIN32 AND NOT APPLE)
   # Don't export it - downstream packages get atomic symbols transitively
   # through librcutils.so. See https://github.com/ros2/rcutils/issues/525
   target_link_libraries(${PROJECT_NAME}
-    atomic
-    ament_cmake_ros_core::ament_ros_defaults
+    PUBLIC
+      atomic
+      ament_cmake_ros_core::ament_ros_defaults
   )
 endif()
 
