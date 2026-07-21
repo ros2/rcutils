@@ -6,6 +6,7 @@ include(CheckLibraryExists)
 
 find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_ros_core REQUIRED)
+set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 find_package(Threads REQUIRED)
 
 if(UNIX AND NOT APPLE)
