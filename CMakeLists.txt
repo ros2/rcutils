@@ -93,7 +93,6 @@ target_link_libraries(${PROJECT_NAME}
   Threads::Threads
   ament_cmake_ros_core::ament_ros_defaults
 )
-ament_export_dependencies(Threads)
 
 check_library_exists(atomic __atomic_load_8 "" HAVE_LIBATOMICS)
 
