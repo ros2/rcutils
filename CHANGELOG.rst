@@ -2,6 +2,13 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+7.2.1 (2026-07-02)
+------------------
+* move __STDC_WANT_LIB_EXT1_\_ macro to CMakeLists.txt. (`#555 <https://github.com/ros2/rcutils/issues/555>`_)
+* skip libatomic if mac (`#565 <https://github.com/ros2/rcutils/issues/565>`_)
+* address warning: statement with no effect. (`#559 <https://github.com/ros2/rcutils/issues/559>`_)
+* Contributors: Griffin Tabor, Tomoya Fujita
+
 7.2.0 (2026-05-06)
 ------------------
 
