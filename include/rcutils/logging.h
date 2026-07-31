@@ -25,6 +25,7 @@
 #include "rcutils/error_handling.h"
 #include "rcutils/macros.h"
 #include "rcutils/time.h"
+#include "rcutils/types/char_array.h"
 #include "rcutils/types/rcutils_ret.h"
 #include "rcutils/visibility_control.h"
 
