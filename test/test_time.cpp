@@ -357,6 +357,12 @@ TEST_F(TestTimeFixture, test_rcutils_time_point_value_as_date_string) {
   ss2 >> std::get_time(&t, "%Y-%b-%d %H:%M:%S");
   ASSERT_TRUE(ss2.fail());
 
+  // Subsecond values should be formatted as milliseconds, including leading zeros.
+  timepoint = RCUTILS_S_TO_NS(1) + RCUTILS_MS_TO_NS(85) + RCUTILS_US_TO_NS(860);
+  ret = rcutils_time_point_value_as_date_string(&timepoint, buffer, sizeof(buffer));
+  EXPECT_EQ(RCUTILS_RET_OK, ret) << rcutils_get_error_string().str;
+  EXPECT_STREQ(".085", buffer + 19);
+
   // nullptr for timepoint
   ret = rcutils_time_point_value_as_date_string(nullptr, buffer, sizeof(buffer));
   EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret);
