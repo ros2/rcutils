@@ -63,13 +63,7 @@ rcutils_time_point_value_as_date_string(
   // break into two parts to avoid floating point error
   uint64_t seconds = abs_time_point / (1000u * 1000u * 1000u);
   uint64_t nanoseconds = abs_time_point % (1000u * 1000u * 1000u);
-  // Make sure the buffer is large enough to hold the largest possible uint64_t
-  char nanoseconds_str[21];
-
-  if (rcutils_snprintf(nanoseconds_str, sizeof(nanoseconds_str), "%" PRIu64, nanoseconds) < 0) {
-    RCUTILS_SET_ERROR_MSG("failed to format time point nanoseconds into string");
-    return RCUTILS_RET_ERROR;
-  }
+  uint64_t milliseconds = nanoseconds / (1000u * 1000u);
 
   time_t now_t = (time_t)(seconds);
   struct tm ptm = {.tm_year = 0, .tm_mday = 0};
@@ -91,8 +85,8 @@ rcutils_time_point_value_as_date_string(
   }
   static const int date_end_position = 19;
   if (rcutils_snprintf(
-      &str[date_end_position], str_size - date_end_position, ".%.3s",
-      nanoseconds_str) < 0)
+      &str[date_end_position], str_size - date_end_position, ".%03" PRIu64,
+      milliseconds) < 0)
   {
     RCUTILS_SET_ERROR_MSG("failed to format time point into string as date_time_with_ms");
     return RCUTILS_RET_ERROR;
