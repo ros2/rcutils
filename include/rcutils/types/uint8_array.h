@@ -17,7 +17,7 @@
 #ifndef RCUTILS__TYPES__UINT8_ARRAY_H_
 #define RCUTILS__TYPES__UINT8_ARRAY_H_
 
-#if __cplusplus
+#ifdef __cplusplus
 extern "C"
 {
 #endif
@@ -114,7 +114,7 @@ RCUTILS_WARN_UNUSED
 rcutils_ret_t
 rcutils_uint8_array_resize(rcutils_uint8_array_t * uint8_array, size_t new_size);
 
-#if __cplusplus
+#ifdef __cplusplus
 }
 #endif
 
