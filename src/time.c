@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if __cplusplus
+#ifdef __cplusplus
 extern "C"
 {
 #endif
@@ -123,6 +123,6 @@ rcutils_time_point_value_as_seconds_string(
   return RCUTILS_RET_OK;
 }
 
-#if __cplusplus
+#ifdef __cplusplus
 }
 #endif
