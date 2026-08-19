@@ -16,7 +16,15 @@
 
 #include "rcutils/stdatomic_helper.h"
 
+// The initializer must match the definition of _Atomic in
+// rcutils/stdatomic_helper.h: on MSVC atomics are emulated with a struct
+// (requiring a braced initializer), everywhere else they are real C11
+// atomics (requiring a plain scalar initializer).
+#if defined(_WIN32) && !defined(__MINGW64__)
 static atomic_int_least64_t g_rcutils_fault_injection_count = {-1};
+#else
+static atomic_int_least64_t g_rcutils_fault_injection_count = -1;
+#endif
 
 void rcutils_fault_injection_set_count(int_least64_t count)
 {
