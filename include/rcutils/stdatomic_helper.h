@@ -173,6 +173,18 @@ rcutils_atomic_fetch_add_uint64_t(atomic_uint_least64_t * a_uint64_t, uint64_t a
   return result;
 }
 
+// Static initialisation of an atomic needs a different spelling depending on
+// how _Atomic is defined.  The bundled shims define it as a struct and provide
+// a matching ATOMIC_VAR_INIT; the native <stdatomic.h> defines it as a scalar
+// and, since C23 removed ATOMIC_VAR_INIT, may not provide one at all.  Where
+// the macro is absent the type is the native scalar, which a plain value
+// initialises.  See https://github.com/ros2/rcutils/issues/553.
+#ifdef ATOMIC_VAR_INIT
+#define RCUTILS_ATOMIC_INIT(value) ATOMIC_VAR_INIT(value)
+#else
+#define RCUTILS_ATOMIC_INIT(value) (value)
+#endif
+
 #if !defined(_WIN32)
 # pragma GCC diagnostic pop
 #endif
