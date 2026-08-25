@@ -29,31 +29,16 @@
 
 #if !defined(_WIN32) || defined(__MINGW64__)
 
-// The my__has_feature avoids a preprocessor error when you check for it and
-// use it on the same line below.
-#if defined(__has_feature)
-#define my__has_feature __has_feature
-#else
-#define my__has_feature(x) 0
-#endif
-
-#if !defined(__clang__) && defined(__GNUC__) && __GNUC__ <= 4 && __GNUC_MINOR__ <= 9
-// If GCC and below GCC-4.9, use the compatability header.
-# include "stdatomic_helper/gcc/stdatomic.h"
-#else  // !defined(__clang__) && defined(__GNUC__) && __GNUC__ <= 4 && __GNUC_MINOR__ <= 9
-# if __cplusplus
+// Every compiler we support provides a working <stdatomic.h>; the bundled gcc
+// compatibility header was only ever needed for GCC before 4.9 and Clang
+// before 3.1.
+#if __cplusplus
 // NOLINTNEXTLINE
-#   error "cannot be used with C++ due to a conflict with the C++ <atomic> header, see: p0943r1"
+# error "cannot be used with C++ due to a conflict with the C++ <atomic> header, see: p0943r1"
 // See: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0943r1.html"
-# else
-#   if defined(__has_feature) && !my__has_feature(c_atomic)
-// If Clang and no c_atomics (true for some older versions), use the compatability header.
-#     include "stdatomic_helper/gcc/stdatomic.h"
-#   else
-#     include <stdatomic.h>
-#   endif
-# endif
-#endif  // !defined(__clang__) && defined(__GNUC__) && __GNUC__ <= 4 && __GNUC_MINOR__ <= 9
+#else
+# include <stdatomic.h>
+#endif
 
 #define rcutils_atomic_load(object, out) (out) = atomic_load(object)
 
