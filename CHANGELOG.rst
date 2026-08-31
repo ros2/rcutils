@@ -2,6 +2,12 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+7.1.3 (2026-08-31)
+------------------
+* an explicit platform split matching the helper header's own condition. (`#587 <https://github.com/ros2/rcutils/issues/587>`_) (`#590 <https://github.com/ros2/rcutils/issues/590>`_)
+* Added missing headers (`#580 <https://github.com/ros2/rcutils/issues/580>`_) (`#581 <https://github.com/ros2/rcutils/issues/581>`_)
+* Contributors: mergify[bot]
+
 7.1.2 (2026-07-02)
 ------------------
 * skip libatomic if mac (`#565 <https://github.com/ros2/rcutils/issues/565>`_) (`#566 <https://github.com/ros2/rcutils/issues/566>`_)
