@@ -2,6 +2,16 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+7.2.2 (2026-08-31)
+------------------
+* Remove the bundled gcc stdatomic compatibility header (`#589 <https://github.com/ros2/rcutils/issues/589>`_)
+* an explicit platform split matching the helper header's own condition. (`#587 <https://github.com/ros2/rcutils/issues/587>`_)
+* Normalize extern "C" guards to #ifdef __cplusplus (`#585 <https://github.com/ros2/rcutils/issues/585>`_)
+* Fix date_time_with_ms millisecond formatting (`#570 <https://github.com/ros2/rcutils/issues/570>`_)
+* Added missing headers (`#580 <https://github.com/ros2/rcutils/issues/580>`_)
+* Link rcutils against Threads (`#579 <https://github.com/ros2/rcutils/issues/579>`_)
+* Contributors: Alejandro Hernández Cordero, Mark Jin, Michael Carroll, Tobias Fischer, Tomoya Fujita, zacheryasc
+
 7.2.1 (2026-07-02)
 ------------------
 * move __STDC_WANT_LIB_EXT1_\_ macro to CMakeLists.txt. (`#555 <https://github.com/ros2/rcutils/issues/555>`_)
