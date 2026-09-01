@@ -91,7 +91,10 @@ rcutils_load_shared_library(
   // for further reference.
 
 #ifndef _WIN32
-  lib->lib_pointer = dlopen(library_path, RTLD_LAZY);
+  // RTLD_NODELETE: don't unmap on dlclose. Heap-resident references into the
+  // library (e.g. shared_ptr/weak_ptr control-block vtables) can outlive the
+  // dlopen/dlclose cycle; unmapping would dangle them.
+  lib->lib_pointer = dlopen(library_path, RTLD_LAZY | RTLD_NODELETE);
   if (NULL == lib->lib_pointer) {
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("dlopen error: %s", dlerror());
     return RCUTILS_RET_ERROR;
