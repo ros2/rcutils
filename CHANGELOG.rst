@@ -2,6 +2,11 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Added missing headers (`#580 <https://github.com/ros2/rcutils/issues/580>`_) (`#584 <https://github.com/ros2/rcutils/issues/584>`_)
+* Contributors: mergify[bot]
+
 5.1.9 (2026-07-15)
 ------------------
 * address warning: statement with no effect. (backport `#559 <https://github.com/ros2/rcutils/issues/559>`_) (`#563 <https://github.com/ros2/rcutils/issues/563>`_)
