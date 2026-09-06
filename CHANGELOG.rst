@@ -2,8 +2,8 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+5.1.10 (2026-09-06)
+-------------------
 * Added missing headers (`#580 <https://github.com/ros2/rcutils/issues/580>`_) (`#584 <https://github.com/ros2/rcutils/issues/584>`_)
 * Contributors: mergify[bot]
 
