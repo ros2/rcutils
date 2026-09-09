@@ -12,9 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <stddef.h>
 #include <stdint.h>
 
+#include "rcutils/allocator.h"
 #include "rcutils/error_handling.h"
+#include "rcutils/types/rcutils_ret.h"
 #include "rcutils/types/uint8_array.h"
 
 rcutils_uint8_array_t

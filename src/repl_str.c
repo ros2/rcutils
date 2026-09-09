@@ -31,13 +31,13 @@ extern "C"
 #endif
 
 #include <string.h>
-#include <stdlib.h>
 #include <stddef.h>
 
 #if (__STDC_VERSION__ >= 199901L)
 #include <stdint.h>
 #endif
 
+#include "rcutils/allocator.h"
 #include "rcutils/repl_str.h"
 
 // *INDENT-OFF* (prevent uncrustify from messing with the original style)

@@ -20,13 +20,14 @@ extern "C"
 #include "rcutils/types/string_map.h"
 
 #include <assert.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
 
 #include "./common.h"
+#include "rcutils/allocator.h"
 #include "rcutils/strdup.h"
-#include "rcutils/format_string.h"
 #include "rcutils/types/rcutils_ret.h"
 
 typedef struct key_value_pair

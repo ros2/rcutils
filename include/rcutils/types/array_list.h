@@ -22,9 +22,10 @@ extern "C"
 {
 #endif
 
-#include <string.h>
+#include <stddef.h>
 
 #include "rcutils/allocator.h"
+#include "rcutils/error_handling.h"
 #include "rcutils/macros.h"
 #include "rcutils/types/rcutils_ret.h"
 #include "rcutils/visibility_control.h"

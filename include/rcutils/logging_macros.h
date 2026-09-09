@@ -15,9 +15,12 @@
 #ifndef RCUTILS__LOGGING_MACROS_H_
 #define RCUTILS__LOGGING_MACROS_H_
 
-#include "rcutils/logging.h"
-
 #include <stdbool.h>
+#include <stddef.h>
+
+#include "rcutils/logging.h"
+#include "rcutils/time.h"
+#include "rcutils/types/rcutils_ret.h"
 
 #ifdef __cplusplus
 extern "C"

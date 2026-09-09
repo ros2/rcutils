@@ -37,8 +37,8 @@ extern "C"
 #pragma warning(pop)
 
 #include "./common.h"
-#include "rcutils/allocator.h"
 #include "rcutils/error_handling.h"
+#include "rcutils/types/rcutils_ret.h"
 
 rcutils_ret_t
 rcutils_system_time_now(rcutils_time_point_value_t * now)

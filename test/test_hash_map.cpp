@@ -14,6 +14,9 @@
 
 #include <gtest/gtest.h>
 
+#include <stddef.h>
+#include <stdint.h>
+
 #include <string>
 
 #include "./time_bomb_allocator_testing_utils.h"

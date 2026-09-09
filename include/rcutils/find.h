@@ -22,7 +22,8 @@ extern "C"
 {
 #endif
 
-#include "rcutils/types.h"
+#include <stddef.h>
+
 #include "rcutils/visibility_control.h"
 
 /// Return the first index of a character in a string.

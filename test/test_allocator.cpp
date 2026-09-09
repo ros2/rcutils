@@ -14,6 +14,8 @@
 
 #include <gtest/gtest.h>
 
+#include <stddef.h>
+
 #include "./allocator_testing_utils.h"
 #include "rcutils/allocator.h"
 #include "rcutils/testing/fault_injection.h"
