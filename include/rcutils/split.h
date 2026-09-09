@@ -23,7 +23,8 @@ extern "C"
 #endif
 
 #include "rcutils/allocator.h"
-#include "rcutils/types.h"
+#include "rcutils/types/rcutils_ret.h"
+#include "rcutils/types/string_array.h"
 #include "rcutils/visibility_control.h"
 
 /// Split a given string with the specified delimiter

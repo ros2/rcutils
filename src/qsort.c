@@ -17,9 +17,11 @@ extern "C"
 {
 #endif
 
+#include <stddef.h>
 #include <stdlib.h>
 
 #include "rcutils/error_handling.h"
+#include "rcutils/types/rcutils_ret.h"
 #include "rcutils/qsort.h"
 
 rcutils_ret_t

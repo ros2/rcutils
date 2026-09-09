@@ -24,8 +24,8 @@ extern "C"
 #ifdef _WIN32
 #include <stdio.h>
 #endif
-#include <string.h>
 
+#include "rcutils/allocator.h"
 #include "rcutils/snprintf.h"
 
 char *

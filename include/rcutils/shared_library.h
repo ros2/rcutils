@@ -22,11 +22,11 @@ extern "C"
 {
 #endif
 
-#include <string.h>
+#include <stdbool.h>
 
 #include "rcutils/allocator.h"
-#include "rcutils/types/rcutils_ret.h"
 #include "rcutils/macros.h"
+#include "rcutils/types/rcutils_ret.h"
 #include "rcutils/visibility_control.h"
 
 /// Handle to a loaded shared library.

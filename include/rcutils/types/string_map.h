@@ -22,11 +22,12 @@ extern "C"
 {
 #endif
 
-#include <string.h>
+#include <stdbool.h>
+#include <stddef.h>
 
 #include "rcutils/allocator.h"
-#include "rcutils/types/rcutils_ret.h"
 #include "rcutils/macros.h"
+#include "rcutils/types/rcutils_ret.h"
 #include "rcutils/visibility_control.h"
 
 struct rcutils_string_map_impl_s;

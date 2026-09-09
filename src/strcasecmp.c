@@ -17,8 +17,13 @@ extern "C"
 {
 #endif
 
-#include <errno.h>
+#include <stddef.h>
+
+#ifdef _WIN32
 #include <string.h>
+#else
+#include <strings.h>
+#endif
 
 #include "rcutils/strcasecmp.h"
 

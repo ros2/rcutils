@@ -13,6 +13,9 @@
 // limitations under the License.
 
 #include <gtest/gtest.h>
+
+#include <stddef.h>
+#include <stdint.h>
 #include <set>
 #include <string>
 

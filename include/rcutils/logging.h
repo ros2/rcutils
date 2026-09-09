@@ -19,7 +19,7 @@
 
 #include <stdarg.h>
 #include <stdbool.h>
-#include <stdio.h>
+#include <stddef.h>
 
 #include "rcutils/allocator.h"
 #include "rcutils/error_handling.h"

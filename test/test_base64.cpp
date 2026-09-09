@@ -14,6 +14,9 @@
 
 #include <gtest/gtest.h>
 
+#include <stddef.h>
+#include <stdint.h>
+
 #include <cstring>
 #include <string>
 #include <vector>
