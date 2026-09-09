@@ -17,15 +17,16 @@ extern "C"
 {
 #endif
 
+#include <stddef.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
+#include "rcutils/allocator.h"
 #include "rcutils/error_handling.h"
-#include "rcutils/format_string.h"
 #include "rcutils/logging_macros.h"
+#include "rcutils/types/rcutils_ret.h"
+#include "rcutils/types/string_array.h"
 #include "rcutils/split.h"
-#include "rcutils/types.h"
 
 rcutils_ret_t
 rcutils_split(

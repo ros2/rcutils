@@ -17,14 +17,14 @@ extern "C"
 {
 #endif
 
+#include <stddef.h>
+#include <stdint.h>
 #include <string.h>
 
 #include "rcutils/allocator.h"
 #include "rcutils/error_handling.h"
-#include "rcutils/macros.h"
 #include "rcutils/types/array_list.h"
 #include "rcutils/types/rcutils_ret.h"
-#include "rcutils/visibility_control.h"
 
 #define ARRAY_LIST_VALIDATE_INDEX_IN_BOUNDS(array_list, index) \
   if (array_list->impl->size <= index) { \

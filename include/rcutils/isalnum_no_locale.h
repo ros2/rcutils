@@ -22,6 +22,8 @@ extern "C"
 {
 #endif
 
+#include <stdbool.h>
+
 /// Custom isalnum() which is not affected by locale.
 static inline
 bool

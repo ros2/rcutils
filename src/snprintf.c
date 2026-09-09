@@ -24,7 +24,10 @@ extern "C"
 #include <string.h>
 #endif
 #include <stdarg.h>
+#include <stddef.h>
 #include <stdio.h>
+
+#include "rcutils/macros.h"
 
 int
 rcutils_snprintf(char * buffer, size_t buffer_size, const char * format, ...)

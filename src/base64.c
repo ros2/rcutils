@@ -39,14 +39,14 @@ extern "C"
 #else
 #include <pthread.h>
 #endif
+#include <stddef.h>
 #include <stdint.h>
-#include <string.h>
 
 #include "rcutils/allocator.h"
 #include "rcutils/base64.h"
 #include "rcutils/error_handling.h"
 #include "rcutils/strnlen.h"
-#include "rcutils/types.h"
+#include "rcutils/types/rcutils_ret.h"
 #include "rcutils/types/uint8_array.h"
 
 #define BASE64_INVALID 255u

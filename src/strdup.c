@@ -19,11 +19,12 @@ extern "C"
 
 #include "rcutils/strdup.h"
 
-#include <limits.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <string.h>
 
 #include "./common.h"
+#include "rcutils/allocator.h"
 #include "rcutils/macros.h"
 
 

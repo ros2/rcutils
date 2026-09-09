@@ -13,6 +13,8 @@
 // limitations under the License.
 
 #include <gtest/gtest.h>
+#include <stddef.h>
+#include <stdio.h>
 #include <string.h>
 
 #include "./allocator_testing_utils.h"

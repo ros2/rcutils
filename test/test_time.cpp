@@ -14,6 +14,9 @@
 
 #include <gtest/gtest.h>
 
+#include <stdint.h>
+#include <string.h>
+
 #include <chrono>
 #include <cinttypes>
 #include <iomanip>

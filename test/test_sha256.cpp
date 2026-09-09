@@ -14,6 +14,10 @@
 
 #include <gtest/gtest.h>
 
+#include <stddef.h>
+#include <stdint.h>
+#include <string.h>
+
 #include "rcutils/sha256.h"
 
 TEST(TestSHA256, test_text1) {

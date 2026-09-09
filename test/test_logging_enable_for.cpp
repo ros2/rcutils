@@ -14,6 +14,8 @@
 
 #include <gtest/gtest.h>
 
+#include <stddef.h>
+
 #include <string>
 
 #include "osrf_testing_tools_cpp/scope_exit.hpp"

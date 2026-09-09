@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <benchmark/benchmark.h>
+#include <stddef.h>
 #include <cassert>
 #include <string>
 #include <vector>
