@@ -124,7 +124,13 @@ rcutils_load_shared_library(
     goto fail;
   }
   lib->library_path = rcutils_strdup(image_name, lib->allocator);
-#elif defined(_GNU_SOURCE) && !defined(__QNXNTO__) && !defined(__ANDROID__) && !defined(__OHOS__)
+  // Emscripten defines _GNU_SOURCE but its dlopen()/dlinfo() are a JS-backed
+  // shim, not glibc's -- RTLD_DI_LINKMAP support (reading back a real
+  // struct link_map) doesn't exist there. A successful dlopen() would
+  // otherwise get treated as a failure once dlinfo() returns -1 below; the
+  // #else branch already covers this correctly (it just reuses the path we
+  // opened the library from, no introspection needed).
+#elif defined(_GNU_SOURCE) && !defined(__QNXNTO__) && !defined(__ANDROID__) && !defined(__OHOS__) && !defined(__EMSCRIPTEN__)
   struct link_map * map = NULL;
   if (dlinfo(lib->lib_pointer, RTLD_DI_LINKMAP, &map) != 0) {
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("dlinfo error: %s", dlerror());
@@ -291,7 +297,12 @@ rcutils_get_platform_library_name(
 
   int written = 0;
 
-#if defined(__linux__) || defined(__QNXNTO__)
+  // rcl_logging_implementation dlopens its backend (spdlog or noop) by name
+  // at runtime via this function -- with no emscripten case it always falls
+  // through with written == 0 ("failed to format library name"), regardless
+  // of which backend RCL_LOGGING_IMPLEMENTATION selects. wasm32 side modules
+  // use the same "lib<name>.so" naming convention as Linux.
+#if defined(__linux__) || defined(__QNXNTO__) || defined(__EMSCRIPTEN__)
   if (debug) {
     if (buffer_size >= (strlen(library_name) + 8)) {
       written = rcutils_snprintf(
