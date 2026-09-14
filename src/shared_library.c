@@ -130,7 +130,8 @@ rcutils_load_shared_library(
   // otherwise get treated as a failure once dlinfo() returns -1 below; the
   // #else branch already covers this correctly (it just reuses the path we
   // opened the library from, no introspection needed).
-#elif defined(_GNU_SOURCE) && !defined(__QNXNTO__) && !defined(__ANDROID__) && !defined(__OHOS__) && !defined(__EMSCRIPTEN__)
+#elif defined(_GNU_SOURCE) && !defined(__QNXNTO__) && !defined(__ANDROID__) && !defined(__OHOS__) && \
+  !defined(__EMSCRIPTEN__)
   struct link_map * map = NULL;
   if (dlinfo(lib->lib_pointer, RTLD_DI_LINKMAP, &map) != 0) {
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("dlinfo error: %s", dlerror());
