@@ -13,8 +13,9 @@
 // limitations under the License.
 
 #include <ctype.h>
-#include <errno.h>
-#include <inttypes.h>
+#include <stdarg.h>
+#include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
@@ -41,13 +42,15 @@
 #include "rcutils/env.h"
 #include "rcutils/error_handling.h"
 #include "rcutils/find.h"
-#include "rcutils/format_string.h"
 #include "rcutils/logging.h"
+#include "rcutils/logging_macros.h"
 #include "rcutils/snprintf.h"
 #include "rcutils/strdup.h"
 #include "rcutils/strerror.h"
 #include "rcutils/time.h"
+#include "rcutils/types/char_array.h"
 #include "rcutils/types/hash_map.h"
+#include "rcutils/types/rcutils_ret.h"
 
 
 #define RCUTILS_LOGGING_BACKSLASH_CHAR '\\'

@@ -14,6 +14,8 @@
 
 #include <gtest/gtest.h>
 
+#include <stddef.h>
+
 #include "rcutils/strcasecmp.h"
 
 // Tests the rcutils_strcasecmp() function.

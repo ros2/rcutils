@@ -18,6 +18,7 @@ extern "C"
 #endif
 
 #include <errno.h>
+#include <stddef.h>
 #include <string.h>
 
 #include "rcutils/strerror.h"

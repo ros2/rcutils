@@ -32,10 +32,12 @@
 #endif
 
 #include <assert.h>
-#include <stdlib.h>
+#include <stddef.h>
+#include <stdint.h>
 #include <string.h>
 
 #include <rcutils/error_handling.h>
+#include <rcutils/macros.h>
 #include <rcutils/strnlen.h>
 
 #ifdef __cplusplus

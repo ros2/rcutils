@@ -13,8 +13,14 @@
 // limitations under the License.
 
 #include <stdarg.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdio.h>
+#include <string.h>
+#include "rcutils/allocator.h"
 #include "rcutils/error_handling.h"
 #include "rcutils/types/char_array.h"
+#include "rcutils/types/rcutils_ret.h"
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 

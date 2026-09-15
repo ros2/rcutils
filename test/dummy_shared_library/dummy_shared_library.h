@@ -25,8 +25,6 @@
 #define DUMMY_SHARED_LIBRARY_PUBLIC
 #endif
 
-#include <stdio.h>
-
 DUMMY_SHARED_LIBRARY_PUBLIC
 void print_name(void);
 

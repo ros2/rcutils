@@ -15,6 +15,7 @@
 #ifndef MOCKING_UTILS__FILESYSTEM_HPP_
 #define MOCKING_UTILS__FILESYSTEM_HPP_
 
+#include <stddef.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>

@@ -20,13 +20,14 @@ extern "C"
 #include "rcutils/time.h"
 
 #include <inttypes.h>
-#include <stdio.h>
+#include <stddef.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <time.h>
 
-#include "rcutils/allocator.h"
 #include "rcutils/error_handling.h"
 #include "rcutils/snprintf.h"
+#include "rcutils/types/rcutils_ret.h"
 
 rcutils_ret_t
 rcutils_time_point_value_as_nanoseconds_string(

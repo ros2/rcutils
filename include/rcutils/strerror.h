@@ -22,6 +22,8 @@ extern "C"
 {
 #endif
 
+#include <stddef.h>
+
 #include "rcutils/visibility_control.h"
 
 /// Retrieve the string corresponding to the last system error.

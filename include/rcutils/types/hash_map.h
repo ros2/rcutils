@@ -22,11 +22,13 @@ extern "C"
 {
 #endif
 
-#include <string.h>
+#include <stdbool.h>
+#include <stddef.h>
 
 #include "rcutils/allocator.h"
-#include "rcutils/types/rcutils_ret.h"
+#include "rcutils/error_handling.h"
 #include "rcutils/macros.h"
+#include "rcutils/types/rcutils_ret.h"
 #include "rcutils/visibility_control.h"
 
 struct rcutils_hash_map_impl_s;
@@ -418,7 +420,6 @@ rcutils_hash_map_get_next_key_and_data(
   const void * previous_key,
   void * key,
   void * data);
-
 
 #ifdef __cplusplus
 }

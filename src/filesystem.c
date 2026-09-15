@@ -15,8 +15,9 @@
 #include "rcutils/filesystem.h"
 
 #include <errno.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 #include <string.h>
 #include <sys/stat.h>
 #ifndef _WIN32
@@ -38,11 +39,13 @@
 #include <direct.h>
 #endif  // _WIN32
 
+#include "rcutils/allocator.h"
 #include "rcutils/env.h"
 #include "rcutils/error_handling.h"
 #include "rcutils/format_string.h"
 #include "rcutils/repl_str.h"
 #include "rcutils/strdup.h"
+#include "rcutils/types/rcutils_ret.h"
 
 #ifdef _WIN32
 # define RCUTILS_PATH_DELIMITER "\\"

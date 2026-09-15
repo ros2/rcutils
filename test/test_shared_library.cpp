@@ -14,6 +14,8 @@
 
 #include <gtest/gtest.h>
 
+#include <stddef.h>
+
 #include <string>
 
 #include "./allocator_testing_utils.h"

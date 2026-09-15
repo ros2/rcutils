@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <stdbool.h>
+#include <stddef.h>
 #include <string.h>
 
 #include "rcutils/cmdline_parser.h"

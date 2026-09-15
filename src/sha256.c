@@ -13,6 +13,8 @@
 // limitations under the License.
 
 #include <assert.h>
+#include <stddef.h>
+#include <stdint.h>
 #include <string.h>
 
 #include "rcutils/sha256.h"

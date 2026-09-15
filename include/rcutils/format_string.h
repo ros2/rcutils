@@ -20,7 +20,7 @@ extern "C"
 {
 #endif
 
-#include <string.h>
+#include <stddef.h>
 
 #include "rcutils/allocator.h"
 #include "rcutils/macros.h"

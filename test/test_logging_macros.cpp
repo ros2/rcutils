@@ -14,6 +14,9 @@
 
 #include <gmock/gmock.h>
 
+#include <stddef.h>
+#include <stdint.h>
+
 #include <chrono>
 #include <string>
 #include <thread>

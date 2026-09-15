@@ -18,11 +18,13 @@ extern "C"
 #endif
 
 #include <errno.h>
-#include <stdio.h>
+#include <stdbool.h>
+#include <stddef.h>
 #include <stdlib.h>
 
 #include "rcutils/env.h"
 #include "rcutils/error_handling.h"
+#include "rcutils/macros.h"
 
 bool
 rcutils_set_env(const char * env_name, const char * env_value)
