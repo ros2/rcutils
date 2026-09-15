@@ -73,6 +73,18 @@ TEST(test_string_array, boot_string_array) {
   ASSERT_EQ(RCUTILS_RET_OK, rcutils_string_array_fini(&sa4));
 }
 
+TEST(test_string_array, init_alloc_failure_leaves_array_empty) {
+  auto failing_allocator = get_failing_allocator();
+
+  rcutils_string_array_t sa = rcutils_get_zero_initialized_string_array();
+  EXPECT_EQ(RCUTILS_RET_BAD_ALLOC, rcutils_string_array_init(&sa, 3, &failing_allocator));
+  rcutils_reset_error();
+  // Nothing was allocated, so the array must not advertise entries that cannot be read.
+  EXPECT_EQ(nullptr, sa.data);
+  EXPECT_EQ(0u, sa.size);
+  EXPECT_EQ(RCUTILS_RET_OK, rcutils_string_array_fini(&sa));
+}
+
 TEST(test_string_array, string_array_cmp) {
   auto allocator = rcutils_get_default_allocator();
   rcutils_ret_t ret = RCUTILS_RET_OK;
