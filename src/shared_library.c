@@ -127,9 +127,6 @@ rcutils_load_shared_library(
     goto fail;
   }
   lib->library_path = rcutils_strdup(image_name, lib->allocator);
-<<<<<<< HEAD
-#elif defined(_GNU_SOURCE) && !defined(__QNXNTO__) && !defined(__ANDROID__)
-=======
   // Emscripten defines _GNU_SOURCE but its dlopen()/dlinfo() are a JS-backed
   // shim, not glibc's -- RTLD_DI_LINKMAP support (reading back a real
   // struct link_map) doesn't exist there. A successful dlopen() would
@@ -137,8 +134,7 @@ rcutils_load_shared_library(
   // #else branch already covers this correctly (it just reuses the path we
   // opened the library from, no introspection needed).
 #elif defined(_GNU_SOURCE) && !defined(__QNXNTO__) && !defined(__ANDROID__) && \
-  !defined(__OHOS__) && !defined(__EMSCRIPTEN__)
->>>>>>> a2d8f50 (Add emscripten guards to shared_library.c's dlopen path (#591))
+  !defined(__EMSCRIPTEN__)
   struct link_map * map = NULL;
   if (dlinfo(lib->lib_pointer, RTLD_DI_LINKMAP, &map) != 0) {
     RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("dlinfo error: %s", dlerror());
