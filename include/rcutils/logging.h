@@ -592,7 +592,7 @@ void rcutils_logging_console_output_handler(
  */
 #define RCUTILS_LOGGING_AUTOINIT_WITH_ALLOCATOR(alloc) \
   do { \
-    if (RCUTILS_UNLIKELY(!g_rcutils_logging_initialized)) { \
+    if (RCUTILS_UNLIKELY(!__atomic_load_n(&g_rcutils_logging_initialized, __ATOMIC_ACQUIRE))) { \
       if (rcutils_logging_initialize_with_allocator(alloc) != RCUTILS_RET_OK) { \
         RCUTILS_SAFE_FWRITE_TO_STDERR( \
           "[rcutils|" __FILE__ ":" RCUTILS_STRINGIFY(__LINE__) \
