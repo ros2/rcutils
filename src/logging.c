@@ -44,6 +44,7 @@
 #include "rcutils/format_string.h"
 #include "rcutils/logging.h"
 #include "rcutils/snprintf.h"
+#include "rcutils/stdatomic_helper.h"
 #include "rcutils/strdup.h"
 #include "rcutils/strerror.h"
 #include "rcutils/time.h"
@@ -83,6 +84,9 @@ enum rcutils_colorized_output
 };
 
 bool g_rcutils_logging_initialized = false;
+// Serializes first-time initialization against concurrent callers (see
+// rcutils_logging_initialize_with_allocator()).
+static atomic_bool g_rcutils_logging_init_lock = ATOMIC_VAR_INIT(false);
 
 static char g_rcutils_logging_output_format_string[RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN];
 static const char * g_rcutils_logging_default_output_format =
@@ -676,12 +680,9 @@ rcutils_ret_t rcutils_logging_allocator_initialize(
   return RCUTILS_RET_OK;
 }
 
-rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allocator)
+static rcutils_ret_t rcutils_logging_initialize_with_allocator_unlocked(
+  rcutils_allocator_t allocator)
 {
-  if (g_rcutils_logging_initialized) {
-    return RCUTILS_RET_OK;
-  }
-
   if (rcutils_logging_allocator_initialize(&allocator) != RCUTILS_RET_OK) {
     return RCUTILS_RET_INVALID_ARGUMENT;
   }
@@ -824,14 +825,41 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
 
   g_rcutils_logging_severities_map_valid = true;
 
-  g_rcutils_logging_initialized = true;
+  // Release-store publishes the writes above to any thread that observes this flag as true
+  // via an acquire-load. Every access to this flag in this file uses the __atomic builtins
+  // rather than <stdatomic.h>, since this header is also included from C++ translation units
+  // (which can't include <stdatomic.h>/stdatomic_helper.h - see its __cplusplus #error).
+  __atomic_store_n(&g_rcutils_logging_initialized, true, __ATOMIC_RELEASE);
 
   return RCUTILS_RET_OK;
 }
 
+rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allocator)
+{
+  if (__atomic_load_n(&g_rcutils_logging_initialized, __ATOMIC_ACQUIRE)) {
+    return RCUTILS_RET_OK;
+  }
+
+  // Concurrent first-time callers would otherwise all build g_rcutils_logging_severities_map
+  // at once and corrupt it - easy to hit when this file is statically linked into several
+  // independently dlopen()'d plugin libraries, each with its own copy of the flag above.
+  while (rcutils_atomic_exchange_bool(&g_rcutils_logging_init_lock, true)) {
+    // Another caller is already initializing; spin until it releases the lock.
+  }
+
+  rcutils_ret_t ret = RCUTILS_RET_OK;
+  if (!__atomic_load_n(&g_rcutils_logging_initialized, __ATOMIC_ACQUIRE)) {
+    ret = rcutils_logging_initialize_with_allocator_unlocked(allocator);
+  }
+
+  rcutils_atomic_store(&g_rcutils_logging_init_lock, false);
+
+  return ret;
+}
+
 rcutils_ret_t rcutils_logging_shutdown(void)
 {
-  if (!g_rcutils_logging_initialized) {
+  if (!__atomic_load_n(&g_rcutils_logging_initialized, __ATOMIC_ACQUIRE)) {
     return RCUTILS_RET_OK;
   }
 
@@ -867,7 +895,7 @@ rcutils_ret_t rcutils_logging_shutdown(void)
   }
   g_num_log_msg_handlers = 0;
   g_rcutils_logging_allocator = rcutils_get_zero_initialized_allocator();
-  g_rcutils_logging_initialized = false;
+  __atomic_store_n(&g_rcutils_logging_initialized, false, __ATOMIC_RELEASE);
 
   #ifdef _WIN32
   if (g_consol_mode_modified) {
@@ -1443,7 +1471,7 @@ void rcutils_logging_console_output_handler(
   rcutils_ret_t status = RCUTILS_RET_OK;
   bool is_colorized = false;
 
-  if (!g_rcutils_logging_initialized) {
+  if (!__atomic_load_n(&g_rcutils_logging_initialized, __ATOMIC_ACQUIRE)) {
     RCUTILS_SAFE_FWRITE_TO_STDERR(
       "logging system isn't initialized: "
       "call to rcutils_logging_console_output_handler failed.\n");

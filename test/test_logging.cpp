@@ -550,3 +550,39 @@ TEST(TestLogging, test_logging_macro_thread_safety)
     thread.join();
   }
 }
+
+TEST(TestLogging, test_logging_concurrent_first_time_initialize)
+{
+  // Regression test for a check-then-act race in rcutils_logging_initialize_with_allocator():
+  // concurrent first-time callers could all build g_rcutils_logging_severities_map at once and
+  // corrupt it (seen as a SIGSEGV in rcutils_hash_map_init). Unlike
+  // test_logging_macro_thread_safety above, which initializes once before spawning threads,
+  // this starts from a guaranteed not-yet-initialized state and races every thread to init.
+  if (g_rcutils_logging_initialized) {
+    ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_shutdown());
+  }
+  ASSERT_FALSE(g_rcutils_logging_initialized);
+
+  OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
+  {
+    if (g_rcutils_logging_initialized) {
+      EXPECT_EQ(RCUTILS_RET_OK, rcutils_logging_shutdown());
+    }
+  });
+
+  auto task = []() {
+      EXPECT_EQ(RCUTILS_RET_OK, rcutils_logging_initialize());
+    };
+
+  std::size_t number_of_threads = std::thread::hardware_concurrency() * 10;
+  std::vector<std::thread> threads;
+  threads.reserve(number_of_threads);
+  for (std::size_t i = 0; i < number_of_threads; ++i) {
+    threads.emplace_back(task);
+  }
+  for (auto & thread : threads) {
+    thread.join();
+  }
+
+  EXPECT_TRUE(g_rcutils_logging_initialized);
+}
