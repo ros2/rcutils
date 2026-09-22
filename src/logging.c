@@ -86,7 +86,7 @@ enum rcutils_colorized_output
 bool g_rcutils_logging_initialized = false;
 // Serializes first-time initialization against concurrent callers (see
 // rcutils_logging_initialize_with_allocator()).
-static atomic_bool g_rcutils_logging_init_lock = ATOMIC_VAR_INIT(false);
+static atomic_bool g_rcutils_logging_init_lock = false;
 
 static char g_rcutils_logging_output_format_string[RCUTILS_LOGGING_MAX_OUTPUT_FORMAT_LEN];
 static const char * g_rcutils_logging_default_output_format =
