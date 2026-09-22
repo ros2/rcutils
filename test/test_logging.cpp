@@ -14,6 +14,7 @@
 
 #include <gtest/gtest.h>
 
+#include <atomic>
 #include <chrono>
 #include <string>
 #include <thread>
@@ -558,11 +559,12 @@ TEST(TestLogging, test_logging_concurrent_first_time_initialize)
   // corrupt it (seen as a SIGSEGV in rcutils_hash_map_init). Unlike
   // test_logging_macro_thread_safety above, which initializes once before spawning threads,
   // this starts from a guaranteed not-yet-initialized state and races every thread to init.
-  if (g_rcutils_logging_initialized) {
-    ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_shutdown());
-  }
-  ASSERT_FALSE(g_rcutils_logging_initialized);
-
+  //
+  // Threads are held at a barrier and released together (rather than just started in a loop)
+  // to actually land them all in rcutils_logging_initialize() at once - a plain, unsynchronized
+  // rcutils_logging_initialize() call is fast enough that starting threads one at a time lets
+  // earlier ones finish before later ones begin, closing the race window before it can be hit.
+  // Repeated over several rounds since a single round can still get unlucky.
   OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
   {
     if (g_rcutils_logging_initialized) {
@@ -570,19 +572,38 @@ TEST(TestLogging, test_logging_concurrent_first_time_initialize)
     }
   });
 
-  auto task = []() {
-      EXPECT_EQ(RCUTILS_RET_OK, rcutils_logging_initialize());
-    };
-
-  std::size_t number_of_threads = std::thread::hardware_concurrency() * 10;
-  std::vector<std::thread> threads;
-  threads.reserve(number_of_threads);
-  for (std::size_t i = 0; i < number_of_threads; ++i) {
-    threads.emplace_back(task);
-  }
-  for (auto & thread : threads) {
-    thread.join();
+  std::size_t number_of_threads = std::thread::hardware_concurrency() * 4;
+  if (number_of_threads < 8u) {
+    number_of_threads = 8u;
   }
 
-  EXPECT_TRUE(g_rcutils_logging_initialized);
+  for (int round = 0; round < 20; ++round) {
+    if (g_rcutils_logging_initialized) {
+      ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_shutdown());
+    }
+    ASSERT_FALSE(g_rcutils_logging_initialized);
+
+    std::atomic<std::size_t> ready{0};
+    std::atomic<bool> go{false};
+    auto task = [&ready, &go]() {
+        ready.fetch_add(1);
+        while (!go.load()) {
+        }
+        EXPECT_EQ(RCUTILS_RET_OK, rcutils_logging_initialize());
+      };
+
+    std::vector<std::thread> threads;
+    threads.reserve(number_of_threads);
+    for (std::size_t i = 0; i < number_of_threads; ++i) {
+      threads.emplace_back(task);
+    }
+    while (ready.load() < number_of_threads) {
+    }
+    go.store(true);
+    for (auto & thread : threads) {
+      thread.join();
+    }
+
+    EXPECT_TRUE(g_rcutils_logging_initialized);
+  }
 }
