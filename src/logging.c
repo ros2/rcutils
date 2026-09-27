@@ -44,7 +44,6 @@
 #include "rcutils/format_string.h"
 #include "rcutils/logging.h"
 #include "rcutils/snprintf.h"
-#include "rcutils/stdatomic_helper.h"
 #include "rcutils/strdup.h"
 #include "rcutils/strerror.h"
 #include "rcutils/time.h"
@@ -83,7 +82,7 @@ enum rcutils_colorized_output
   RCUTILS_COLORIZED_OUTPUT_AUTO = 2,
 };
 
-bool g_rcutils_logging_initialized = false;
+atomic_bool g_rcutils_logging_initialized = false;
 // Serializes first-time initialization against concurrent callers (see
 // rcutils_logging_initialize_with_allocator()).
 static atomic_bool g_rcutils_logging_init_lock = false;
@@ -829,14 +828,14 @@ static rcutils_ret_t rcutils_logging_initialize_with_allocator_unlocked(
   // via an acquire-load. Every access to this flag in this file uses the __atomic builtins
   // rather than <stdatomic.h>, since this header is also included from C++ translation units
   // (which can't include <stdatomic.h>/stdatomic_helper.h - see its __cplusplus #error).
-  __atomic_store_n(&g_rcutils_logging_initialized, true, __ATOMIC_RELEASE);
+  atomic_store_explicit(&g_rcutils_logging_initialized, true, memory_order_release);
 
   return RCUTILS_RET_OK;
 }
 
 rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allocator)
 {
-  if (__atomic_load_n(&g_rcutils_logging_initialized, __ATOMIC_ACQUIRE)) {
+  if (atomic_load_explicit(&g_rcutils_logging_initialized, memory_order_acquire)) {
     return RCUTILS_RET_OK;
   }
 
@@ -848,7 +847,7 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
   }
 
   rcutils_ret_t ret = RCUTILS_RET_OK;
-  if (!__atomic_load_n(&g_rcutils_logging_initialized, __ATOMIC_ACQUIRE)) {
+  if (!atomic_load_explicit(&g_rcutils_logging_initialized, memory_order_acquire)) {
     ret = rcutils_logging_initialize_with_allocator_unlocked(allocator);
   }
 
@@ -859,7 +858,7 @@ rcutils_ret_t rcutils_logging_initialize_with_allocator(rcutils_allocator_t allo
 
 rcutils_ret_t rcutils_logging_shutdown(void)
 {
-  if (!__atomic_load_n(&g_rcutils_logging_initialized, __ATOMIC_ACQUIRE)) {
+  if (!atomic_load_explicit(&g_rcutils_logging_initialized, memory_order_acquire)) {
     return RCUTILS_RET_OK;
   }
 
@@ -895,7 +894,7 @@ rcutils_ret_t rcutils_logging_shutdown(void)
   }
   g_num_log_msg_handlers = 0;
   g_rcutils_logging_allocator = rcutils_get_zero_initialized_allocator();
-  __atomic_store_n(&g_rcutils_logging_initialized, false, __ATOMIC_RELEASE);
+  atomic_store_explicit(&g_rcutils_logging_initialized, false, memory_order_release);
 
   #ifdef _WIN32
   if (g_consol_mode_modified) {
@@ -1471,7 +1470,7 @@ void rcutils_logging_console_output_handler(
   rcutils_ret_t status = RCUTILS_RET_OK;
   bool is_colorized = false;
 
-  if (!__atomic_load_n(&g_rcutils_logging_initialized, __ATOMIC_ACQUIRE)) {
+  if (!atomic_load_explicit(&g_rcutils_logging_initialized, memory_order_acquire)) {
     RCUTILS_SAFE_FWRITE_TO_STDERR(
       "logging system isn't initialized: "
       "call to rcutils_logging_console_output_handler failed.\n");

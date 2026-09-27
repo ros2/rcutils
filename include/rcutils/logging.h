@@ -24,6 +24,7 @@
 #include "rcutils/allocator.h"
 #include "rcutils/error_handling.h"
 #include "rcutils/macros.h"
+#include "rcutils/stdatomic_helper.h"
 #include "rcutils/time.h"
 #include "rcutils/types/char_array.h"
 #include "rcutils/types/rcutils_ret.h"
@@ -45,7 +46,7 @@ extern "C"
 
 /// The flag if the logging system has been initialized.
 RCUTILS_PUBLIC
-extern bool g_rcutils_logging_initialized;
+extern atomic_bool g_rcutils_logging_initialized;
 
 /// Initialize the logging allocator.
 /**
@@ -592,7 +593,7 @@ void rcutils_logging_console_output_handler(
  */
 #define RCUTILS_LOGGING_AUTOINIT_WITH_ALLOCATOR(alloc) \
   do { \
-    if (RCUTILS_UNLIKELY(!__atomic_load_n(&g_rcutils_logging_initialized, __ATOMIC_ACQUIRE))) { \
+    if (RCUTILS_UNLIKELY(!atomic_load_explicit(&g_rcutils_logging_initialized, memory_order_acquire))) { \
       if (rcutils_logging_initialize_with_allocator(alloc) != RCUTILS_RET_OK) { \
         RCUTILS_SAFE_FWRITE_TO_STDERR( \
           "[rcutils|" __FILE__ ":" RCUTILS_STRINGIFY(__LINE__) \
