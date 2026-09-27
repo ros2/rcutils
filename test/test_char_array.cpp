@@ -156,7 +156,9 @@ TEST_F(ArrayCharTest, strcat) {
   EXPECT_STREQ("1234", char_array.buffer);
   EXPECT_EQ(5lu, char_array.buffer_length);
 
-  EXPECT_EQ(RCUTILS_RET_OK, rcutils_char_array_strcat(&char_array, "56"));
+  const char source[] = {'5', '6', '\0', 'x', 'x'};
+  EXPECT_EQ(RCUTILS_RET_OK,
+    rcutils_char_array_strncat(&char_array, source, sizeof(source)));
   EXPECT_STREQ("123456", char_array.buffer);
   EXPECT_EQ(7lu, char_array.buffer_length);
 
