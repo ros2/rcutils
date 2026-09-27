@@ -14,6 +14,7 @@
 
 #include <gtest/gtest.h>
 
+#include <cstdint>
 #include <string>
 
 #include "./allocator_testing_utils.h"
@@ -75,6 +76,12 @@ TEST_F(ArrayListTest, init_initial_capacity_zero_fails) {
 TEST_F(ArrayListTest, init_data_size_zero_fails) {
   rcutils_ret_t ret = rcutils_array_list_init(&list, 2, 0, &allocator);
   EXPECT_EQ(RCUTILS_RET_INVALID_ARGUMENT, ret) << rcutils_get_error_string().str;
+}
+
+TEST_F(ArrayListTest, init_allocation_size_overflow_fails) {
+  rcutils_ret_t ret = rcutils_array_list_init(&list, SIZE_MAX, SIZE_MAX, &allocator);
+  EXPECT_EQ(RCUTILS_RET_BAD_ALLOC, ret) << rcutils_get_error_string().str;
+  EXPECT_EQ(nullptr, list.impl);
 }
 
 TEST_F(ArrayListTest, init_null_allocator_fails) {
