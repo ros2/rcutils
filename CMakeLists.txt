@@ -693,7 +693,9 @@ endif()
 
 # Export modern CMake targets
 ament_export_targets(${PROJECT_NAME})
+
 ament_export_dependencies(ament_cmake ament_cmake_ros_core)
+
 ament_package()
 
 install(
