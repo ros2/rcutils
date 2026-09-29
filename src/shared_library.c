@@ -16,8 +16,10 @@
 extern "C"
 {
 #endif
-#include <stdio.h>
-#include <stdlib.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <string.h>
 
 #ifndef _WIN32
 #if defined(__APPLE__)
@@ -48,10 +50,13 @@ C_ASSERT(sizeof(void *) == sizeof(HINSTANCE));
 C_ASSERT(sizeof(char) == sizeof(TCHAR));
 #endif  // _WIN32
 
+#include "rcutils/allocator.h"
 #include "rcutils/error_handling.h"
 #include "rcutils/macros.h"
 #include "rcutils/shared_library.h"
+#include "rcutils/snprintf.h"
 #include "rcutils/strdup.h"
+#include "rcutils/types/rcutils_ret.h"
 
 rcutils_shared_library_t
 rcutils_get_zero_initialized_shared_library(void)

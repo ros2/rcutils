@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <stddef.h>
+#include <stdio.h>
+
 #include <string>
 
 #include "./allocator_testing_utils.h"

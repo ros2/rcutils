@@ -14,6 +14,8 @@
 
 #include <gtest/gtest.h>
 
+#include <stddef.h>
+
 #include "rcutils/cmdline_parser.h"
 
 

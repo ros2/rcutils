@@ -23,8 +23,11 @@ extern "C"
 #endif
 
 #include <stdarg.h>
+#include <stdbool.h>
+#include <stddef.h>
 
 #include "rcutils/allocator.h"
+#include "rcutils/macros.h"
 #include "rcutils/types/rcutils_ret.h"
 #include "rcutils/visibility_control.h"
 

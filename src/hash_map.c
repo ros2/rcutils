@@ -17,8 +17,9 @@ extern "C"
 {
 #endif
 
+#include <stdbool.h>
+#include <stddef.h>
 #include <string.h>
-#include <stdio.h>
 
 #include "rcutils/allocator.h"
 #include "rcutils/error_handling.h"
@@ -26,8 +27,6 @@ extern "C"
 #include "rcutils/types/array_list.h"
 #include "rcutils/types/hash_map.h"
 #include "rcutils/types/rcutils_ret.h"
-#include "rcutils/macros.h"
-#include "rcutils/visibility_control.h"
 
 #define LOAD_FACTOR         (0.75)
 #define BUCKET_INITIAL_CAP  ((size_t)2)

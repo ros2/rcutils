@@ -21,8 +21,10 @@ extern "C"
 #endif
 
 #include "rcutils/allocator.h"
+#include "rcutils/macros.h"
+#include "rcutils/types/rcutils_ret.h"
+#include "rcutils/types/uint8_array.h"
 #include "rcutils/visibility_control.h"
-#include "rcutils/types.h"
 
 #define RCUTILS_BASE64_ENCODED_MAX_LENGTH (64 * 1024 * 1024)  // 64 MiB
 

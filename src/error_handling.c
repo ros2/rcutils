@@ -19,21 +19,21 @@ extern "C"
 {
 #endif
 
+#include <assert.h>
 #include <rcutils/error_handling.h>
 
-#include <limits.h>
 #include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <stddef.h>
+#include <stdint.h>
 #include <string.h>
 
 #include <rcutils/allocator.h>
 #include <rcutils/macros.h>
-#include <rcutils/strdup.h>
 #include <rcutils/strnlen.h>
 
 // RCUTILS_REPORT_ERROR_HANDLING_ERRORS and RCUTILS_WARN_ON_TRUNCATION are set in the header below
 #include "./error_handling_helpers.h"
+#include "rcutils/types/rcutils_ret.h"
 
 // g_ is to global variable, as gtls_ is to global thread-local storage variable
 RCUTILS_THREAD_LOCAL bool gtls_rcutils_thread_local_initialized = false;

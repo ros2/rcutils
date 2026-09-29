@@ -23,7 +23,6 @@
 #include <mach/clock.h>
 #include <mach/mach.h>
 #endif  // defined(__MACH__) && defined(__APPLE__)
-#include <math.h>
 
 #if defined(__ZEPHYR__)
 #include <version.h>
@@ -37,10 +36,12 @@
 #endif  //  defined(__ZEPHYR__)
 
 #include <errno.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include <unistd.h>
 
-#include "rcutils/allocator.h"
 #include "rcutils/error_handling.h"
+#include "rcutils/types/rcutils_ret.h"
 
 #if !defined(__MACH__) && !defined(__APPLE__)   // Assume clock_get_time is available on OS X.
 // This is an appropriate check for clock_gettime() according to:

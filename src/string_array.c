@@ -17,11 +17,12 @@ extern "C"
 {
 #endif
 
-#include <stdlib.h>
+#include <stddef.h>
 #include <string.h>
 
 #include "rcutils/allocator.h"
 #include "rcutils/error_handling.h"
+#include "rcutils/macros.h"
 #include "rcutils/types/string_array.h"
 #include "rcutils/types/rcutils_ret.h"
 

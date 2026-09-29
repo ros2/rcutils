@@ -14,6 +14,9 @@
 
 #include <gtest/gtest.h>
 
+#include <stddef.h>
+#include <string.h>
+
 #include "rcutils/snprintf.h"
 
 // Tests the rcutils_snprintf() function.

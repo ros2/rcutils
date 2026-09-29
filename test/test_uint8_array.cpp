@@ -14,6 +14,10 @@
 
 #include <gtest/gtest.h>
 
+#include <stddef.h>
+#include <stdint.h>
+#include <string.h>
+
 #include "rcutils/allocator.h"
 
 #include "rcutils/types/uint8_array.h"

@@ -14,6 +14,8 @@
 
 #include <gtest/gtest.h>
 
+#include <stddef.h>
+#include <string.h>
 #include <sys/types.h>
 #ifdef _WIN32
 #include <windows.h>
