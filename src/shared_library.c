@@ -16,8 +16,11 @@
 extern "C"
 {
 #endif
+#include <stdbool.h>
 #include <stdio.h>
+#include <limits.h>
 #include <stdlib.h>
+#include <string.h>
 
 #ifndef _WIN32
 #if defined(__APPLE__)
@@ -60,6 +63,57 @@ rcutils_get_zero_initialized_shared_library(void)
   return zero_initialized_shared_library;
 }
 
+#if defined(__APPLE__)
+/// Whether a loaded image's name could be the library that dlopen loaded for `library_path`.
+/**
+ * `resolved_path` is the realpath() of `library_path`, or NULL if it has none.
+ */
+static bool
+image_name_matches(const char * image_name, const char * library_path, const char * resolved_path)
+{
+  if (NULL == strchr(library_path, '/')) {
+    // dlopen searched for a bare file name, so the image can be in any directory.
+    const char * slash = strrchr(image_name, '/');
+    return 0 == strcmp(NULL == slash ? image_name : slash + 1, library_path);
+  }
+  return 0 == strcmp(image_name, library_path) ||
+         (NULL != resolved_path && 0 == strcmp(image_name, resolved_path));
+}
+
+/// Find the name of the loaded image whose handle is `lib_pointer`; NULL if none.
+/**
+ * With `only_matching_names`, images rejected by image_name_matches() are skipped.
+ */
+static rcutils_ret_t
+find_image_name(
+  void * lib_pointer, const char * library_path, const char * resolved_path,
+  bool only_matching_names, const char ** image_name)
+{
+  *image_name = NULL;
+  uint32_t image_count = _dyld_image_count();
+  for (uint32_t i = 0; NULL == *image_name && i < image_count; ++i) {
+    // Iterate in reverse as the library is likely near the end of the list.
+    const char * candidate_name = _dyld_get_image_name(image_count - i - 1);
+    if (NULL == candidate_name) {
+      RCUTILS_SET_ERROR_MSG("dyld image index out of range");
+      return RCUTILS_RET_ERROR;
+    }
+    if (only_matching_names && !image_name_matches(candidate_name, library_path, resolved_path)) {
+      continue;
+    }
+    void * handle = dlopen(candidate_name, RTLD_LAZY | RTLD_NOLOAD);
+    if (handle == lib_pointer) {
+      *image_name = candidate_name;
+    }
+    if (dlclose(handle) != 0) {
+      RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("dlclose error: %s", dlerror());
+      return RCUTILS_RET_ERROR;
+    }
+  }
+  return RCUTILS_RET_OK;
+}
+#endif  // defined(__APPLE__)
+
 rcutils_ret_t
 rcutils_load_shared_library(
   rcutils_shared_library_t * lib,
@@ -98,25 +152,20 @@ rcutils_load_shared_library(
   }
 
 #if defined(__APPLE__)
+  // Find the loaded image's name to get its full path. Each candidate costs a dlopen/dlclose,
+  // and every dlclose makes dyld walk all loaded images, so checking every image is quadratic.
+  // Check images whose name matches the request first, then fall back to all images in case
+  // dyld knows the library under another name (e.g. a versioned symlink).
+  char resolved_path[PATH_MAX];
+  const char * resolved =
+    NULL == strchr(library_path, '/') ? NULL : realpath(library_path, resolved_path);
   const char * image_name = NULL;
-  uint32_t image_count = _dyld_image_count();
-  for (uint32_t i = 0; NULL == image_name && i < image_count; ++i) {
-    // Iterate in reverse as the library is likely near the end of the list.
-    const char * candidate_name = _dyld_get_image_name(image_count - i - 1);
-    if (NULL == candidate_name) {
-      RCUTILS_SET_ERROR_MSG("dyld image index out of range");
-      ret = RCUTILS_RET_ERROR;
-      goto fail;
-    }
-    void * handle = dlopen(candidate_name, RTLD_LAZY | RTLD_NOLOAD);
-    if (handle == lib->lib_pointer) {
-      image_name = candidate_name;
-    }
-    if (dlclose(handle) != 0) {
-      RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING("dlclose error: %s", dlerror());
-      ret = RCUTILS_RET_ERROR;
-      goto fail;
-    }
+  ret = find_image_name(lib->lib_pointer, library_path, resolved, true, &image_name);
+  if (RCUTILS_RET_OK == ret && NULL == image_name) {
+    ret = find_image_name(lib->lib_pointer, library_path, resolved, false, &image_name);
+  }
+  if (RCUTILS_RET_OK != ret) {
+    goto fail;
   }
   if (NULL == image_name) {
     RCUTILS_SET_ERROR_MSG("dyld image name could not be found");
