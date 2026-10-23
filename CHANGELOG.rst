@@ -2,8 +2,8 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+6.9.12 (2026-10-23)
+-------------------
 * Reset string array size when allocation fails in init (`#593 <https://github.com/ros2/rcutils//issues/593>`_) (`#595 <https://github.com/ros2/rcutils//issues/595>`_)
 * Add emscripten guards to shared_library.c's dlopen path (`#591 <https://github.com/ros2/rcutils//issues/591>`_) (`#599 <https://github.com/ros2/rcutils//issues/599>`_)
 * Added missing headers (`#580 <https://github.com/ros2/rcutils//issues/580>`_) (`#582 <https://github.com/ros2/rcutils//issues/582>`_)
