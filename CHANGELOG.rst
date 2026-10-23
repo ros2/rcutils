@@ -2,6 +2,13 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+6.7.7 (2026-10-23)
+------------------
+* Reset string array size when allocation fails in init (`#593 <https://github.com/ros2/rcutils//issues/593>`_) (`#596 <https://github.com/ros2/rcutils//issues/596>`_)
+* Add emscripten guards to shared_library.c's dlopen path (`#591 <https://github.com/ros2/rcutils//issues/591>`_) (`#600 <https://github.com/ros2/rcutils//issues/600>`_)
+* Added missing headers (`#580 <https://github.com/ros2/rcutils//issues/580>`_) (`#583 <https://github.com/ros2/rcutils//issues/583>`_)
+* Contributors: mergify[bot]
+
 6.7.6 (2026-06-02)
 ------------------
 * skip libatomic if mac (backport `#565 <https://github.com/ros2/rcutils/issues/565>`_) (`#568 <https://github.com/ros2/rcutils/issues/568>`_)
