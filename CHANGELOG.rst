@@ -2,6 +2,15 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+7.2.3 (2026-10-23)
+------------------
+* Speed up shared library path lookup on macOS (`#609 <https://github.com/ros2/rcutils//issues/609>`_)
+* deleted old-style cmake export variables (`#606 <https://github.com/ros2/rcutils//issues/606>`_)
+* Use the SPDX identifier Apache-2.0 in package.xml license tags (`#604 <https://github.com/ros2/rcutils//issues/604>`_)
+* Add emscripten guards to shared_library.c's dlopen path (`#591 <https://github.com/ros2/rcutils//issues/591>`_)
+* Reset string array size when allocation fails in init (`#593 <https://github.com/ros2/rcutils//issues/593>`_)
+* Contributors: Ekeno Lokwakai, Leo Camus, Maurice Alexander Purnawan, Michael Carroll, Tobias Fischer
+
 7.2.2 (2026-08-31)
 ------------------
 * Remove the bundled gcc stdatomic compatibility header (`#589 <https://github.com/ros2/rcutils/issues/589>`_)
