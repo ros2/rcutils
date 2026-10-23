@@ -2,6 +2,13 @@
 Changelog for package rcutils
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+7.1.4 (2026-10-23)
+------------------
+* Fix date_time_with_ms millisecond formatting (`#570 <https://github.com/ros2/rcutils//issues/570>`_) (`#608 <https://github.com/ros2/rcutils//issues/608>`_)
+* Reset string array size when allocation fails in init (`#593 <https://github.com/ros2/rcutils//issues/593>`_) (`#594 <https://github.com/ros2/rcutils//issues/594>`_)
+* Add emscripten guards to shared_library.c's dlopen path (`#591 <https://github.com/ros2/rcutils//issues/591>`_) (`#598 <https://github.com/ros2/rcutils//issues/598>`_)
+* Contributors: mergify[bot]
+
 7.1.3 (2026-08-31)
 ------------------
 * an explicit platform split matching the helper header's own condition. (`#587 <https://github.com/ros2/rcutils/issues/587>`_) (`#590 <https://github.com/ros2/rcutils/issues/590>`_)
