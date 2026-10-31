@@ -21,6 +21,10 @@
 #include <stdbool.h>
 #include <stdio.h>
 
+#if defined(_MSC_VER)
+#include <intrin.h>
+#endif
+
 #include "rcutils/allocator.h"
 #include "rcutils/error_handling.h"
 #include "rcutils/macros.h"
@@ -575,6 +579,39 @@ void rcutils_logging_console_output_handler(
   int severity, const char * name, rcutils_time_point_value_t timestamp,
   const char * format, va_list * args);
 
+/// \cond Doxygen_Suppress
+#if defined(__GNUC__) || defined(__clang__)
+#define RCUTILS_LOGGING_LOAD_INITIALIZED(out) \
+  do { \
+    (out) = __atomic_load_n(&g_rcutils_logging_initialized, __ATOMIC_ACQUIRE); \
+  } while (0)
+#elif defined(_MSC_VER)
+#if defined(_M_ARM64) || defined(_M_ARM)
+#define RCUTILS_LOGGING_LOAD_INITIALIZED(out) \
+  do { \
+    const volatile char * __rcutils_init_ptr = \
+      (const volatile char *)&g_rcutils_logging_initialized; \
+    (out) = (__iso_volatile_load8(__rcutils_init_ptr) != 0); \
+    __dmb(0xB); \
+    _ReadWriteBarrier(); \
+  } while (0)
+#else
+#define RCUTILS_LOGGING_LOAD_INITIALIZED(out) \
+  do { \
+    const volatile char * __rcutils_init_ptr = \
+      (const volatile char *)&g_rcutils_logging_initialized; \
+    (out) = (__iso_volatile_load8(__rcutils_init_ptr) != 0); \
+    _ReadWriteBarrier(); \
+  } while (0)
+#endif
+#else
+#define RCUTILS_LOGGING_LOAD_INITIALIZED(out) \
+  do { \
+    (out) = g_rcutils_logging_initialized; \
+  } while (0)
+#endif
+/// \endcond
+
 /**
  * \def RCUTILS_LOGGING_AUTOINIT
  * \brief Initialize the rcl logging library.
@@ -592,7 +629,9 @@ void rcutils_logging_console_output_handler(
  */
 #define RCUTILS_LOGGING_AUTOINIT_WITH_ALLOCATOR(alloc) \
   do { \
-    if (RCUTILS_UNLIKELY(!__atomic_load_n(&g_rcutils_logging_initialized, __ATOMIC_ACQUIRE))) { \
+    bool __rcutils_logging_initialized; \
+    RCUTILS_LOGGING_LOAD_INITIALIZED(__rcutils_logging_initialized); \
+    if (RCUTILS_UNLIKELY(!__rcutils_logging_initialized)) { \
       if (rcutils_logging_initialize_with_allocator(alloc) != RCUTILS_RET_OK) { \
         RCUTILS_SAFE_FWRITE_TO_STDERR( \
           "[rcutils|" __FILE__ ":" RCUTILS_STRINGIFY(__LINE__) \
