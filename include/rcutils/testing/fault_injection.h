@@ -84,6 +84,21 @@ int_least64_t
 _rcutils_fault_injection_maybe_fail(void);
 
 /**
+ * \brief Whether a message should be printed each time a fault is injected.
+ *
+ * Returns true if the environment variable `RCUTILS_FAULT_INJECTION_VERBOSE` is set to `1`.
+ * Printing is off by default because fault injection tests can inject thousands of faults per
+ * run; enable it to find which injection point fired, e.g. when debugging a crash.
+ *
+ * This is included inside of macros, so it needs to be exported as a public function, but it
+ * should not be used directly.
+ */
+RCUTILS_PUBLIC
+RCUTILS_WARN_UNUSED
+bool
+_rcutils_fault_injection_is_verbose(void);
+
+/**
  * \def RCUTILS_FAULT_INJECTION_MAYBE_RETURN_ERROR
  * \brief This macro checks and decrements a static global variable atomic counter and returns
  * `return_value_on_error` if 0.
@@ -97,12 +112,17 @@ _rcutils_fault_injection_maybe_fail(void);
  * This macro is thread-safe, and ensures that at most one invocation results in a failure for each
  * time the fault injection counter is set with `RCUTILS_FAULT_INJECTION_SET_COUNT`
  *
+ * Set the environment variable `RCUTILS_FAULT_INJECTION_VERBOSE=1` to print a message to stdout
+ * each time a fault is injected.
+ *
  * \param return_value_on_error the value to return in the case of fault injected failure.
  */
 #define RCUTILS_FAULT_INJECTION_MAYBE_RETURN_ERROR(return_value_on_error) \
   if (RCUTILS_FAULT_INJECTION_FAIL_NOW == _rcutils_fault_injection_maybe_fail()) { \
-    printf( \
-      "%s:%d Injecting fault and returning " #return_value_on_error "\n", __FILE__, __LINE__); \
+    if (_rcutils_fault_injection_is_verbose()) { \
+      printf( \
+        "%s:%d Injecting fault and returning " #return_value_on_error "\n", __FILE__, __LINE__); \
+    } \
     return return_value_on_error; \
   }
 
@@ -121,12 +141,17 @@ _rcutils_fault_injection_maybe_fail(void);
  * This macro is thread-safe, and ensures that at most one invocation results in a failure for each
  * time the fault injection counter is set with `RCUTILS_FAULT_INJECTION_SET_COUNT`
  *
+ * Set the environment variable `RCUTILS_FAULT_INJECTION_VERBOSE=1` to print a message to stdout
+ * each time a fault is injected.
+ *
  * \param failure_code the code to execute in the case of fault injected failure.
  */
 #define RCUTILS_FAULT_INJECTION_MAYBE_FAIL(failure_code) \
   if (RCUTILS_FAULT_INJECTION_FAIL_NOW == _rcutils_fault_injection_maybe_fail()) { \
-    printf( \
-      "%s:%d Injecting fault and executing " #failure_code "\n", __FILE__, __LINE__); \
+    if (_rcutils_fault_injection_is_verbose()) { \
+      printf( \
+        "%s:%d Injecting fault and executing " #failure_code "\n", __FILE__, __LINE__); \
+    } \
     failure_code; \
   }
 

@@ -14,8 +14,12 @@
 
 #include <gtest/gtest.h>
 
+#include <cstdio>
+#include <string>
+
 #include "./allocator_testing_utils.h"
 #include "rcutils/allocator.h"
+#include "rcutils/env.h"
 #include "rcutils/testing/fault_injection.h"
 
 #include "osrf_testing_tools_cpp/memory_tools/memory_tools.hpp"
@@ -130,5 +134,37 @@ TEST(test_allocator, default_allocator_maybe_fail) {
   // Check zero_allocate
   rcutils_fault_injection_set_count(RCUTILS_FAULT_INJECTION_FAIL_NOW);
   EXPECT_EQ(nullptr, allocator.zero_allocate(1u, 1u, allocator.state));
+  EXPECT_EQ(RCUTILS_FAULT_INJECTION_NEVER_FAIL, rcutils_fault_injection_get_count());
+}
+
+TEST(test_allocator, fault_injection_verbose) {
+  rcutils_allocator_t allocator = rcutils_get_default_allocator();
+  OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
+  {
+    EXPECT_TRUE(rcutils_set_env("RCUTILS_FAULT_INJECTION_VERBOSE", NULL));
+  });
+
+  // Silent by default
+  ASSERT_TRUE(rcutils_set_env("RCUTILS_FAULT_INJECTION_VERBOSE", NULL));
+  EXPECT_FALSE(_rcutils_fault_injection_is_verbose());
+  testing::internal::CaptureStdout();
+  rcutils_fault_injection_set_count(RCUTILS_FAULT_INJECTION_FAIL_NOW);
+  EXPECT_EQ(nullptr, allocator.allocate(1u, allocator.state));
+  fflush(stdout);
+  EXPECT_EQ("", testing::internal::GetCapturedStdout());
+
+  // Only "1" enables it
+  ASSERT_TRUE(rcutils_set_env("RCUTILS_FAULT_INJECTION_VERBOSE", "0"));
+  EXPECT_FALSE(_rcutils_fault_injection_is_verbose());
+
+  // Prints the injection point when enabled
+  ASSERT_TRUE(rcutils_set_env("RCUTILS_FAULT_INJECTION_VERBOSE", "1"));
+  EXPECT_TRUE(_rcutils_fault_injection_is_verbose());
+  testing::internal::CaptureStdout();
+  rcutils_fault_injection_set_count(RCUTILS_FAULT_INJECTION_FAIL_NOW);
+  EXPECT_EQ(nullptr, allocator.allocate(1u, allocator.state));
+  fflush(stdout);
+  const std::string output = testing::internal::GetCapturedStdout();
+  EXPECT_NE(std::string::npos, output.find("Injecting fault")) << output;
   EXPECT_EQ(RCUTILS_FAULT_INJECTION_NEVER_FAIL, rcutils_fault_injection_get_count());
 }
