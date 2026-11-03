@@ -14,6 +14,7 @@
 
 #include "rcutils/testing/fault_injection.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -73,13 +74,13 @@ int_least64_t _rcutils_fault_injection_maybe_fail(void)
 #pragma warning(push)
 #pragma warning(disable : 4996)
 #endif
-bool _rcutils_fault_injection_is_verbose(void)
+void _rcutils_fault_injection_log(const char * file, int line, const char * action)
 {
-  // Call getenv() directly rather than rcutils_get_env(), since the latter is itself a fault
-  // injection point. This is only reached when a fault is actually being injected, so the
-  // environment is read each time rather than cached.
-  const char * value = getenv("RCUTILS_FAULT_INJECTION_VERBOSE");
-  return NULL != value && 0 == strcmp(value, "1");
+  // getenv() rather than rcutils_get_env(), which is itself a fault injection point.
+  const char * verbose = getenv("RCUTILS_FAULT_INJECTION_VERBOSE");
+  if (NULL != verbose && 0 == strcmp(verbose, "1")) {
+    printf("%s:%d Injecting fault and %s\n", file, line, action);
+  }
 }
 #ifdef _WIN32
 #pragma warning(pop)
