@@ -14,6 +14,10 @@
 
 #include "rcutils/testing/fault_injection.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "rcutils/stdatomic_helper.h"
 
 // The initializer must match the definition of _Atomic in
@@ -65,3 +69,19 @@ int_least64_t _rcutils_fault_injection_maybe_fail(void)
   } while (!set_atomic_success);
   return current_count;
 }
+
+#ifdef _WIN32
+#pragma warning(push)
+#pragma warning(disable : 4996)
+#endif
+void _rcutils_fault_injection_log(const char * file, int line, const char * action)
+{
+  // getenv() rather than rcutils_get_env(), which is itself a fault injection point.
+  const char * verbose = getenv("RCUTILS_FAULT_INJECTION_VERBOSE");
+  if (NULL != verbose && 0 == strcmp(verbose, "1")) {
+    printf("%s:%d Injecting fault and %s\n", file, line, action);
+  }
+}
+#ifdef _WIN32
+#pragma warning(pop)
+#endif
