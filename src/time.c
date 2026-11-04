@@ -28,6 +28,48 @@ extern "C"
 #include "rcutils/error_handling.h"
 #include "rcutils/snprintf.h"
 
+double
+rcutils_nanoseconds_to_seconds(const int64_t nanoseconds)
+{
+  // scale the nanoseconds separately for improved accuracy
+  int64_t sec, nsec;
+  nsec = (nanoseconds % RCUTILS_NANOSECONDS_PER_SEC);
+  sec = ((nanoseconds - nsec) / RCUTILS_NANOSECONDS_PER_SEC);
+
+  double sec_double, nsec_double;
+  nsec_double = 1e-9 * (double)(nsec);
+  sec_double = (double)(sec);
+  return sec_double + nsec_double;
+}
+
+double
+rcutils_nanoseconds_to_milliseconds(const int64_t nanoseconds)
+{
+  // scale the nanoseconds separately for improved accuracy
+  int64_t sec, nsec;
+  nsec = (nanoseconds % RCUTILS_NANOSECONDS_PER_MILLISEC);
+  sec = ((nanoseconds - nsec) / RCUTILS_NANOSECONDS_PER_MILLISEC);
+
+  double sec_double, nsec_double;
+  nsec_double = 1e-6 * (double)(nsec);
+  sec_double = (double)(sec);
+  return sec_double + nsec_double;
+}
+
+double
+rcutils_nanoseconds_to_microseconds(const int64_t nanoseconds)
+{
+  // scale the nanoseconds separately for improved accuracy
+  int64_t sec, nsec;
+  nsec = (nanoseconds % RCUTILS_NANOSECONDS_PER_MICROSEC);
+  sec = ((nanoseconds - nsec) / RCUTILS_NANOSECONDS_PER_MICROSEC);
+
+  double sec_double, nsec_double;
+  nsec_double = 1e-3 * (double)(nsec);
+  sec_double = (double)(sec);
+  return sec_double + nsec_double;
+}
+
 rcutils_ret_t
 rcutils_time_point_value_as_nanoseconds_string(
   const rcutils_time_point_value_t * time_point,
