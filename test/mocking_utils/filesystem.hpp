@@ -40,7 +40,7 @@
 
 #include "rcutils/macros.h"
 
-#include "patch.hpp"
+#include "./patch.hpp"
 
 namespace mocking_utils
 {

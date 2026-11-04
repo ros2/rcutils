@@ -35,7 +35,7 @@
 #include "mimick/mimick.h"
 #include "rcutils/macros.h"
 
-#include "remove_noexcept.hpp"
+#include "./remove_noexcept.hpp"
 
 namespace mocking_utils
 {
