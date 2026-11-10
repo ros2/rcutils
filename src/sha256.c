@@ -75,7 +75,8 @@ static void sha256_transform(rcutils_sha256_ctx_t * ctx)
   uint8_t * data = ctx->data;
 
   for (i = 0, j = 0; i < 16; ++i, j += 4) {
-    m[i] = (data[j] << 24) | (data[j + 1] << 16) | (data[j + 2] << 8) | (data[j + 3]);
+    m[i] = ((uint32_t)data[j] << 24) | ((uint32_t)data[j + 1] << 16) |
+      ((uint32_t)data[j + 2] << 8) | ((uint32_t)data[j + 3]);
   }
   for ( ; i < 64; ++i) {
     m[i] = sig1(m[i - 2]) + m[i - 7] + sig0(m[i - 15]) + m[i - 16];
