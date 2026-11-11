@@ -17,6 +17,7 @@ extern "C"
 {
 #endif
 
+#include <stdint.h>
 #include <string.h>
 
 #include "rcutils/allocator.h"
@@ -40,6 +41,17 @@ typedef struct rcutils_array_list_impl_s
   size_t data_size;
   rcutils_allocator_t allocator;
 } rcutils_array_list_impl_t;
+
+static rcutils_ret_t rcutils_array_list_calculate_size(
+  size_t capacity, size_t data_size, size_t * size)
+{
+  if (capacity > SIZE_MAX / data_size) {
+    RCUTILS_SET_ERROR_MSG("array list allocation size overflow");
+    return RCUTILS_RET_BAD_ALLOC;
+  }
+  *size = capacity * data_size;
+  return RCUTILS_RET_OK;
+}
 
 rcutils_array_list_t
 rcutils_get_zero_initialized_array_list(void)
@@ -68,6 +80,13 @@ rcutils_array_list_init(
     return RCUTILS_RET_INVALID_ARGUMENT;
   }
 
+  size_t allocation_size = 0;
+  rcutils_ret_t ret = rcutils_array_list_calculate_size(
+    initial_capacity, data_size, &allocation_size);
+  if (RCUTILS_RET_OK != ret) {
+    return ret;
+  }
+
   array_list->impl = allocator->allocate(sizeof(rcutils_array_list_impl_t), allocator->state);
   if (NULL == array_list->impl) {
     RCUTILS_SET_ERROR_MSG("failed to allocate memory for array list impl");
@@ -77,7 +96,7 @@ rcutils_array_list_init(
   array_list->impl->capacity = initial_capacity;
   array_list->impl->size = 0;
   array_list->impl->data_size = data_size;
-  array_list->impl->list = allocator->allocate(initial_capacity * data_size, allocator->state);
+  array_list->impl->list = allocator->allocate(allocation_size, allocator->state);
   if (NULL == array_list->impl->list) {
     allocator->deallocate(array_list->impl, allocator->state);
     array_list->impl = NULL;
@@ -103,8 +122,17 @@ rcutils_array_list_fini(rcutils_array_list_t * array_list)
 
 static rcutils_ret_t rcutils_array_list_increase_capacity(rcutils_array_list_t * array_list)
 {
+  if (array_list->impl->capacity > SIZE_MAX / 2) {
+    RCUTILS_SET_ERROR_MSG("array list capacity overflow");
+    return RCUTILS_RET_BAD_ALLOC;
+  }
   size_t new_capacity = 2 * array_list->impl->capacity;
-  size_t new_size = array_list->impl->data_size * new_capacity;
+  size_t new_size = 0;
+  rcutils_ret_t ret = rcutils_array_list_calculate_size(
+    new_capacity, array_list->impl->data_size, &new_size);
+  if (RCUTILS_RET_OK != ret) {
+    return ret;
+  }
   void * new_list = array_list->impl->allocator.reallocate(
     array_list->impl->list,
     new_size,
@@ -133,7 +161,7 @@ rcutils_array_list_add(rcutils_array_list_t * array_list, const void * data)
   RCUTILS_CHECK_ARGUMENT_FOR_NULL(data, RCUTILS_RET_INVALID_ARGUMENT);
   rcutils_ret_t ret = RCUTILS_RET_OK;
 
-  if (array_list->impl->size + 1 > array_list->impl->capacity) {
+  if (array_list->impl->size == array_list->impl->capacity) {
     ret = rcutils_array_list_increase_capacity(array_list);
     if (RCUTILS_RET_OK != ret) {
       return ret;
