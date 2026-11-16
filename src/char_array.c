@@ -13,7 +13,9 @@
 // limitations under the License.
 
 #include <stdarg.h>
+#include <stdint.h>
 #include "rcutils/error_handling.h"
+#include "rcutils/strnlen.h"
 #include "rcutils/types/char_array.h"
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
@@ -220,14 +222,19 @@ rcutils_char_array_strncat(rcutils_char_array_t * char_array, const char * src, 
     // The buffer length always contains the trailing \0, so the strlen is one less than that.
     current_strlen = char_array->buffer_length - 1;
   }
-  size_t new_length = current_strlen + n + 1;
+  size_t copy_length = rcutils_strnlen(src, n);
+  if (copy_length > SIZE_MAX - current_strlen - 1) {
+    RCUTILS_SET_ERROR_MSG("requested size for char_array too large");
+    return RCUTILS_RET_BAD_ALLOC;
+  }
+  size_t new_length = current_strlen + copy_length + 1;
   rcutils_ret_t ret = rcutils_char_array_expand_as_needed(char_array, new_length);
   if (ret != RCUTILS_RET_OK) {
     // rcutils_char_array_expand_as_needed already set the error
     return ret;
   }
 
-  memcpy(char_array->buffer + current_strlen, src, n);
+  memcpy(char_array->buffer + current_strlen, src, copy_length);
   char_array->buffer[new_length - 1] = '\0';
 
   char_array->buffer_length = new_length;
