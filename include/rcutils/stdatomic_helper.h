@@ -46,7 +46,7 @@
 #   error "cannot be used with C++ due to a conflict with the C++ <atomic> header, see: p0943r1"
 // See: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0943r1.html"
 # else
-#   if defined(__has_feature) && !my__has_feature(c_atomic)
+#   if defined(__clang__) && !my__has_feature(c_atomic)
 // If Clang and no c_atomics (true for some older versions), use the compatability header.
 #     include "stdatomic_helper/gcc/stdatomic.h"
 #   else
