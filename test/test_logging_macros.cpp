@@ -146,7 +146,7 @@ TEST_F(TestLoggingMacros, test_logging_skipfirst) {
 }
 
 TEST_F(TestLoggingMacros, test_logging_throttle) {
-  using namespace std::chrono_literals;
+  using std::chrono_literals::operator""ms;
   const auto start = std::chrono::system_clock::now();
   const auto throttle_time = 200ms;
   bool first = true;
@@ -177,7 +177,7 @@ TEST_F(TestLoggingMacros, test_logging_throttle) {
 }
 
 TEST_F(TestLoggingMacros, test_logging_skipfirst_throttle) {
-  using namespace std::chrono_literals;
+  using std::chrono_literals::operator""ms;
   const auto start = std::chrono::system_clock::now();
   const auto throttle_time = 200ms;
   bool first = true;
