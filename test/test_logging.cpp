@@ -14,10 +14,18 @@
 
 #include <gtest/gtest.h>
 
+#include <cerrno>
 #include <chrono>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <string>
 #include <thread>
 #include <vector>
+
+#ifndef _WIN32
+#include <unistd.h>
+#endif
 
 #include "./allocator_testing_utils.h"
 #include "osrf_testing_tools_cpp/scope_exit.hpp"
@@ -156,6 +164,82 @@ TEST(TestLogging, test_logging) {
   rcutils_logging_set_default_logger_level(original_level);
   rcutils_logging_set_output_handler(original_function);
 }
+
+TEST(TestLogging, test_log_preserves_errno) {
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_initialize());
+  OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
+  {
+    EXPECT_EQ(RCUTILS_RET_OK, rcutils_logging_shutdown());
+  });
+
+  // An output handler is free to change errno, e.g. through a library call that succeeds.
+  auto errno_clobbering_handler = [](
+    const rcutils_log_location_t *, int, const char *, rcutils_time_point_value_t,
+    const char *, va_list *) -> void
+    {
+      errno = EBADF;
+    };
+  rcutils_logging_output_handler_t original_function = rcutils_logging_get_output_handler();
+  rcutils_logging_set_output_handler(errno_clobbering_handler);
+  OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
+  {
+    rcutils_logging_set_output_handler(original_function);
+  });
+
+  // Logging must not change errno, either a pending error or a cleared one.
+  errno = EINTR;
+  rcutils_log(NULL, RCUTILS_LOG_SEVERITY_ERROR, "name", "message %d", 1);
+  EXPECT_EQ(EINTR, errno);
+
+  errno = 0;
+  rcutils_log(NULL, RCUTILS_LOG_SEVERITY_ERROR, "name", "message %d", 2);
+  EXPECT_EQ(0, errno);
+
+  errno = EINTR;
+  rcutils_log_internal(NULL, RCUTILS_LOG_SEVERITY_ERROR, "name", "message %d", 3);
+  EXPECT_EQ(EINTR, errno);
+}
+
+#ifndef _WIN32
+TEST(TestLogging, test_console_log_to_pipe_preserves_errno) {
+  // With RCUTILS_COLORIZED_OUTPUT unset, the console handler checks whether the
+  // output stream is a terminal. When it is not (a pipe, e.g. under ros2 launch),
+  // isatty() sets errno to ENOTTY even though the message is written fine.
+  ASSERT_EQ(0, unsetenv("RCUTILS_COLORIZED_OUTPUT"));
+  ASSERT_EQ(0, unsetenv("RCUTILS_LOGGING_USE_STDOUT"));
+  ASSERT_EQ(RCUTILS_RET_OK, rcutils_logging_initialize());
+  OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
+  {
+    EXPECT_EQ(RCUTILS_RET_OK, rcutils_logging_shutdown());
+  });
+  ASSERT_EQ(rcutils_logging_console_output_handler, rcutils_logging_get_output_handler());
+
+  int fds[2];
+  ASSERT_EQ(0, pipe(fds));
+  fflush(stderr);
+  const int saved_stderr = dup(STDERR_FILENO);
+  ASSERT_NE(-1, saved_stderr);
+  ASSERT_NE(-1, dup2(fds[1], STDERR_FILENO));
+  OSRF_TESTING_TOOLS_CPP_SCOPE_EXIT(
+  {
+    fflush(stderr);
+    dup2(saved_stderr, STDERR_FILENO);
+    close(saved_stderr);
+    close(fds[0]);
+    close(fds[1]);
+  });
+
+  errno = 0;
+  rcutils_log(NULL, RCUTILS_LOG_SEVERITY_ERROR, "name", "message %d", 1);
+  const int errno_after_log = errno;
+  fflush(stderr);
+
+  char buffer[256] = {};
+  ASSERT_GT(read(fds[0], buffer, sizeof(buffer) - 1), 0);
+  EXPECT_NE(nullptr, std::strstr(buffer, "message 1"));
+  EXPECT_EQ(0, errno_after_log);
+}
+#endif
 
 TEST(TestLogging, test_log_severity) {
   rcutils_allocator_t allocator = rcutils_get_default_allocator();
