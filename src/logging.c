@@ -1251,16 +1251,23 @@ static void vrcutils_log_internal(
   const rcutils_log_location_t * location,
   int severity, const char * name, const char * format, va_list * args)
 {
+  // Logging must not change errno: it is often called between a failing call and the
+  // check of errno, and the output handlers make library calls that may set it even
+  // when they succeed (e.g. isatty() sets ENOTTY when the output is not a terminal).
+  const int saved_errno = errno;
+
   rcutils_time_point_value_t now;
   rcutils_ret_t ret = rcutils_system_time_now(&now);
   if (ret != RCUTILS_RET_OK) {
     RCUTILS_SAFE_FWRITE_TO_STDERR("Failed to get timestamp while doing a console logging.\n");
-    return;
+  } else {
+    rcutils_logging_output_handler_t output_handler = g_rcutils_logging_output_handler;
+    if (output_handler != NULL) {
+      (*output_handler)(location, severity, name ? name : "", now, format, args);
+    }
   }
-  rcutils_logging_output_handler_t output_handler = g_rcutils_logging_output_handler;
-  if (output_handler != NULL) {
-    (*output_handler)(location, severity, name ? name : "", now, format, args);
-  }
+
+  errno = saved_errno;
 }
 
 void rcutils_log(

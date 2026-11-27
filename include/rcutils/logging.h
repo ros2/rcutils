@@ -473,6 +473,7 @@ int rcutils_logging_get_logger_effective_level(const char * name);
  * or one of the RCUTILS_LOG_ macros.
  *
  * The attributes of this function are influenced by the currently set output handler.
+ * The value of errno is the same before and after the call.
  *
  * <hr>
  * Attribute          | Adherence
@@ -504,6 +505,8 @@ RCUTILS_ATTRIBUTE_PRINTF_FORMAT(4, 5)
 /// Log a message.
 /**
  * The attributes of this function are influenced by the currently set output handler.
+ * The value of errno is the same before and after the call, so a message can be logged
+ * between a failing call and the check of errno.
  *
  * <hr>
  * Attribute          | Adherence
