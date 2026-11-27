@@ -567,7 +567,6 @@ if(BUILD_TESTING)
     ENV
       RCUTILS_CONSOLE_OUTPUT_FORMAT=
         "[{severity}] [{time},{time_as_nanoseconds}] [{name},{function_name},{file_name}]: {line_number}-{message}"
-      RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED=1
       RCUTILS_LOGGING_BUFFERED_STREAM=1
       RCUTILS_LOGGING_USE_STDOUT=1
       RCUTILS_COLORIZED_OUTPUT=1
@@ -590,7 +589,6 @@ if(BUILD_TESTING)
   ament_add_gtest(test_logging_custom_env2 test/test_logging_custom_env.cpp
     ENV
       RCUTILS_CONSOLE_OUTPUT_FORMAT="${_output_format}"
-      RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED=0
       RCUTILS_LOGGING_BUFFERED_STREAM=0
       RCUTILS_LOGGING_USE_STDOUT=0
       RCUTILS_COLORIZED_OUTPUT=0
